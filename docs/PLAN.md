@@ -1,13 +1,13 @@
 # Where we are
 
 - [x] Plan agreed (2026-11-01)
-- [ ] **M0 Setup** ← *next: Step 6, protect `main`*
+- [ ] **M0 Setup** ← *next: Step 7, delete old Desktop folder*
   - [x] 1. Install GitHub CLI + uv (gh 2.103.3, uv 0.13.6; `--version` verified 2026-11-01)
   - [x] 2. `gh auth login` + check git identity (GitHub: bowiec25; git: Cameron Bowie / noreply email)
   - [x] 3. `uv init --package` + `git init -b main` (branch renamed from `master`; hello runs)
   - [x] 4. Skeleton: .gitignore, README, CLAUDE.md, CI, PR template (+ .gitattributes, COURSE_MAP.md; first commit)
   - [x] 5. Create GitHub repo + first push (public: github.com/bowiec25/mandarin-hsk-trainer; CI green)
-  - [ ] 6. Protect `main`
+  - [x] 6. Protect `main` (PR + green `check` required, admins included; tested)
   - [ ] 7. Delete old `Desktop\MandarinLearningTest`
 - [ ] M1 Foundations
   - [ ] Hooks: `ruff format` after edits + a **PreToolUse hook that blocks any command touching `.env`** (stricter second lock on top of the deny rule)

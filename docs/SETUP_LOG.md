@@ -1,7 +1,27 @@
 # Setup Log: what we did, and why
 
 A plain-English record of each setup step: **what** it does, **why** it's best practice, and anything worth remembering.
-New entries go at the bottom as we go.
+New entries go at the bottom as we go. Each one starts with a short **In plain words** box. The details come after.
+
+---
+
+## 🟢 Quick summary (simple English)
+
+| Step | What we did | Why |
+|---|---|---|
+| 1 | Installed `gh` (talks to GitHub) and `uv` (manages Python) | The tools we need |
+| 2 | Logged this PC in to GitHub, and set the name stamped on your work | So uploads work without passwords, and work is credited to you |
+| 3 | Made the folder a Python project, and started a change history | So the code has a home, and every change can be undone |
+| 4 | Added safety files: hide secrets, checks, a briefing note for Claude, a README | So mistakes and leaks get caught early |
+| 5 | Uploaded to GitHub (public) | Backup, and GitHub re-runs the checks on a fresh computer |
+
+**The checks are scripts, not AI agents.** They simply pass or fail:
+- `ruff check`: looks for sloppy or buggy code (like a spell-checker)
+- `ruff format`: checks the layout is tidy (like auto-formatting in Word)
+- `pytest`: runs our tests (a checklist: "does the app load?")
+
+**What happens on every upload (CI):** GitHub reads `ci.yml` (our to-do list), takes a fresh computer, installs the project and runs the checks. ✅ = safe, ❌ = something's wrong.
+**Why bother?** It proves the code works on *any* computer, not just yours.
 
 ---
 
@@ -123,6 +143,8 @@ Optional fix for every future project: `git config --global init.defaultBranch m
 
 ## M0 Step 5: Create GitHub repo + first push (2026-11-01)
 
+> **In plain words:** we uploaded the code to GitHub. GitHub then ran the checks on a fresh computer. The first try failed because a tool version name was wrong (my mistake). I read the error, fixed it, uploaded again, and it passed ✅.
+
 **What:** `gh repo create mandarin-hsk-trainer --public --source . --remote origin --push`
 - This created https://github.com/bowiec25/mandarin-hsk-trainer, linked the folder to it under the nickname `origin`, and uploaded the commits.
 - After that, `git push` / `git pull` sync with GitHub.
@@ -136,3 +158,24 @@ Optional fix for every future project: `git config --global init.defaultBranch m
 **Lesson:** I had checked that "v10 is the latest release" but not that the `v10` *tag* existed. Verify the exact thing you depend on. Reading the CI log (`gh run view <id> --log-failed`) gave the answer straight away.
 
 **Why it's best practice:** off-site backup; CI proves the checks pass on a clean Linux machine; doing it with `gh` is repeatable and lets Claude drive GitHub.
+
+---
+
+## M0 Step 6: Protect `main` (2026-11-01)
+
+> **In plain words:** GitHub now refuses any change to `main` unless it comes through a PR **and** the checks pass ✅. That applies to everyone, including you and Claude.
+
+**What (the 4 rules):**
+| Rule | Meaning |
+|---|---|
+| Require a PR | Changes go on a side branch first, then get proposed |
+| Require the `check` CI job to pass | Can't merge if CI is ❌ (and the branch must be up to date with `main`) |
+| No force-push | Nobody can overwrite history |
+| No deleting `main` | It can't be removed by accident |
+
+Also: **applies to admins too** (that's you). Required approvals = **0**, because GitHub doesn't let you approve your own PR. You still review it before merging.
+
+**Why:** `main` = the version that always works. PRs give a review moment. Mistakes (including Claude's) can't slip in.
+
+**How:** one `gh api -X PUT …/branches/main/protection` command (free because the repo is public).
+**Tested by:** deliberately pushing straight to `main` → GitHub rejected it ✅. Then this log went in through PR #1.
