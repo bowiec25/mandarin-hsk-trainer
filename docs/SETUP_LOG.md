@@ -305,3 +305,30 @@ You now have: a Python project, a GitHub repo, checks running on every change, a
 
 **Tests:** 13 new (48 total), written first ❌ → ✅. Also generated a real demo block, checked that it passed lint and its own test, then removed it.
 **Strictness:** the skill is 🔵 guidance (Claude follows it); the script is the reliable part.
+
+## M1 Step 6: Helper subagents (2026-11-01)
+
+> **In plain words:** we made 2 **specialist helpers** that Claude sends off with fresh eyes. The 🧪 **test-writer** writes tests from a block's job description, and the 🔍 **block-reviewer** checks the block and says ✅ ready or ⚠️ fix first. They now run automatically as part of `/new-block`, and their verdict goes into every block PR.
+
+**What:**
+| Helper | Job | Can it change files? | Where |
+|---|---|---|---|
+| 🧪 test-writer | Tests from the SPEC (like an exam written from the syllabus) | Yes, told only in `tests/` 🔵 | `.claude/agents/test-writer.md` |
+| 🔍 block-reviewer | ✅ / ⚠️ checklist against the SPEC + ADRs | **No**, its tools are read-only 🔴 | `.claude/agents/block-reviewer.md` |
+
+**When they run (triggers):** `/new-block` steps 6 (test-writer) and 8 (reviewer); the CLAUDE.md rule "no block PR without a ✅ review"; and a PR template checkbox with the verdict pasted in.
+*Lesson:* I first built the helpers **without** wiring in when they run. You caught it. From now on, every tool gets planned together with its triggers.
+
+**Live demo:** a pretend block ("how common is a Chinese word") with **2 planted mistakes**: marked as an AI agent when it's a plain lookup, and an empty word not handled.
+1. test-writer → wrote 4 tests; 1 failed (the empty word), and it flagged the wrong kind
+2. reviewer → **⚠️ fix first**, naming both mistakes with file:line
+3. fixed both → all 6 tests pass → re-review → **✅ ready**
+4. demo deleted (never committed)
+
+**"Still the right thing?" change:** `data-auditor` (checks AI sentences) moved to **M4**, because there are no sentences until then.
+**Watch out:** new subagents only load at session start (`/exit` → `claude --continue`).
+
+---
+
+## ✅ M1 complete
+You now have: decision records, data shapes, hooks and permissions, the `/new-block` skill, and 2 helper subagents, all wired together.

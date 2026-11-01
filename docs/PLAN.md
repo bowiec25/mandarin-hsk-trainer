@@ -9,16 +9,18 @@
   - [x] 5. Create GitHub repo + first push (public: github.com/bowiec25/mandarin-hsk-trainer; CI green)
   - [x] 6. Protect `main` (PR + green `check` required, admins included; tested)
   - [x] 7. Delete old `Desktop\MandarinLearningTest` (was empty)
-- [ ] **M1 Foundations** (issue #3) ← *next: Step 6, subagents*
+- [x] **M1 Foundations** (issue #3, done 2026-11-01)
   - [x] 1. GitHub issue #3 (checklist of the pieces)
   - [x] 2. ADRs 0001–0003 in `docs/decisions/` (first use of plan mode)
   - [x] 3. Data shapes: `BlockSpec` + pydantic `Card` / `Question` + `Mode` + `HSK_MODES` (16 tests; packages now `quizkit` + `hsk_trainer`, command `hsk`)
   - [x] 4. `.claude/settings.json` allowlist + hooks: `ruff format` after edits + a **PreToolUse hook that blocks any tool/command touching `.env`** (19 hook tests; live-tested)
   - [x] 5. `/new-block` skill (+ tested `quizkit.scaffold` script + `missing_spec_sections` checker)
-  - [ ] 6. Subagents: `block-reviewer`, `test-writer`, `data-auditor`
-- [ ] M2 Data in
+  - [x] 6. Subagents: `block-reviewer` + `test-writer`, wired into `/new-block`, CLAUDE.md and the PR template (demo: both caught 2 planted mistakes; re-review ✅). `data-auditor` moved to M4
+- [ ] **M2 Data in** ← *next*
+  - [ ] Improve the scaffold's contract test to also check `BLOCK_SPEC` inputs/outputs (block-reviewer suggestion)
 - [ ] M3 First playable quiz
 - [ ] M4 Sentences (first agent)
+  - [ ] `data-auditor` subagent (moved from M1: needs real sentences to test against)
 - [ ] M5 Learning smarts
 - [ ] M6 Web UI
 

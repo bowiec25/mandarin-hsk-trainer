@@ -15,7 +15,7 @@ Topic names follow the course's main themes. Rename rows to match your lesson ti
 | **GitHub integration** | ✅ / 🔜 | M0 Step 5 ✅, Step 6, later | `gh repo create --push`; token scopes (`workflow`); `gh run watch` + `gh run view --log-failed` to debug CI; branch protection next; later `/install-github-app` for `@claude` in PRs |
 | **Plan mode** | ✅ | M1 Step 2 | Pressed Shift+Tab → Claude could only read and plan → you approved the plan → then it wrote the ADRs |
 | **Custom commands & skills** | ✅ | M1 Step 5 | Built `/new-block` (`.claude/skills/new-block/SKILL.md`): the skill does the thinking (questions, SPEC drafting), and a tested **script** (`quizkit.scaffold`) makes the files. Tried it with `--dry-run` |
-| **Subagents** | 🔜 | M1 | `block-reviewer`, `test-writer`, `data-auditor` in `.claude/agents/` |
+| **Subagents** | ✅ | M1 Step 6 | Built `block-reviewer` (read-only tools) + `test-writer` in `.claude/agents/`; needed a restart to load; demo: both caught 2 planted mistakes, fix → re-review ✅. `data-auditor` in M4 |
 | **Hooks** | ✅ | M1 Step 4 | **PreToolUse** `block_env.py` (live test: `cat .env` → blocked); **PostToolUse** `format_python.py` (live test: messy edit → tidied automatically). Scripts are plain Python with their own tests |
 | **Code review** | 🔜 | M1 onwards | `/code-review` on every PR before merge |
 | **Session management** | 🔜 | when relevant | `/clear`, `/compact`, `--continue` / `--resume`, one session per task |

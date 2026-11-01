@@ -45,7 +45,19 @@ Open `src/<package>/blocks/<name>/SPEC.md`. Go through the sections **one at a t
 - Keep each section short and plain
 Then copy the inputs and outputs into `BLOCK_SPEC` in the block's `__init__.py`.
 
-## 6. Check and wrap up
+## 6. Tests first: call the test-writer 🧪
 - Run `uv run pytest tests/blocks/test_<name>.py` (the contract test must pass)
-- Tell the user, in plain words, what was created and what's next (build `run()`, test-first)
-- Remind them of the routine: this belongs on a **branch** → PR → CI ✅ → squash-merge. If they're on `main`, offer to create a branch first.
+- Then send in the **`test-writer` subagent** with: *"Write tests for the <name> block."*
+- Show the user its short report. Failing tests are **expected** now (the code isn't built yet).
+
+## 7. Build the code
+- Write the block's code until **all** its tests pass (`uv run pytest`). Change the tests only if the SPEC changes, and tell the user if so.
+
+## 8. Fresh-eyes review: call the block-reviewer 🔍
+- Send in the **`block-reviewer` subagent** with: *"Review the <name> block."*
+- Show the user its verdict. Fix every ❌ (or explain to the user why not), then review again until it says **✅ ready**.
+
+## 9. Wrap up
+- Tell the user, in plain words, what was created.
+- Routine: this belongs on a **branch** → PR (tick the reviewer box in the template, and paste the verdict) → CI ✅ → squash-merge. If they're on `main`, offer to create a branch first.
+- If the user stops after step 5 (just the SPEC), remind them that steps 6–8 still need doing before a PR.

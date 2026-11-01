@@ -11,5 +11,6 @@
 - [ ] `uv run ruff check` and `uv run ruff format --check` pass
 - [ ] `uv run pytest` passes
 - [ ] New/changed blocks have an up-to-date `SPEC.md`
+- [ ] New/changed blocks: tests from the **test-writer** subagent, and the **block-reviewer** subagent says ✅ ready (paste its verdict below)
 - [ ] No secrets (`.env`, API keys) in the diff
 - [ ] `docs/PLAN.md` checklist updated if a step/milestone finished
