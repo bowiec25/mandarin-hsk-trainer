@@ -29,6 +29,7 @@ Each item says: **what it is**, **why you want it**, **what to ask Claude for**,
 - [ ] 9. 📝 Docs: README, decision records, PR template (⚪)
 - [ ] 10. 🔁 The working routine: issue → branch → PR → merge (⚪, but 🔴 enforced at merge)
 - [ ] 11. 🤖 Skills for repeated jobs, e.g. `/new-block` (🔵, with the mechanical part in a script)
+- [ ] 12. 🤖 Subagents for fresh-eyes checks, e.g. a read-only reviewer (tools 🔴, triggers 🔵)
 
 ---
 
@@ -58,6 +59,8 @@ Some of these **physically stop** a mistake. Others are just **instructions or h
 | `.gitignore` (hides `.env`) | 🟠 | git | When files are added | Everyone | `git add -f` forces a file in anyway |
 | Auto-format hook | 🟠 | Claude Code (our script) | **After** Claude edits a `.py` file | **Claude only** | Your *own* edits in VS Code aren't tidied, but CI catches them |
 | `allow` list | (loosens) | Claude Code | Every tool use | Claude only | Makes things *less* strict: only list safe read/test commands |
+| Subagent **tool limits** (reviewer can't edit) | 🔴 | Claude Code | Whenever the subagent runs | That subagent | Only as strict as the tool list: "only write in tests/" is just 🔵 |
+| Subagent **triggers** (skill steps, CLAUDE.md rule) | 🔵 | Claude following instructions | Building a block | Claude only | Not forced. The PR checkbox + pasted verdict lets you check it happened |
 | Skills (`/new-block`) | 🔵 | Claude following SKILL.md | When you type the command (or Claude spots a match) | Claude only | Not enforced, so the file-making is done by a tested script |
 | `CLAUDE.md` rules | 🔵 | Claude reading it | Start of every session | Claude only | Not enforced: Claude can forget or misjudge. Make anything important a 🔴 rule or hook |
 | Running ruff/pytest locally | 🔵 / ⚪ | Claude (per CLAUDE.md) or you | When someone runs them | Whoever runs them | Nothing forces it locally. CI is the real gate |
@@ -274,7 +277,41 @@ issue → plan mode → branch → small commits → PR → CI ✅ → squash-me
 |---|---|---|
 | `!` prefix | You run a command, and the output lands in the chat | `! gh auth login` |
 | Status line | A bar showing folder + **branch** + model | `/statusline` (project-only: `.claude/settings.local.json`) |
-| Subagent | A helper Claude for one narrow job, running in the background | Used for the status line; more in M1 Step 6 |
 | Auto-memory | Claude remembers how you like to work, across sessions | Automatic |
 
-*Coming soon here:* **build subagents** (reviewer, test-writer).
+---
+
+## 12. 🤖 Subagents: specialist helpers
+
+**Plain meaning:** a **subagent** = a helper Claude that gets sent off to do **one job**, with **fresh eyes**. It doesn't see your chat, and it reports back briefly.
+
+| | Skill | Subagent |
+|---|---|---|
+| Is | Instructions Claude follows | A separate helper |
+| Sees your chat? | Yes | ❌ No, it starts fresh |
+| Best for | Repeated processes | Fresh-eyes reviews, big messy jobs |
+
+| Subagent here | Job | Tools (what it's *allowed* to do) |
+|---|---|---|
+| 🔍 `block-reviewer` | Checks a block against its job description + ADRs → ✅ / ⚠️ verdict | Read, Grep, Glob only, so it **can't change anything** 🔴 |
+| 🧪 `test-writer` | Writes tests from the job description (not from the code) | Read, Write, Edit, Bash (told: only in `tests/` 🔵) |
+
+**How they get triggered** (none of these are 🔴, but together they make it reliable):
+| Trigger | Strictness | Where |
+|---|---|---|
+| Built into the `/new-block` steps (6: test-writer, 8: reviewer) | 🔵 | `.claude/skills/new-block/SKILL.md` |
+| CLAUDE.md rule: "no block PR without a ✅ review" | 🔵 | `CLAUDE.md` |
+| PR template checkbox + pasted verdict | ⚪ (lets *you* see that it ran) | `.github/pull_request_template.md` |
+| Claude spots a match from the helper's description | 🔵 unreliable | the agent file's `description` |
+| You just ask: *"review the X block"* | ⚪ always works | n/a |
+
+**How you can see they ran:** they show up in the chat while they run, Claude shows you the verdict, and the ✅ verdict is pasted into the PR.
+
+💬 **Ask Claude:** *"Make a read-only subagent that reviews X against Y, with a ✅/⚠️ checklist report. Wire it into my skill, CLAUDE.md and the PR template."*
+📍 **Where:** `.claude/agents/<name>.md` (this project) or `~/.claude/agents/` (all projects). See and manage them with `/agents`.
+⚠️ **Watch out:**
+- **New subagents only load at session start:** `/exit` → `claude --continue`
+- **Limit the tools.** A reviewer with no Write/Edit tools *can't* make changes (🔴). An instruction like "only write in tests/" is only 🔵.
+- **Plan the triggers, not just the helper.** A helper nobody calls is useless.
+- **Test it on a planted mistake** before trusting it
+- A read-only reviewer can't run tests, so it reviews by reading. Claude still runs pytest.
