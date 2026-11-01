@@ -29,7 +29,7 @@ Agents run offline as batch jobs that write to `data/generated/` for review. The
 ## Workflow
 - The user is learning. Work in small steps: explain What / Why / Claude feature / Checkpoint, then stop for a go-ahead.
 - Every plan starts with a **"Still the right thing?"** check: re-test the original plan against what we know now, and say what changed.
-- After each step, tick `docs/PLAN.md`, add a plain-English entry to `docs/SETUP_LOG.md`, and update `docs/COURSE_MAP.md` (course topic coverage). When a step adds a reusable safety net, check, permission, hook, skill or subagent, also add it to `docs/PLAYBOOK.md` (the user's checklist for future projects).
+- After each step, tick `docs/PLAN.md`, add a plain-English entry to `docs/SETUP_LOG.md`, and update `docs/COURSE_MAP.md` (course topic coverage). When a step adds a reusable safety net, check, permission, hook, skill or subagent, also add it to `docs/PLAYBOOK.md` (the user's checklist for future projects). At the **end of each milestone**, fill in its entry under "🎓 Lessons by milestone" in the playbook: what was built, plus 3–7 "think about next time" points.
 - Never commit to `main` directly once it's protected (M0 Step 6). Use issue → branch → small commits → PR → green CI → merge. The user approves merges.
 - Secrets live in `.env` (gitignored; Claude is denied reading it). Document new keys in `.env.example`.
 - New blocks: always use `/new-block` (it runs `uv run python -m quizkit.scaffold`). Never hand-create block folders.

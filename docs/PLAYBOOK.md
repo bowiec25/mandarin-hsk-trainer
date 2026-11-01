@@ -6,6 +6,59 @@ Each item says: **what it is**, **why you want it**, **what to ask Claude for**,
 > **How to use it:** start a new project, open this file, and work down the checklist. Or just tell Claude:
 > *"Set up this project using the playbook at github.com/bowiec25/mandarin-hsk-trainer/blob/main/docs/PLAYBOOK.md"*
 
+**Contents:** [🎓 Lessons by milestone](#-lessons-by-milestone) · [✅ Checklist](#-quick-checklist) · [🚦 How strict is each thing?](#-how-strict-is-each-thing) · then one section per item.
+
+---
+
+## 🎓 Lessons by milestone
+
+The short version: what each stage built, and **what to think about next time**. A new entry gets added at the end of every milestone.
+
+### 🗺️ Planning (before any code)
+**Built:** the plan in `docs/PLAN.md`, with a "Where we are" checklist at the top.
+**Think about next time:**
+1. **Write down exactly what "done" looks like**, e.g. our table of the 4 quiz modes. Everything else followed from it.
+2. **Split the app into small parts with one job each** (blocks) before writing code.
+3. **Decide upfront what's a script and what's AI.** It shapes cost, speed and testing.
+4. **Plan in milestones**, each one = an issue + small PRs, and keep a progress checklist you can glance at.
+5. **Say how you want to work** (e.g. "small steps, explain simply, stop often"), and put it in CLAUDE.md or memory so it sticks.
+
+### 🧱 M0: Setup
+**Built:** tools installed, GitHub login, a Python project, git, safety files, a public GitHub repo with CI, protected `main`, squash-only merges.
+**Think about next time:**
+1. **Separate "once per computer" from "every project".** Logins and your git name are per computer. Everything else is per project.
+2. **Protect secrets before the first commit** (`.gitignore`, `.env.example`, noreply email).
+3. **Check what a tool actually did.** `uv init` quietly used `master`, and we only noticed because we checked.
+4. **Have Claude look things up rather than guess:** versions, tags, plan limits. A guessed version broke the first CI run.
+5. **Know your platform's limits.** Free GitHub = branch protection on public repos only. CI files need the `workflow` permission.
+6. **Test your safety nets.** We tried pushing straight to `main`, and it was rejected.
+
+### 🧰 M1: Foundations
+**Built:** decision records, data shapes, permissions + hooks, the `/new-block` skill, and 2 helper subagents.
+**Think about next time:**
+1. **How strict is it?** 🔴 hard rule / 🟠 automatic / 🔵 guidance / ⚪ habit. If it matters, make it 🔴. Only GitHub settings stop *everyone*.
+2. **Script vs AI applies to your own tools too:** Claude asks the questions, and a script makes the files.
+3. **Every helper needs a trigger.** Plan *when* each skill, subagent or hook runs, and make it visible (e.g. the verdict pasted into the PR).
+4. **Re-check the plan before each step ("Still the right thing?").** It changed 4 of 6 pieces.
+5. **Test first, then try to break it on purpose** (`cat .env`, a messy edit, planted mistakes).
+6. **Give helpers only the tools they need.** A reviewer that *can't* edit is safer than one told not to.
+7. **Small steps, small PRs:** one piece = one branch = one PR.
+
+### 📥 M2: Data in
+*(added when M2 is done)*
+
+### 🎮 M3: First playable quiz
+*(added when M3 is done)*
+
+### ✍️ M4: Sentences (first AI agent)
+*(added when M4 is done)*
+
+### 🧠 M5: Learning smarts
+*(added when M5 is done)*
+
+### 🌐 M6: Web UI
+*(added when M6 is done)*
+
 ---
 
 ## ✅ Quick checklist
