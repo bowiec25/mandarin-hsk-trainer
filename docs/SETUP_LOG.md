@@ -205,3 +205,34 @@ Also: **applies to admins too** (that's you). Required approvals = **0**, becaus
 
 You now have: a Python project, a GitHub repo, checks running on every change, a protected `main`, a briefing note for Claude, and logs of why each piece exists.
 **The workflow from here, for every change:** branch → commits → PR → green ✅ → you squash-merge.
+
+---
+
+# M1: Foundations (issue #3)
+
+## M1 Step 1: GitHub issue (2026-11-01)
+
+> **In plain words:** we made a to-do ticket on GitHub (issue **#3**) listing the 6 pieces of M1. Each PR says "Part of #3", and the last one says "Closes #3", which ticks it off automatically.
+
+- Created with `gh issue create` from the terminal.
+- **Why #3, not #1?** GitHub numbers issues and PRs **together**, and PRs #1 and #2 came first.
+- **Why issues?** One place that says what the work is and why. Progress is visible on GitHub.
+
+## M1 Step 2: Decision records (ADRs) + plan mode (2026-11-01)
+
+> **In plain words:** we wrote 3 short notes saying *"we decided X, because Y"*. We did it with **plan mode**: Claude could only read and plan, you approved the plan, and only then did it write the files.
+
+**What:** `docs/decisions/`
+| File | Decision |
+|---|---|
+| `0001-hsk3-standard.md` | Use HSK 3.0 (2021), bands 1–3 |
+| `0002-script-vs-agent.md` | Script if code can check it, agent if it needs judgment (a script checks the agent) |
+| `0003-block-contract.md` | Every block = `SPEC.md` + code + tests |
+| `README.md` | What an ADR is, plus a template |
+
+**Why:** code shows *what*, ADRs show *why*. They stop people (and Claude) from "fixing" deliberate choices. `CLAUDE.md` now tells Claude to read the relevant ADR first.
+
+**Plan mode (Shift+Tab):**
+- Claude **can't change files** in plan mode. It only reads and writes a plan.
+- You approve (or change) the plan, and *then* work starts.
+- *Why:* you catch a wrong direction before any time is wasted, like agreeing a brief before work begins.
