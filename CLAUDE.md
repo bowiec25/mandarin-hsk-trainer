@@ -8,9 +8,9 @@ Big decisions live in `docs/decisions/` (ADRs). Read the relevant ADR before cha
 
 ## Commands
 - `uv sync`: install the project and dev tools from `uv.lock`
-- `uv run mandarin-hsk-trainer`: run the CLI (the `hsk` command arrives in M3)
+- `uv run hsk`: run the CLI (real commands arrive in M3)
 - `uv run ruff check` / `uv run ruff format`: lint / format (CI runs `ruff format --check`)
-- `uv run pytest`: all tests. A single test: `uv run pytest tests/test_smoke.py::test_package_imports`
+- `uv run pytest`: all tests. A single test: `uv run pytest tests/test_smoke.py::test_packages_import`
 - `uv add <pkg>` / `uv add --dev <pkg>`: add a dependency. Never use `pip install`.
 
 Before saying work is done, run `ruff check`, `ruff format --check` and `pytest`. CI (`.github/workflows/ci.yml`) runs the same checks with `uv sync --locked`.

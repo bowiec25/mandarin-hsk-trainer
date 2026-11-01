@@ -9,10 +9,10 @@
   - [x] 5. Create GitHub repo + first push (public: github.com/bowiec25/mandarin-hsk-trainer; CI green)
   - [x] 6. Protect `main` (PR + green `check` required, admins included; tested)
   - [x] 7. Delete old `Desktop\MandarinLearningTest` (was empty)
-- [ ] **M1 Foundations** (issue #3) ← *next: Step 3, data shapes*
+- [ ] **M1 Foundations** (issue #3) ← *next: Step 4, settings + hooks*
   - [x] 1. GitHub issue #3 (checklist of the pieces)
   - [x] 2. ADRs 0001–0003 in `docs/decisions/` (first use of plan mode)
-  - [ ] 3. Data shapes: `BlockSpec` + pydantic `Card` / `Question` + `MODES` config (with tests)
+  - [x] 3. Data shapes: `BlockSpec` + pydantic `Card` / `Question` + `Mode` + `HSK_MODES` (16 tests; packages now `quizkit` + `hsk_trainer`, command `hsk`)
   - [ ] 4. `.claude/settings.json` allowlist + hooks: `ruff format` after edits + a **PreToolUse hook that blocks any command touching `.env`** (stricter second lock on top of the deny rule)
   - [ ] 5. `/new-block` skill
   - [ ] 6. Subagents: `block-reviewer`, `test-writer`, `data-auditor`
