@@ -2,7 +2,7 @@
 
 import pytest
 
-from quizkit.blocks.base import SPEC_SECTIONS, missing_spec_sections
+from quizkit.blocks.base import SPEC_SECTIONS, missing_spec_sections, spec_section
 from quizkit.scaffold import main, scaffold_block
 
 
@@ -111,3 +111,27 @@ def test_checker_spots_missing_sections(tmp_path):
     assert "Inputs" in missing
     assert "Goal" not in missing
     assert len(missing) == len(SPEC_SECTIONS) - 2
+
+
+# ---- spec_section + the stronger contract test --------------------------------------
+
+
+def test_spec_section_returns_one_sections_text(tmp_path):
+    spec = tmp_path / "SPEC.md"
+    spec.write_text(
+        "## Inputs\n- `word: str`\n\n## Outputs\n- `int`\n", encoding="utf-8"
+    )
+    assert spec_section(spec, "Inputs").strip() == "- `word: str`"
+    assert spec_section(spec, "outputs").strip() == "- `int`"  # case-insensitive
+    assert spec_section(spec, "Tools") == ""  # missing section → empty
+
+
+def test_contract_test_checks_inputs_and_outputs(tmp_path):
+    scaffold_block(
+        "fetcher", kind="script", package="hsk_trainer", goal="x", root=tmp_path
+    )
+    test_code = (tmp_path / "tests" / "blocks" / "test_fetcher.py").read_text(
+        encoding="utf-8"
+    )
+    assert "test_inputs_and_outputs_match_spec" in test_code
+    assert "spec_section" in test_code

@@ -16,10 +16,10 @@
   - [x] 4. `.claude/settings.json` allowlist + hooks: `ruff format` after edits + a **PreToolUse hook that blocks any tool/command touching `.env`** (19 hook tests; live-tested)
   - [x] 5. `/new-block` skill (+ tested `quizkit.scaffold` script + `missing_spec_sections` checker)
   - [x] 6. Subagents: `block-reviewer` + `test-writer`, wired into `/new-block`, CLAUDE.md and the PR template (demo: both caught 2 planted mistakes; re-review ✅). `data-auditor` moved to M4
-- [ ] **M2 Data in** (issue #10) ← *next: Step 3, scaffold improvement*
+- [ ] **M2 Data in** (issue #10) ← *next: Step 4, `fetcher` block*
   - [x] 1. GitHub issue #10
   - [x] 2. Source chosen + pinned → ADR 0004 (**2026 revised syllabus**: 294 / 491 / 978 words; MIT; SHA `7ac65bf`)
-  - [ ] 3. Scaffold: contract test also checks `BLOCK_SPEC` inputs/outputs (block-reviewer suggestion)
+  - [x] 3. Scaffold: contract test also checks `BLOCK_SPEC` inputs/outputs (block-reviewer suggestion; drift test caught a planted mismatch)
   - [ ] 4. `fetcher` block
   - [ ] 5. `normalizer` block → `cards.jsonl`
   - [ ] 6. Word-count test (exact counts + within 5% of 300 / 500 / 1,000)

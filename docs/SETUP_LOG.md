@@ -364,3 +364,13 @@ You now have: decision records, data shapes, hooks and permissions, the `/new-bl
 - **A question with options** for a decision only you could make (which syllabus)
 
 **Lesson for next time:** research the data *before* building. The original plan had the wrong word counts, and checking first saved building a fetcher for the wrong list.
+
+## M2 Step 3: Stronger starter test for new blocks (2026-11-02)
+
+> **In plain words:** every new block's starter test now also checks that the code's **inputs and outputs** match the job description. If someone changes one but not the other, the test fails.
+
+- **Where the idea came from:** the block-reviewer's optional suggestion in the M1 demo (its second review).
+- **What changed:** a new helper `spec_section()` (reads one section of a SPEC.md), plus a third starter test, `test_inputs_and_outputs_match_spec`.
+- **Proof:** made a real demo block → 3 tests passed. Then changed its inputs without updating the SPEC → the test **failed** with a clear message. Demo deleted afterwards.
+- **Caught along the way:** the first version of the template produced lines that were too long for `ruff format`. Testing the *generated* files, not just the script, caught it.
+- **No plan mode:** a small, clear fix with no design choices.
