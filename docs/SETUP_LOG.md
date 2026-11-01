@@ -118,3 +118,21 @@ Optional fix for every future project: `git config --global init.defaultBranch m
 - Before committing, we checked the staged list with `git status` and confirmed that no `.env`, `.venv/` or `progress.db` was included.
 
 **Permission rule vs hook (asked during this step):** `deny: Read(./.env)` is a *permission rule*, a fixed allow/ask/deny line in `settings.json`. A *hook* is a script that runs automatically at set moments (e.g. after every edit). Rules are guardrails, not a vault. A hook can add a stricter second lock (planned for M1).
+
+---
+
+## M0 Step 5: Create GitHub repo + first push (2026-11-01)
+
+**What:** `gh repo create mandarin-hsk-trainer --public --source . --remote origin --push`
+- This created https://github.com/bowiec25/mandarin-hsk-trainer, linked the folder to it under the nickname `origin`, and uploaded the commits.
+- After that, `git push` / `git pull` sync with GitHub.
+
+**Public vs private:** we chose **public**, because on GitHub's free plan branch protection (Step 6) only works on public repos. Before pushing, we scanned what would be visible: no Gmail (noreply email), no secrets; only the name "Cameron Bowie" and username. GitHub push protection (it blocks pushes containing API keys) is on automatically for public repos.
+
+**Two failures, both useful lessons:**
+1. **Push rejected: missing `workflow` scope.** GitHub treats CI files as extra-sensitive (they run code on its servers), so the token needs explicit permission. Fixed with `gh auth refresh -h github.com -s workflow`. Principle: sensitive things need explicit permission.
+2. **First CI run failed in 3s: `Unable to resolve action astral-sh/setup-uv@v10`.** That project only publishes exact tags (`v10.3.3`), not a moving `v10`. Fixed by pinning the **commit SHA** with a version comment. Pinning third-party actions to a SHA is security best practice: a tag can be moved to different code, a SHA can't. (Official `actions/*` are lower risk, so a major tag is OK there.)
+
+**Lesson:** I had checked that "v10 is the latest release" but not that the `v10` *tag* existed. Verify the exact thing you depend on. Reading the CI log (`gh run view <id> --log-failed`) gave the answer straight away.
+
+**Why it's best practice:** off-site backup; CI proves the checks pass on a clean Linux machine; doing it with `gh` is repeatable and lets Claude drive GitHub.
