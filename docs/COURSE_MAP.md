@@ -13,7 +13,7 @@ Topic names follow the course's main themes. Rename rows to match your lesson ti
 | **Verification loops** (letting Claude check its own work) | ✅ | M0 Step 4b | ruff + pytest added; Claude runs them after changes; CI repeats them on GitHub |
 | **Git workflow with Claude** | ✅ | M0 Steps 4e–6 | First commit with Conventional Commit message + `Co-Authored-By: Claude`; branch protection on `main`; first branch + PR (#1) |
 | **GitHub integration** | ✅ / 🔜 | M0 Step 5 ✅, Step 6, later | `gh repo create --push`; token scopes (`workflow`); `gh run watch` + `gh run view --log-failed` to debug CI; branch protection next; later `/install-github-app` for `@claude` in PRs |
-| **Plan mode** | 🔜 | M1 onwards | Each milestone starts in plan mode (Shift+Tab) before any code |
+| **Plan mode** | ✅ | M1 Step 2 | Pressed Shift+Tab → Claude could only read and plan → you approved the plan → then it wrote the ADRs |
 | **Custom commands & skills** | 🔜 | M1 | `/new-block` skill that scaffolds a block (SPEC.md + code + test) |
 | **Subagents** | 🔜 | M1 | `block-reviewer`, `test-writer`, `data-auditor` in `.claude/agents/` |
 | **Hooks** | 🔜 | M1 | `ruff format` after edits; PreToolUse hook blocking `.env` access |
