@@ -32,4 +32,5 @@ Agents run offline as batch jobs that write to `data/generated/` for review. The
 - After each step, tick `docs/PLAN.md`, add a plain-English entry to `docs/SETUP_LOG.md`, and update `docs/COURSE_MAP.md` (course topic coverage). When a step adds a reusable safety net, check, permission, hook, skill or subagent, also add it to `docs/PLAYBOOK.md` (the user's checklist for future projects).
 - Never commit to `main` directly once it's protected (M0 Step 6). Use issue → branch → small commits → PR → green CI → merge. The user approves merges.
 - Secrets live in `.env` (gitignored; Claude is denied reading it). Document new keys in `.env.example`.
+- New blocks: always use `/new-block` (it runs `uv run python -m quizkit.scaffold`). Never hand-create block folders.
 - Hooks (`.claude/hooks/`, tested in `tests/test_hooks.py`): `block_env.py` blocks any tool or shell command touching `.env`, and `format_python.py` runs `ruff format` after every `.py` edit. If a shell command mentioning `.env` is blocked, that's intended: write docs with the Edit/Write tools instead.

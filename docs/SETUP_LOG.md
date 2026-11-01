@@ -284,3 +284,24 @@ You now have: a Python project, a GitHub repo, checks running on every change, a
 
 **Why:** fewer pop-ups means faster work, but risky things (commit, push, merge) still ask. Two locks on secrets beat one. Auto-tidy means CI's format check never fails.
 **Scope:** project only. You had no global hooks, so the financial work is unaffected. Hooks were picked up straight away, with no restart needed.
+
+## M1 Step 5: The `/new-block` skill (2026-11-01)
+
+> **In plain words:** the app is like a **factory line of workers**, and each worker (a **block**) has one job (download the list, make flashcards, mark answers…). `/new-block` = **"hire a new worker"**. Claude asks 3 questions, a script makes the worker's blank folder (job description + code + test), and Claude helps you fill in the job description.
+
+**What a block is:** a small folder with
+- 📄 `SPEC.md`: its **job description** (7 sections: Goal, Kind, Inputs, Outputs, Tools, Failure modes, How to test)
+- 🐍 the code
+- 🧪 a test
+
+**What we built:**
+| Piece | Plain meaning | Where |
+|---|---|---|
+| The skill | Instructions Claude follows when you type `/new-block` | `.claude/skills/new-block/SKILL.md` |
+| The "photocopier" script | Makes the blank files, the same way every time; refuses to overwrite; has `--dry-run` | `src/quizkit/scaffold.py` |
+| The SPEC checker | Lists any missing sections of a job description | `missing_spec_sections()` in `src/quizkit/blocks/base.py` |
+
+**"Still the right thing?" changes:** the original plan had Claude make the files itself. We split it up instead: making files is **mechanical → a script** (identical every time, tested), and deciding the job is **thinking → Claude, with you**. That's ADR 0002 applied to our own tools. The script lives in `quizkit`, so future quiz projects get it too.
+
+**Tests:** 13 new (48 total), written first ❌ → ✅. Also generated a real demo block, checked that it passed lint and its own test, then removed it.
+**Strictness:** the skill is 🔵 guidance (Claude follows it); the script is the reliable part.
