@@ -256,3 +256,31 @@ You now have: a Python project, a GitHub repo, checks running on every change, a
 
 **How (test-first):** wrote 16 tests describing the behaviour → ran them ❌ (shapes didn't exist) → wrote the shapes → ran them ✅. Also checked that no Mandarin words appear in `quizkit`.
 **Why test-first:** the tests are a precise "brief" for the code, and they keep guarding it forever after.
+
+## M1 Step 4: Settings + hooks (2026-11-01)
+
+> **In plain words:** Claude is now **safer** and **less naggy** in this project. It no longer asks permission for safe everyday commands (like running tests). It **can't touch `.env`** at all, even through a shell command. And every Python file it edits gets **tidied automatically**.
+
+**What:**
+| Thing | Type | Where |
+|---|---|---|
+| Allowlist: tests, ruff, `uv sync`, git/gh *read-only* commands run without asking | Permission rule | `.claude/settings.json` → `allow` |
+| `.env` lock: blocks Read/Edit/Write/Grep/Glob on `.env`, and shell commands mentioning it | **PreToolUse hook** (runs *before* a tool) | `.claude/hooks/block_env.py` |
+| Auto-tidy: `ruff format` after every `.py` edit | **PostToolUse hook** (runs *after* a tool) | `.claude/hooks/format_python.py` |
+
+**Permission rule vs hook (again, simply):**
+- **Rule** = a fixed list: "allow X, deny Y".
+- **Hook** = a **little script that runs automatically** before or after Claude uses a tool. It can *block* (exit code 2) or *do something* (like tidy a file).
+
+**"Still the right thing?" check (new habit):** before building, we re-tested the original plan. The first idea ("block anything mentioning `.env`") would have **stopped Claude writing docs** that mention `.env`. So file tools now check only *which file* is touched. Shell commands still check the full text, since it's safer to over-block there.
+`CLAUDE.md` now says every plan starts with this check. You can also always say *"challenge this step"*.
+
+**Live tests:**
+1. Claude tried to Read `.env` → stopped by **lock 1** (deny rule)
+2. Claude tried `cat .env` in the shell → stopped by **lock 2** (the hook): *"Blocked: .env holds secrets…"*
+3. Claude made a deliberately messy edit to `cli.py` → the hook **tidied it straight back** (git saw no change)
+
+**Tests:** 19 hook tests in `tests/test_hooks.py` (35 total). Written first: ❌ → scripts → ✅.
+
+**Why:** fewer pop-ups means faster work, but risky things (commit, push, merge) still ask. Two locks on secrets beat one. Auto-tidy means CI's format check never fails.
+**Scope:** project only. You had no global hooks, so the financial work is unaffected. Hooks were picked up straight away, with no restart needed.
