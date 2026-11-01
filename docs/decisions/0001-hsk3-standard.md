@@ -1,6 +1,6 @@
 # 0001: Use the HSK 3.0 word lists (bands 1–3)
 
-- **Status:** Accepted (2026-11-01)
+- **Status:** Accepted (2026-11-01). **Word counts superseded by [0004](0004-word-list-source.md)** (2026 revised syllabus: 300 / 500 / 1,000). The choice of HSK 3.0, bands 1–3, still stands.
 - **In plain words:** we teach the words from the **current** HSK standard (HSK 3.0, from 2021), not the old one, and start with bands 1–3.
 
 ## Context

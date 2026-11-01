@@ -1,6 +1,6 @@
 # Mandarin HSK Trainer
 
-A terminal vocab trainer for **HSK 3.0, bands 1–3** (~2,245 words). You get tested on Chinese characters and type the English meaning, with four levels of help:
+A terminal vocab trainer for **HSK 3.0, bands 1–3** (2026 revised syllabus, ~1,000 words). You get tested on Chinese characters and type the English meaning, with four levels of help:
 
 | Mode | You see |
 |---|---|
