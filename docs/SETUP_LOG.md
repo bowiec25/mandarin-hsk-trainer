@@ -236,3 +236,23 @@ You now have: a Python project, a GitHub repo, checks running on every change, a
 - Claude **can't change files** in plan mode. It only reads and writes a plan.
 - You approve (or change) the plan, and *then* work starts.
 - *Why:* you catch a wrong direction before any time is wasted, like agreeing a brief before work begins.
+
+## M1 Step 3: Data shapes (2026-11-01)
+
+> **In plain words:** we made the "forms" every part of the app fills in. A **Card** is one flashcard, a **Mode** says which bits of the card to show, a **Question** is one quiz turn, and a **BlockSpec** is a block's ID card. Python now checks these automatically: a card with no answer, or a mode asking for a missing sentence, fails straight away with a clear message.
+
+**What:**
+| Shape | Where | Example |
+|---|---|---|
+| `Card` | `src/quizkit/models.py` | `id="hsk1-ai", fields={"hanzi": "爱", "pinyin": "ài"}, answers=["to love", "love"], level=1` |
+| `Mode` + `build_question()` | `src/quizkit/modes.py` | `char` mode → shows `{"hanzi": "爱"}` |
+| `Question` | `src/quizkit/models.py` | shown = 爱, accepted = "to love", "love" |
+| `BlockSpec` | `src/quizkit/blocks/base.py` | `name="fetcher", kind="script"` |
+| `HSK_MODES` | `src/hsk_trainer/modes.py` | your 4 modes as config |
+
+**Key design choice:** `quizkit` doesn't know about Chinese. A Card has flexible named `fields`, and the HSK side picks the names (`hanzi`, `pinyin`, …). A capitals quiz could use `{"country": "France"}` with the same code.
+
+**Also:** the project now has **two packages**, `quizkit` (generic) and `hsk_trainer` (Mandarin). The run command is now **`uv run hsk`**. Added the **pydantic** library (it does the checking).
+
+**How (test-first):** wrote 16 tests describing the behaviour → ran them ❌ (shapes didn't exist) → wrote the shapes → ran them ✅. Also checked that no Mandarin words appear in `quizkit`.
+**Why test-first:** the tests are a precise "brief" for the code, and they keep guarding it forever after.

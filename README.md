@@ -19,7 +19,7 @@ Requires [uv](https://docs.astral.sh/uv/) (it installs the right Python, 3.13, f
 git clone https://github.com/bowiec25/mandarin-hsk-trainer.git
 cd mandarin-hsk-trainer
 uv sync                      # install everything
-uv run mandarin-hsk-trainer  # run it
+uv run hsk                   # run it
 ```
 
 For features that use Claude (from M4), copy `.env.example` to `.env` and add your `ANTHROPIC_API_KEY`.

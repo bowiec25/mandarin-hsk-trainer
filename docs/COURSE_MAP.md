@@ -10,7 +10,7 @@ Topic names follow the course's main themes. Rename rows to match your lesson ti
 | **Context & `CLAUDE.md`** | ✅ | M0 Step 4d | Ran `/init`, trimmed the result to ~35 lines of rules + commands; opened it with `/memory` |
 | **Memory hierarchy** | ✅ | M0 Step 4d | Project `CLAUDE.md` (shared) vs `CLAUDE.local.md` (personal, gitignored) vs `~/.claude/CLAUDE.md` (all projects) vs auto-memory |
 | **Permissions & settings** | ✅ | M0 Step 4a | `.claude/settings.json` with `deny: Read(./.env)`; committed so it's shared; `settings.local.json` for personal overrides |
-| **Verification loops** (letting Claude check its own work) | ✅ | M0 Step 4b | ruff + pytest added; Claude runs them after changes; CI repeats them on GitHub |
+| **Verification loops** (letting Claude check its own work) | ✅ | M0 Step 4b, M1 Step 3 | ruff + pytest added; Claude runs them after changes; CI repeats them on GitHub; M1 Step 3: **tests first**, ran them ❌, wrote the code, ran them ✅ |
 | **Git workflow with Claude** | ✅ | M0 Steps 4e–6 | First commit with Conventional Commit message + `Co-Authored-By: Claude`; branch protection on `main`; first branch + PR (#1) |
 | **GitHub integration** | ✅ / 🔜 | M0 Step 5 ✅, Step 6, later | `gh repo create --push`; token scopes (`workflow`); `gh run watch` + `gh run view --log-failed` to debug CI; branch protection next; later `/install-github-app` for `@claude` in PRs |
 | **Plan mode** | ✅ | M1 Step 2 | Pressed Shift+Tab → Claude could only read and plan → you approved the plan → then it wrote the ADRs |

@@ -1,7 +1,9 @@
-"""Smoke test: proves the package installs and imports. Gives CI something real to run."""
+"""Smoke test: proves both packages install and import. Gives CI something real to run."""
 
-import mandarin_hsk_trainer
+import hsk_trainer.cli
+import quizkit
 
 
-def test_package_imports():
-    assert callable(mandarin_hsk_trainer.main)
+def test_packages_import():
+    assert callable(hsk_trainer.cli.main)
+    assert quizkit.__doc__
