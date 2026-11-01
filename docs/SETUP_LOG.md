@@ -332,3 +332,35 @@ You now have: a Python project, a GitHub repo, checks running on every change, a
 
 ## ✅ M1 complete
 You now have: decision records, data shapes, hooks and permissions, the `/new-block` skill, and 2 helper subagents, all wired together.
+
+---
+
+# M2: Data in (issue #10)
+
+## M2 Step 1: GitHub issue (2026-11-02)
+> **In plain words:** to-do ticket **#10** lists the 6 pieces of M2.
+
+## M2 Step 2: Choose the word list → ADR 0004 (2026-11-02)
+
+> **In plain words:** we picked **where the words come from**. Research found a **newer, smaller official word list** (the 2026 revised syllabus), and you chose it. It's free to use (MIT licence) and **locked to one exact version**.
+
+**What we checked:**
+| Check | Result |
+|---|---|
+| Which HSK? | The source has both the 2021 lists and the **2026 revised** lists |
+| Allowed to use it? | ✅ MIT licence, so we can re-publish it in a public repo if we keep the notice |
+| Complete? | **294 / 491 / 978** words (bands 1 / 2 / 3, cumulative) vs the official **300 / 500 / 1,000**: within 2% |
+| Has pinyin + English? | ✅ |
+| Locked version? | ✅ commit `7ac65bf…` |
+
+**Why the 2026 list:** it's what the exam tests from 2026. It's smaller (978 words to band 3), so it's quicker to master.
+**Honest caveat:** a community contributor typed up the 2026 lists. They match the official totals, but single words could be off. We'll fix any we find.
+
+**Updated:** ADR 0001's counts are now marked as replaced by ADR 0004. README, CLAUDE.md and PLAN now say ~1,000 words.
+
+**Claude features used:**
+- **Plan mode as safe research mode:** looked up the source on GitHub (`gh api`) and counted the words, without changing anything
+- **Web search** to cross-check the official counts
+- **A question with options** for a decision only you could make (which syllabus)
+
+**Lesson for next time:** research the data *before* building. The original plan had the wrong word counts, and checking first saved building a fetcher for the wrong list.

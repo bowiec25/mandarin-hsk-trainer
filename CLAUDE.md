@@ -3,7 +3,7 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project
-A vocab trainer for **HSK 3.0, bands 1–3**, built as reusable "blocks". The full plan and current progress are in `docs/PLAN.md` (read the "Where we are" checklist first). `docs/SETUP_LOG.md` records the reason behind each setup step.
+A vocab trainer for **HSK 3.0, bands 1–3** (2026 revised syllabus, 978 words; ADR 0004), built as reusable "blocks". The full plan and current progress are in `docs/PLAN.md` (read the "Where we are" checklist first). `docs/SETUP_LOG.md` records the reason behind each setup step.
 Big decisions live in `docs/decisions/` (ADRs). Read the relevant ADR before changing that area. A new big decision gets a new ADR; don't edit an accepted one.
 
 ## Commands

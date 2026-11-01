@@ -16,8 +16,13 @@
   - [x] 4. `.claude/settings.json` allowlist + hooks: `ruff format` after edits + a **PreToolUse hook that blocks any tool/command touching `.env`** (19 hook tests; live-tested)
   - [x] 5. `/new-block` skill (+ tested `quizkit.scaffold` script + `missing_spec_sections` checker)
   - [x] 6. Subagents: `block-reviewer` + `test-writer`, wired into `/new-block`, CLAUDE.md and the PR template (demo: both caught 2 planted mistakes; re-review ✅). `data-auditor` moved to M4
-- [ ] **M2 Data in** ← *next*
-  - [ ] Improve the scaffold's contract test to also check `BLOCK_SPEC` inputs/outputs (block-reviewer suggestion)
+- [ ] **M2 Data in** (issue #10) ← *next: Step 3, scaffold improvement*
+  - [x] 1. GitHub issue #10
+  - [x] 2. Source chosen + pinned → ADR 0004 (**2026 revised syllabus**: 294 / 491 / 978 words; MIT; SHA `7ac65bf`)
+  - [ ] 3. Scaffold: contract test also checks `BLOCK_SPEC` inputs/outputs (block-reviewer suggestion)
+  - [ ] 4. `fetcher` block
+  - [ ] 5. `normalizer` block → `cards.jsonl`
+  - [ ] 6. Word-count test (exact counts + within 5% of 300 / 500 / 1,000)
 - [ ] M3 First playable quiz
 - [ ] M4 Sentences (first agent)
   - [ ] `data-auditor` subagent (moved from M1: needs real sentences to test against)
@@ -34,7 +39,7 @@
 # Plan: Mandarin HSK 3.0 (Bands 1–3) Trainer, built as reusable blocks
 
 ## Context
-You want a vocab tester for HSK 3.0 (the current 2021 standard; cumulative ~500 / ~1,272 / ~2,245 words for bands 1–3) with four question modes:
+You want a vocab tester for HSK 3.0 (**updated 2026-11-02: the 2026 revised syllabus**, cumulative ~300 / 500 / 1,000 words for bands 1–3; see ADR 0004) with four question modes:
 
 | Mode | Shown | You type |
 |---|---|---|
