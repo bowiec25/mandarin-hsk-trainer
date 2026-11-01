@@ -17,16 +17,57 @@ Each item says: **what it is**, **why you want it**, **what to ask Claude for**,
 - [ ] (Optional) `git config --global init.defaultBranch main`
 
 **Every new project**
+*(🔴 hard rule · 🟠 automatic · 🔵 guidance · ⚪ habit, explained in "How strict is each thing?" below)*
 - [ ] 1. Project + git started on `main`
-- [ ] 2. 🔒 Secrets protected (`.gitignore`, `.env.example`)
-- [ ] 3. ✅ Checks installed (lint, format, tests)
-- [ ] 4. 🧑‍⚖️ CI on GitHub runs the checks
-- [ ] 5. 🛡️ `main` protected + squash-merge + auto-delete branches
-- [ ] 6. 🤖 `CLAUDE.md` briefing note
-- [ ] 7. 🤖 Claude permissions (allowlist + deny)
-- [ ] 8. 🤖 Hooks (secrets lock + auto-format)
-- [ ] 9. 📝 Docs: README, decision records, PR template
-- [ ] 10. 🔁 The working routine (issue → branch → PR → merge)
+- [ ] 2. 🔒 Secrets protected (`.gitignore` 🟠, `.env.example` ⚪, push protection 🔴)
+- [ ] 3. ✅ Checks installed: lint, format, tests (🔵 locally)
+- [ ] 4. 🧑‍⚖️ CI on GitHub runs the checks (🔴 once `main` is protected)
+- [ ] 5. 🛡️ `main` protected + squash-merge + auto-delete branches (🔴)
+- [ ] 6. 🤖 `CLAUDE.md` briefing note (🔵)
+- [ ] 7. 🤖 Claude permissions: allowlist + deny (🔴, Claude only)
+- [ ] 8. 🤖 Hooks: secrets lock 🔴 + auto-format 🟠 (Claude only)
+- [ ] 9. 📝 Docs: README, decision records, PR template (⚪)
+- [ ] 10. 🔁 The working routine: issue → branch → PR → merge (⚪, but 🔴 enforced at merge)
+
+---
+
+## 🚦 How strict is each thing?
+
+Some of these **physically stop** a mistake. Others are just **instructions or habits** that someone has to follow. Know which is which.
+
+| Level | Meaning | Can it be ignored? |
+|---|---|---|
+| 🔴 **Hard rule** | A machine **blocks** the action | No (only by changing the setting itself) |
+| 🟠 **Automatic** | Runs by itself and **fixes** things, but doesn't block | Not usually, but it only covers what it's set up for |
+| 🔵 **Guidance** | Instructions Claude **reads and normally follows** | Yes: Claude can miss or misjudge it |
+| ⚪ **Habit** | Good practice **people** choose to do | Yes, easily |
+
+### The full list
+| Thing | Strictness | Enforced by | When it kicks in | Applies to | ⚠️ Limits |
+|---|---|---|---|---|---|
+| `main` protection (PR + CI required) | 🔴 | GitHub | Every push or merge to `main` | **Everyone**, incl. you (admins included) | A repo admin can switch it off in Settings |
+| Squash-only, auto-delete branches | 🔴 | GitHub | When merging | Everyone | Same as above |
+| Push protection (API keys) | 🔴 | GitHub | Every push (public repos) | Everyone | Only spots *known* key formats; you can override online |
+| "Block pushes that expose my email" | 🔴 | GitHub | Every push | You | Has to be ticked in GitHub settings |
+| `deny` permission (`Read(./.env)`) | 🔴 | Claude Code | Every time Claude uses that tool | **Claude only** | Covers only the listed tool (Read), so it can't stop shell commands. That's why we added the hook |
+| Secrets-lock hook | 🔴 | Claude Code (our script) | **Before** every Claude tool use | **Claude only** | Only blocks what the script recognises; project-only |
+| Plan mode | 🔴 | Claude Code | While it's switched on | Claude only | Only if **you** turn it on (Shift+Tab) |
+| "Ask before acting" (anything not on `allow`) | 🔴* | Claude Code | Every tool use | Claude only | *Depends on the permission mode: some modes ask less. `deny` and hooks still apply in every mode |
+| CI checks on GitHub | 🟡 → 🔴 | GitHub | Every push and PR | Everyone | On its own it only *reports* ❌. It **blocks** only because `main` protection requires it |
+| `.gitignore` (hides `.env`) | 🟠 | git | When files are added | Everyone | `git add -f` forces a file in anyway |
+| Auto-format hook | 🟠 | Claude Code (our script) | **After** Claude edits a `.py` file | **Claude only** | Your *own* edits in VS Code aren't tidied, but CI catches them |
+| `allow` list | (loosens) | Claude Code | Every tool use | Claude only | Makes things *less* strict: only list safe read/test commands |
+| `CLAUDE.md` rules | 🔵 | Claude reading it | Start of every session | Claude only | Not enforced: Claude can forget or misjudge. Make anything important a 🔴 rule or hook |
+| Running ruff/pytest locally | 🔵 / ⚪ | Claude (per CLAUDE.md) or you | When someone runs them | Whoever runs them | Nothing forces it locally. CI is the real gate |
+| ADRs, PR template | ⚪ | People | When writing PRs / decisions | Everyone | Just a form to fill in |
+| "Still the right thing?", small steps | ⚪ | You + Claude | Each plan | Everyone | A habit |
+
+### The big lesson
+- **If it really matters, make it 🔴.** E.g. "Don't read `.env`" in CLAUDE.md is only 🔵, but the deny rule plus the hook makes it 🔴.
+- **Claude-only vs everyone:** permissions and hooks only control **Claude**. Only **GitHub** settings stop **everyone**, you included.
+- **Layers beat one lock:** for secrets we have `.gitignore` 🟠 + deny 🔴 + hook 🔴 + push protection 🔴.
+
+💬 **Ask Claude for a new project:** *"For each safety measure, tell me whether it's a hard rule, automatic, guidance or a habit, and who it applies to."*
 
 ---
 
