@@ -28,6 +28,7 @@ Each item says: **what it is**, **why you want it**, **what to ask Claude for**,
 - [ ] 8. 🤖 Hooks: secrets lock 🔴 + auto-format 🟠 (Claude only)
 - [ ] 9. 📝 Docs: README, decision records, PR template (⚪)
 - [ ] 10. 🔁 The working routine: issue → branch → PR → merge (⚪, but 🔴 enforced at merge)
+- [ ] 11. 🤖 Skills for repeated jobs, e.g. `/new-block` (🔵, with the mechanical part in a script)
 
 ---
 
@@ -57,6 +58,7 @@ Some of these **physically stop** a mistake. Others are just **instructions or h
 | `.gitignore` (hides `.env`) | 🟠 | git | When files are added | Everyone | `git add -f` forces a file in anyway |
 | Auto-format hook | 🟠 | Claude Code (our script) | **After** Claude edits a `.py` file | **Claude only** | Your *own* edits in VS Code aren't tidied, but CI catches them |
 | `allow` list | (loosens) | Claude Code | Every tool use | Claude only | Makes things *less* strict: only list safe read/test commands |
+| Skills (`/new-block`) | 🔵 | Claude following SKILL.md | When you type the command (or Claude spots a match) | Claude only | Not enforced, so the file-making is done by a tested script |
 | `CLAUDE.md` rules | 🔵 | Claude reading it | Start of every session | Claude only | Not enforced: Claude can forget or misjudge. Make anything important a 🔴 rule or hook |
 | Running ruff/pytest locally | 🔵 / ⚪ | Claude (per CLAUDE.md) or you | When someone runs them | Whoever runs them | Nothing forces it locally. CI is the real gate |
 | ADRs, PR template | ⚪ | People | When writing PRs / decisions | Everyone | Just a form to fill in |
@@ -230,6 +232,42 @@ issue → plan mode → branch → small commits → PR → CI ✅ → squash-me
 
 ---
 
+## 11. 🤖 Skills: your own slash commands
+
+**Plain meaning:** a **skill** = **saved instructions** that become a command. You type `/new-block` and Claude follows the same steps every time, so you don't have to explain them again.
+**Strictness:** 🔵 guidance. Claude follows the steps, but nothing *blocks* it from going off-script. So put the important, mechanical part in a **script** (🔴-ish reliable).
+
+| Skill here | What it does | Where |
+|---|---|---|
+| `/new-block` | "Hire a new worker": asks 3 questions → a **script** makes the blank files → Claude helps fill in the job description (SPEC.md) → tests run | `.claude/skills/new-block/SKILL.md` + `src/quizkit/scaffold.py` |
+
+**When to make a skill:** if you've **explained the same thing to Claude 2–3 times**, turn it into a skill.
+
+**3 ways to make one:**
+| Way | When |
+|---|---|
+| ⭐ *"Turn what we just did into a skill called /X"* | **The best way:** do the task once by hand, then save it |
+| *"What skills would help in this project?"* | You're not sure what would help |
+| The **`skill-creator`** skill | Bigger skills: it helps write, test and improve them |
+| Write `SKILL.md` yourself | It's just a text file with instructions |
+
+**The trick that makes skills reliable: skill + script**
+- ✍️ **Claude (the skill)** does the *thinking*: asking questions, drafting text
+- 🖨️ **A script** does the *mechanical* part: making files, always identical, with tests
+- That's ADR 0002 (script vs agent) applied to your own tools
+
+**What makes a good skill:**
+- A clear **description** saying *when* to use it (Claude reads it to decide when to trigger the skill)
+- Numbered steps, plus **"stop and ask"** points
+- A **dry-run** option, so you can try it safely
+- Safety rules written in: "never overwrite", "dry run first"
+
+💬 **Ask Claude:** *"Make a project skill called /<name> that does X. Put the mechanical part in a tested script, and give it a dry-run option."*
+📍 **Where skills live:** `.claude/skills/<name>/SKILL.md` = this project only (committed, shared). `~/.claude/skills/` = all your projects.
+⚠️ **Watch out:** a skill is only as good as its instructions. Try it once with a dry run before relying on it.
+
+---
+
 ## 🧰 Other Claude features we've used
 
 | Feature | Plain meaning | How |
@@ -239,4 +277,4 @@ issue → plan mode → branch → small commits → PR → CI ✅ → squash-me
 | Subagent | A helper Claude for one narrow job, running in the background | Used for the status line; more in M1 Step 6 |
 | Auto-memory | Claude remembers how you like to work, across sessions | Automatic |
 
-*Coming soon here:* **skills** (custom `/commands`) and **build subagents** (reviewer, test-writer).
+*Coming soon here:* **build subagents** (reviewer, test-writer).
