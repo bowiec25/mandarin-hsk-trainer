@@ -10,7 +10,7 @@ Topic names follow the course's main themes. Rename rows to match your lesson ti
 | **Memory hierarchy** | ✅ | M0 Step 4d | Project `CLAUDE.md` (shared) vs `CLAUDE.local.md` (personal, gitignored) vs `~/.claude/CLAUDE.md` (all projects) vs auto-memory |
 | **Permissions & settings** | ✅ | M0 Step 4a | `.claude/settings.json` with `deny: Read(./.env)`; committed so it's shared; `settings.local.json` for personal overrides |
 | **Verification loops** (letting Claude check its own work) | ✅ | M0 Step 4b | ruff + pytest added; Claude runs them after changes; CI repeats them on GitHub |
-| **Git workflow with Claude** | ✅ / 🔜 | M0 Step 4e → M1+ | First commit with Conventional Commit message + `Co-Authored-By: Claude`; branches/PRs from M1 |
+| **Git workflow with Claude** | ✅ | M0 Steps 4e–6 | First commit with Conventional Commit message + `Co-Authored-By: Claude`; branch protection on `main`; first branch + PR (#1) |
 | **GitHub integration** | ✅ / 🔜 | M0 Step 5 ✅, Step 6, later | `gh repo create --push`; token scopes (`workflow`); `gh run watch` + `gh run view --log-failed` to debug CI; branch protection next; later `/install-github-app` for `@claude` in PRs |
 | **Plan mode** | 🔜 | M1 onwards | Each milestone starts in plan mode (Shift+Tab) before any code |
 | **Custom commands & skills** | 🔜 | M1 | `/new-block` skill that scaffolds a block (SPEC.md + code + test) |
