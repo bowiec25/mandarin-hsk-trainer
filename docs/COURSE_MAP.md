@@ -6,6 +6,7 @@ Topic names follow the course's main themes. Rename rows to match your lesson ti
 | Course topic | Status | Where we used it | What you actually did / saw |
 |---|---|---|---|
 | **Running commands / the terminal** | ✅ | M0 Steps 1–2 | `!` prefix for interactive commands (`! gh auth login`); Claude runs non-interactive ones itself after a permission prompt |
+| **Status line & subagents (first look)** | ✅ | M0 Step 6b | `/statusline` → a `statusline-setup` **subagent** configured a project-only status line showing the branch |
 | **Context & `CLAUDE.md`** | ✅ | M0 Step 4d | Ran `/init`, trimmed the result to ~35 lines of rules + commands; opened it with `/memory` |
 | **Memory hierarchy** | ✅ | M0 Step 4d | Project `CLAUDE.md` (shared) vs `CLAUDE.local.md` (personal, gitignored) vs `~/.claude/CLAUDE.md` (all projects) vs auto-memory |
 | **Permissions & settings** | ✅ | M0 Step 4a | `.claude/settings.json` with `deny: Read(./.env)`; committed so it's shared; `settings.local.json` for personal overrides |

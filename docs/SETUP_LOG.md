@@ -179,3 +179,29 @@ Also: **applies to admins too** (that's you). Required approvals = **0**, becaus
 
 **How:** one `gh api -X PUT …/branches/main/protection` command (free because the repo is public).
 **Tested by:** deliberately pushing straight to `main` → GitHub rejected it ✅. Then this log went in through PR #1.
+
+### 6b. Merge settings + status line (2026-11-01)
+
+> **In plain words:** GitHub now only offers **"Squash and merge"**, which turns each PR into one tidy commit, and it **deletes the side branch automatically** after merging. Separately, Claude Code now shows your **current branch** under the prompt box.
+
+- **Merge settings** (repo setting via `gh api -X PATCH`, no PR needed): squash only; the commit uses the PR title + description; auto-delete the branch on merge.
+  - *Why:* PR #1 was merged with a regular "Merge", which added an extra "Merge pull request #1" commit, and its branch was left behind on GitHub. Now neither can happen.
+- **Status line** (`/statusline`, set up by a subagent): shows `folder [branch: …] model`.
+  - **This project only:** it lives in `.claude/settings.local.json` + `.claude/statusline.ps1`, both gitignored (personal settings). Other projects keep the global status line.
+  - *Why:* you always know which branch you're editing on.
+
+---
+
+## M0 Step 7: Delete the old Desktop folder (2026-11-01)
+
+> **In plain words:** removed the empty `Desktop\MandarinLearningTest` folder (our first attempt at a project home). One project = one folder, so there's no "which copy am I editing?" mix-up.
+
+- Checked first: it was empty, and git doesn't track empty folders, so the Desktop repo wasn't affected.
+- Used `rmdir`, which **only** deletes empty folders. That makes it safe by design.
+
+---
+
+## ✅ M0 complete
+
+You now have: a Python project, a GitHub repo, checks running on every change, a protected `main`, a briefing note for Claude, and logs of why each piece exists.
+**The workflow from here, for every change:** branch → commits → PR → green ✅ → you squash-merge.
