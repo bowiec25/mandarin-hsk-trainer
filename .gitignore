@@ -1,0 +1,30 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Secrets: never commit (copy .env.example to .env instead)
+.env
+
+# Local data (personal progress, not shared)
+data/progress.db
+
+# Tool caches
+.pytest_cache/
+.ruff_cache/
+
+# Editors / OS
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+
+# Claude Code: personal (not shared) files
+.claude/settings.local.json
+CLAUDE.local.md

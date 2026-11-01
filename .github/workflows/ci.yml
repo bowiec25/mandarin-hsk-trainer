@@ -1,0 +1,31 @@
+# CI = the referee. Runs on every push to main and every pull request.
+# If any step fails, the PR can't be merged (enforced in M0 Step 6).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+
+      - name: Install project + dev tools (exact versions from uv.lock)
+        run: uv sync --locked
+
+      - name: Lint (ruff check)
+        run: uv run ruff check
+
+      - name: Format check (ruff format)
+        run: uv run ruff format --check
+
+      - name: Tests (pytest)
+        run: uv run pytest
