@@ -28,6 +28,14 @@ class BlockSpec(BaseModel):
     outputs: list[str] = Field(default_factory=list)
 
 
+def spec_section(spec_md: Path, section: str) -> str:
+    """Return the text under one `## <section>` heading (case-insensitive), or ''."""
+    text = Path(spec_md).read_text(encoding="utf-8")
+    pattern = rf"^##\s+{re.escape(section)}\s*$\n(.*?)(?=^##\s|\Z)"
+    match = re.search(pattern, text, re.MULTILINE | re.DOTALL | re.IGNORECASE)
+    return match.group(1) if match else ""
+
+
 def missing_spec_sections(spec_md: Path) -> list[str]:
     """Return the required SPEC.md sections (## headings) that are missing."""
     text = Path(spec_md).read_text(encoding="utf-8")
