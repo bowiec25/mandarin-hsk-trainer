@@ -426,3 +426,12 @@ You now have: decision records, data shapes, hooks and permissions, the `/new-bl
 - **Look at the real data before writing the SPEC.** My notes had the wrong key names, and the multi-reading problem only showed up by looking.
 - **A subagent flags questions, you check them against reality.**
 - **Fresh eyes each round** found a gap the first reviewer missed.
+
+## M2 Step 6: The word-count test (2026-11-02), M2 done
+
+> **In plain words:** an automatic test on the **real** `cards.jsonl`. It checks the exact word counts and that the file is up to date, so CI shouts if the data ever changes by accident.
+
+- **Checks:** exact counts per band (294 / 197 / 487, which is 294 / 491 / 978 cumulative), each band within 5% of the official 300 / 500 / 1,000, every word unique, and re-running the normalizer gives exactly the committed file.
+- **Proof it's real:** deleting one card → 3 tests failed; a wrong expected number → 1 test failed. Both restored.
+- **Not a block,** so no `/new-block`, test-writer or reviewer: just a test file and a PR.
+- **M2 is done.** Its lessons are in PLAYBOOK.md under "🎓 Lessons by milestone".

@@ -16,14 +16,14 @@
   - [x] 4. `.claude/settings.json` allowlist + hooks: `ruff format` after edits + a **PreToolUse hook that blocks any tool/command touching `.env`** (19 hook tests; live-tested)
   - [x] 5. `/new-block` skill (+ tested `quizkit.scaffold` script + `missing_spec_sections` checker)
   - [x] 6. Subagents: `block-reviewer` + `test-writer`, wired into `/new-block`, CLAUDE.md and the PR template (demo: both caught 2 planted mistakes; re-review ✅). `data-auditor` moved to M4
-- [ ] **M2 Data in** (issue #10) ← *next: Step 6, word-count test*
+- [x] **M2 Data in** (issue #10, done 2026-11-02)
   - [x] 1. GitHub issue #10
   - [x] 2. Source chosen + pinned → ADR 0004 (**2026 revised syllabus**: 294 / 491 / 978 words; MIT; SHA `7ac65bf`)
   - [x] 3. Scaffold: contract test also checks `BLOCK_SPEC` inputs/outputs (block-reviewer suggestion; drift test caught a planted mismatch)
   - [x] 4. `fetcher` block + generic `quizkit.download` helper (3 review rounds → ✅; raw data in `data/raw/hsk3_2026/`)
   - [x] 5. `normalizer` block → `cards.jsonl` (978 cards: 294 / 197 / 487; 3 review rounds → ✅; shared `quizkit.files.write_atomically`)
-  - [ ] 6. Word-count test (exact counts + within 5% of 300 / 500 / 1,000)
-- [ ] M3 First playable quiz
+  - [x] 6. Word-count test (exact counts + within 5% of 300 / 500 / 1,000, + `cards.jsonl` up to date; 2 planted mistakes caught)
+- [ ] M3 First playable quiz ← *next*
 - [ ] M4 Sentences (first agent)
   - [ ] `data-auditor` subagent (moved from M1: needs real sentences to test against)
 - [ ] M5 Learning smarts

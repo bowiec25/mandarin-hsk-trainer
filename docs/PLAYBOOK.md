@@ -45,7 +45,15 @@ The short version: what each stage built, and **what to think about next time**.
 7. **Small steps, small PRs:** one piece = one branch = one PR.
 
 ### 📥 M2: Data in
-*(added when M2 is done)*
+**Built:** the data source chosen and pinned (ADR 0004), a stronger starter test for blocks, the `fetcher` (download + fingerprint check), the `normalizer` (raw lists → 978 quiz cards), and a word-count test on the real data.
+**Think about next time:**
+1. **Research the data before building anything.** The original plan had the wrong word list and wrong counts.
+2. **Pin your data source** (exact version + fingerprints) and keep the licence next to it.
+3. **Look at the real data before writing the SPEC.** My own notes had the wrong field names, and two surprises (multi-reading words, an empty `pos`) only showed up by looking.
+4. **Ask "does this serve the real goal?"** The HSK-exam check showed what v1 trains (reading) and what it doesn't (listening), and we wrote down the future idea instead of building it now.
+5. **Use a fresh reviewer each round.** Each round found something the previous one missed.
+6. **A subagent flags questions, you check them against reality.**
+7. **Test the real committed data, not just the code.** Exact counts + "re-running gives the same file" means CI catches accidents.
 
 ### 🎮 M3: First playable quiz
 *(added when M3 is done)*
@@ -146,7 +154,9 @@ Some of these **physically stop** a mistake. Others are just **instructions or h
 |---|---|---|
 | **Pin the exact version** (a commit SHA, not "latest") | The data never changes under you | ADR 0004, `fetcher/__init__.py` |
 | **Check size + fingerprint (SHA-256)** of every file | Catches changed or broken downloads | `quizkit/download.py` |
-| **Write to a temp file, then swap it in** | Never leaves a half-written file | `_write_atomically()` |
+| **Write to a temp file, then swap it in** | Never leaves a half-written file | `quizkit/files.py` `write_atomically()` |
+| **Look at the real data before writing the SPEC** | Notes and docs drift; surprises (197 multi-reading words, 11 with no `pos`) only show up by looking | M2 Step 5 |
+| **A test on the real committed data**: exact counts + "re-running gives the same file" | CI catches accidental data changes and a stale generated file | `tests/test_word_counts.py` |
 | **Check the licence** and keep it next to the data | Public repos re-publish the data | `data/raw/hsk3_2026/LICENSE` |
 | **Tests use a fake downloader** | Fast, works offline, no flaky internet | `fetch=` parameter |
 
