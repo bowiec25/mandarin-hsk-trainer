@@ -14,7 +14,7 @@ from pydantic import ValidationError
 from hsk_trainer.blocks.cedict_cleaner import clean_answer
 from hsk_trainer.modes import HSK_MODES
 from quizkit.blocks.deck_builder import build_deck
-from quizkit.blocks.engine import Attempt, run_quiz
+from quizkit.blocks.engine import Attempt, QuizSession, run_quiz
 from quizkit.blocks.grader import GradeSettings, clean
 from quizkit.files import load_cards
 from quizkit.models import Question
@@ -54,12 +54,14 @@ def _check_mode(mode: str) -> str:
 
 
 def _ask(question: Question) -> str | None:
-    """Show the word, read the typed answer. Ctrl-C or end-of-input = quit (None)."""
+    """Show the word, read the typed answer. End-of-input = quit (None).
+
+    Ctrl-C needs nothing here: run_quiz treats it as a quit wherever it lands."""
     print()
     print("   ".join(question.shown.values()))
     try:
         return input("> ")
-    except (KeyboardInterrupt, EOFError):
+    except EOFError:
         print()
         return None
 
@@ -130,6 +132,9 @@ def quiz(
         questions = build_deck(
             load_cards(cards), HSK_MODES[mode], n, levels=[band], seed=seed
         )
+        # Up-front data check (a card nobody can answer), kept apart from run_quiz so a
+        # ValueError mid-quiz is never mislabelled as a bad file.
+        QuizSession(questions, cleaner=clean_answer, settings=SETTINGS)
     except (ValidationError, ValueError) as err:  # bad or partial data file
         _fail(f"Can't build a quiz from {cards}:", str(err))
 
@@ -142,12 +147,9 @@ def quiz(
     )
 
     # run_quiz treats Ctrl-C anywhere in its loop as a quit, so the score is kept.
-    try:
-        result = run_quiz(
-            questions, ask=_ask, tell=_tell, cleaner=clean_answer, settings=SETTINGS
-        )
-    except ValueError as err:  # a card nobody can answer: found before question 1
-        _fail(f"Can't build a quiz from {cards}:", str(err))
+    result = run_quiz(
+        questions, ask=_ask, tell=_tell, cleaner=clean_answer, settings=SETTINGS
+    )
 
     print()
     if not result.finished:

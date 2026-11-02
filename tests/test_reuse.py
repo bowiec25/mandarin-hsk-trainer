@@ -81,6 +81,7 @@ print("N =", quiz["N"])
 def test_capitals_quiz_runs_with_hsk_trainer_blocked():
     proc = subprocess.run(
         [sys.executable, "-c", PLAY],
+        stdin=subprocess.DEVNULL,  # if the ask swap ever stops working: quit, not hang
         capture_output=True,
         check=False,
         timeout=60,

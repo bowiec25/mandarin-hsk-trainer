@@ -31,7 +31,7 @@ N = 5  # questions per quiz
 def ask(question: Question) -> str | None:
     try:
         return input(f"Capital of {question.shown['country']}? ")
-    except (KeyboardInterrupt, EOFError):
+    except EOFError:  # Ctrl-C needs nothing: run_quiz treats it as a quit
         print()
         return None
 
@@ -47,7 +47,8 @@ def tell(attempt: Attempt) -> None:
 
 
 def main() -> None:
-    sys.stdout.reconfigure(encoding="utf-8")  # Windows pipes can't print ✅ otherwise
+    if hasattr(sys.stdout, "reconfigure"):  # Windows pipes can't print ✅ otherwise
+        sys.stdout.reconfigure(encoding="utf-8")
     questions = build_deck(CARDS, COUNTRY, n=N)
     result = run_quiz(questions, ask=ask, tell=tell)
     if not result.finished:
