@@ -1,24 +1,29 @@
 """Command-line entry point: `uv run hsk quiz --band 1 --mode char --n 10`.
 
 Not a block: it is the thin shell that wires the blocks to the keyboard and screen
-(cards.jsonl -> deck_builder -> engine, graded with the cedict_cleaner).
+(cards.jsonl -> deck_builder -> engine's QuizSession, graded with the cedict_cleaner).
 """
 
 import sys
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, NoReturn
 
 import typer
+from pydantic import ValidationError
 
 from hsk_trainer.blocks.cedict_cleaner import clean_answer
 from hsk_trainer.modes import HSK_MODES
 from quizkit.blocks.deck_builder import build_deck
-from quizkit.blocks.engine import Attempt, run_quiz
+from quizkit.blocks.engine import Attempt, QuizSession
+from quizkit.blocks.grader import GradeSettings, clean
 from quizkit.files import load_cards
 from quizkit.models import Question
 
 # Found from this file, so `hsk` works from any folder (src/hsk_trainer/cli.py -> root).
-CARDS_FILE = Path(__file__).resolve().parents[2] / "data" / "processed" / "cards.jsonl"
+# Assumes it runs from the repo (`uv run hsk`), not from an installed wheel.
+ROOT = Path(__file__).resolve().parents[2]
+CARDS_FILE = ROOT / "data" / "processed" / "cards.jsonl"
+SETTINGS = GradeSettings()
 
 PLAYABLE_MODES = ("char", "char_pinyin")  # the sentence modes need M4's sentences
 SHOW_ANSWERS = 4  # how many accepted answers to show after a wrong one
@@ -59,24 +64,38 @@ def _ask(question: Question) -> str | None:
         return None
 
 
-def _readable_answers(question: Question) -> list[str]:
-    """The cleaned answers, as written (apostrophes kept), each once, in order."""
-    answers = [kept for a in question.accepted_answers for kept in clean_answer(a)]
-    return list(dict.fromkeys(answers))
+def _readable(question: Question) -> dict[str, str]:
+    """Each answer the grader accepts, in its normalised form -> as written for people.
+
+    The grader compares normalised text ("haven't" -> "havent", "to love" -> "love");
+    showing that would teach misspellings. Same order and de-duplication as the grader.
+    """
+    readable: dict[str, str] = {}
+    for raw in question.accepted_answers:
+        for variant in clean_answer(raw):
+            key = clean(variant, SETTINGS)
+            if key and key not in readable:
+                readable[key] = variant
+    return readable
 
 
 def _tell(attempt: Attempt) -> None:
     g = attempt.grade
+    readable = _readable(attempt.question)
     if g.correct and g.typo:
-        print(f"✅ close enough (typo): {g.matched}")
+        print(f"✅ close enough (typo): {readable.get(g.matched, g.matched)}")
     elif g.correct:
         print("✅")
     else:
-        # Not g.expected: that is the grader's normalised form ("havent"), not for people.
-        answers = _readable_answers(attempt.question)
-        shown = answers[:SHOW_ANSWERS]
+        answers = list(readable.values())
         more = " …" if len(answers) > SHOW_ANSWERS else ""
-        print(f"❌ {'; '.join(shown)}{more}")
+        print(f"❌ {'; '.join(answers[:SHOW_ANSWERS])}{more}")
+
+
+def _fail(*lines: str) -> NoReturn:
+    for line in lines:
+        print(line, file=sys.stderr)
+    raise typer.Exit(1)
 
 
 @app.command()
@@ -94,20 +113,27 @@ def quiz(
     seed: Annotated[
         int | None, typer.Option(help="Same seed, same words (for replays).")
     ] = None,
-    cards: Annotated[Path, typer.Option(hidden=True)] = CARDS_FILE,
+    cards: Annotated[Path | None, typer.Option(hidden=True)] = None,
 ) -> None:
     """Quiz yourself: see a word, type its English meaning. Ctrl-C stops (score kept)."""
-    if not cards.exists():
-        print(f"No cards file at {cards}.", file=sys.stderr)
-        print(
-            "Make it with: uv run python -m hsk_trainer.blocks.normalizer",
-            file=sys.stderr,
-        )
-        raise typer.Exit(1)
+    if cards is None:  # looked up now, not at import, so tests can point it elsewhere
+        cards = CARDS_FILE
+        if not cards.exists():
+            _fail(
+                f"No cards file at {cards}.",
+                f"Make it from {ROOT}: uv run python -m hsk_trainer.blocks.normalizer",
+            )
+    elif not cards.exists():
+        _fail(f"No cards file at {cards}.")
 
-    questions = build_deck(
-        load_cards(cards), HSK_MODES[mode], n, levels=[band], seed=seed
-    )
+    try:
+        questions = build_deck(
+            load_cards(cards), HSK_MODES[mode], n, levels=[band], seed=seed
+        )
+        session = QuizSession(questions, cleaner=clean_answer, settings=SETTINGS)
+    except (ValidationError, ValueError) as err:  # bad or partial data file
+        _fail(f"Can't build a quiz from {cards}:", str(err))
+
     if len(questions) < n:
         print(
             f"Only {len(questions)} band-{band} words, so the quiz has {len(questions)}."
@@ -116,8 +142,18 @@ def quiz(
         f"Band {band}, {len(questions)} words. Type the meaning in English; Ctrl-C stops."
     )
 
-    result = run_quiz(questions, ask=_ask, tell=_tell, cleaner=clean_answer)
+    # Our own loop over QuizSession (not run_quiz), so a Ctrl-C landing *anywhere* in
+    # it still keeps the score: on Windows it can arrive just after input() returns.
+    try:
+        while (question := session.current) is not None:
+            typed = _ask(question)
+            if typed is None:
+                break
+            _tell(session.answer(typed))
+    except KeyboardInterrupt:
+        print()
 
+    result = session.result()
     print()
     if not result.finished:
         print(f"Stopped after {result.answered} of {result.total}.")

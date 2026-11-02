@@ -46,6 +46,16 @@ def deck_words(*args: str) -> list[str]:
     return [q.card_id for q in deck]
 
 
+@functools.cache
+def seed_for(word: str, band: str = "1") -> str:
+    """A seed whose 1-word deck for `band` is `word` (searched once, then cached)."""
+    return next(
+        str(s)
+        for s in range(5000)
+        if deck_words("--band", band, "--n", "1", "--seed", str(s)) == [word]
+    )
+
+
 def cleaned(card) -> list[str]:
     """The answers the quiz really accepts (after the cedict_cleaner), in order."""
     return [kept for a in card.answers for kept in clean_answer(a)]
@@ -88,22 +98,29 @@ def test_wrong_answer_shows_the_right_ones(real_cards):
 def test_love_and_to_love_both_count_for_ai():
     """Issue #16 "Done when": "love" and "to love" both count as correct for 爱."""
     for typed in ("love", "to love"):
-        # Find a seed whose 1-card band-1 deck is 爱 (deterministic, so this is stable).
-        seed = next(
-            s for s in range(5000) if deck_words("--n", "1", "--seed", str(s)) == ["爱"]
-        )
-        _, out = play("--n", "1", "--seed", str(seed), typed=typed + "\n")
+        _, out = play("--n", "1", "--seed", seed_for("爱"), typed=typed + "\n")
         assert "✅" in out, typed
         assert "Score: 1/1" in out
 
 
 def test_typo_is_forgiven_and_noted():
-    seed = next(
-        s for s in range(5000) if deck_words("--n", "1", "--seed", str(s)) == ["爱"]
-    )
-    _, out = play("--n", "1", "--seed", str(seed), typed="lvoe\n")
+    _, out = play("--n", "1", "--seed", seed_for("爱"), typed="lvoe\n")
     assert "✅" in out
     assert "typo" in out.lower()
+
+
+def test_typo_message_shows_the_answer_as_written():
+    """Not the grader's normalised form: "haven't", never "havent"."""
+    _, out = play("--n", "1", "--seed", seed_for("没有"), typed="havnt\n")
+    assert "typo" in out.lower()
+    assert "haven't" in out
+    assert "havent" not in out
+
+
+def test_wrong_answer_keeps_apostrophes():
+    _, out = play("--n", "1", "--seed", seed_for("没有"), typed="zzzzzzzz\n")
+    assert "haven't" in out
+    assert "havent" not in out
 
 
 def test_char_pinyin_mode_shows_pinyin(real_cards):
@@ -171,6 +188,28 @@ def test_ctrl_c_quits_and_keeps_score(monkeypatch, real_cards):
     assert "Score: 1/1" in out
 
 
+def test_ctrl_c_after_typing_still_keeps_score(monkeypatch, real_cards):
+    """Windows quirk: Ctrl-C can arrive just *after* input() returns, mid-feedback."""
+    from hsk_trainer import cli
+
+    args = ("--band", "1", "--n", "3", "--seed", "7")
+    typed = "\n".join(right_answers(deck_words(*args), real_cards)) + "\n"
+    real_tell, calls = cli._tell, []
+
+    def tell_then_interrupt(attempt):
+        calls.append(attempt)
+        real_tell(attempt)
+        if len(calls) == 2:
+            raise KeyboardInterrupt
+
+    monkeypatch.setattr(cli, "_tell", tell_then_interrupt)
+    code, out = play(*args, typed=typed)
+    assert code == 0
+    assert "Stopped after 2 of 3" in out
+    assert "Score: 2/2" in out
+    assert "Traceback" not in out
+
+
 # --- short deck message ----------------------------------------------------------
 
 
@@ -216,12 +255,42 @@ def test_unknown_mode_is_refused():
     assert "char_pinyin" in out  # tells you what is allowed
 
 
-def test_missing_cards_file_says_how_to_fix(tmp_path):
-    missing = tmp_path / "nope.jsonl"
-    code, out = play("--cards", str(missing))
+def test_missing_cards_file_says_how_to_fix(tmp_path, monkeypatch):
+    from hsk_trainer import cli
+
+    monkeypatch.setattr(cli, "CARDS_FILE", tmp_path / "cards.jsonl")
+    code, out = play()
     assert code == 1
     assert "normalizer" in out
     assert "Traceback" not in out
+
+
+def test_custom_missing_file_gives_no_normalizer_hint(tmp_path):
+    code, out = play("--cards", str(tmp_path / "nope.jsonl"))
+    assert code == 1
+    assert "nope.jsonl" in out
+
+
+def test_broken_cards_file_is_a_friendly_error(tmp_path):
+    broken = tmp_path / "cards.jsonl"
+    broken.write_text(
+        '{"id": "爱", "fields": {"hanzi": "爱"', encoding="utf-8"
+    )  # cut off
+    code, out = play("--cards", str(broken))
+    assert code == 1
+    assert "Can't build a quiz" in out
+    assert "Traceback" not in out
+
+
+def test_no_cards_in_that_band_is_a_friendly_error(tmp_path, real_cards):
+    band1_only = tmp_path / "cards.jsonl"
+    band1_only.write_text(
+        "\n".join(c.model_dump_json() for c in real_cards if c.level == 1),
+        encoding="utf-8",
+    )
+    code, out = play("--band", "3", "--cards", str(band1_only))
+    assert code == 1
+    assert "Can't build a quiz" in out
 
 
 def test_help_lists_the_options():
