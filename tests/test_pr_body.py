@@ -72,6 +72,37 @@ def test_text_under_next_heading_does_not_count():
     assert run_check(body).returncode == 1
 
 
+@pytest.mark.parametrize(
+    "heading", ["### Still the right thing?", "## Still the right thing? (yes)"]
+)
+def test_heading_variants_pass(heading):
+    body = f"{heading}\nNothing changed, the plan holds.\n"
+    assert run_check(body).returncode == 0
+
+
+@pytest.mark.parametrize("next_heading", ["# Notes", "##Notes", "  ## Notes"])
+def test_any_later_heading_ends_the_section(next_heading):
+    body = f"## Still the right thing?\n\n{next_heading}\nlots of note words here\n"
+    assert run_check(body).returncode == 1
+
+
+def test_heading_inside_code_block_does_not_end_section():
+    body = "## Still the right thing?\nYes:\n```\n## Example\n```\n## How tested\n"
+    assert run_check(body).returncode == 0
+
+
+def test_unclosed_hint_does_not_count():
+    body = (
+        "## Still the right thing?\n<!-- Required (CI fails if empty)\n## How tested\n"
+    )
+    assert run_check(body).returncode == 1
+
+
+def test_any_filled_copy_of_the_section_passes():
+    body = "## Still the right thing?\n<!-- hint -->\n## Still the right thing?\nNothing changed, the plan holds.\n"
+    assert run_check(body).returncode == 0
+
+
 def test_unfilled_pr_template_fails():
     """The template as-is (only the hint) must fail, so it has to be filled in."""
     assert run_check(TEMPLATE.read_text(encoding="utf-8")).returncode == 1
