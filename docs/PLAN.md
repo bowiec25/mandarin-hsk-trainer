@@ -29,7 +29,7 @@
   - [x] 1b+. Build map: "Flow diagrams: three views" (how a step is built, in lanes; what the app does; one Claude action up close)
   - [x] 1c. Code review (PR #18 + this step's PR): `/code-review` before every PR + Claude GitHub app (`/install-github-app`, subscription token; ⚠️ the token was made 2026-11-02 and expires after 1 year, so **renew it before 2027-10-15**)
   - [x] 1d. Proved the GitHub review with a planted-bug test PR (#20, closed, not merged): caught ×10-instead-of-×100, missed divide-by-zero. Workflow left as installed (it works on code PRs)
-  - [ ] 2. `grader` block (generic, `quizkit`): clean the raw dictionary answers (`to `, `(…)` notes, case) + typo tolerance
+  - [x] 2. Grading, as 2 blocks (the clutter scan showed most clutter is dictionary-specific): **2a `grader`** (generic, `quizkit`: case, punctuation, leading to/a/an/the, typos 0/1/2 by length via rapidfuzz OSA; a quiz passes its own `cleaner`) + **2b `cedict_cleaner`** (`hsk_trainer`: 8 rules, every one of the 978 cards keeps an answer; a stopgap until the M4 answer agent). The real-data test caught a grader bug (给 = "to" was dropped)
   - [ ] 3. `deck_builder` block (generic, `quizkit`): pick cards (band, n, shuffle), reuse `build_question()` (worktree demo, optional)
   - [ ] 4. `engine`: the quiz loop, tested with fake typed answers
   - [ ] 5. CLI (Typer): `hsk quiz --band N --mode char|char_pinyin --n N`
