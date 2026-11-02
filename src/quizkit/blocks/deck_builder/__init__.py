@@ -32,6 +32,8 @@ def build_deck(
     Same `seed` -> same deck. Uses its own random generator, so the global one is
     untouched. Fewer cards than `n` is fine: the caller can tell by the length.
     """
+    if isinstance(n, bool) or not isinstance(n, int):
+        raise TypeError(f"n must be a whole number, got {n!r}")
     if n < 1:
         raise ValueError(f"n must be at least 1, got {n}")
     if levels is not None and not levels:
@@ -39,10 +41,14 @@ def build_deck(
     if not cards:
         raise ValueError("no cards to build a deck from")
 
-    wanted = set(levels) if levels is not None else None
-    pool = [c for c in cards if wanted is None or c.level in wanted]
+    pool: dict[str, Card] = {}  # by id, first copy wins: no card twice
+    for card in cards:
+        if (levels is None or card.level in levels) and card.id not in pool:
+            pool[card.id] = card
     if not pool:
-        raise ValueError(f"no cards at levels {sorted(wanted or [])}")
+        raise ValueError(f"no cards at levels {sorted(levels or [])}")
 
-    chosen = random.Random(seed).sample(pool, k=min(n, len(pool)))
-    return [build_question(card, mode) for card in chosen]
+    # Build every pool card's question first, so a card the mode doesn't fit fails
+    # every time, not only when it happens to be drawn.
+    questions = [build_question(card, mode) for card in pool.values()]
+    return random.Random(seed).sample(questions, k=min(n, len(questions)))

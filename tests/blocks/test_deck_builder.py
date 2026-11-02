@@ -222,6 +222,37 @@ def test_missing_field_error_is_passed_through():
         block.build_deck(make_cards(), Mode(name="flag", show=["flag"]), 3, seed=1)
 
 
+def test_missing_field_fails_every_time_not_only_when_drawn():
+    """One broken card among many: n=1 must still fail, for every seed."""
+    broken = Card(id="atlantis", fields={"continent": "?"}, answers=["?"], level=1)
+    cards = [*make_cards(), broken]
+    for seed in range(20):
+        with pytest.raises(MissingFieldError):
+            block.build_deck(cards, COUNTRY, 1, seed=seed)
+
+
+@pytest.mark.parametrize("n", [2.0, True, "3"])
+def test_n_not_a_whole_number_raises_type_error(n):
+    with pytest.raises(TypeError):
+        block.build_deck(make_cards(), COUNTRY, n, seed=1)
+
+
+def test_same_card_id_twice_comes_up_once():
+    cards = make_cards()
+    deck = block.build_deck([*cards, *cards], COUNTRY, 100, seed=1)
+    assert len(deck) == len(cards)
+    assert len({q.card_id for q in deck}) == len(cards)
+
+
+def test_same_card_id_twice_first_copy_wins():
+    first = Card(id="x", fields={"country": "First"}, answers=["a"], level=1)
+    second = Card(id="x", fields={"country": "Second"}, answers=["b"], level=1)
+    deck = block.build_deck([first, second], COUNTRY, 5, seed=1)
+    assert len(deck) == 1
+    assert deck[0].shown == {"country": "First"}
+    assert deck[0].accepted_answers == ["a"]
+
+
 def test_missing_field_error_is_not_swallowed_into_another_error():
     """MissingFieldError subclasses ValueError; check the exact type survives."""
     with pytest.raises(ValueError) as info:

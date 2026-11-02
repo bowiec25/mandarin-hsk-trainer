@@ -364,6 +364,13 @@ issue → plan mode → branch → small commits → PR → CI ✅ → squash-me
 | Status line | A bar showing folder + **branch** + model | `/statusline` (project-only: `.claude/settings.local.json`) |
 | Auto-memory | Claude remembers how you like to work, across sessions | Automatic |
 | Artifacts: a build map | A visual page of the project (every kind of part and where it lives, the journey of a change, tests, a "How it grew" timeline), updated after every step, with a frozen snapshot per step in `docs/build-map/snapshots/` | Ask: *"Make a build map artifact of this project, keep its source in `docs/build-map/index.html`, and add 'update the build map' to CLAUDE.md's after-each-step list."* ⚠️ Keep the source in git, or it's lost with the session |
+| **Git worktrees: two Claude sessions at once** | A second folder of the same repo, on its own branch ("two desks, one notebook"), so two sessions build two features without touching each other's files | `git worktree add -b <branch> ../<repo>-<feature> main`, then `uv sync` there, open a new terminal, `cd` there, run `claude` with a starter prompt. Remove after merge: `git worktree remove ../<repo>-<feature>` |
+
+**Worktree tips:**
+- **Pick two features that only share a shape, not code** (here the engine only needs `list[Question]`, which already existed). If one needs the other's code, do them one after the other.
+- **Only one session edits the shared docs** (plan, log, maps). Otherwise both PRs change the same lines and you get a merge conflict.
+- **The second session may not see your memory notes** (they're stored per folder), so give it a starter prompt with the context. CLAUDE.md, skills and subagents are in git, so it has those.
+- **Merge one PR, then update the other from `main`** before merging it.
 
 ---
 

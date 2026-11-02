@@ -39,11 +39,13 @@ build_deck(cards, mode, n, levels=None, seed=None) -> list[Question]
 ## Failure modes
 | Situation | What it does |
 |---|---|
+| `n` not a whole number (`2.0`, `True`) | Raises `TypeError` |
 | `n < 1` | Raises `ValueError` |
+| The same card id appears twice in `cards` | Counted once (first copy wins), so no card comes up twice |
 | `cards` is empty | Raises `ValueError` ("no cards to build a deck from") |
 | No card is at the chosen `levels` | Raises `ValueError` naming the levels (a quiz of 0 questions is a mistake, so say so) |
 | `levels` is an empty list | Raises `ValueError` (use `None` for "all") |
-| A chosen card lacks a field the mode shows | `build_question`'s `MissingFieldError` is passed through |
+| A card at the chosen levels lacks a field the mode shows | `build_question`'s `MissingFieldError` is passed through. **Every** card at the chosen levels is checked, not just the drawn ones, so it fails every time, not by luck |
 | `n` larger than the cards available | Not an error: returns all of them, shuffled |
 | Some chosen levels have cards, others don't (`levels=[1, 99]`) | Not an error: uses the cards it has |
 
@@ -56,4 +58,4 @@ Automatic tests in `tests/blocks/test_deck_builder.py` (toy data only, e.g. capi
 - Input list unchanged
 - Each failure mode above
 
-Real-data check in `tests/test_hsk_deck.py`: band 1, mode `char`, n = 10 → 10 band-1 questions showing only `hanzi`; band 2 with n = 500 → all 197.
+Real-data check in `tests/test_hsk_deck.py`: band 1, mode `char`, n = 10 → 10 band-1 questions showing only `hanzi`; band 2 with n = 500 → all band-2 cards (the exact count is pinned in `tests/test_word_counts.py`).
