@@ -597,3 +597,16 @@ You now have: decision records, data shapes, hooks and permissions, the `/new-bl
 - **The check proves an answer was written, not that it's a good one.** The thinking is still ours; the gate just makes sure the question is asked every time.
 - **Safe with untrusted text:** the PR description is passed to the script as an environment variable, never pasted into the workflow, so a crafted description can't run code.
 - **`/code-review` found 10 things; 7 fixed.** Any heading (not just `## `) ends the section; heading variants like `### Still the right thing? (yes)` count; `## ` lines inside code blocks are ignored; an unclosed `<!--` hint doesn't count as an answer (GitHub hides it too); a second, filled-in copy of the section counts; a newer CI run cancels an older one on the same PR; CLAUDE.md notes that `gh pr create --body` skips the template. Kept as known limits: a PR could edit the checker script itself (so read any diff to it), a title-only edit re-runs all tests, and bot PRs (e.g. `@claude`) need the section added by hand.
+
+## M4 Step 2: ADR 0005, how grading gets judgment (2026-11-02)
+
+> **In plain words:** we decided how the quiz will know "dad" is right for 爸爸. Claude writes a list of good answers once, ahead of time; and when your answer isn't on the list, the quiz asks Claude to judge it and remembers the verdict.
+
+1. **"Still the right thing?" changed the plan.** The plan was an answer list only. You pointed out that the later *sentence translation* idea can't work with a fixed list. True: sentence *hint* modes still ask for the word's meaning (a list works), but translating a sentence has endless right answers. So the **judge**, planned for M5, moves into M4.
+2. **Two layers** (ADR 0005): the list answers most cases instantly and offline; the judge handles the rest, and later, sentence translation.
+3. **Under your subscription, no API key:** both call Claude through `claude -p` (Claude Code run from a script). Tested first: a call takes ~8 s and reports its tokens (the dollar figure it prints is the list-price equivalent, not a charge).
+
+**Good to know:**
+- The judge needs internet when it's asked. Without it the answer just stays wrong with "couldn't check"; the quiz never breaks.
+- Code can't check that a verdict is *right*, only that its shape is. So verdicts are shown on screen and saved for review.
+- This **refines ADR 0002** (agents = "Claude API + tools") rather than editing it: accepted ADRs aren't edited; the new one says what it changes.

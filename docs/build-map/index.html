@@ -274,7 +274,8 @@ a { color: var(--info); }
         <div class="item"><b>data/</b><code>raw/</code> → <code>processed/cards.jsonl</code></div>
         <div class="item"><b>cli.py → hsk quiz</b>the front door: band, mode, how many<small>not a block: wires the blocks to your keyboard · Ctrl-C keeps the score</small></div>
         <div class="item todo"><b>AGENT: sentence_writer</b>calls Claude by itself to write sentences<small>M4, the first real agent</small></div>
-        <div class="item todo"><b>AGENT: answer writer</b>clean answer lists with synonyms<small>M4 · replaces cedict_cleaner</small></div>
+        <div class="item todo"><b>AGENT: answer writer</b>clean answer lists with synonyms, once, offline<small>M4 · ADR 0005 · adds to cedict_cleaner</small></div>
+        <div class="item todo"><b>AGENT: judge</b>asked only when the list says "wrong"; verdicts cached<small>M4 · ADR 0005 · via claude -p (subscription)</small></div>
       </div>
     </div>
   </div>
@@ -296,7 +297,7 @@ a { color: var(--info); }
         <li>Lives in <code>src/</code> as a block, with a SPEC and tests</li>
         <li>Uses our script functions as tools (e.g. <code>check_vocab_level</code>)</li>
         <li>Runs without Claude Code; costs API tokens, so it's logged</li>
-        <li>Examples: sentence_writer, answer writer (M4); later, sentence-translation grading</li>
+        <li>Examples: sentence_writer, answer writer, judge (M4, all via <code>claude -p</code> under the subscription, ADR 0005); later, sentence-translation grading</li>
       </ul>
     </div>
   </div>
@@ -752,6 +753,7 @@ a { color: var(--info); }
     <p class="lede">One line per step, newest first. Click <b>snapshot</b> to see the whole map exactly as it was after that step.</p>
   </div>
   <ol class="timeline card" reversed>
+    <li><span class="when">2026-11-02</span><span class="what">M4 Step 2 (ADR 0005)</span><span>Grading becomes <b>two layers</b>: an answer list Claude writes once (checked by a script, committed) + a <b>Claude judge</b> asked only when the list says "wrong" (verdicts saved). Both run under the subscription via <code>claude -p</code>. Your catch: sentence translation can't use a fixed list, so the judge moves from M5 into M4 · <a href="snapshots/m4-step2.html">snapshot</a></span></li>
     <li><span class="when">2026-11-02</span><span class="what">M4 Step 1 (#28)</span><span><b>"Still the right thing?" moves from a habit to a gate</b>: a required box in the issue form, a section in the PR template, and a CI check that fails a PR when it's empty. Re-check of M4: the answer agent now comes before sentence_writer · <a href="snapshots/m4-step1.html">snapshot</a></span></li>
     <li><span class="when">2026-11-02</span><span class="what">M3 done: Step 6 (#27)</span><span><b>reuse check</b>: a toy capitals quiz built only from <code>quizkit</code> plays with <code>hsk_trainer</code> blocked; a scan test keeps <code>quizkit</code> free of Mandarin code. It also found a weak spot: Ctrl-C could lose the score in the shared quiz loop, so the <b>engine</b> now handles it for every quiz (full block routine) and the CLI dropped its workaround. Play-test: works, but grading needs judgment, not rules (→ M4 answer agent) · <a href="snapshots/m3-done.html">snapshot</a></span></li>
     <li><span class="when">2026-11-02</span><span class="what">M3 Step 5 (#26)</span><span><b>the first playable quiz</b>: <code>uv run hsk quiz --band 1 --mode char --n 10</code> (Typer). Tested with <b>scripted keystrokes</b>; <code>/code-review</code> found 8 things (fixed 6, e.g. a Windows Ctrl-C could lose the score) · <a href="snapshots/m3-step5.html">snapshot</a></span></li>
@@ -773,7 +775,7 @@ a { color: var(--info); }
 </section>
 
 <footer>
-  Latest map, after M4 Step 1, 2026-11-02. There are no snapshots from before M2 done (the map started then). Known gaps, by choice: words with several readings keep all of them (197 words), "bands 1+2 together" comes later, listening practice, sentence translation (needs a judgment agent) and other later ideas are listed in docs/FUTURE.md; synonyms not in the dictionary wait for the M4 answer agent. Reminder: the Claude review token expires after 1 year (renew before 2027-10-15). Green on GitHub is not the same as reviewed.
+  Latest map, after M4 Step 2, 2026-11-02. There are no snapshots from before M2 done (the map started then). Known gaps, by choice: words with several readings keep all of them (197 words), "bands 1+2 together" comes later, listening practice, sentence translation (needs a judgment agent) and other later ideas are listed in docs/FUTURE.md; synonyms not in the dictionary wait for the M4 answer agent. Reminder: the Claude review token expires after 1 year (renew before 2027-10-15). Green on GitHub is not the same as reviewed.
 </footer>
 
 </main>
