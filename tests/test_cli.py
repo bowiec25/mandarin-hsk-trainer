@@ -6,6 +6,7 @@ answers, each followed by Enter. Running out of input = end-of-input (quit).
 
 import functools
 import os
+import re
 import subprocess
 import sys
 
@@ -296,8 +297,10 @@ def test_no_cards_in_that_band_is_a_friendly_error(tmp_path, real_cards):
 def test_help_lists_the_options():
     result = runner.invoke(app, ["quiz", "--help"])
     assert result.exit_code == 0
+    # On GitHub Actions, rich colours the help, splitting "--band" with colour codes.
+    plain = re.sub(r"\x1b\[[0-9;]*m", "", result.output)
     for opt in ("--band", "--mode", "--n", "--seed"):
-        assert opt in result.output
+        assert opt in plain
 
 
 # --- the real program, through a pipe -------------------------------------------
