@@ -108,12 +108,12 @@ def test_corrupted_file_and_bad_redownload_leaves_old_file_alone(tmp_path):
 
 def test_write_failing_halfway_leaves_no_temp_file(tmp_path, monkeypatch):
     """The clean-up path really runs: the final swap-in fails, so no .part file may remain."""
-    from quizkit import download
+    import os
 
     def broken_replace(src, dst):
         raise OSError("disk full")
 
-    monkeypatch.setattr(download.os, "replace", broken_replace)
+    monkeypatch.setattr(os, "replace", broken_replace)
     dest = tmp_path / "words.json"
     with pytest.raises(DownloadError, match="words.json"):
         download_verified(URL, dest, size=SIZE, sha256=SHA, fetch=FakeFetch())

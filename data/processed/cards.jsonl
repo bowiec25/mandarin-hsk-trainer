@@ -1,0 +1,978 @@
+{"id": "爱", "fields": {"hanzi": "爱", "pinyin": "ài", "pos": "v, vn, b", "readings": "1"}, "answers": ["to love", "to be fond of", "to like", "affection", "to be inclined (to do sth)", "to tend to (happen)"], "level": 1}
+{"id": "八", "fields": {"hanzi": "八", "pinyin": "bā", "pos": "m, t", "readings": "1"}, "answers": ["eight", "8"], "level": 1}
+{"id": "爸爸", "fields": {"hanzi": "爸爸", "pinyin": "bà ba", "pos": "n", "readings": "1"}, "answers": ["(coll.) father", "dad"], "level": 1}
+{"id": "吧", "fields": {"hanzi": "吧", "pinyin": "bā / ba / biā", "pos": "y", "readings": "3"}, "answers": ["bar (loanword) (serving drinks, or providing Internet access etc)", "to puff (on a pipe etc)", "(onom.) bang", "abbr. for 贴吧", "(modal particle indicating suggestion or surmise)", "...right?", "...OK?", "...I presume.", "(onom.) smack!"], "level": 1}
+{"id": "白天", "fields": {"hanzi": "白天", "pinyin": "bái tiān", "pos": "t", "readings": "1"}, "answers": ["daytime", "during the day", "day"], "level": 1}
+{"id": "百", "fields": {"hanzi": "百", "pinyin": "Bǎi / bǎi", "pos": "m, t", "readings": "2"}, "answers": ["surname Bai", "hundred", "numerous", "all kinds of"], "level": 1}
+{"id": "半", "fields": {"hanzi": "半", "pinyin": "bàn", "pos": "m", "readings": "1"}, "answers": ["half", "semi-", "incomplete", "(after a number) and a half"], "level": 1}
+{"id": "包子", "fields": {"hanzi": "包子", "pinyin": "bāo zi", "pos": "n", "readings": "1"}, "answers": ["bao (steamed stuffed bun)"], "level": 1}
+{"id": "杯子", "fields": {"hanzi": "杯子", "pinyin": "bēi zi", "pos": "n", "readings": "1"}, "answers": ["cup", "glass"], "level": 1}
+{"id": "本", "fields": {"hanzi": "本", "pinyin": "běn", "pos": "r, q, d, n", "readings": "1"}, "answers": ["root", "stem", "origin", "source", "this", "the current", "original", "inherent", "originally", "classifier for books, periodicals, files etc"], "level": 1}
+{"id": "边", "fields": {"hanzi": "边", "pinyin": "biān / bian", "pos": "k, d, n", "readings": "2"}, "answers": ["side", "edge", "margin", "border", "boundary", "simultaneously", "suffix of a noun of locality"], "level": 1}
+{"id": "便宜", "fields": {"hanzi": "便宜", "pinyin": "biàn yí / pián yi", "pos": "a, v, an", "readings": "2"}, "answers": ["convenient", "cheap", "inexpensive", "small advantages", "to let sb off lightly"], "level": 1}
+{"id": "病", "fields": {"hanzi": "病", "pinyin": "bìng", "pos": "n, v", "readings": "1"}, "answers": ["illness", "disease", "to fall ill", "defect"], "level": 1}
+{"id": "不", "fields": {"hanzi": "不", "pinyin": "bù", "pos": "d", "readings": "1"}, "answers": ["no", "not so", "(bound form) not", "un-"], "level": 1}
+{"id": "不客气", "fields": {"hanzi": "不客气", "pinyin": "bù kè qi", "pos": "", "readings": "1"}, "answers": ["you're welcome", "don't mention it", "impolite", "rude", "blunt"], "level": 1}
+{"id": "不要", "fields": {"hanzi": "不要", "pinyin": "bù yào", "pos": "d", "readings": "1"}, "answers": ["don't!", "must not"], "level": 1}
+{"id": "菜", "fields": {"hanzi": "菜", "pinyin": "cài", "pos": "n", "readings": "1"}, "answers": ["dish (type of food)", "vegetable", "cuisine", "(coll.) (one's) type", "(of one's skills etc) weak", "poor"], "level": 1}
+{"id": "茶", "fields": {"hanzi": "茶", "pinyin": "chá", "pos": "n, g", "readings": "1"}, "answers": ["tea", "tea plant"], "level": 1}
+{"id": "唱", "fields": {"hanzi": "唱", "pinyin": "chàng", "pos": "v", "readings": "1"}, "answers": ["to sing", "to call loudly", "to chant"], "level": 1}
+{"id": "超市", "fields": {"hanzi": "超市", "pinyin": "chāo shì", "pos": "n", "readings": "1"}, "answers": ["supermarket (abbr. for 超级市场)"], "level": 1}
+{"id": "车", "fields": {"hanzi": "车", "pinyin": "Chē / chē / jū", "pos": "n, q", "readings": "3"}, "answers": ["surname Che", "car", "vehicle", "machine", "to shape with a lathe", "Kangxi radical 159", "war chariot (archaic)", "rook (in Chinese chess)", "rook (in chess)"], "level": 1}
+{"id": "吃", "fields": {"hanzi": "吃", "pinyin": "chī", "pos": "v", "readings": "1"}, "answers": ["to eat", "to consume", "to eat at (a cafeteria etc)", "to eradicate", "to destroy", "to absorb", "to suffer (shock, injury, defeat etc)", "variant of 吃"], "level": 1}
+{"id": "出租车", "fields": {"hanzi": "出租车", "pinyin": "chū zū chē", "pos": "n", "readings": "1"}, "answers": ["taxi", "(Tw) rental car"], "level": 1}
+{"id": "穿", "fields": {"hanzi": "穿", "pinyin": "chuān", "pos": "v", "readings": "1"}, "answers": ["to wear", "to put on", "to dress", "to bore through", "to pierce", "to perforate", "to penetrate", "to pass through", "to thread"], "level": 1}
+{"id": "打电话", "fields": {"hanzi": "打电话", "pinyin": "dǎ diàn huà", "pos": "v", "readings": "1"}, "answers": ["to make a telephone call"], "level": 1}
+{"id": "大", "fields": {"hanzi": "大", "pinyin": "dà / dài", "pos": "a, d, n, g", "readings": "2"}, "answers": ["big", "large", "great", "older (than another person)", "eldest (as in 姐)", "greatly", "freely", "fully", "(dialect) father", "(dialect) uncle (father's brother)", "see 夫"], "level": 1}
+{"id": "大家", "fields": {"hanzi": "大家", "pinyin": "dà jiā", "pos": "r, n", "readings": "1"}, "answers": ["everyone", "influential family", "great expert"], "level": 1}
+{"id": "大学", "fields": {"hanzi": "大学", "pinyin": "Dà xué / dà xué", "pos": "n", "readings": "2"}, "answers": ["the Great Learning, one of the Four Books 四书 in Confucianism", "university", "college"], "level": 1}
+{"id": "大学生", "fields": {"hanzi": "大学生", "pinyin": "dà xué shēng", "pos": "n", "readings": "1"}, "answers": ["university student", "college student"], "level": 1}
+{"id": "到", "fields": {"hanzi": "到", "pinyin": "dào", "pos": "v, p", "readings": "1"}, "answers": ["to reach", "to arrive", "to leave for", "to go to", "to (a place)", "until (a time)", "up to (a point)", "(verb complement indicating arriving at a place or reaching a point)", "considerate", "thoughtful", "thorough"], "level": 1}
+{"id": "的", "fields": {"hanzi": "的", "pinyin": "de / dī / dí / dì", "pos": "u, n", "readings": "4"}, "answers": ["of", "~'s (possessive particle)", "(used after an attribute)", "(used to form a nominal expression)", "(used at the end of a declarative sentence for emphasis)", "also pr. [dì] or [di] in poetry and songs", "a taxi", "a cab (abbr. for 士)", "really and truly", "(bound form) bull's-eye", "target"], "level": 1}
+{"id": "弟弟", "fields": {"hanzi": "弟弟", "pinyin": "dì di", "pos": "n", "readings": "1"}, "answers": ["younger brother"], "level": 1}
+{"id": "第", "fields": {"hanzi": "第", "pinyin": "dì", "pos": "m", "readings": "1"}, "answers": ["(prefix indicating ordinal number, as in 六 \"sixth\")", "(literary) grades in which successful candidates in the imperial examinations were placed", "(old) residence of a high official", "(literary) but", "however", "(literary) only", "just"], "level": 1}
+{"id": "点", "fields": {"hanzi": "点", "pinyin": "diǎn", "pos": "qt, n, t, v", "readings": "1"}, "answers": ["point", "dot", "drop", "speck", "o'clock", "point (in space or time)", "to draw a dot", "to check on a list", "to choose", "to order (food in a restaurant)", "to touch briefly", "to hint", "to light", "to ignite", "to pour a liquid drop by drop", "(old) one fifth of a two-hour watch 更", "dot stroke in Chinese characters", "classifier for items"], "level": 1}
+{"id": "电话", "fields": {"hanzi": "电话", "pinyin": "diàn huà", "pos": "n", "readings": "1"}, "answers": ["telephone", "phone call", "phone number"], "level": 1}
+{"id": "电脑", "fields": {"hanzi": "电脑", "pinyin": "diàn nǎo", "pos": "n", "readings": "1"}, "answers": ["computer"], "level": 1}
+{"id": "电视", "fields": {"hanzi": "电视", "pinyin": "diàn shì", "pos": "n", "readings": "1"}, "answers": ["television", "TV"], "level": 1}
+{"id": "电影", "fields": {"hanzi": "电影", "pinyin": "diàn yǐng", "pos": "n", "readings": "1"}, "answers": ["movie", "film"], "level": 1}
+{"id": "电影院", "fields": {"hanzi": "电影院", "pinyin": "diàn yǐng yuàn", "pos": "n", "readings": "1"}, "answers": ["cinema", "movie theater"], "level": 1}
+{"id": "店", "fields": {"hanzi": "店", "pinyin": "diàn", "pos": "n", "readings": "1"}, "answers": ["inn", "old-style hotel", "(bound form) shop", "store"], "level": 1}
+{"id": "东西", "fields": {"hanzi": "东西", "pinyin": "dōng xī / dōng xi", "pos": "n, f, nr", "readings": "2"}, "answers": ["east and west", "thing", "stuff", "person"], "level": 1}
+{"id": "都", "fields": {"hanzi": "都", "pinyin": "Dū / dōu / dū", "pos": "d, g", "readings": "3"}, "answers": ["surname Du", "all", "both", "entirely", "(used for emphasis) even", "already", "(not) at all", "capital city", "metropolis"], "level": 1}
+{"id": "读", "fields": {"hanzi": "读", "pinyin": "dòu / dú", "pos": "v", "readings": "2"}, "answers": ["comma", "phrase marked by pause", "to read out", "to read aloud", "to read", "to attend (school)", "to study (a subject in school)", "to pronounce"], "level": 1}
+{"id": "读书", "fields": {"hanzi": "读书", "pinyin": "dú shū", "pos": "v, vn", "readings": "1"}, "answers": ["to read a book", "to study", "to attend school"], "level": 1}
+{"id": "对", "fields": {"hanzi": "对", "pinyin": "duì", "pos": "p, v, q, a", "readings": "1"}, "answers": ["right", "correct", "towards", "at", "for", "concerning", "regarding", "to treat (sb a certain way)", "to face", "(bound form) opposite", "facing", "matching", "to match together", "to adjust", "to fit", "to suit", "to answer", "to reply", "to add", "to pour in (a fluid)", "to check", "to compare", "classifier: couple", "pair"], "level": 1}
+{"id": "对不起", "fields": {"hanzi": "对不起", "pinyin": "duì bu qǐ", "pos": "v", "readings": "1"}, "answers": ["I'm sorry", "excuse me", "I beg your pardon", "to let (sb) down", "to disappoint"], "level": 1}
+{"id": "多", "fields": {"hanzi": "多", "pinyin": "duō", "pos": "a, m, ad, d, v, g", "readings": "1"}, "answers": ["many", "much", "too many", "in excess", "(after a numeral) ... odd", "how (to what extent) (Taiwan pr. [duó])", "(bound form) multi-", "poly-"], "level": 1}
+{"id": "多少", "fields": {"hanzi": "多少", "pinyin": "duō shǎo / duō shao", "pos": "r", "readings": "2"}, "answers": ["number", "amount", "somewhat", "how much?", "how many?", "(phone number, student ID etc) what number?"], "level": 1}
+{"id": "儿子", "fields": {"hanzi": "儿子", "pinyin": "ér zi", "pos": "n", "readings": "1"}, "answers": ["son"], "level": 1}
+{"id": "二", "fields": {"hanzi": "二", "pinyin": "èr", "pos": "m, t", "readings": "1"}, "answers": ["two", "2", "(Beijing dialect) stupid"], "level": 1}
+{"id": "饭", "fields": {"hanzi": "饭", "pinyin": "fàn", "pos": "n", "readings": "1"}, "answers": ["cooked rice", "meal", "(loanword) fan", "devotee"], "level": 1}
+{"id": "饭店", "fields": {"hanzi": "饭店", "pinyin": "fàn diàn", "pos": "n", "readings": "1"}, "answers": ["restaurant", "hotel"], "level": 1}
+{"id": "房间", "fields": {"hanzi": "房间", "pinyin": "fáng jiān", "pos": "n", "readings": "1"}, "answers": ["room"], "level": 1}
+{"id": "飞机", "fields": {"hanzi": "飞机", "pinyin": "fēi jī", "pos": "n", "readings": "1"}, "answers": ["airplane"], "level": 1}
+{"id": "非常", "fields": {"hanzi": "非常", "pinyin": "fēi cháng", "pos": "d, b", "readings": "1"}, "answers": ["very", "really", "unusual", "extraordinary"], "level": 1}
+{"id": "分", "fields": {"hanzi": "分", "pinyin": "fēn / fèn", "pos": "t, qt, v, g, n, d", "readings": "2"}, "answers": ["to divide", "to separate", "to distribute", "to allocate", "to distinguish (good and bad)", "(bound form) branch of (an organization)", "sub- (as in 局)", "fraction", "one tenth (of certain units)", "unit of length equivalent to 0.33 cm", "minute (unit of time)", "minute (angular measurement unit)", "a point (in sports or games)", "0.01 yuan (unit of money)", "part", "share", "ingredient", "component"], "level": 1}
+{"id": "分钟", "fields": {"hanzi": "分钟", "pinyin": "fēn zhōng", "pos": "qt", "readings": "1"}, "answers": ["minute"], "level": 1}
+{"id": "高兴", "fields": {"hanzi": "高兴", "pinyin": "gāo xìng", "pos": "a, an", "readings": "1"}, "answers": ["happy", "glad", "willing (to do sth)", "in a cheerful mood"], "level": 1}
+{"id": "哥哥", "fields": {"hanzi": "哥哥", "pinyin": "gē ge", "pos": "n", "readings": "1"}, "answers": ["older brother"], "level": 1}
+{"id": "歌", "fields": {"hanzi": "歌", "pinyin": "gē", "pos": "n, g", "readings": "1"}, "answers": ["song", "to sing", "variant of 歌"], "level": 1}
+{"id": "个", "fields": {"hanzi": "个", "pinyin": "gě / gè", "pos": "q, g", "readings": "2"}, "answers": ["used in 自个儿", "(classifier used before a noun that has no specific classifier)", "(bound form) individual", "variant of 个"], "level": 1}
+{"id": "给", "fields": {"hanzi": "给", "pinyin": "gěi / jǐ", "pos": "p, v, u", "readings": "2"}, "answers": ["to", "for", "for the benefit of", "to give", "to allow", "to do sth (for sb)", "(grammatical equivalent of 被)", "(grammatical equivalent of 把)", "(sentence intensifier)", "to supply", "to provide"], "level": 1}
+{"id": "工作", "fields": {"hanzi": "工作", "pinyin": "gōng zuò", "pos": "vn, v, n", "readings": "1"}, "answers": ["to work", "(of a machine) to operate", "job", "work", "task"], "level": 1}
+{"id": "公司", "fields": {"hanzi": "公司", "pinyin": "gōng sī", "pos": "n", "readings": "1"}, "answers": ["company", "firm", "corporation"], "level": 1}
+{"id": "狗", "fields": {"hanzi": "狗", "pinyin": "gǒu", "pos": "n", "readings": "1"}, "answers": ["dog"], "level": 1}
+{"id": "贵", "fields": {"hanzi": "贵", "pinyin": "guì", "pos": "a, r, b, g", "readings": "1"}, "answers": ["expensive", "noble", "precious", "(honorific) your"], "level": 1}
+{"id": "国", "fields": {"hanzi": "国", "pinyin": "Guó / guó", "pos": "n", "readings": "2"}, "answers": ["surname Guo", "country", "nation", "state", "(bound form) national"], "level": 1}
+{"id": "还", "fields": {"hanzi": "还", "pinyin": "Huán / hái / huán", "pos": "d, v", "readings": "3"}, "answers": ["surname Huan", "still", "still in progress", "still more", "yet", "even more", "in addition", "fairly", "passably (good)", "as early as", "even", "also", "else", "to pay back", "to return"], "level": 1}
+{"id": "孩子", "fields": {"hanzi": "孩子", "pinyin": "hái zi", "pos": "n", "readings": "1"}, "answers": ["child"], "level": 1}
+{"id": "汉语", "fields": {"hanzi": "汉语", "pinyin": "Hàn yǔ", "pos": "nz", "readings": "1"}, "answers": ["Chinese language"], "level": 1}
+{"id": "汉字", "fields": {"hanzi": "汉字", "pinyin": "hàn zì", "pos": "nz, n", "readings": "1"}, "answers": ["Chinese character", "Japanese: kanji", "Korean: hanja", "Vietnamese: hán tự"], "level": 1}
+{"id": "好", "fields": {"hanzi": "好", "pinyin": "hǎo / hào", "pos": "a, d, v", "readings": "2"}, "answers": ["good", "appropriate", "proper", "all right!", "(before a verb) easy to", "(before a verb) good to", "(before an adjective for exclamatory effect) so", "(verb complement indicating completion)", "(of two people) close", "on intimate terms", "(after a personal pronoun) hello", "to be fond of", "to have a tendency to", "to be prone to"], "level": 1}
+{"id": "好吃", "fields": {"hanzi": "好吃", "pinyin": "hǎo chī / hào chī", "pos": "a", "readings": "2"}, "answers": ["tasty", "delicious", "to be fond of eating", "to be gluttonous"], "level": 1}
+{"id": "好看", "fields": {"hanzi": "好看", "pinyin": "hǎo kàn", "pos": "a", "readings": "1"}, "answers": ["good-looking", "nice-looking", "good (of a movie, book, TV show etc)", "embarrassed", "humiliated"], "level": 1}
+{"id": "好听", "fields": {"hanzi": "好听", "pinyin": "hǎo tīng", "pos": "a", "readings": "1"}, "answers": ["pleasant to hear"], "level": 1}
+{"id": "好玩儿", "fields": {"hanzi": "好玩儿", "pinyin": "hǎo wán r", "pos": "a", "readings": "1"}, "answers": ["erhua variant of 好玩", "amusing", "fun", "interesting"], "level": 1}
+{"id": "号", "fields": {"hanzi": "号", "pinyin": "háo / hào", "pos": "q, n, v", "readings": "2"}, "answers": ["roar", "cry", "ordinal number", "day of a month", "mark", "sign", "business establishment", "size", "ship suffix", "horn (wind instrument)", "bugle call", "assumed name", "to take a pulse", "classifier used to indicate number of people"], "level": 1}
+{"id": "喝", "fields": {"hanzi": "喝", "pinyin": "hē / hè", "pos": "g, vn", "readings": "2"}, "answers": ["to drink", "variant of 嗬", "to shout"], "level": 1}
+{"id": "和", "fields": {"hanzi": "和", "pinyin": "hé / Hé / hè / hú / huó / huò", "pos": "cc, p, v, qv, g, n", "readings": "6"}, "answers": ["old variant of 和", "surname He", "(joining two nouns) and", "together with", "with (Taiwan pr. [hàn])", "(math.) sum", "to make peace", "(sports) to draw", "to tie", "(bound form) harmonious", "(bound form) Japan", "Japanese", "to compose a poem in reply (to sb's poem) using the same rhyme sequence", "to join in the singing", "to chime in with others", "to complete a set in mahjong or playing cards", "to combine a powdery substance (flour, plaster etc) with water", "Taiwan pr. [huò]", "to mix (ingredients) together", "to blend", "classifier for rinses of clothes", "classifier for boilings of medicinal herbs", "harmonious"], "level": 1}
+{"id": "很", "fields": {"hanzi": "很", "pinyin": "hěn", "pos": "d", "readings": "1"}, "answers": ["(adverb of degree)", "quite", "very", "awfully"], "level": 1}
+{"id": "后", "fields": {"hanzi": "后", "pinyin": "Hòu / hòu", "pos": "f, g, t", "readings": "2"}, "answers": ["surname Hou", "empress", "queen", "(archaic) monarch", "ruler", "back", "behind", "rear", "afterwards", "after", "later", "post-"], "level": 1}
+{"id": "回", "fields": {"hanzi": "回", "pinyin": "huí", "pos": "v, qv", "readings": "1"}, "answers": ["to circle", "to go back", "to turn around", "to answer", "to return", "to revolve", "Hui ethnic group (Chinese Muslims)", "time", "classifier for acts of a play", "section or chapter (of a classic book)", "to curve", "variant of 回"], "level": 1}
+{"id": "会", "fields": {"hanzi": "会", "pinyin": "huì / kuài", "pos": "v, n", "readings": "2"}, "answers": ["can", "to have the skill", "to know how to", "to be likely to", "to be sure to", "to meet", "to get together", "meeting", "gathering", "(suffix) union", "group", "association", "(bound form) a moment (Taiwan pr. [huǐ])", "to balance an account", "accounting", "accountant"], "level": 1}
+{"id": "火车", "fields": {"hanzi": "火车", "pinyin": "huǒ chē", "pos": "n", "readings": "1"}, "answers": ["train"], "level": 1}
+{"id": "鸡蛋", "fields": {"hanzi": "鸡蛋", "pinyin": "jī dàn", "pos": "n", "readings": "1"}, "answers": ["(chicken) egg", "hen's egg"], "level": 1}
+{"id": "几", "fields": {"hanzi": "几", "pinyin": "jī / jǐ", "pos": "m, d", "readings": "2"}, "answers": ["small table", "almost", "how much", "how many", "several", "a few"], "level": 1}
+{"id": "家", "fields": {"hanzi": "家", "pinyin": "jiā", "pos": "n, q", "readings": "1"}, "answers": ["used in 家伙 and 家俱", "home", "family", "(polite) my (sister, uncle etc)", "classifier for families or businesses", "refers to the philosophical schools of pre-Han China", "noun suffix for a specialist in some activity, such as a musician or revolutionary, corresponding to English -ist, -er, -ary or -ian"], "level": 1}
+{"id": "家人", "fields": {"hanzi": "家人", "pinyin": "jiā rén", "pos": "n, nr", "readings": "1"}, "answers": ["family member", "(old) servant"], "level": 1}
+{"id": "见", "fields": {"hanzi": "见", "pinyin": "jiàn / xiàn", "pos": "v, g", "readings": "2"}, "answers": ["to see", "to meet", "to appear (to be sth)", "to interview", "opinion", "view", "to appear", "also written 现"], "level": 1}
+{"id": "件", "fields": {"hanzi": "件", "pinyin": "jiàn", "pos": "q, g", "readings": "1"}, "answers": ["item", "component", "classifier for events, things, clothes etc"], "level": 1}
+{"id": "饺子", "fields": {"hanzi": "饺子", "pinyin": "jiǎo zi", "pos": "n", "readings": "1"}, "answers": ["dumpling", "pot-sticker"], "level": 1}
+{"id": "叫", "fields": {"hanzi": "叫", "pinyin": "jiào", "pos": "v, p, n", "readings": "1"}, "answers": ["to shout", "to call", "to order", "to ask", "to be called", "by (indicates agent in the passive mood)", "variant of 叫"], "level": 1}
+{"id": "姐姐", "fields": {"hanzi": "姐姐", "pinyin": "jiě jie", "pos": "n", "readings": "1"}, "answers": ["older sister"], "level": 1}
+{"id": "今年", "fields": {"hanzi": "今年", "pinyin": "jīn nián", "pos": "t", "readings": "1"}, "answers": ["this year"], "level": 1}
+{"id": "今天", "fields": {"hanzi": "今天", "pinyin": "jīn tiān", "pos": "t", "readings": "1"}, "answers": ["today", "at the present", "now"], "level": 1}
+{"id": "九", "fields": {"hanzi": "九", "pinyin": "jiǔ", "pos": "m, t, b", "readings": "1"}, "answers": ["nine", "9"], "level": 1}
+{"id": "觉得", "fields": {"hanzi": "觉得", "pinyin": "jué de", "pos": "v", "readings": "1"}, "answers": ["to think that ...", "to feel that ...", "to feel (uncomfortable etc)"], "level": 1}
+{"id": "开", "fields": {"hanzi": "开", "pinyin": "kāi", "pos": "v, q", "readings": "1"}, "answers": ["to open (transitive or intransitive)", "(of ships, vehicles, troops etc) to start", "to turn on", "to put in operation", "to operate", "to run", "to boil", "to write out (a prescription, check, invoice etc)", "(directional complement) away", "off", "carat (gold)", "abbr. for Kelvin, 开尔文", "abbr. for 开本, book format"], "level": 1}
+{"id": "开车", "fields": {"hanzi": "开车", "pinyin": "kāi chē", "pos": "v, vn", "readings": "1"}, "answers": ["to drive a car"], "level": 1}
+{"id": "看", "fields": {"hanzi": "看", "pinyin": "kān / kàn", "pos": "v, u", "readings": "2"}, "answers": ["to look after", "to take care of", "to watch", "to guard", "to see", "to look at", "to read", "to visit", "to call on", "to consider", "to regard as", "to treat (a patient or illness)", "to depend on", "to feel (that)", "(after a verb) to give it a try", "to watch out for"], "level": 1}
+{"id": "看病", "fields": {"hanzi": "看病", "pinyin": "kàn bìng", "pos": "v, vn", "readings": "1"}, "answers": ["to visit a doctor", "to see a patient"], "level": 1}
+{"id": "看见", "fields": {"hanzi": "看见", "pinyin": "kàn jiàn", "pos": "v", "readings": "1"}, "answers": ["to see", "to catch sight of"], "level": 1}
+{"id": "可以", "fields": {"hanzi": "可以", "pinyin": "kě yǐ", "pos": "v", "readings": "1"}, "answers": ["can", "may", "possible", "able to", "not bad", "pretty good"], "level": 1}
+{"id": "课", "fields": {"hanzi": "课", "pinyin": "kè", "pos": "n", "readings": "1"}, "answers": ["subject", "course", "class", "lesson", "to levy", "tax", "form of divination"], "level": 1}
+{"id": "口", "fields": {"hanzi": "口", "pinyin": "kǒu", "pos": "q, n", "readings": "1"}, "answers": ["mouth", "classifier for things with mouths (people, domestic animals, cannons, wells etc)", "classifier for bites or mouthfuls"], "level": 1}
+{"id": "块", "fields": {"hanzi": "块", "pinyin": "kuài", "pos": "q, g", "readings": "1"}, "answers": ["lump", "chunk", "piece", "classifier for pieces of cloth, cake, soap etc", "(coll.) classifier for money and currency units"], "level": 1}
+{"id": "来", "fields": {"hanzi": "来", "pinyin": "lái", "pos": "v, f, m, u, y", "readings": "1"}, "answers": ["to come", "(used as a substitute for a more specific verb)", "hither (directional complement for motion toward the speaker, as in 回来)", "ever since (as in 自古以来)", "for the past (amount of time)", "(prefix) the coming ...", "the next ... (as in 来世)", "(between two verbs) in order to", "(after a round number) approximately", "(used after 得 to indicate possibility, as in 谈得来, or after 不 to indicate impossibility, as in 吃不来)"], "level": 1}
+{"id": "老师", "fields": {"hanzi": "老师", "pinyin": "lǎo shī", "pos": "n", "readings": "1"}, "answers": ["teacher"], "level": 1}
+{"id": "了", "fields": {"hanzi": "了", "pinyin": "le / liǎo / liào", "pos": "y, u, v", "readings": "3"}, "answers": ["(completed action marker)", "(modal particle indicating change of state, situation now)", "(modal particle intensifying preceding clause)", "to finish", "to achieve", "variant of 了", "to understand clearly", "(of eyes) bright", "clear-sighted", "unofficial variant of 瞭"], "level": 1}
+{"id": "冷", "fields": {"hanzi": "冷", "pinyin": "Lěng / lěng", "pos": "a, ad, g", "readings": "2"}, "answers": ["surname Leng", "cold"], "level": 1}
+{"id": "里", "fields": {"hanzi": "里", "pinyin": "lǐ / Lǐ", "pos": "f, q", "readings": "2"}, "answers": ["variant of 里", "lining", "interior", "inside", "internal", "also written 里", "Li (surname)", "li, ancient measure of length, approx. 500 m", "neighborhood", "ancient administrative unit of 25 families", "(Tw) borough, administrative unit between the township 镇 and neighborhood 邻 levels"], "level": 1}
+{"id": "两", "fields": {"hanzi": "两", "pinyin": "liǎng", "pos": "m, t", "readings": "1"}, "answers": ["two", "both", "some", "a few", "tael, unit of weight equal to 50 grams (modern) or 1⁄16 of a catty 斤 (old)"], "level": 1}
+{"id": "零", "fields": {"hanzi": "零", "pinyin": "líng", "pos": "m, t, g", "readings": "1"}, "answers": ["zero", "nought", "zero sign", "fractional", "fragmentary", "odd (of numbers)", "(placed between two numbers to indicate a smaller quantity followed by a larger one)", "fraction", "(in mathematics) remainder (after division)", "extra", "to wither and fall", "to wither"], "level": 1}
+{"id": "六", "fields": {"hanzi": "六", "pinyin": "liù", "pos": "m, t", "readings": "1"}, "answers": ["six", "6"], "level": 1}
+{"id": "妈妈", "fields": {"hanzi": "妈妈", "pinyin": "mā ma", "pos": "n", "readings": "1"}, "answers": ["mama", "mommy", "mother"], "level": 1}
+{"id": "吗", "fields": {"hanzi": "吗", "pinyin": "má / mǎ / ma", "pos": "y", "readings": "3"}, "answers": ["(coll.) what?", "used in 吗啡", "(question particle for \"yes-no\" questions)"], "level": 1}
+{"id": "买", "fields": {"hanzi": "买", "pinyin": "mǎi", "pos": "v", "readings": "1"}, "answers": ["to buy", "to purchase"], "level": 1}
+{"id": "卖", "fields": {"hanzi": "卖", "pinyin": "mài", "pos": "v", "readings": "1"}, "answers": ["to sell", "to betray", "to spare no effort", "to show off or flaunt"], "level": 1}
+{"id": "忙", "fields": {"hanzi": "忙", "pinyin": "máng", "pos": "v, a, ad, g, an", "readings": "1"}, "answers": ["busy", "hurriedly", "to hurry", "to rush"], "level": 1}
+{"id": "猫", "fields": {"hanzi": "猫", "pinyin": "māo", "pos": "n, v", "readings": "1"}, "answers": ["cat", "(dialect) to hide oneself", "(coll.) modem"], "level": 1}
+{"id": "没关系", "fields": {"hanzi": "没关系", "pinyin": "méi guān xi", "pos": "v", "readings": "1"}, "answers": ["it doesn't matter"], "level": 1}
+{"id": "没有", "fields": {"hanzi": "没有", "pinyin": "méi yǒu", "pos": "v, d", "readings": "1"}, "answers": ["haven't", "hasn't", "doesn't exist", "to not have", "to not be"], "level": 1}
+{"id": "妹妹", "fields": {"hanzi": "妹妹", "pinyin": "mèi mei", "pos": "n", "readings": "1"}, "answers": ["younger sister", "young woman"], "level": 1}
+{"id": "们", "fields": {"hanzi": "们", "pinyin": "men", "pos": "k", "readings": "1"}, "answers": ["plural marker for pronouns, and nouns referring to individuals"], "level": 1}
+{"id": "米饭", "fields": {"hanzi": "米饭", "pinyin": "mǐ fàn", "pos": "n", "readings": "1"}, "answers": ["(cooked) rice"], "level": 1}
+{"id": "面包", "fields": {"hanzi": "面包", "pinyin": "miàn bāo", "pos": "n", "readings": "1"}, "answers": ["bread"], "level": 1}
+{"id": "面条儿", "fields": {"hanzi": "面条儿", "pinyin": "miàn tiáo r", "pos": "", "readings": "1"}, "answers": ["erhua variant of 面条", "noodles"], "level": 1}
+{"id": "名字", "fields": {"hanzi": "名字", "pinyin": "míng zi", "pos": "n", "readings": "1"}, "answers": ["name (of a person or thing)"], "level": 1}
+{"id": "明年", "fields": {"hanzi": "明年", "pinyin": "míng nián", "pos": "t", "readings": "1"}, "answers": ["next year"], "level": 1}
+{"id": "明天", "fields": {"hanzi": "明天", "pinyin": "míng tiān", "pos": "t", "readings": "1"}, "answers": ["tomorrow"], "level": 1}
+{"id": "哪", "fields": {"hanzi": "哪", "pinyin": "nǎ / na / né / něi", "pos": "r, y", "readings": "4"}, "answers": ["how", "which", "(emphatic sentence-final particle, used instead of 啊 after a word ending in \"n\")", "used in 吒", "Taiwan pr. [nuó]", "which? (interrogative, followed by classifier or numeral-classifier)"], "level": 1}
+{"id": "哪儿", "fields": {"hanzi": "哪儿", "pinyin": "nǎ r", "pos": "r", "readings": "1"}, "answers": ["where?", "wherever", "anywhere", "somewhere", "(used in rhetorical questions) how can ...?", "how could ...?"], "level": 1}
+{"id": "哪里", "fields": {"hanzi": "哪里", "pinyin": "nǎ lǐ", "pos": "r", "readings": "1"}, "answers": ["where?", "somewhere", "anywhere", "wherever", "nowhere (negative answer to question)", "humble expression denying compliment", "also written 哪里"], "level": 1}
+{"id": "哪些", "fields": {"hanzi": "哪些", "pinyin": "nǎ xiē", "pos": "r", "readings": "1"}, "answers": ["which ones?", "who?", "what?"], "level": 1}
+{"id": "那", "fields": {"hanzi": "那", "pinyin": "Nā / Nuó / nǎ / nà / nuó", "pos": "r, c", "readings": "5"}, "answers": ["surname Na", "surname Nuo", "variant of 哪", "(specifier) that", "the", "those (colloquial pr. [nèi])", "(pronoun) that (referring to persons, things or situations)", "then (in that case)", "(archaic) many", "beautiful", "how", "old variant of 挪"], "level": 1}
+{"id": "那边", "fields": {"hanzi": "那边", "pinyin": "nà bian", "pos": "r", "readings": "1"}, "answers": ["over there", "yonder"], "level": 1}
+{"id": "那儿", "fields": {"hanzi": "那儿", "pinyin": "nà r", "pos": "r", "readings": "1"}, "answers": ["there"], "level": 1}
+{"id": "那里", "fields": {"hanzi": "那里", "pinyin": "nà li", "pos": "r", "readings": "1"}, "answers": ["there", "that place"], "level": 1}
+{"id": "那些", "fields": {"hanzi": "那些", "pinyin": "nà xiē", "pos": "r", "readings": "1"}, "answers": ["those"], "level": 1}
+{"id": "男", "fields": {"hanzi": "男", "pinyin": "nán", "pos": "b, g", "readings": "1"}, "answers": ["male", "Baron, lowest of five orders of nobility 位"], "level": 1}
+{"id": "男朋友", "fields": {"hanzi": "男朋友", "pinyin": "nán péng you", "pos": "n", "readings": "1"}, "answers": ["boyfriend"], "level": 1}
+{"id": "呢", "fields": {"hanzi": "呢", "pinyin": "ne / ní", "pos": "y", "readings": "2"}, "answers": ["particle indicating that a previously asked question is to be applied to the preceding word (\"What about ...?\", \"And ...?\")", "particle for inquiring about location (\"Where is ...?\")", "particle signaling a pause, to emphasize the preceding words and allow the listener time to take them on board (\"ok?\", \"are you with me?\")", "(at the end of a declarative sentence) particle indicating continuation of a state or action", "particle indicating strong affirmation", "woolen material"], "level": 1}
+{"id": "能", "fields": {"hanzi": "能", "pinyin": "Néng / néng", "pos": "v, g", "readings": "2"}, "answers": ["surname Neng", "can", "to be able to", "might possibly", "ability", "(physics) energy"], "level": 1}
+{"id": "你", "fields": {"hanzi": "你", "pinyin": "nǐ", "pos": "r", "readings": "1"}, "answers": ["you (informal, as opposed to courteous 您)", "you (Note: In Taiwan, 妳 is used to address females, but in mainland China, it is not commonly used. Instead, 你 is used to address both males and females.)"], "level": 1}
+{"id": "你们", "fields": {"hanzi": "你们", "pinyin": "nǐ men", "pos": "r", "readings": "1"}, "answers": ["you (plural)"], "level": 1}
+{"id": "年", "fields": {"hanzi": "年", "pinyin": "Nián / nián", "pos": "qt, t, n", "readings": "2"}, "answers": ["surname Nian", "year", "grain", "harvest (old)", "variant of 年"], "level": 1}
+{"id": "您", "fields": {"hanzi": "您", "pinyin": "nín", "pos": "r", "readings": "1"}, "answers": ["you (courteous, as opposed to informal 你)"], "level": 1}
+{"id": "牛奶", "fields": {"hanzi": "牛奶", "pinyin": "niú nǎi", "pos": "n", "readings": "1"}, "answers": ["cow's milk"], "level": 1}
+{"id": "女", "fields": {"hanzi": "女", "pinyin": "nǚ / rǔ", "pos": "b, g", "readings": "2"}, "answers": ["female", "woman", "daughter", "archaic variant of 汝"], "level": 1}
+{"id": "女儿", "fields": {"hanzi": "女儿", "pinyin": "nǚ ér", "pos": "n", "readings": "1"}, "answers": ["daughter"], "level": 1}
+{"id": "女朋友", "fields": {"hanzi": "女朋友", "pinyin": "nǚ péng you", "pos": "n", "readings": "1"}, "answers": ["girlfriend"], "level": 1}
+{"id": "女士", "fields": {"hanzi": "女士", "pinyin": "nǚ shì", "pos": "n", "readings": "1"}, "answers": ["lady", "madam", "Miss", "Ms"], "level": 1}
+{"id": "朋友", "fields": {"hanzi": "朋友", "pinyin": "péng you", "pos": "n", "readings": "1"}, "answers": ["friend"], "level": 1}
+{"id": "漂亮", "fields": {"hanzi": "漂亮", "pinyin": "piào liang", "pos": "a", "readings": "1"}, "answers": ["pretty", "beautiful"], "level": 1}
+{"id": "苹果", "fields": {"hanzi": "苹果", "pinyin": "píng guǒ", "pos": "n", "readings": "1"}, "answers": ["apple"], "level": 1}
+{"id": "七", "fields": {"hanzi": "七", "pinyin": "qī", "pos": "m, t", "readings": "1"}, "answers": ["seven", "7"], "level": 1}
+{"id": "起床", "fields": {"hanzi": "起床", "pinyin": "qǐ chuáng", "pos": "v", "readings": "1"}, "answers": ["to get out of bed", "to get up"], "level": 1}
+{"id": "千", "fields": {"hanzi": "千", "pinyin": "qiān", "pos": "m, t", "readings": "1"}, "answers": ["thousand", "see 秋千"], "level": 1}
+{"id": "前", "fields": {"hanzi": "前", "pinyin": "qián", "pos": "f, v", "readings": "1"}, "answers": ["front", "forward", "ahead", "first", "top (followed by a number)", "future", "ago", "before", "BC (e.g. 前293年)", "former", "formerly"], "level": 1}
+{"id": "钱", "fields": {"hanzi": "钱", "pinyin": "Qián / qián", "pos": "n, nr", "readings": "2"}, "answers": ["surname Qian", "coin", "money", "unit of weight, one tenth of a tael 两"], "level": 1}
+{"id": "请", "fields": {"hanzi": "请", "pinyin": "qǐng", "pos": "v", "readings": "1"}, "answers": ["to ask", "to invite", "please (do sth)", "to treat (to a meal etc)", "to request"], "level": 1}
+{"id": "请问", "fields": {"hanzi": "请问", "pinyin": "qǐng wèn", "pos": "v", "readings": "1"}, "answers": ["Excuse me, may I ask...?"], "level": 1}
+{"id": "去", "fields": {"hanzi": "去", "pinyin": "qù", "pos": "v", "readings": "1"}, "answers": ["to go", "to go to (a place)", "(of a time etc) last", "just passed", "to send", "to remove", "to get rid of", "to reduce", "to be apart from in space or time", "to die (euphemism)", "to play (a part)", "(when used either before or after a verb) to go in order to do sth", "(after a verb of motion indicates movement away from the speaker)", "(used after certain verbs to indicate detachment or separation)"], "level": 1}
+{"id": "去年", "fields": {"hanzi": "去年", "pinyin": "qù nián", "pos": "t", "readings": "1"}, "answers": ["last year"], "level": 1}
+{"id": "热", "fields": {"hanzi": "热", "pinyin": "rè", "pos": "a, n, k, v, ad, an", "readings": "1"}, "answers": ["to warm up", "to heat up", "hot (of weather)", "heat", "fervent"], "level": 1}
+{"id": "人", "fields": {"hanzi": "人", "pinyin": "rén", "pos": "n", "readings": "1"}, "answers": ["person", "people"], "level": 1}
+{"id": "认识", "fields": {"hanzi": "认识", "pinyin": "rèn shi", "pos": "v, n, vn", "readings": "1"}, "answers": ["to know", "to recognize", "to be familiar with", "to get acquainted with sb", "knowledge", "understanding", "awareness", "cognition"], "level": 1}
+{"id": "日", "fields": {"hanzi": "日", "pinyin": "Rì / rì", "pos": "t, g, b, qt", "readings": "2"}, "answers": ["abbr. for 本, Japan", "sun", "day", "date, day of the month"], "level": 1}
+{"id": "三", "fields": {"hanzi": "三", "pinyin": "Sān / sān", "pos": "m, t", "readings": "2"}, "answers": ["surname San", "three", "3"], "level": 1}
+{"id": "商店", "fields": {"hanzi": "商店", "pinyin": "shāng diàn", "pos": "n", "readings": "1"}, "answers": ["store", "shop"], "level": 1}
+{"id": "上", "fields": {"hanzi": "上", "pinyin": "shǎng / shàng", "pos": "f, v, g", "readings": "2"}, "answers": ["used in 上声", "(bound form) up", "upper", "above", "previous", "first (of multiple parts)", "to climb", "to get onto", "to go up", "to attend (class or university)", "(directional complement) up", "(noun suffix) on"], "level": 1}
+{"id": "上班", "fields": {"hanzi": "上班", "pinyin": "shàng bān", "pos": "v, vn", "readings": "1"}, "answers": ["to go to work", "to be on duty", "to start work", "to go to the office"], "level": 1}
+{"id": "上课", "fields": {"hanzi": "上课", "pinyin": "shàng kè", "pos": "v, vn", "readings": "1"}, "answers": ["to go to class", "to attend class", "to go to teach a class"], "level": 1}
+{"id": "上午", "fields": {"hanzi": "上午", "pinyin": "shàng wǔ", "pos": "t", "readings": "1"}, "answers": ["morning"], "level": 1}
+{"id": "上学", "fields": {"hanzi": "上学", "pinyin": "shàng xué", "pos": "v", "readings": "1"}, "answers": ["to go to school", "to attend school"], "level": 1}
+{"id": "少", "fields": {"hanzi": "少", "pinyin": "shǎo / shào", "pos": "a, ad, v, d, g", "readings": "2"}, "answers": ["few", "less", "to lack", "to be missing", "to stop (doing sth)", "seldom", "young"], "level": 1}
+{"id": "什么", "fields": {"hanzi": "什么", "pinyin": "shén me", "pos": "r", "readings": "1"}, "answers": ["what?", "something", "anything"], "level": 1}
+{"id": "生病", "fields": {"hanzi": "生病", "pinyin": "shēng bìng", "pos": "v", "readings": "1"}, "answers": ["to fall ill"], "level": 1}
+{"id": "十", "fields": {"hanzi": "十", "pinyin": "shí", "pos": "m, t", "readings": "1"}, "answers": ["ten", "10"], "level": 1}
+{"id": "时候", "fields": {"hanzi": "时候", "pinyin": "shí hou", "pos": "n", "readings": "1"}, "answers": ["time", "length of time", "moment", "period"], "level": 1}
+{"id": "时间", "fields": {"hanzi": "时间", "pinyin": "shí jiān", "pos": "n", "readings": "1"}, "answers": ["time", "period"], "level": 1}
+{"id": "事", "fields": {"hanzi": "事", "pinyin": "shì", "pos": "n, g", "readings": "1"}, "answers": ["matter", "thing", "item", "work", "affair"], "level": 1}
+{"id": "是", "fields": {"hanzi": "是", "pinyin": "shì", "pos": "v", "readings": "1"}, "answers": ["to be (followed by substantives only)", "correct", "right", "true", "(respectful acknowledgement of a command) very well", "(adverb for emphatic assertion)", "variant of 是"], "level": 1}
+{"id": "手机", "fields": {"hanzi": "手机", "pinyin": "shǒu jī", "pos": "n", "readings": "1"}, "answers": ["cell phone", "mobile phone"], "level": 1}
+{"id": "书", "fields": {"hanzi": "书", "pinyin": "Shū / shū", "pos": "n, g", "readings": "2"}, "answers": ["abbr. for 书经", "book", "letter", "document", "to write"], "level": 1}
+{"id": "书店", "fields": {"hanzi": "书店", "pinyin": "shū diàn", "pos": "n", "readings": "1"}, "answers": ["bookstore"], "level": 1}
+{"id": "谁", "fields": {"hanzi": "谁", "pinyin": "shéi", "pos": "r", "readings": "1"}, "answers": ["who", "also pr. [shuí]"], "level": 1}
+{"id": "水", "fields": {"hanzi": "水", "pinyin": "Shuǐ / shuǐ", "pos": "n", "readings": "2"}, "answers": ["surname Shui", "water", "river", "liquid", "beverage", "additional charges or income", "(of clothes) classifier for number of washes"], "level": 1}
+{"id": "水果", "fields": {"hanzi": "水果", "pinyin": "shuǐ guǒ", "pos": "n", "readings": "1"}, "answers": ["fruit"], "level": 1}
+{"id": "睡", "fields": {"hanzi": "睡", "pinyin": "shuì", "pos": "v, vn", "readings": "1"}, "answers": ["to sleep", "to lie down"], "level": 1}
+{"id": "睡觉", "fields": {"hanzi": "睡觉", "pinyin": "shuì jiào", "pos": "v", "readings": "1"}, "answers": ["to go to bed", "to sleep"], "level": 1}
+{"id": "说", "fields": {"hanzi": "说", "pinyin": "shuì / shuō", "pos": "v, g", "readings": "2"}, "answers": ["to persuade", "to speak", "to talk", "to say", "to explain", "to comment", "to scold", "to tell off", "(bound form) theory", "doctrine", "variant of 说"], "level": 1}
+{"id": "说话", "fields": {"hanzi": "说话", "pinyin": "shuō huà", "pos": "v, vn", "readings": "1"}, "answers": ["to speak", "to say", "to talk", "to gossip", "to tell stories", "talk", "word"], "level": 1}
+{"id": "四", "fields": {"hanzi": "四", "pinyin": "sì", "pos": "m, t", "readings": "1"}, "answers": ["four", "4"], "level": 1}
+{"id": "岁", "fields": {"hanzi": "岁", "pinyin": "suì", "pos": "qt", "readings": "1"}, "answers": ["variant of 岁, year", "years old", "classifier for years (of age)", "year", "year (of crop harvests)"], "level": 1}
+{"id": "他", "fields": {"hanzi": "他", "pinyin": "tā", "pos": "r", "readings": "1"}, "answers": ["he", "him (used for either sex when the sex is unknown or unimportant)", "(used before sb's name for emphasis)", "(used as a meaningless mock object)", "(literary) other"], "level": 1}
+{"id": "他们", "fields": {"hanzi": "他们", "pinyin": "tā men", "pos": "r", "readings": "1"}, "answers": ["they"], "level": 1}
+{"id": "它", "fields": {"hanzi": "它", "pinyin": "tā", "pos": "r", "readings": "1"}, "answers": ["it"], "level": 1}
+{"id": "它们", "fields": {"hanzi": "它们", "pinyin": "tā men", "pos": "r", "readings": "1"}, "answers": ["they (for inanimate objects)"], "level": 1}
+{"id": "她", "fields": {"hanzi": "她", "pinyin": "tā", "pos": "r", "readings": "1"}, "answers": ["she"], "level": 1}
+{"id": "她们", "fields": {"hanzi": "她们", "pinyin": "tā men", "pos": "r", "readings": "1"}, "answers": ["they", "them (for females)"], "level": 1}
+{"id": "太", "fields": {"hanzi": "太", "pinyin": "tài", "pos": "d, b", "readings": "1"}, "answers": ["highest", "greatest", "too (much)", "very", "extremely"], "level": 1}
+{"id": "天", "fields": {"hanzi": "天", "pinyin": "tiān", "pos": "qt, n", "readings": "1"}, "answers": ["day", "sky", "heaven"], "level": 1}
+{"id": "天气", "fields": {"hanzi": "天气", "pinyin": "tiān qì", "pos": "n", "readings": "1"}, "answers": ["weather"], "level": 1}
+{"id": "听", "fields": {"hanzi": "听", "pinyin": "yǐn / tīng", "pos": "v", "readings": "2"}, "answers": ["smile (archaic)", "to listen to", "to hear", "to heed", "to obey", "a can (loanword from English \"tin\")", "classifier for canned beverages", "to let be", "to allow (Taiwan pr. [tìng])", "(literary) to administer", "to deal with (Taiwan pr. [tìng])"], "level": 1}
+{"id": "听见", "fields": {"hanzi": "听见", "pinyin": "tīng jiàn", "pos": "v", "readings": "1"}, "answers": ["to hear"], "level": 1}
+{"id": "同学", "fields": {"hanzi": "同学", "pinyin": "tóng xué", "pos": "n", "readings": "1"}, "answers": ["to study at the same school", "fellow student", "classmate"], "level": 1}
+{"id": "外", "fields": {"hanzi": "外", "pinyin": "wài", "pos": "f", "readings": "1"}, "answers": ["outside", "in addition", "foreign", "external"], "level": 1}
+{"id": "外边", "fields": {"hanzi": "外边", "pinyin": "wài bian", "pos": "f", "readings": "1"}, "answers": ["outside", "outer surface", "abroad", "place other than one's home"], "level": 1}
+{"id": "玩", "fields": {"hanzi": "玩", "pinyin": "wán", "pos": "v", "readings": "1"}, "answers": ["to play", "to have fun", "to trifle with", "toy", "sth used for amusement", "curio or antique (Taiwan pr. [wàn])", "to keep sth for entertainment", "variant of 玩", "Taiwan pr. [wàn]"], "level": 1}
+{"id": "晚", "fields": {"hanzi": "晚", "pinyin": "wǎn", "pos": "tg, a, ad", "readings": "1"}, "answers": ["evening", "night", "late"], "level": 1}
+{"id": "晚饭", "fields": {"hanzi": "晚饭", "pinyin": "wǎn fàn", "pos": "n", "readings": "1"}, "answers": ["evening meal", "dinner", "supper"], "level": 1}
+{"id": "晚上", "fields": {"hanzi": "晚上", "pinyin": "wǎn shang", "pos": "t", "readings": "1"}, "answers": ["evening", "night", "in the evening"], "level": 1}
+{"id": "喂", "fields": {"hanzi": "喂", "pinyin": "wéi / wèi", "pos": "v, e", "readings": "2"}, "answers": ["hello (when answering the phone)", "hey", "to feed (an animal, baby, invalid etc)", "variant of 喂", "to feed"], "level": 1}
+{"id": "问", "fields": {"hanzi": "问", "pinyin": "wèn", "pos": "v, g, vn", "readings": "1"}, "answers": ["to ask", "to inquire"], "level": 1}
+{"id": "问题", "fields": {"hanzi": "问题", "pinyin": "wèn tí", "pos": "n", "readings": "1"}, "answers": ["question", "problem", "issue", "topic"], "level": 1}
+{"id": "我", "fields": {"hanzi": "我", "pinyin": "wǒ", "pos": "r", "readings": "1"}, "answers": ["I", "me", "my"], "level": 1}
+{"id": "我们", "fields": {"hanzi": "我们", "pinyin": "wǒ men", "pos": "r", "readings": "1"}, "answers": ["we", "us", "ourselves", "our"], "level": 1}
+{"id": "五", "fields": {"hanzi": "五", "pinyin": "wǔ", "pos": "m, t", "readings": "1"}, "answers": ["five", "5"], "level": 1}
+{"id": "午饭", "fields": {"hanzi": "午饭", "pinyin": "wǔ fàn", "pos": "n", "readings": "1"}, "answers": ["lunch"], "level": 1}
+{"id": "喜欢", "fields": {"hanzi": "喜欢", "pinyin": "xǐ huan", "pos": "v, vn", "readings": "1"}, "answers": ["to like", "to be fond of"], "level": 1}
+{"id": "下", "fields": {"hanzi": "下", "pinyin": "xià", "pos": "v, f, qt, g", "readings": "1"}, "answers": ["down", "downwards", "below", "lower", "later", "next (week etc)", "second (of two parts)", "to decline", "to go down", "to arrive at (a decision, conclusion etc)", "measure word to show the frequency of an action"], "level": 1}
+{"id": "下班", "fields": {"hanzi": "下班", "pinyin": "xià bān", "pos": "v, vn", "readings": "1"}, "answers": ["to finish work", "to get off work"], "level": 1}
+{"id": "下课", "fields": {"hanzi": "下课", "pinyin": "xià kè", "pos": "v, vn", "readings": "1"}, "answers": ["to finish class", "to get out of class", "(fig.) (esp. of a sports coach) to be dismissed", "to be fired"], "level": 1}
+{"id": "下午", "fields": {"hanzi": "下午", "pinyin": "xià wǔ", "pos": "t", "readings": "1"}, "answers": ["afternoon", "p.m."], "level": 1}
+{"id": "下雨", "fields": {"hanzi": "下雨", "pinyin": "xià yǔ", "pos": "v", "readings": "1"}, "answers": ["to rain"], "level": 1}
+{"id": "先生", "fields": {"hanzi": "先生", "pinyin": "xiān sheng", "pos": "n", "readings": "1"}, "answers": ["teacher", "gentleman", "sir", "mister (Mr.)", "husband", "(dialect) doctor"], "level": 1}
+{"id": "现在", "fields": {"hanzi": "现在", "pinyin": "xiàn zài", "pos": "t", "readings": "1"}, "answers": ["now", "at present", "at the moment", "modern", "current", "nowadays"], "level": 1}
+{"id": "想", "fields": {"hanzi": "想", "pinyin": "xiǎng", "pos": "v", "readings": "1"}, "answers": ["to think (about)", "to think of", "to devise", "to think (that)", "to believe (that)", "to desire", "to want (to)", "to miss (feel wistful about the absence of)"], "level": 1}
+{"id": "小", "fields": {"hanzi": "小", "pinyin": "xiǎo", "pos": "a, ad", "readings": "1"}, "answers": ["small", "tiny", "few", "young"], "level": 1}
+{"id": "小朋友", "fields": {"hanzi": "小朋友", "pinyin": "xiǎo péng yǒu", "pos": "n", "readings": "1"}, "answers": ["child"], "level": 1}
+{"id": "小时", "fields": {"hanzi": "小时", "pinyin": "xiǎo shí", "pos": "n, q", "readings": "1"}, "answers": ["hour"], "level": 1}
+{"id": "小学", "fields": {"hanzi": "小学", "pinyin": "xiǎo xué", "pos": "n", "readings": "1"}, "answers": ["elementary school", "primary school"], "level": 1}
+{"id": "小学生", "fields": {"hanzi": "小学生", "pinyin": "xiǎo xué shēng", "pos": "n", "readings": "1"}, "answers": ["primary school student", "schoolchild", "(fig.) beginner"], "level": 1}
+{"id": "些", "fields": {"hanzi": "些", "pinyin": "xiē", "pos": "q", "readings": "1"}, "answers": ["classifier indicating a small amount or small number greater than 1: some, a few, several"], "level": 1}
+{"id": "写", "fields": {"hanzi": "写", "pinyin": "xiě", "pos": "v", "readings": "1"}, "answers": ["to write"], "level": 1}
+{"id": "谢谢", "fields": {"hanzi": "谢谢", "pinyin": "xiè xie", "pos": "v", "readings": "1"}, "answers": ["to thank", "thanks", "thank you"], "level": 1}
+{"id": "新", "fields": {"hanzi": "新", "pinyin": "Xīn / xīn", "pos": "a, d, b", "readings": "2"}, "answers": ["abbr. for Xinjiang 疆 or Singapore 坡", "surname Xin", "new", "newly", "meso- (chemistry)"], "level": 1}
+{"id": "星期", "fields": {"hanzi": "星期", "pinyin": "xīng qī", "pos": "n", "readings": "1"}, "answers": ["week", "day of the week", "Sunday"], "level": 1}
+{"id": "星期日", "fields": {"hanzi": "星期日", "pinyin": "Xīng qī rì", "pos": "t", "readings": "1"}, "answers": ["Sunday"], "level": 1}
+{"id": "星期天", "fields": {"hanzi": "星期天", "pinyin": "Xīng qī tiān", "pos": "t", "readings": "1"}, "answers": ["Sunday"], "level": 1}
+{"id": "休息", "fields": {"hanzi": "休息", "pinyin": "xiū xi", "pos": "v, vn", "readings": "1"}, "answers": ["rest", "to rest"], "level": 1}
+{"id": "学", "fields": {"hanzi": "学", "pinyin": "xué", "pos": "v, g", "readings": "1"}, "answers": ["to learn", "to study", "to imitate", "science", "-ology"], "level": 1}
+{"id": "学生", "fields": {"hanzi": "学生", "pinyin": "xué sheng", "pos": "n", "readings": "1"}, "answers": ["student", "schoolchild"], "level": 1}
+{"id": "学习", "fields": {"hanzi": "学习", "pinyin": "xué xí", "pos": "v, vn", "readings": "1"}, "answers": ["to learn", "to study"], "level": 1}
+{"id": "学校", "fields": {"hanzi": "学校", "pinyin": "xué xiào", "pos": "n", "readings": "1"}, "answers": ["school"], "level": 1}
+{"id": "雪", "fields": {"hanzi": "雪", "pinyin": "Xuě / xuě", "pos": "n", "readings": "2"}, "answers": ["surname Xue", "snow", "(literary) to wipe away (a humiliation etc)"], "level": 1}
+{"id": "要", "fields": {"hanzi": "要", "pinyin": "yāo / yào", "pos": "v", "readings": "2"}, "answers": ["(bound form) to demand", "to coerce", "to want", "to need", "to ask for", "will", "shall", "about to", "need to", "should", "if (same as 是)", "(bound form) important"], "level": 1}
+{"id": "也", "fields": {"hanzi": "也", "pinyin": "Yě / yě", "pos": "d, y, u, b", "readings": "2"}, "answers": ["surname Ye", "(adverb) also", "both ... and ... (before predicates only)", "(literary) particle having functions similar to 啊"], "level": 1}
+{"id": "一", "fields": {"hanzi": "一", "pinyin": "yī", "pos": "m, d, t", "readings": "1"}, "answers": ["one", "single", "a (article)", "as soon as", "entire", "whole", "all", "throughout", "\"one\" radical in Chinese characters (Kangxi radical 1)", "also pr. [yāo] for greater clarity when spelling out numbers digit by digit"], "level": 1}
+{"id": "一半", "fields": {"hanzi": "一半", "pinyin": "yī bàn", "pos": "m", "readings": "1"}, "answers": ["half"], "level": 1}
+{"id": "一点儿", "fields": {"hanzi": "一点儿", "pinyin": "yī diǎn r", "pos": "mq", "readings": "1"}, "answers": ["erhua variant of 一点", "a bit", "a little bit", "(used in negative expressions) (not) the least bit", "(after an adjective, used to form the comparative) a bit more"], "level": 1}
+{"id": "一些", "fields": {"hanzi": "一些", "pinyin": "yī xiē", "pos": "mq", "readings": "1"}, "answers": ["some", "a few", "a little", "(following an adjective) slightly ...er"], "level": 1}
+{"id": "衣服", "fields": {"hanzi": "衣服", "pinyin": "yī fu", "pos": "n", "readings": "1"}, "answers": ["clothes"], "level": 1}
+{"id": "医生", "fields": {"hanzi": "医生", "pinyin": "yī shēng", "pos": "n", "readings": "1"}, "answers": ["doctor"], "level": 1}
+{"id": "医院", "fields": {"hanzi": "医院", "pinyin": "yī yuàn", "pos": "n", "readings": "1"}, "answers": ["hospital"], "level": 1}
+{"id": "椅子", "fields": {"hanzi": "椅子", "pinyin": "yǐ zi", "pos": "n", "readings": "1"}, "answers": ["chair"], "level": 1}
+{"id": "有", "fields": {"hanzi": "有", "pinyin": "yǒu", "pos": "v", "readings": "1"}, "answers": ["to have", "there is", "(bound form) having", "with", "-ful", "-ed", "-al (as in 意 intentional)"], "level": 1}
+{"id": "有的", "fields": {"hanzi": "有的", "pinyin": "yǒu de", "pos": "r", "readings": "1"}, "answers": ["(there are) some (who are...)", "some (exist)"], "level": 1}
+{"id": "有点儿", "fields": {"hanzi": "有点儿", "pinyin": "yǒu diǎn r", "pos": "", "readings": "1"}, "answers": ["slightly", "a little", "somewhat"], "level": 1}
+{"id": "有些", "fields": {"hanzi": "有些", "pinyin": "yǒu xiē", "pos": "r", "readings": "1"}, "answers": ["some", "somewhat"], "level": 1}
+{"id": "雨", "fields": {"hanzi": "雨", "pinyin": "yǔ / yù", "pos": "n, g", "readings": "2"}, "answers": ["rain", "(literary) to rain", "(of rain, snow etc) to fall", "to precipitate", "to wet"], "level": 1}
+{"id": "元", "fields": {"hanzi": "元", "pinyin": "Yuán / yuán", "pos": "q, tg", "readings": "2"}, "answers": ["surname Yuan", "the Yuan or Mongol dynasty (1279-1368)", "currency unit (esp. Chinese yuan)", "first", "original", "primary", "fundamental", "constituent", "part", "era (of a reign)", "meta- (prefix)", "(math.) argument", "variable", "(Tw) (geology) eon"], "level": 1}
+{"id": "月", "fields": {"hanzi": "月", "pinyin": "yuè", "pos": "n, t", "readings": "1"}, "answers": ["moon", "month", "monthly"], "level": 1}
+{"id": "再", "fields": {"hanzi": "再", "pinyin": "zài", "pos": "d, g", "readings": "1"}, "answers": ["again", "once more", "re-", "second", "another", "then (after sth, and not until then)", "no matter how ... (followed by an adjective or verb, and then (usually) 也 or 都 for emphasis)"], "level": 1}
+{"id": "再见", "fields": {"hanzi": "再见", "pinyin": "zài jiàn", "pos": "v", "readings": "1"}, "answers": ["goodbye", "see you again later"], "level": 1}
+{"id": "在", "fields": {"hanzi": "在", "pinyin": "zài", "pos": "p, v, d", "readings": "1"}, "answers": ["to exist", "to be alive", "(of sb or sth) to be (located) at", "(used before a verb to indicate an action in progress)"], "level": 1}
+{"id": "早", "fields": {"hanzi": "早", "pinyin": "zǎo", "pos": "ad, a, tg", "readings": "1"}, "answers": ["early", "morning", "Good morning!", "long ago", "prematurely"], "level": 1}
+{"id": "早饭", "fields": {"hanzi": "早饭", "pinyin": "zǎo fàn", "pos": "n", "readings": "1"}, "answers": ["breakfast"], "level": 1}
+{"id": "早上", "fields": {"hanzi": "早上", "pinyin": "zǎo shang", "pos": "t", "readings": "1"}, "answers": ["early morning"], "level": 1}
+{"id": "怎么", "fields": {"hanzi": "怎么", "pinyin": "zěn me", "pos": "r", "readings": "1"}, "answers": ["how?", "what?", "why?", "variant of 怎么"], "level": 1}
+{"id": "怎么样", "fields": {"hanzi": "怎么样", "pinyin": "zěn me yàng", "pos": "r", "readings": "1"}, "answers": ["how?", "how about?", "how was it?", "how are things?"], "level": 1}
+{"id": "找", "fields": {"hanzi": "找", "pinyin": "zhǎo", "pos": "v", "readings": "1"}, "answers": ["to try to find", "to look for", "to call on sb", "to find", "to seek", "to return", "to give change"], "level": 1}
+{"id": "这", "fields": {"hanzi": "这", "pinyin": "zhè", "pos": "r", "readings": "1"}, "answers": ["(pronoun) this", "these", "(bound form) this", "the (followed by a noun)", "these (followed by a classifier) (in this sense, commonly pr. [zhèi], esp. in Beijing)"], "level": 1}
+{"id": "这边", "fields": {"hanzi": "这边", "pinyin": "zhè biān", "pos": "r", "readings": "1"}, "answers": ["this side", "here"], "level": 1}
+{"id": "这儿", "fields": {"hanzi": "这儿", "pinyin": "zhè r", "pos": "r", "readings": "1"}, "answers": ["here"], "level": 1}
+{"id": "这里", "fields": {"hanzi": "这里", "pinyin": "zhè lǐ", "pos": "r", "readings": "1"}, "answers": ["variant of 这里", "here"], "level": 1}
+{"id": "这些", "fields": {"hanzi": "这些", "pinyin": "zhè xiē", "pos": "r", "readings": "1"}, "answers": ["these"], "level": 1}
+{"id": "真", "fields": {"hanzi": "真", "pinyin": "zhēn", "pos": "d, a, g", "readings": "1"}, "answers": ["really", "truly", "indeed", "real", "true", "genuine"], "level": 1}
+{"id": "正在", "fields": {"hanzi": "正在", "pinyin": "zhèng zài", "pos": "d", "readings": "1"}, "answers": ["just at (that time)", "right in (that place)", "right in the middle of (doing sth)"], "level": 1}
+{"id": "知道", "fields": {"hanzi": "知道", "pinyin": "zhī dào", "pos": "v", "readings": "1"}, "answers": ["to know", "to become aware of", "also pr. [zhī dao]"], "level": 1}
+{"id": "只", "fields": {"hanzi": "只", "pinyin": "zhǐ / zhī", "pos": "d, q", "readings": "2"}, "answers": ["only", "merely", "just", "but", "variant of 只", "grain that has begun to ripen", "classifier for birds and certain animals, one of a pair, some utensils, vessels etc"], "level": 1}
+{"id": "中国", "fields": {"hanzi": "中国", "pinyin": "Zhōng guó", "pos": "ns", "readings": "1"}, "answers": ["China"], "level": 1}
+{"id": "中文", "fields": {"hanzi": "中文", "pinyin": "Zhōng wén", "pos": "nz", "readings": "1"}, "answers": ["Chinese language"], "level": 1}
+{"id": "中午", "fields": {"hanzi": "中午", "pinyin": "zhōng wǔ", "pos": "t", "readings": "1"}, "answers": ["noon", "midday"], "level": 1}
+{"id": "中学", "fields": {"hanzi": "中学", "pinyin": "zhōng xué", "pos": "n", "readings": "1"}, "answers": ["middle school"], "level": 1}
+{"id": "中学生", "fields": {"hanzi": "中学生", "pinyin": "zhōng xué shēng", "pos": "n", "readings": "1"}, "answers": ["middle-school student", "high school student"], "level": 1}
+{"id": "住", "fields": {"hanzi": "住", "pinyin": "zhù", "pos": "v", "readings": "1"}, "answers": ["to live", "to dwell", "to stay", "to reside", "to stop", "(suffix indicating firmness, steadiness, or coming to a halt)"], "level": 1}
+{"id": "桌子", "fields": {"hanzi": "桌子", "pinyin": "zhuō zi", "pos": "n", "readings": "1"}, "answers": ["table", "desk"], "level": 1}
+{"id": "字", "fields": {"hanzi": "字", "pinyin": "zì", "pos": "n", "readings": "1"}, "answers": ["letter", "symbol", "character", "word", "courtesy or style name traditionally given to males aged 20 in dynastic China"], "level": 1}
+{"id": "昨天", "fields": {"hanzi": "昨天", "pinyin": "zuó tiān", "pos": "t", "readings": "1"}, "answers": ["yesterday"], "level": 1}
+{"id": "坐", "fields": {"hanzi": "坐", "pinyin": "Zuò / zuò", "pos": "v", "readings": "2"}, "answers": ["surname Zuo", "to sit", "to take a seat", "to take (a bus, airplane etc)", "to bear fruit", "variant of 座"], "level": 1}
+{"id": "做", "fields": {"hanzi": "做", "pinyin": "zuò", "pos": "v", "readings": "1"}, "answers": ["to make", "to produce", "to write", "to compose", "to do", "to engage in", "to hold (a party etc)", "(of a person) to be (an intermediary, a good student etc)", "to become (husband and wife, friends etc)", "(of a thing) to serve as", "to be used for", "to assume (an air or manner)"], "level": 1}
+{"id": "做饭", "fields": {"hanzi": "做饭", "pinyin": "zuò fàn", "pos": "v", "readings": "1"}, "answers": ["to prepare a meal", "to cook"], "level": 1}
+{"id": "啊", "fields": {"hanzi": "啊", "pinyin": "ā / á / ǎ / à / a", "pos": "y, e", "readings": "5"}, "answers": ["interjection of surprise", "Ah!", "Oh!", "interjection expressing doubt or requiring answer", "Eh?", "what?", "interjection of surprise or doubt", "My!", "what's up?", "interjection or grunt of agreement", "uhm", "Ah, OK", "expression of recognition", "Oh, it's you!", "modal particle ending sentence, showing affirmation, approval, or consent"], "level": 2}
+{"id": "爱好", "fields": {"hanzi": "爱好", "pinyin": "ài hào", "pos": "n, v", "readings": "1"}, "answers": ["to like", "to be fond of", "to take pleasure in", "to be keen on", "interest", "hobby"], "level": 2}
+{"id": "白色", "fields": {"hanzi": "白色", "pinyin": "bái sè", "pos": "n", "readings": "1"}, "answers": ["white", "fig. reactionary", "anti-communist"], "level": 2}
+{"id": "班", "fields": {"hanzi": "班", "pinyin": "Bān / bān", "pos": "n, q, nr", "readings": "2"}, "answers": ["surname Ban", "team", "class", "grade", "(military) squad", "work shift", "classifier for groups of people and scheduled transport vehicles"], "level": 2}
+{"id": "帮", "fields": {"hanzi": "帮", "pinyin": "bāng", "pos": "v, q", "readings": "1"}, "answers": ["old variant of 帮", "to help", "to assist", "to support", "for sb (i.e. as a help)", "hired (as worker)", "side (of pail, boat etc)", "outer layer", "upper (of a shoe)", "group", "gang", "clique", "party", "secret society"], "level": 2}
+{"id": "帮忙", "fields": {"hanzi": "帮忙", "pinyin": "bāng máng", "pos": "v, vn", "readings": "1"}, "answers": ["to help", "to lend a hand", "to do a favor", "to do a good turn"], "level": 2}
+{"id": "包", "fields": {"hanzi": "包", "pinyin": "Bāo / bāo", "pos": "v, n, q", "readings": "2"}, "answers": ["surname Bao", "to cover", "to wrap", "to hold", "to include", "to take charge of", "to contract (to or for)", "package", "wrapper", "container", "bag", "to hold or embrace", "bundle", "packet"], "level": 2}
+{"id": "本子", "fields": {"hanzi": "本子", "pinyin": "běn zi", "pos": "n", "readings": "1"}, "answers": ["book", "notebook", "Japanese-style self-published comic (esp. an erotic one), aka \"dōjinshi\"", "edition"], "level": 2}
+{"id": "比", "fields": {"hanzi": "比", "pinyin": "Bǐ / bī / bǐ", "pos": "p, v, n, b", "readings": "3"}, "answers": ["Belgium", "Belgian", "abbr. for 比利时", "euphemistic variant of 屄", "to compare", "(followed by a noun and adjective) more {adj.} than {noun}", "ratio", "to gesture", "(Taiwan pr. [bì] in some compounds derived from Classical Chinese)"], "level": 2}
+{"id": "笔", "fields": {"hanzi": "笔", "pinyin": "bǐ", "pos": "q, n", "readings": "1"}, "answers": ["pen", "pencil", "writing brush", "to write or compose", "the strokes of Chinese characters", "classifier for sums of money, deals"], "level": 2}
+{"id": "别", "fields": {"hanzi": "别", "pinyin": "Bié / bié / biè", "pos": "d, v, r, vn", "readings": "3"}, "answers": ["surname Bie", "to leave", "to part (from)", "(literary) to differentiate", "to distinguish", "(bound form) other", "another", "different", "don't ...!", "to fasten with a pin or clip", "to stick in", "to insert (in order to hinder movement)", "(noun suffix) category (e.g. 性别, 派别)", "to make sb change their ways, opinions etc"], "level": 2}
+{"id": "不错", "fields": {"hanzi": "不错", "pinyin": "bù cuò", "pos": "a", "readings": "1"}, "answers": ["correct", "right", "not bad", "pretty good"], "level": 2}
+{"id": "不好意思", "fields": {"hanzi": "不好意思", "pinyin": "bù hǎo yì si", "pos": "v, a", "readings": "1"}, "answers": ["to feel embarrassed", "to find it embarrassing", "to be sorry (for inconveniencing sb)"], "level": 2}
+{"id": "车站", "fields": {"hanzi": "车站", "pinyin": "chē zhàn", "pos": "n", "readings": "1"}, "answers": ["rail station", "bus stop"], "level": 2}
+{"id": "出", "fields": {"hanzi": "出", "pinyin": "chū", "pos": "v, q", "readings": "1"}, "answers": ["to go out", "to come out", "to occur", "to produce", "to go beyond", "to rise", "to put forth", "to happen", "(used after a verb to indicate an outward direction or a positive result)", "classifier for dramas, plays, operas etc", "variant of 出 (classifier for plays or chapters of classical novels)"], "level": 2}
+{"id": "出国", "fields": {"hanzi": "出国", "pinyin": "chū guó", "pos": "v, vn", "readings": "1"}, "answers": ["to go abroad", "to leave the country"], "level": 2}
+{"id": "出来", "fields": {"hanzi": "出来", "pinyin": "chū lái / chu lai", "pos": "v", "readings": "2"}, "answers": ["to come out", "to appear", "to arise", "(after a verb, indicates coming out, completion of an action, or ability to discern or detect)"], "level": 2}
+{"id": "出门", "fields": {"hanzi": "出门", "pinyin": "chū mén", "pos": "v, vn", "readings": "1"}, "answers": ["to go out", "to leave home", "to go on a journey", "away from home", "(of a woman) to get married"], "level": 2}
+{"id": "出去", "fields": {"hanzi": "出去", "pinyin": "chū qù", "pos": "v", "readings": "1"}, "answers": ["to go out"], "level": 2}
+{"id": "床", "fields": {"hanzi": "床", "pinyin": "chuáng", "pos": "n, q", "readings": "1"}, "answers": ["bed", "couch", "classifier for beds", "variant of 床"], "level": 2}
+{"id": "词", "fields": {"hanzi": "词", "pinyin": "cí", "pos": "n", "readings": "1"}, "answers": ["old variant of 词", "word", "statement", "speech", "lyrics", "a form of lyric poetry, flourishing in the Song dynasty 宋朝"], "level": 2}
+{"id": "次", "fields": {"hanzi": "次", "pinyin": "cì", "pos": "qv, a, g", "readings": "1"}, "answers": ["next in sequence", "second", "the second (day, time etc)", "secondary", "vice-", "sub-", "infra-", "inferior quality", "substandard", "order", "sequence", "hypo- (chemistry)", "classifier for enumerated events: time"], "level": 2}
+{"id": "从", "fields": {"hanzi": "从", "pinyin": "cóng / Cóng", "pos": "p, g", "readings": "2"}, "answers": ["variant of 从", "surname Cong", "from", "through", "via", "to follow", "to obey", "to engage in (an activity)", "never (in negative sentence)", "(Taiwan pr. [zòng]) retainer", "assistant", "auxiliary", "subordinate", "related by common paternal grandfather or earlier ancestor"], "level": 2}
+{"id": "从小", "fields": {"hanzi": "从小", "pinyin": "cóng xiǎo", "pos": "d", "readings": "1"}, "answers": ["from childhood", "from a young age"], "level": 2}
+{"id": "错", "fields": {"hanzi": "错", "pinyin": "Cuò / cuò", "pos": "v, n", "readings": "2"}, "answers": ["surname Cuo", "mistake", "wrong", "bad", "interlocking", "complex", "to grind", "to polish", "to alternate", "to stagger", "to miss", "to let slip", "to evade", "to inlay with gold or silver"], "level": 2}
+{"id": "打", "fields": {"hanzi": "打", "pinyin": "dá / dǎ", "pos": "v", "readings": "2"}, "answers": ["dozen (loanword)", "to beat", "to strike", "to hit", "to break", "to type", "to mix up", "to build", "to fight", "to fetch", "to make", "to tie up", "to issue", "to shoot", "to calculate", "to play (a game)", "since", "from"], "level": 2}
+{"id": "打车", "fields": {"hanzi": "打车", "pinyin": "dǎ chē", "pos": "v", "readings": "1"}, "answers": ["to take a taxi (in town)", "to hitch a lift"], "level": 2}
+{"id": "打开", "fields": {"hanzi": "打开", "pinyin": "dǎ kāi", "pos": "v", "readings": "1"}, "answers": ["to open", "to show (a ticket)", "to turn on", "to switch on"], "level": 2}
+{"id": "但", "fields": {"hanzi": "但", "pinyin": "dàn", "pos": "c, d", "readings": "1"}, "answers": ["but", "yet", "however", "still", "merely", "only", "just"], "level": 2}
+{"id": "但是", "fields": {"hanzi": "但是", "pinyin": "dàn shì", "pos": "c", "readings": "1"}, "answers": ["but", "however"], "level": 2}
+{"id": "地", "fields": {"hanzi": "地", "pinyin": "de / dì", "pos": "u, n", "readings": "2"}, "answers": ["-ly", "structural particle: used before a verb or adjective, linking it to preceding modifying adverbial adjunct", "earth", "ground", "field", "place", "land"], "level": 2}
+{"id": "地铁", "fields": {"hanzi": "地铁", "pinyin": "dì tiě", "pos": "n", "readings": "1"}, "answers": ["underground railway", "subway", "subway train"], "level": 2}
+{"id": "得", "fields": {"hanzi": "得", "pinyin": "dé / de / děi", "pos": "u, v", "readings": "3"}, "answers": ["to obtain", "to get", "to gain", "to catch (a disease)", "proper", "suitable", "proud", "contented", "to allow", "to permit", "ready", "finished", "structural particle: used after a verb (or adjective as main verb), linking it to following phrase indicating effect, degree, possibility etc", "to have to", "must", "ought to", "to need to"], "level": 2}
+{"id": "等", "fields": {"hanzi": "等", "pinyin": "děng", "pos": "v, u", "readings": "1"}, "answers": ["class", "rank", "grade", "equal to", "same as", "to wait for", "to await", "et cetera", "and so on", "et al. (and other authors)", "after", "as soon as", "once"], "level": 2}
+{"id": "懂", "fields": {"hanzi": "懂", "pinyin": "dǒng", "pos": "v", "readings": "1"}, "answers": ["to understand", "to comprehend"], "level": 2}
+{"id": "动", "fields": {"hanzi": "动", "pinyin": "dòng", "pos": "v, vn", "readings": "1"}, "answers": ["(of sth) to move", "to set in movement", "to displace", "to touch", "to make use of", "to stir (emotions)", "to alter", "abbr. for 动词, verb"], "level": 2}
+{"id": "饭馆", "fields": {"hanzi": "饭馆", "pinyin": "fàn guǎn", "pos": "n", "readings": "1"}, "answers": ["restaurant"], "level": 2}
+{"id": "飞", "fields": {"hanzi": "飞", "pinyin": "fēi", "pos": "v, g, vn", "readings": "1"}, "answers": ["to fly"], "level": 2}
+{"id": "高", "fields": {"hanzi": "高", "pinyin": "Gāo / gāo", "pos": "a, ad, v, g", "readings": "2"}, "answers": ["surname Gao", "high", "tall", "above average", "loud", "your (honorific)"], "level": 2}
+{"id": "高中", "fields": {"hanzi": "高中", "pinyin": "gāo zhōng / gāo zhòng", "pos": "n", "readings": "2"}, "answers": ["senior high school", "abbr. for 高级中学", "to pass brilliantly (used in congratulatory fashion)"], "level": 2}
+{"id": "告诉", "fields": {"hanzi": "告诉", "pinyin": "gào sù / gào su", "pos": "v", "readings": "2"}, "answers": ["to press charges", "to file a complaint", "to tell", "to inform", "to let know"], "level": 2}
+{"id": "个子", "fields": {"hanzi": "个子", "pinyin": "gè zi", "pos": "n", "readings": "1"}, "answers": ["height", "stature", "build", "size"], "level": 2}
+{"id": "跟", "fields": {"hanzi": "跟", "pinyin": "gēn", "pos": "p, v", "readings": "1"}, "answers": ["heel", "to follow closely", "to go with", "(of a woman) to marry sb", "with", "compared with", "to", "towards", "and (joining two nouns)"], "level": 2}
+{"id": "公交车", "fields": {"hanzi": "公交车", "pinyin": "gōng jiāo chē", "pos": "", "readings": "1"}, "answers": ["public transport vehicle", "town bus"], "level": 2}
+{"id": "过", "fields": {"hanzi": "过", "pinyin": "Guō / guò / guo", "pos": "u, v, d, g", "readings": "3"}, "answers": ["surname Guo", "to cross", "to go over", "to pass (time)", "to celebrate (a holiday)", "to live", "to get along", "excessively", "too-", "(experienced action marker)"], "level": 2}
+{"id": "过来", "fields": {"hanzi": "过来", "pinyin": "guò lái / guò lai", "pos": "v", "readings": "2"}, "answers": ["to come over", "to manage", "to handle", "to be able to take care of", "see 过来"], "level": 2}
+{"id": "过年", "fields": {"hanzi": "过年", "pinyin": "guò nián", "pos": "v", "readings": "1"}, "answers": ["to celebrate the Chinese New Year"], "level": 2}
+{"id": "过去", "fields": {"hanzi": "过去", "pinyin": "guò qù / guò qu", "pos": "v, t", "readings": "2"}, "answers": ["(in the) past", "former", "previous", "to go over", "to pass by", "(verb suffix)"], "level": 2}
+{"id": "还是", "fields": {"hanzi": "还是", "pinyin": "hái shi", "pos": "c, d, v", "readings": "1"}, "answers": ["still (as before)", "had better", "unexpectedly", "or"], "level": 2}
+{"id": "黑色", "fields": {"hanzi": "黑色", "pinyin": "hēi sè", "pos": "n", "readings": "1"}, "answers": ["black"], "level": 2}
+{"id": "红茶", "fields": {"hanzi": "红茶", "pinyin": "hóng chá", "pos": "n", "readings": "1"}, "answers": ["black tea"], "level": 2}
+{"id": "红色", "fields": {"hanzi": "红色", "pinyin": "hóng sè", "pos": "n", "readings": "1"}, "answers": ["red (color)", "revolutionary"], "level": 2}
+{"id": "后面", "fields": {"hanzi": "后面", "pinyin": "hòu mian", "pos": "f", "readings": "1"}, "answers": ["the back", "the rear", "the last bit", "behind", "near the end", "at the back", "later", "afterwards"], "level": 2}
+{"id": "花", "fields": {"hanzi": "花", "pinyin": "Huā / huā", "pos": "v, n, a", "readings": "2"}, "answers": ["surname Hua", "flower", "blossom", "fancy pattern", "florid", "to spend (money, time)", "(coll.) lecherous", "lustful", "old variant of 花", "variant of 花", "also pr. [wěi]"], "level": 2}
+{"id": "画", "fields": {"hanzi": "画", "pinyin": "huà", "pos": "n, v, q", "readings": "1"}, "answers": ["to draw", "to paint", "picture", "painting", "to draw (a line) (variant of 划)", "stroke of a Chinese character (variant of 划)", "(calligraphy) horizontal stroke (variant of 划)"], "level": 2}
+{"id": "坏", "fields": {"hanzi": "坏", "pinyin": "huài", "pos": "a, v", "readings": "1"}, "answers": ["bad", "spoiled", "broken", "to break down", "(suffix) to the utmost"], "level": 2}
+{"id": "回来", "fields": {"hanzi": "回来", "pinyin": "huí lai", "pos": "v", "readings": "1"}, "answers": ["to return", "to come back"], "level": 2}
+{"id": "回去", "fields": {"hanzi": "回去", "pinyin": "huí qu", "pos": "v", "readings": "1"}, "answers": ["to return", "to go back"], "level": 2}
+{"id": "机场", "fields": {"hanzi": "机场", "pinyin": "jī chǎng", "pos": "n", "readings": "1"}, "answers": ["airport", "airfield", "(slang) service provider for Shadowsocks or similar software for circumventing Internet censorship"], "level": 2}
+{"id": "机票", "fields": {"hanzi": "机票", "pinyin": "jī piào", "pos": "n", "readings": "1"}, "answers": ["air ticket", "passenger ticket"], "level": 2}
+{"id": "记得", "fields": {"hanzi": "记得", "pinyin": "jì de", "pos": "v", "readings": "1"}, "answers": ["to remember"], "level": 2}
+{"id": "间", "fields": {"hanzi": "间", "pinyin": "jiān / jiàn", "pos": "q, f, v, g", "readings": "2"}, "answers": ["between", "among", "within a definite time or space", "room", "section of a room or lateral space between two pairs of pillars", "classifier for rooms", "gap", "to separate", "to thin out (seedlings)", "to sow discontent"], "level": 2}
+{"id": "教", "fields": {"hanzi": "教", "pinyin": "Jiào / jiāo / jiào", "pos": "v, g", "readings": "3"}, "answers": ["surname Jiao", "to teach", "religion", "teaching", "to make", "to cause", "to tell"], "level": 2}
+{"id": "教室", "fields": {"hanzi": "教室", "pinyin": "jiào shì", "pos": "n", "readings": "1"}, "answers": ["classroom"], "level": 2}
+{"id": "介绍", "fields": {"hanzi": "介绍", "pinyin": "jiè shào", "pos": "v, vn", "readings": "1"}, "answers": ["to introduce (sb to sb)", "to give a presentation", "to present (sb for a job etc)", "introduction"], "level": 2}
+{"id": "近", "fields": {"hanzi": "近", "pinyin": "jìn", "pos": "a, v", "readings": "1"}, "answers": ["near", "close to", "approximately"], "level": 2}
+{"id": "进", "fields": {"hanzi": "进", "pinyin": "jìn", "pos": "v", "readings": "1"}, "answers": ["to go forward", "to advance", "to go in", "to enter", "to put in", "to submit", "to take in", "to admit", "(math.) base of a number system", "classifier for sections in a building or residential compound"], "level": 2}
+{"id": "进来", "fields": {"hanzi": "进来", "pinyin": "jìn lái", "pos": "v", "readings": "1"}, "answers": ["to come in"], "level": 2}
+{"id": "进去", "fields": {"hanzi": "进去", "pinyin": "jìn qù", "pos": "v", "readings": "1"}, "answers": ["to go in"], "level": 2}
+{"id": "经常", "fields": {"hanzi": "经常", "pinyin": "jīng cháng", "pos": "d, b", "readings": "1"}, "answers": ["frequently", "constantly", "regularly", "often", "day-to-day", "everyday", "daily"], "level": 2}
+{"id": "酒店", "fields": {"hanzi": "酒店", "pinyin": "jiǔ diàn", "pos": "n", "readings": "1"}, "answers": ["wine shop", "pub (public house)", "hotel", "restaurant", "(Tw) hostess club"], "level": 2}
+{"id": "就", "fields": {"hanzi": "就", "pinyin": "jiù", "pos": "d, p, c, v", "readings": "1"}, "answers": ["(after a suppositional clause) in that case", "then", "(after a clause of action) as soon as", "immediately after", "(same as 是) merely", "nothing else but", "simply", "just", "precisely", "exactly", "only", "as little as", "as much as", "as many as", "to approach", "to move towards", "to undertake", "to engage in", "(often followed by 着) taking advantage of", "(of food) to go with", "with regard to", "concerning", "(pattern: 就 ... 也 ...) even if ... still ...", "(pattern: 不 ... 就 ...) if not ... then must be ..."], "level": 2}
+{"id": "咖啡", "fields": {"hanzi": "咖啡", "pinyin": "kā fēi", "pos": "n", "readings": "1"}, "answers": ["coffee (loanword)"], "level": 2}
+{"id": "开始", "fields": {"hanzi": "开始", "pinyin": "kāi shǐ", "pos": "v, vn", "readings": "1"}, "answers": ["to begin", "beginning", "to start", "initial"], "level": 2}
+{"id": "开学", "fields": {"hanzi": "开学", "pinyin": "kāi xué", "pos": "v, vn", "readings": "1"}, "answers": ["foundation of a University or College", "school opening", "the start of a new term"], "level": 2}
+{"id": "考", "fields": {"hanzi": "考", "pinyin": "kǎo", "pos": "v, g", "readings": "1"}, "answers": ["to beat", "to hit", "variant of 考", "to inspect", "to test", "to take an exam", "to check", "to verify", "to examine", "to take an entrance exam for", "deceased father"], "level": 2}
+{"id": "考试", "fields": {"hanzi": "考试", "pinyin": "kǎo shì", "pos": "vn, v", "readings": "1"}, "answers": ["to take an exam", "exam"], "level": 2}
+{"id": "可能", "fields": {"hanzi": "可能", "pinyin": "kě néng", "pos": "v, n", "readings": "1"}, "answers": ["might (happen)", "possible", "probable", "possibility", "probability", "maybe", "perhaps"], "level": 2}
+{"id": "裤子", "fields": {"hanzi": "裤子", "pinyin": "kù zi", "pos": "n", "readings": "1"}, "answers": ["variant of 裤子, trousers", "pants", "trousers"], "level": 2}
+{"id": "快", "fields": {"hanzi": "快", "pinyin": "kuài", "pos": "a, d, g", "readings": "1"}, "answers": ["rapid", "quick", "speed", "rate", "soon", "almost", "to make haste", "clever", "sharp (of knives or wits)", "forthright", "plainspoken", "gratified", "pleased", "pleasant"], "level": 2}
+{"id": "快乐", "fields": {"hanzi": "快乐", "pinyin": "kuài lè", "pos": "a, an", "readings": "1"}, "answers": ["happy", "joyful"], "level": 2}
+{"id": "快要", "fields": {"hanzi": "快要", "pinyin": "kuài yào", "pos": "d", "readings": "1"}, "answers": ["nearly at the point of (doing sth)", "about to (do sth)"], "level": 2}
+{"id": "篮球", "fields": {"hanzi": "篮球", "pinyin": "lán qiú", "pos": "n", "readings": "1"}, "answers": ["basketball"], "level": 2}
+{"id": "累", "fields": {"hanzi": "累", "pinyin": "lěi / lèi / Léi / léi", "pos": "a, v, an", "readings": "4"}, "answers": ["to accumulate", "to involve or implicate (Taiwan pr. [lèi])", "continuous", "repeated", "tired", "weary", "to strain", "to wear out", "to work hard", "surname Lei", "rope", "to bind together", "to twist around"], "level": 2}
+{"id": "离", "fields": {"hanzi": "离", "pinyin": "chī / Lí / lí", "pos": "v, p", "readings": "3"}, "answers": ["mythical beast (archaic)", "surname Li", "to leave", "to part from", "to be away from", "(in giving distances) from", "without (sth)", "independent of", "one of the Eight Trigrams 卦, symbolizing fire", "☲"], "level": 2}
+{"id": "里面", "fields": {"hanzi": "里面", "pinyin": "lǐ miàn", "pos": "f", "readings": "1"}, "answers": ["inside", "interior", "also pr. [lǐ mian]"], "level": 2}
+{"id": "楼", "fields": {"hanzi": "楼", "pinyin": "Lóu / lóu", "pos": "n", "readings": "2"}, "answers": ["surname Lou", "house with more than 1 story", "storied building", "floor"], "level": 2}
+{"id": "路", "fields": {"hanzi": "路", "pinyin": "Lù / lù", "pos": "n, qv", "readings": "2"}, "answers": ["surname Lu", "road", "journey", "route", "line (bus etc)", "sort", "kind"], "level": 2}
+{"id": "路上", "fields": {"hanzi": "路上", "pinyin": "lù shang", "pos": "s", "readings": "1"}, "answers": ["on the road", "on a journey", "road surface"], "level": 2}
+{"id": "旅游", "fields": {"hanzi": "旅游", "pinyin": "lǚ yóu", "pos": "vn, v", "readings": "1"}, "answers": ["trip", "journey", "tourism", "travel", "tour", "to travel"], "level": 2}
+{"id": "绿茶", "fields": {"hanzi": "绿茶", "pinyin": "lǜ chá", "pos": "n", "readings": "1"}, "answers": ["green tea", "(slang) (of a girl) seemingly innocent and charming but actually calculating and manipulative", "a girl who has these qualities"], "level": 2}
+{"id": "绿色", "fields": {"hanzi": "绿色", "pinyin": "lǜ sè", "pos": "n", "readings": "1"}, "answers": ["green"], "level": 2}
+{"id": "慢", "fields": {"hanzi": "慢", "pinyin": "màn", "pos": "a, ad", "readings": "1"}, "answers": ["slow"], "level": 2}
+{"id": "没意思", "fields": {"hanzi": "没意思", "pinyin": "méi yì si", "pos": "a", "readings": "1"}, "answers": ["boring", "of no interest"], "level": 2}
+{"id": "每", "fields": {"hanzi": "每", "pinyin": "měi", "pos": "r", "readings": "1"}, "answers": ["each", "every"], "level": 2}
+{"id": "门", "fields": {"hanzi": "门", "pinyin": "Mén / mén", "pos": "n, q", "readings": "2"}, "answers": ["surname Men", "gate", "door", "gateway", "doorway", "opening", "valve", "switch", "way to do something", "knack", "family", "house", "(religious) sect", "school (of thought)", "class", "category", "phylum or division (taxonomy)", "classifier for large guns", "classifier for lessons, subjects, branches of technology", "(suffix) -gate (i.e. scandal; derived from Watergate)"], "level": 2}
+{"id": "门口", "fields": {"hanzi": "门口", "pinyin": "mén kǒu", "pos": "s", "readings": "1"}, "answers": ["doorway", "gate"], "level": 2}
+{"id": "门票", "fields": {"hanzi": "门票", "pinyin": "mén piào", "pos": "n", "readings": "1"}, "answers": ["ticket (for theater, cinema etc)"], "level": 2}
+{"id": "面", "fields": {"hanzi": "面", "pinyin": "miàn", "pos": "n, q, v, g", "readings": "1"}, "answers": ["face", "side", "surface", "aspect", "top", "classifier for objects with flat surfaces such as drums, mirrors, flags etc", "variant of 面", "flour", "noodles", "(of food) soft (not crunchy)", "(slang) (of a person) ineffectual", "spineless"], "level": 2}
+{"id": "名", "fields": {"hanzi": "名", "pinyin": "míng", "pos": "q, g", "readings": "1"}, "answers": ["name", "noun (part of speech)", "place (e.g. among winners)", "famous", "classifier for people"], "level": 2}
+{"id": "拿", "fields": {"hanzi": "拿", "pinyin": "ná", "pos": "v", "readings": "1"}, "answers": ["old variant of 拿", "variant of 拿", "to hold", "to seize", "to catch", "to apprehend", "to take", "(used in the same way as 把: to mark the following noun as a direct object)"], "level": 2}
+{"id": "那么", "fields": {"hanzi": "那么", "pinyin": "nà me", "pos": "r, c", "readings": "1"}, "answers": ["like that", "in that way", "or so", "so", "so very much", "about", "in that case"], "level": 2}
+{"id": "那样", "fields": {"hanzi": "那样", "pinyin": "nà yàng", "pos": "r", "readings": "1"}, "answers": ["that kind", "that sort"], "level": 2}
+{"id": "奶茶", "fields": {"hanzi": "奶茶", "pinyin": "nǎi chá", "pos": "n", "readings": "1"}, "answers": ["milk tea"], "level": 2}
+{"id": "奶奶", "fields": {"hanzi": "奶奶", "pinyin": "nǎi nai", "pos": "n", "readings": "1"}, "answers": ["(informal) grandma (paternal grandmother)", "(respectful) mistress of the house", "(coll.) boobies", "breasts"], "level": 2}
+{"id": "男孩儿", "fields": {"hanzi": "男孩儿", "pinyin": "nán hái r", "pos": "", "readings": "1"}, "answers": ["erhua variant of 男孩", "boy"], "level": 2}
+{"id": "鸟", "fields": {"hanzi": "鸟", "pinyin": "diǎo / niǎo", "pos": "n", "readings": "2"}, "answers": ["variant of 屌", "penis", "bird", "\"bird\" radical in Chinese characters (Kangxi radical 196)", "(dialect) to pay attention to", "(intensifier) damned", "goddamn"], "level": 2}
+{"id": "女孩儿", "fields": {"hanzi": "女孩儿", "pinyin": "nǚ hái r", "pos": "", "readings": "1"}, "answers": ["erhua variant of 女孩", "girl"], "level": 2}
+{"id": "旁边", "fields": {"hanzi": "旁边", "pinyin": "páng biān", "pos": "f", "readings": "1"}, "answers": ["side", "adjacent place"], "level": 2}
+{"id": "跑", "fields": {"hanzi": "跑", "pinyin": "páo / pǎo", "pos": "v", "readings": "2"}, "answers": ["(of an animal) to paw (the ground)", "to run", "to run away", "to escape", "to run around (on errands etc)", "(of a gas or liquid) to leak or evaporate", "(verb complement) away", "off"], "level": 2}
+{"id": "跑步", "fields": {"hanzi": "跑步", "pinyin": "pǎo bù", "pos": "v", "readings": "1"}, "answers": ["to run", "to jog", "(military) to march at the double"], "level": 2}
+{"id": "票", "fields": {"hanzi": "票", "pinyin": "piào", "pos": "n, q", "readings": "1"}, "answers": ["ticket", "ballot", "banknote", "person held for ransom", "amateur performance of Chinese opera", "classifier for groups, batches, business transactions"], "level": 2}
+{"id": "妻子", "fields": {"hanzi": "妻子", "pinyin": "qī zǐ / qī zi", "pos": "n", "readings": "2"}, "answers": ["wife and children", "wife"], "level": 2}
+{"id": "起来", "fields": {"hanzi": "起来", "pinyin": "qǐ lai / qi lai", "pos": "v", "readings": "2"}, "answers": ["to stand up", "to get up", "also pr. [qǐ lái]", "(after a verb) indicating the beginning and continuation of an action or a state", "indicating an upward movement (e.g. after 站)", "indicating completion", "(after a perception verb, e.g. 看) expressing preliminary judgment", "also pr. [qǐ lai]"], "level": 2}
+{"id": "前面", "fields": {"hanzi": "前面", "pinyin": "qián miàn", "pos": "f", "readings": "1"}, "answers": ["ahead", "in front", "preceding", "above", "also pr. [qián mian]"], "level": 2}
+{"id": "晴", "fields": {"hanzi": "晴", "pinyin": "qíng", "pos": "v", "readings": "1"}, "answers": ["clear", "fine (weather)"], "level": 2}
+{"id": "球", "fields": {"hanzi": "球", "pinyin": "qiú", "pos": "n", "readings": "1"}, "answers": ["ball", "sphere", "globe", "ball game", "match"], "level": 2}
+{"id": "让", "fields": {"hanzi": "让", "pinyin": "ràng", "pos": "v", "readings": "1"}, "answers": ["to yield", "to permit", "to let sb do sth", "to have sb do sth", "to make sb (feel sad etc)", "by (indicates the agent in a passive clause, like 被)"], "level": 2}
+{"id": "肉", "fields": {"hanzi": "肉", "pinyin": "ròu", "pos": "n", "readings": "1"}, "answers": ["meat", "flesh", "pulp (of a fruit)", "(coll.) (of a fruit) squashy", "(of a person) flabby", "irresolute", "Kangxi radical 130"], "level": 2}
+{"id": "商场", "fields": {"hanzi": "商场", "pinyin": "shāng chǎng", "pos": "n", "readings": "1"}, "answers": ["shopping mall", "shopping center", "department store", "emporium", "the business world"], "level": 2}
+{"id": "上来", "fields": {"hanzi": "上来", "pinyin": "shàng lái", "pos": "v", "readings": "1"}, "answers": ["to come up", "to approach", "(verb complement indicating success)"], "level": 2}
+{"id": "上面", "fields": {"hanzi": "上面", "pinyin": "shàng miàn", "pos": "f", "readings": "1"}, "answers": ["on top of", "above-mentioned", "also pr. [shàng mian]"], "level": 2}
+{"id": "上去", "fields": {"hanzi": "上去", "pinyin": "shàng qù", "pos": "v", "readings": "1"}, "answers": ["to go up"], "level": 2}
+{"id": "上网", "fields": {"hanzi": "上网", "pinyin": "shàng wǎng", "pos": "v, vn", "readings": "1"}, "answers": ["to go online", "to connect to the Internet", "(of a document etc) to be uploaded to the Internet", "(tennis, volleyball etc) to move in close to the net"], "level": 2}
+{"id": "身体", "fields": {"hanzi": "身体", "pinyin": "shēn tǐ", "pos": "n", "readings": "1"}, "answers": ["the body", "one's health", "in person"], "level": 2}
+{"id": "生日", "fields": {"hanzi": "生日", "pinyin": "shēng rì", "pos": "n", "readings": "1"}, "answers": ["birthday"], "level": 2}
+{"id": "时", "fields": {"hanzi": "时", "pinyin": "shí / Shí", "pos": "g, t", "readings": "2"}, "answers": ["old variant of 时", "surname Shi", "o'clock", "time", "when", "hour", "season", "period"], "level": 2}
+{"id": "事情", "fields": {"hanzi": "事情", "pinyin": "shì qing", "pos": "n", "readings": "1"}, "answers": ["affair", "matter", "thing", "business"], "level": 2}
+{"id": "手", "fields": {"hanzi": "手", "pinyin": "shǒu", "pos": "n, q", "readings": "1"}, "answers": ["hand", "(formal) to hold", "person engaged in certain types of work", "person skilled in certain types of work", "personal(ly)", "convenient", "classifier for skill"], "level": 2}
+{"id": "手表", "fields": {"hanzi": "手表", "pinyin": "shǒu biǎo", "pos": "n", "readings": "1"}, "answers": ["wristwatch"], "level": 2}
+{"id": "书包", "fields": {"hanzi": "书包", "pinyin": "shū bāo", "pos": "n", "readings": "1"}, "answers": ["schoolbag", "satchel", "bookbag"], "level": 2}
+{"id": "舒服", "fields": {"hanzi": "舒服", "pinyin": "shū fu", "pos": "a", "readings": "1"}, "answers": ["comfortable", "feeling well"], "level": 2}
+{"id": "送", "fields": {"hanzi": "送", "pinyin": "sòng", "pos": "v", "readings": "1"}, "answers": ["to send", "to deliver", "to transmit", "to give (as a present)", "to see (sb) off", "to accompany", "to go along with"], "level": 2}
+{"id": "虽然", "fields": {"hanzi": "虽然", "pinyin": "suī rán", "pos": "c", "readings": "1"}, "answers": ["although", "even though (often used correlatively with 是 or 是 etc)"], "level": 2}
+{"id": "所以", "fields": {"hanzi": "所以", "pinyin": "suǒ yǐ", "pos": "c", "readings": "1"}, "answers": ["therefore", "as a result", "so", "the reason why"], "level": 2}
+{"id": "疼", "fields": {"hanzi": "疼", "pinyin": "téng", "pos": "v, a", "readings": "1"}, "answers": ["(it) hurts", "sore", "to love dearly"], "level": 2}
+{"id": "踢", "fields": {"hanzi": "踢", "pinyin": "tī", "pos": "v", "readings": "1"}, "answers": ["to kick", "to play (e.g. soccer)", "(slang) butch (in a lesbian relationship)"], "level": 2}
+{"id": "题", "fields": {"hanzi": "题", "pinyin": "Tí / tí", "pos": "n, v", "readings": "2"}, "answers": ["surname Ti", "topic", "problem for discussion", "exam question", "subject", "to inscribe", "to mention"], "level": 2}
+{"id": "条", "fields": {"hanzi": "条", "pinyin": "tiáo", "pos": "q", "readings": "1"}, "answers": ["strip", "item", "article", "clause (of law or treaty)", "classifier for long thin things (ribbon, river, road, trousers etc)"], "level": 2}
+{"id": "跳舞", "fields": {"hanzi": "跳舞", "pinyin": "tiào wǔ", "pos": "v, vn", "readings": "1"}, "answers": ["to dance"], "level": 2}
+{"id": "头", "fields": {"hanzi": "头", "pinyin": "tóu / tou", "pos": "n, q, m, k", "readings": "2"}, "answers": ["head", "hair style", "the top", "end", "beginning or end", "a stub", "remnant", "chief", "boss", "side", "aspect", "first", "leading", "classifier for pigs or livestock", "suffix for nouns"], "level": 2}
+{"id": "外国", "fields": {"hanzi": "外国", "pinyin": "wài guó", "pos": "n", "readings": "1"}, "answers": ["foreign (country)"], "level": 2}
+{"id": "外面", "fields": {"hanzi": "外面", "pinyin": "wài miàn", "pos": "f", "readings": "1"}, "answers": ["outside (also pr. [wài mian] for this sense)", "surface", "exterior", "external appearance"], "level": 2}
+{"id": "完", "fields": {"hanzi": "完", "pinyin": "wán", "pos": "v", "readings": "1"}, "answers": ["to finish", "to be over", "whole", "complete", "entire"], "level": 2}
+{"id": "万", "fields": {"hanzi": "万", "pinyin": "mò / Wàn / wàn", "pos": "m, t", "readings": "3"}, "answers": ["used in 俟", "surname Wan", "ten thousand", "a great number"], "level": 2}
+{"id": "网上", "fields": {"hanzi": "网上", "pinyin": "wǎng shàng", "pos": "s", "readings": "1"}, "answers": ["online"], "level": 2}
+{"id": "往", "fields": {"hanzi": "往", "pinyin": "wǎng", "pos": "p, v", "readings": "1"}, "answers": ["to go (in a direction)", "to", "towards", "(of a train) bound for", "past", "previous", "old variant of 往"], "level": 2}
+{"id": "忘", "fields": {"hanzi": "忘", "pinyin": "wàng", "pos": "v", "readings": "1"}, "answers": ["to forget", "to overlook", "to neglect"], "level": 2}
+{"id": "为什么", "fields": {"hanzi": "为什么", "pinyin": "wèi shén me", "pos": "r", "readings": "1"}, "answers": ["why?", "for what reason?"], "level": 2}
+{"id": "位", "fields": {"hanzi": "位", "pinyin": "wèi", "pos": "q, g", "readings": "1"}, "answers": ["position", "location", "place", "seat", "classifier for people (honorific)", "classifier for binary bits (e.g. 十六位 16-bit or 2 bytes)", "(physics) potential"], "level": 2}
+{"id": "希望", "fields": {"hanzi": "希望", "pinyin": "xī wàng", "pos": "v, n, vn", "readings": "1"}, "answers": ["to hope", "a hope", "a wish"], "level": 2}
+{"id": "洗", "fields": {"hanzi": "洗", "pinyin": "xǐ", "pos": "v", "readings": "1"}, "answers": ["to wash", "to bathe", "to develop (photographs)", "to shuffle (cards etc)", "to erase (a recording)"], "level": 2}
+{"id": "洗手间", "fields": {"hanzi": "洗手间", "pinyin": "xǐ shǒu jiān", "pos": "n", "readings": "1"}, "answers": ["toilet", "lavatory", "washroom"], "level": 2}
+{"id": "下来", "fields": {"hanzi": "下来", "pinyin": "xià lai", "pos": "v", "readings": "1"}, "answers": ["to come down", "(completed action marker)", "(after verb of motion, indicates motion down and towards us, also fig.)", "(indicates continuation from the past towards us)", "to be harvested (of crops)", "to be over (of a period of time)", "to go among the masses (said of leaders)"], "level": 2}
+{"id": "下面", "fields": {"hanzi": "下面", "pinyin": "xià miàn", "pos": "f", "readings": "1"}, "answers": ["below", "under", "next", "the following", "also pr. [xià mian]", "to boil noodles"], "level": 2}
+{"id": "下去", "fields": {"hanzi": "下去", "pinyin": "xià qù", "pos": "v", "readings": "1"}, "answers": ["to go down", "to descend", "to go on", "to continue", "(of a servant) to withdraw"], "level": 2}
+{"id": "小孩儿", "fields": {"hanzi": "小孩儿", "pinyin": "xiǎo hái r", "pos": "", "readings": "1"}, "answers": ["erhua variant of 小孩", "child"], "level": 2}
+{"id": "小时候", "fields": {"hanzi": "小时候", "pinyin": "xiǎo shí hou", "pos": "t, n", "readings": "1"}, "answers": ["in one's childhood"], "level": 2}
+{"id": "笑", "fields": {"hanzi": "笑", "pinyin": "xiào", "pos": "v, vn", "readings": "1"}, "answers": ["old variant of 笑", "to laugh", "to smile", "to laugh at"], "level": 2}
+{"id": "姓", "fields": {"hanzi": "姓", "pinyin": "xìng", "pos": "v, n", "readings": "1"}, "answers": ["family name", "surname", "to be surnamed"], "level": 2}
+{"id": "姓名", "fields": {"hanzi": "姓名", "pinyin": "xìng míng", "pos": "n", "readings": "1"}, "answers": ["surname and given name", "full name"], "level": 2}
+{"id": "颜色", "fields": {"hanzi": "颜色", "pinyin": "yán sè", "pos": "n", "readings": "1"}, "answers": ["color", "countenance", "appearance", "facial expression", "pigment", "dyestuff"], "level": 2}
+{"id": "眼睛", "fields": {"hanzi": "眼睛", "pinyin": "yǎn jing", "pos": "n", "readings": "1"}, "answers": ["eye"], "level": 2}
+{"id": "药", "fields": {"hanzi": "药", "pinyin": "yào", "pos": "n", "readings": "1"}, "answers": ["leaf of the iris", "variant of 药", "medicine", "drug", "substance used for a specific purpose (e.g. poisoning, explosion, fermenting)", "to poison"], "level": 2}
+{"id": "药店", "fields": {"hanzi": "药店", "pinyin": "yào diàn", "pos": "n", "readings": "1"}, "answers": ["pharmacy"], "level": 2}
+{"id": "爷爷", "fields": {"hanzi": "爷爷", "pinyin": "yé ye", "pos": "n", "readings": "1"}, "answers": ["(coll.) father's father", "paternal grandfather"], "level": 2}
+{"id": "一会儿", "fields": {"hanzi": "一会儿", "pinyin": "yī huì r", "pos": "mq", "readings": "1"}, "answers": ["a moment", "a while", "in a moment", "now...now...", "also pr. [yī huǐ r]"], "level": 2}
+{"id": "一起", "fields": {"hanzi": "一起", "pinyin": "yī qǐ", "pos": "s, d, nr", "readings": "1"}, "answers": ["in the same place", "together", "with", "altogether (in total)"], "level": 2}
+{"id": "已经", "fields": {"hanzi": "已经", "pinyin": "yǐ jīng", "pos": "d", "readings": "1"}, "answers": ["already"], "level": 2}
+{"id": "意思", "fields": {"hanzi": "意思", "pinyin": "yì si", "pos": "n, v", "readings": "1"}, "answers": ["idea", "opinion", "meaning", "wish", "desire", "interest", "fun", "token of appreciation, affection etc", "to give as a small token", "to do sth as a gesture of goodwill etc"], "level": 2}
+{"id": "因为", "fields": {"hanzi": "因为", "pinyin": "yīn wèi", "pos": "p, c", "readings": "1"}, "answers": ["because", "owing to", "on account of"], "level": 2}
+{"id": "阴", "fields": {"hanzi": "阴", "pinyin": "Yīn / yīn", "pos": "a, g, ad, b", "readings": "2"}, "answers": ["surname Yin", "overcast (weather)", "cloudy", "shady", "Yin (the negative principle of Yin and Yang)", "negative (electric.)", "feminine", "moon", "implicit", "hidden", "genitalia", "variant of 阴"], "level": 2}
+{"id": "游", "fields": {"hanzi": "游", "pinyin": "Yóu / yóu", "pos": "v, g, vn", "readings": "2"}, "answers": ["surname You", "to swim", "variant of 游", "to walk", "to tour", "to roam", "to travel"], "level": 2}
+{"id": "游泳", "fields": {"hanzi": "游泳", "pinyin": "yóu yǒng", "pos": "v, vn", "readings": "1"}, "answers": ["swimming", "to swim"], "level": 2}
+{"id": "有时", "fields": {"hanzi": "有时", "pinyin": "yǒu shí", "pos": "d", "readings": "1"}, "answers": ["sometimes", "now and then"], "level": 2}
+{"id": "有意思", "fields": {"hanzi": "有意思", "pinyin": "yǒu yì si", "pos": "l", "readings": "1"}, "answers": ["interesting", "meaningful", "enjoyable", "fun"], "level": 2}
+{"id": "右", "fields": {"hanzi": "右", "pinyin": "yòu", "pos": "f, a", "readings": "1"}, "answers": ["(bound form) right", "right-hand side", "(bound form) (politics) right of center", "(bound form) (old) west", "(literary) the right side as the side of precedence"], "level": 2}
+{"id": "右边", "fields": {"hanzi": "右边", "pinyin": "yòu bian", "pos": "f", "readings": "1"}, "answers": ["right side", "right, to the right"], "level": 2}
+{"id": "鱼", "fields": {"hanzi": "鱼", "pinyin": "Yú / yú", "pos": "n", "readings": "2"}, "answers": ["surname Yu", "fish"], "level": 2}
+{"id": "远", "fields": {"hanzi": "远", "pinyin": "yuǎn / yuàn", "pos": "a, ad", "readings": "2"}, "answers": ["far", "distant", "remote", "(intensifier in a comparison) by far", "much (lower etc)", "to distance oneself from (classical)"], "level": 2}
+{"id": "运动", "fields": {"hanzi": "运动", "pinyin": "yùn dòng", "pos": "vn, n, v", "readings": "1"}, "answers": ["to move", "to exercise", "sports", "exercise", "motion", "movement", "campaign"], "level": 2}
+{"id": "站", "fields": {"hanzi": "站", "pinyin": "zhàn", "pos": "v, n, q", "readings": "1"}, "answers": ["station", "to stand", "to halt", "to stop", "branch of a company or organization", "website"], "level": 2}
+{"id": "长", "fields": {"hanzi": "长", "pinyin": "cháng / zhǎng", "pos": "a, v, ad, g", "readings": "2"}, "answers": ["length", "long", "forever", "always", "constantly", "chief", "head", "elder", "to grow", "to develop", "to increase", "to enhance"], "level": 2}
+{"id": "丈夫", "fields": {"hanzi": "丈夫", "pinyin": "zhàng fu", "pos": "n", "readings": "1"}, "answers": ["husband"], "level": 2}
+{"id": "这么", "fields": {"hanzi": "这么", "pinyin": "zhè me", "pos": "r", "readings": "1"}, "answers": ["so much", "this much", "how much?", "this way", "like this"], "level": 2}
+{"id": "这样", "fields": {"hanzi": "这样", "pinyin": "zhè yàng", "pos": "r", "readings": "1"}, "answers": ["this kind of", "so", "this way", "like this", "such"], "level": 2}
+{"id": "着", "fields": {"hanzi": "着", "pinyin": "zhāo / zháo / zhe / zhuó", "pos": "u, v, n, q", "readings": "4"}, "answers": ["(chess) move", "trick", "all right!", "(dialect) to add", "to touch", "to come in contact with", "to feel", "to be affected by", "to catch fire", "to burn", "(coll.) to fall asleep", "(after a verb) hitting the mark", "succeeding in", "aspect particle indicating action in progress or ongoing state", "to wear (clothes)", "to contact", "to use", "to apply"], "level": 2}
+{"id": "正", "fields": {"hanzi": "正", "pinyin": "zhēng / zhèng", "pos": "d, b, a, v", "readings": "2"}, "answers": ["first month of the lunar year", "straight", "upright", "proper", "main", "principal", "to correct", "to rectify", "exactly", "just (at that time)", "right (in that place)", "(math.) positive"], "level": 2}
+{"id": "周", "fields": {"hanzi": "周", "pinyin": "Zhōu / zhōu", "pos": "qt, nr, g, n, tg", "readings": "2"}, "answers": ["surname Zhou", "Zhou Dynasty (1046-256 BC)", "to make a circuit", "to circle", "circle", "circumference", "lap", "cycle", "complete", "all", "all over", "thorough", "to help financially", "week", "weekly", "variant of 周"], "level": 2}
+{"id": "准备", "fields": {"hanzi": "准备", "pinyin": "zhǔn bèi", "pos": "v, vn", "readings": "1"}, "answers": ["preparation", "to prepare", "to intend", "to be about to", "reserve (fund)"], "level": 2}
+{"id": "自己", "fields": {"hanzi": "自己", "pinyin": "zì jǐ", "pos": "r, v", "readings": "1"}, "answers": ["oneself", "one's own"], "level": 2}
+{"id": "走", "fields": {"hanzi": "走", "pinyin": "zǒu", "pos": "v", "readings": "1"}, "answers": ["to walk", "to go", "to run", "to move (of vehicle)", "to visit", "to leave", "to go away", "to die (euph.)", "from", "through", "away (in compound verbs, such as 走)", "to change (shape, form, meaning)"], "level": 2}
+{"id": "走路", "fields": {"hanzi": "走路", "pinyin": "zǒu lù", "pos": "v, vn", "readings": "1"}, "answers": ["to walk", "to go on foot"], "level": 2}
+{"id": "足球", "fields": {"hanzi": "足球", "pinyin": "zú qiú", "pos": "n", "readings": "1"}, "answers": ["soccer ball", "a football", "soccer", "football"], "level": 2}
+{"id": "最", "fields": {"hanzi": "最", "pinyin": "zuì", "pos": "d, g", "readings": "1"}, "answers": ["variant of 最", "old variant of 最", "most", "the most", "-est (superlative suffix)"], "level": 2}
+{"id": "左", "fields": {"hanzi": "左", "pinyin": "Zuǒ / zuǒ", "pos": "f, a", "readings": "2"}, "answers": ["surname Zuo", "left", "the Left (politics)", "east", "unorthodox", "queer", "wrong", "differing", "opposite", "variant of 佐"], "level": 2}
+{"id": "左边", "fields": {"hanzi": "左边", "pinyin": "zuǒ bian", "pos": "f", "readings": "1"}, "answers": ["left", "the left side", "to the left of"], "level": 2}
+{"id": "阿姨", "fields": {"hanzi": "阿姨", "pinyin": "ā yí", "pos": "n", "readings": "1"}, "answers": ["maternal aunt", "step-mother", "childcare worker", "nursemaid", "woman of similar age to one's parents (term of address used by child)"], "level": 3}
+{"id": "矮", "fields": {"hanzi": "矮", "pinyin": "ǎi", "pos": "a, v", "readings": "1"}, "answers": ["low", "short (in length)"], "level": 3}
+{"id": "爱人", "fields": {"hanzi": "爱人", "pinyin": "ài ren", "pos": "n", "readings": "1"}, "answers": ["spouse (PRC)", "lover (non-PRC)"], "level": 3}
+{"id": "安静", "fields": {"hanzi": "安静", "pinyin": "ān jìng", "pos": "a", "readings": "1"}, "answers": ["quiet", "peaceful", "calm"], "level": 3}
+{"id": "安全", "fields": {"hanzi": "安全", "pinyin": "ān quán", "pos": "an, a, ad, n", "readings": "1"}, "answers": ["safe", "secure", "safety", "security"], "level": 3}
+{"id": "把", "fields": {"hanzi": "把", "pinyin": "bǎ / bà", "pos": "p, qv, v, m", "readings": "2"}, "answers": ["to hold", "to grasp", "to hold a baby in position to help it urinate or defecate", "handlebar", "classifier: handful, bundle, bunch", "classifier for things with handles", "(used to put the object before the verb: 把 + {noun} + {verb})", "handle"], "level": 3}
+{"id": "班级", "fields": {"hanzi": "班级", "pinyin": "bān jí", "pos": "n", "readings": "1"}, "answers": ["class (group of students)", "grade (in school)"], "level": 3}
+{"id": "搬", "fields": {"hanzi": "搬", "pinyin": "bān", "pos": "v", "readings": "1"}, "answers": ["to move (i.e. relocate oneself)", "to move (sth relatively heavy or bulky)", "to shift", "to copy indiscriminately"], "level": 3}
+{"id": "搬家", "fields": {"hanzi": "搬家", "pinyin": "bān jiā", "pos": "v, vn", "readings": "1"}, "answers": ["to move house", "to relocate", "to remove (sth)"], "level": 3}
+{"id": "办", "fields": {"hanzi": "办", "pinyin": "bàn", "pos": "v", "readings": "1"}, "answers": ["to do", "to manage", "to handle", "to go about", "to run", "to set up", "to deal with"], "level": 3}
+{"id": "办法", "fields": {"hanzi": "办法", "pinyin": "bàn fǎ", "pos": "n", "readings": "1"}, "answers": ["means", "method", "way (of doing sth)"], "level": 3}
+{"id": "办公室", "fields": {"hanzi": "办公室", "pinyin": "bàn gōng shì", "pos": "n", "readings": "1"}, "answers": ["office", "business premises", "bureau"], "level": 3}
+{"id": "半天", "fields": {"hanzi": "半天", "pinyin": "bàn tiān", "pos": "mq, t", "readings": "1"}, "answers": ["half of the day", "a long time", "quite a while", "midair"], "level": 3}
+{"id": "帮助", "fields": {"hanzi": "帮助", "pinyin": "bāng zhù", "pos": "v, vn", "readings": "1"}, "answers": ["assistance", "aid", "to help", "to assist"], "level": 3}
+{"id": "饱", "fields": {"hanzi": "饱", "pinyin": "bǎo", "pos": "a, ad, v", "readings": "1"}, "answers": ["to eat till full", "satisfied"], "level": 3}
+{"id": "报纸", "fields": {"hanzi": "报纸", "pinyin": "bào zhǐ", "pos": "n", "readings": "1"}, "answers": ["newspaper", "newsprint"], "level": 3}
+{"id": "北", "fields": {"hanzi": "北", "pinyin": "běi", "pos": "f", "readings": "1"}, "answers": ["north", "(classical) to be defeated"], "level": 3}
+{"id": "北方", "fields": {"hanzi": "北方", "pinyin": "běi fāng", "pos": "s, f", "readings": "1"}, "answers": ["north", "the northern part a country", "China north of the Yellow River"], "level": 3}
+{"id": "被", "fields": {"hanzi": "被", "pinyin": "bèi", "pos": "p, g, d", "readings": "1"}, "answers": ["quilt", "to cover (with)", "(literary) to suffer (a misfortune)", "used to indicate passive voice (placed before the doer of the action like \"by\" in English passive-voice sentences, or, if the doer is not mentioned, before the verb)", "(since c. 2009) (sarcastic or jocular) used to indicate that the following word should be regarded as being in air quotes (as in 被旅游 to \"go on a trip\", for example)"], "level": 3}
+{"id": "比较", "fields": {"hanzi": "比较", "pinyin": "bǐ jiào", "pos": "d, vn, v", "readings": "1"}, "answers": ["to compare", "to contrast", "comparatively", "relatively", "quite", "comparison"], "level": 3}
+{"id": "比如", "fields": {"hanzi": "比如", "pinyin": "bǐ rú", "pos": "v", "readings": "1"}, "answers": ["for example", "for instance", "such as"], "level": 3}
+{"id": "比赛", "fields": {"hanzi": "比赛", "pinyin": "bǐ sài", "pos": "vn, v", "readings": "1"}, "answers": ["competition (sports etc)", "match", "to compete"], "level": 3}
+{"id": "笔记", "fields": {"hanzi": "笔记", "pinyin": "bǐ jì", "pos": "n", "readings": "1"}, "answers": ["to take down (in writing)", "notes", "a type of literature consisting mainly of short sketches"], "level": 3}
+{"id": "笔记本", "fields": {"hanzi": "笔记本", "pinyin": "bǐ jì běn", "pos": "n", "readings": "1"}, "answers": ["notebook (stationery)", "notebook (computing)"], "level": 3}
+{"id": "必须", "fields": {"hanzi": "必须", "pinyin": "bì xū", "pos": "d", "readings": "1"}, "answers": ["to have to", "must", "compulsory", "necessarily"], "level": 3}
+{"id": "变", "fields": {"hanzi": "变", "pinyin": "biàn", "pos": "v", "readings": "1"}, "answers": ["to change", "to become different", "to transform", "to vary", "rebellion"], "level": 3}
+{"id": "变成", "fields": {"hanzi": "变成", "pinyin": "biàn chéng", "pos": "v", "readings": "1"}, "answers": ["to change into", "to turn into", "to become"], "level": 3}
+{"id": "变化", "fields": {"hanzi": "变化", "pinyin": "biàn huà", "pos": "vn, v", "readings": "1"}, "answers": ["(intransitive) to change", "to vary", "change", "variation"], "level": 3}
+{"id": "遍", "fields": {"hanzi": "遍", "pinyin": "biàn", "pos": "qv, v, d, a", "readings": "1"}, "answers": ["variant of 遍", "everywhere", "all over", "classifier for actions: one time"], "level": 3}
+{"id": "表演", "fields": {"hanzi": "表演", "pinyin": "biǎo yǎn", "pos": "vn, v", "readings": "1"}, "answers": ["play", "show", "performance", "exhibition", "to perform", "to act", "to demonstrate"], "level": 3}
+{"id": "别的", "fields": {"hanzi": "别的", "pinyin": "bié de", "pos": "r", "readings": "1"}, "answers": ["else", "other"], "level": 3}
+{"id": "别人", "fields": {"hanzi": "别人", "pinyin": "bié ren", "pos": "r", "readings": "1"}, "answers": ["other people", "others", "other person"], "level": 3}
+{"id": "宾馆", "fields": {"hanzi": "宾馆", "pinyin": "bīn guǎn", "pos": "n", "readings": "1"}, "answers": ["guesthouse", "lodge", "hotel"], "level": 3}
+{"id": "冰", "fields": {"hanzi": "冰", "pinyin": "bīng", "pos": "n", "readings": "1"}, "answers": ["ice", "to chill sth", "(of an object or substance) to feel cold", "(of a person) cold", "unfriendly", "(slang) methamphetamine", "variant of 冰"], "level": 3}
+{"id": "冰箱", "fields": {"hanzi": "冰箱", "pinyin": "bīng xiāng", "pos": "n", "readings": "1"}, "answers": ["icebox", "freezer cabinet", "refrigerator"], "level": 3}
+{"id": "病人", "fields": {"hanzi": "病人", "pinyin": "bìng rén", "pos": "n", "readings": "1"}, "answers": ["sick person", "patient", "invalid"], "level": 3}
+{"id": "不但", "fields": {"hanzi": "不但", "pinyin": "bù dàn", "pos": "c", "readings": "1"}, "answers": ["not only (... but also ...)"], "level": 3}
+{"id": "不见", "fields": {"hanzi": "不见", "pinyin": "bù jiàn", "pos": "v", "readings": "1"}, "answers": ["not to see", "not to meet", "to have disappeared", "to be missing"], "level": 3}
+{"id": "不久", "fields": {"hanzi": "不久", "pinyin": "bù jiǔ", "pos": "m, d, t", "readings": "1"}, "answers": ["not long (after)", "before too long", "soon", "soon after"], "level": 3}
+{"id": "不同", "fields": {"hanzi": "不同", "pinyin": "bù tóng", "pos": "a, an", "readings": "1"}, "answers": ["different", "distinct", "not the same", "not alike"], "level": 3}
+{"id": "不行", "fields": {"hanzi": "不行", "pinyin": "bù xíng", "pos": "a", "readings": "1"}, "answers": ["won't do", "be out of the question", "be no good", "not work", "not be capable"], "level": 3}
+{"id": "不用", "fields": {"hanzi": "不用", "pinyin": "bù yòng", "pos": "d", "readings": "1"}, "answers": ["need not"], "level": 3}
+{"id": "才", "fields": {"hanzi": "才", "pinyin": "cái", "pos": "d, c, n", "readings": "1"}, "answers": ["ability", "talent", "sb of a certain type", "a capable individual", "then and only then", "just now", "(before an expression of quantity) only", "(variant of 才) just now", "(variant of 才) (before an expression of quantity) only"], "level": 3}
+{"id": "菜单", "fields": {"hanzi": "菜单", "pinyin": "cài dān", "pos": "n", "readings": "1"}, "answers": ["menu"], "level": 3}
+{"id": "参加", "fields": {"hanzi": "参加", "pinyin": "cān jiā", "pos": "v", "readings": "1"}, "answers": ["to participate", "to take part", "to join"], "level": 3}
+{"id": "草", "fields": {"hanzi": "草", "pinyin": "cǎo / cào", "pos": "n", "readings": "2"}, "answers": ["variant of 草", "grass", "straw", "manuscript", "draft (of a document)", "careless", "rough", "variant of 肏"], "level": 3}
+{"id": "草地", "fields": {"hanzi": "草地", "pinyin": "cǎo dì", "pos": "n", "readings": "1"}, "answers": ["lawn", "meadow", "sod", "turf"], "level": 3}
+{"id": "层", "fields": {"hanzi": "层", "pinyin": "céng", "pos": "qv, n", "readings": "1"}, "answers": ["to pile on top of one another", "layer", "stratum", "floor (of a building)", "story", "(math.) sheaf", "classifier for layers"], "level": 3}
+{"id": "查", "fields": {"hanzi": "查", "pinyin": "Zhā / chá / zhā", "pos": "v", "readings": "3"}, "answers": ["surname Zha", "to research", "to check", "to investigate", "to examine", "to refer to", "to look up (e.g. a word in a dictionary)", "variant of 楂"], "level": 3}
+{"id": "差", "fields": {"hanzi": "差", "pinyin": "chā / chà / chāi / cī", "pos": "a, v, g", "readings": "4"}, "answers": ["difference", "discrepancy", "(math.) difference (amount remaining after a subtraction)", "(literary) a little", "somewhat", "slightly", "different", "wrong", "mistaken", "to fall short", "to lack", "not up to standard", "inferior", "Taiwan pr. [chā]", "to send (on an errand)", "(archaic) person sent on such an errand", "job", "official post", "used in 参差"], "level": 3}
+{"id": "差不多", "fields": {"hanzi": "差不多", "pinyin": "chà bu duō", "pos": "l", "readings": "1"}, "answers": ["almost", "nearly", "more or less", "about the same", "good enough", "not bad"], "level": 3}
+{"id": "尝", "fields": {"hanzi": "尝", "pinyin": "cháng", "pos": "v", "readings": "1"}, "answers": ["to taste", "to try (food)", "to experience", "(literary) ever", "once", "to experience (variant of 尝)", "old variant of 尝"], "level": 3}
+{"id": "常", "fields": {"hanzi": "常", "pinyin": "Cháng / cháng", "pos": "d, nr", "readings": "2"}, "answers": ["surname Chang", "always", "ever", "often", "frequently", "common", "general", "constant"], "level": 3}
+{"id": "常常", "fields": {"hanzi": "常常", "pinyin": "cháng cháng", "pos": "d", "readings": "1"}, "answers": ["frequently", "often"], "level": 3}
+{"id": "常见", "fields": {"hanzi": "常见", "pinyin": "cháng jiàn", "pos": "a, v", "readings": "1"}, "answers": ["commonly seen", "common", "to see sth frequently"], "level": 3}
+{"id": "常用", "fields": {"hanzi": "常用", "pinyin": "cháng yòng", "pos": "a", "readings": "1"}, "answers": ["in common usage"], "level": 3}
+{"id": "衬衫", "fields": {"hanzi": "衬衫", "pinyin": "chèn shān", "pos": "n", "readings": "1"}, "answers": ["shirt", "blouse"], "level": 3}
+{"id": "成绩", "fields": {"hanzi": "成绩", "pinyin": "chéng jì", "pos": "n", "readings": "1"}, "answers": ["achievement", "performance records", "grades"], "level": 3}
+{"id": "城市", "fields": {"hanzi": "城市", "pinyin": "chéng shì", "pos": "n", "readings": "1"}, "answers": ["city", "town"], "level": 3}
+{"id": "迟到", "fields": {"hanzi": "迟到", "pinyin": "chí dào", "pos": "v, vn", "readings": "1"}, "answers": ["to arrive late"], "level": 3}
+{"id": "出发", "fields": {"hanzi": "出发", "pinyin": "chū fā", "pos": "v", "readings": "1"}, "answers": ["to set off", "to start (on a journey)"], "level": 3}
+{"id": "出生", "fields": {"hanzi": "出生", "pinyin": "chū shēng", "pos": "v, vn", "readings": "1"}, "answers": ["to be born"], "level": 3}
+{"id": "出院", "fields": {"hanzi": "出院", "pinyin": "chū yuàn", "pos": "v, vn", "readings": "1"}, "answers": ["to leave hospital", "to be discharged from hospital"], "level": 3}
+{"id": "初中", "fields": {"hanzi": "初中", "pinyin": "chū zhōng", "pos": "n", "readings": "1"}, "answers": ["junior high school (abbr. for 初级中学)"], "level": 3}
+{"id": "除了", "fields": {"hanzi": "除了", "pinyin": "chú le", "pos": "p", "readings": "1"}, "answers": ["besides", "apart from (... also...)", "in addition to", "except (for)"], "level": 3}
+{"id": "船", "fields": {"hanzi": "船", "pinyin": "chuán", "pos": "n", "readings": "1"}, "answers": ["variant of 船", "boat", "vessel", "ship"], "level": 3}
+{"id": "春天", "fields": {"hanzi": "春天", "pinyin": "chūn tiān", "pos": "t", "readings": "1"}, "answers": ["spring (season)"], "level": 3}
+{"id": "词典", "fields": {"hanzi": "词典", "pinyin": "cí diǎn", "pos": "n", "readings": "1"}, "answers": ["dictionary", "also written 辞典"], "level": 3}
+{"id": "聪明", "fields": {"hanzi": "聪明", "pinyin": "cōng ming", "pos": "a, an", "readings": "1"}, "answers": ["intelligent", "clever", "bright", "smart", "acute (of sight and hearing)"], "level": 3}
+{"id": "打扫", "fields": {"hanzi": "打扫", "pinyin": "dǎ sǎo", "pos": "v", "readings": "1"}, "answers": ["to clean", "to sweep"], "level": 3}
+{"id": "打算", "fields": {"hanzi": "打算", "pinyin": "dǎ suàn", "pos": "v, n, vn", "readings": "1"}, "answers": ["to plan", "to intend", "to calculate", "plan", "intention", "calculation"], "level": 3}
+{"id": "大概", "fields": {"hanzi": "大概", "pinyin": "dà gài", "pos": "d, n", "readings": "1"}, "answers": ["roughly", "probably", "rough", "approximate", "about", "general idea"], "level": 3}
+{"id": "大人", "fields": {"hanzi": "大人", "pinyin": "dà ren", "pos": "n", "readings": "1"}, "answers": ["adult", "grownup", "title of respect toward superiors"], "level": 3}
+{"id": "大小", "fields": {"hanzi": "大小", "pinyin": "dà xiǎo", "pos": "n", "readings": "1"}, "answers": ["dimension", "magnitude", "size", "measurement", "large and small", "at any rate", "adults and children", "consideration of seniority"], "level": 3}
+{"id": "大熊猫", "fields": {"hanzi": "大熊猫", "pinyin": "dà xióng māo", "pos": "n", "readings": "1"}, "answers": ["giant panda (Ailuropoda melanoleuca)"], "level": 3}
+{"id": "大衣", "fields": {"hanzi": "大衣", "pinyin": "dà yī", "pos": "n", "readings": "1"}, "answers": ["overcoat", "topcoat", "cloak"], "level": 3}
+{"id": "带", "fields": {"hanzi": "带", "pinyin": "dài", "pos": "v", "readings": "1"}, "answers": ["band", "belt", "girdle", "ribbon", "tire", "area", "zone", "region", "to wear", "to carry", "to take along", "to bear (i.e. to have)", "to lead", "to bring", "to look after", "to raise"], "level": 3}
+{"id": "担心", "fields": {"hanzi": "担心", "pinyin": "dān xīn", "pos": "v, vn", "readings": "1"}, "answers": ["anxious", "worried", "uneasy", "to worry", "to be anxious"], "level": 3}
+{"id": "蛋糕", "fields": {"hanzi": "蛋糕", "pinyin": "dàn gāo", "pos": "n", "readings": "1"}, "answers": ["cake"], "level": 3}
+{"id": "当然", "fields": {"hanzi": "当然", "pinyin": "dāng rán", "pos": "d, b", "readings": "1"}, "answers": ["only natural", "as it should be", "certainly", "of course", "without doubt"], "level": 3}
+{"id": "到处", "fields": {"hanzi": "到处", "pinyin": "dào chù", "pos": "d", "readings": "1"}, "answers": ["everywhere"], "level": 3}
+{"id": "地点", "fields": {"hanzi": "地点", "pinyin": "dì diǎn", "pos": "n", "readings": "1"}, "answers": ["place", "site", "location", "venue"], "level": 3}
+{"id": "地方", "fields": {"hanzi": "地方", "pinyin": "dì fāng / dì fang", "pos": "n", "readings": "2"}, "answers": ["region", "regional (away from the central administration)", "local", "area", "place", "space", "room", "territory"], "level": 3}
+{"id": "地图", "fields": {"hanzi": "地图", "pinyin": "dì tú", "pos": "n", "readings": "1"}, "answers": ["map"], "level": 3}
+{"id": "的话", "fields": {"hanzi": "的话", "pinyin": "de huà", "pos": "u", "readings": "1"}, "answers": ["if (coming after a conditional clause)"], "level": 3}
+{"id": "得到", "fields": {"hanzi": "得到", "pinyin": "dé dào", "pos": "v", "readings": "1"}, "answers": ["to get", "to obtain", "to receive"], "level": 3}
+{"id": "得分", "fields": {"hanzi": "得分", "pinyin": "dé fēn", "pos": "v, n", "readings": "1"}, "answers": ["to score"], "level": 3}
+{"id": "灯", "fields": {"hanzi": "灯", "pinyin": "dēng", "pos": "n", "readings": "1"}, "answers": ["lamp", "light", "lantern"], "level": 3}
+{"id": "电", "fields": {"hanzi": "电", "pinyin": "diàn", "pos": "n", "readings": "1"}, "answers": ["lightning", "electricity", "electric (bound form)", "to get (or give) an electric shock", "phone call or telegram etc", "to send via telephone or telegram etc"], "level": 3}
+{"id": "电梯", "fields": {"hanzi": "电梯", "pinyin": "diàn tī", "pos": "n", "readings": "1"}, "answers": ["elevator", "escalator"], "level": 3}
+{"id": "丢", "fields": {"hanzi": "丢", "pinyin": "diū", "pos": "v", "readings": "1"}, "answers": ["to lose", "to put aside", "to throw"], "level": 3}
+{"id": "东", "fields": {"hanzi": "东", "pinyin": "Dōng / dōng", "pos": "f, b", "readings": "2"}, "answers": ["surname Dong", "east", "host (i.e. sitting on east side of guest)", "landlord"], "level": 3}
+{"id": "东北", "fields": {"hanzi": "东北", "pinyin": "Dōng běi / dōng běi", "pos": "s", "readings": "2"}, "answers": ["Northeast China", "Manchuria", "northeast"], "level": 3}
+{"id": "东方", "fields": {"hanzi": "东方", "pinyin": "Dōng fāng / dōng fāng", "pos": "s, f", "readings": "2"}, "answers": ["the East", "the Orient", "two-character surname Dongfang", "east"], "level": 3}
+{"id": "东南", "fields": {"hanzi": "东南", "pinyin": "dōng nán", "pos": "f", "readings": "1"}, "answers": ["southeast"], "level": 3}
+{"id": "冬天", "fields": {"hanzi": "冬天", "pinyin": "dōng tiān", "pos": "t", "readings": "1"}, "answers": ["winter"], "level": 3}
+{"id": "懂得", "fields": {"hanzi": "懂得", "pinyin": "dǒng de", "pos": "v", "readings": "1"}, "answers": ["to understand", "to know", "to comprehend"], "level": 3}
+{"id": "动物", "fields": {"hanzi": "动物", "pinyin": "dòng wù", "pos": "n", "readings": "1"}, "answers": ["animal"], "level": 3}
+{"id": "动物园", "fields": {"hanzi": "动物园", "pinyin": "dòng wù yuán", "pos": "n", "readings": "1"}, "answers": ["zoo"], "level": 3}
+{"id": "短", "fields": {"hanzi": "短", "pinyin": "duǎn", "pos": "a", "readings": "1"}, "answers": ["short", "brief", "to lack", "weak point", "fault"], "level": 3}
+{"id": "短裤", "fields": {"hanzi": "短裤", "pinyin": "duǎn kù", "pos": "n", "readings": "1"}, "answers": ["short pants", "shorts"], "level": 3}
+{"id": "段", "fields": {"hanzi": "段", "pinyin": "Duàn / duàn", "pos": "q, g", "readings": "2"}, "answers": ["surname Duan", "paragraph", "section", "segment", "stage (of a process)", "classifier for stories, periods of time, lengths of thread etc"], "level": 3}
+{"id": "锻炼", "fields": {"hanzi": "锻炼", "pinyin": "duàn liàn", "pos": "v, vn", "readings": "1"}, "answers": ["to toughen", "to temper", "to engage in physical exercise", "to work out", "(fig.) to develop one's skills", "to train oneself"], "level": 3}
+{"id": "对话", "fields": {"hanzi": "对话", "pinyin": "duì huà", "pos": "vn, v", "readings": "1"}, "answers": ["to talk (with sb)", "dialogue", "conversation"], "level": 3}
+{"id": "饿", "fields": {"hanzi": "饿", "pinyin": "è", "pos": "v, a", "readings": "1"}, "answers": ["to be hungry", "hungry", "to starve (sb)"], "level": 3}
+{"id": "而且", "fields": {"hanzi": "而且", "pinyin": "ér qiě", "pos": "c", "readings": "1"}, "answers": ["(not only ...) but also", "moreover", "in addition", "furthermore"], "level": 3}
+{"id": "耳朵", "fields": {"hanzi": "耳朵", "pinyin": "ěr duo", "pos": "n", "readings": "1"}, "answers": ["ear", "handle (on a cup)"], "level": 3}
+{"id": "耳机", "fields": {"hanzi": "耳机", "pinyin": "ěr jī", "pos": "n", "readings": "1"}, "answers": ["headphones", "earphones", "telephone receiver"], "level": 3}
+{"id": "发", "fields": {"hanzi": "发", "pinyin": "fā / fà", "pos": "v, q", "readings": "2"}, "answers": ["to send out", "to show (one's feeling)", "to issue", "to develop", "to make a bundle of money", "classifier for gunshots (rounds)", "hair", "Taiwan pr. [fǎ]"], "level": 3}
+{"id": "发烧", "fields": {"hanzi": "发烧", "pinyin": "fā shāo", "pos": "v, vn, b", "readings": "1"}, "answers": ["to have a high temperature (from illness)", "to have a fever"], "level": 3}
+{"id": "发生", "fields": {"hanzi": "发生", "pinyin": "fā shēng", "pos": "v, vn", "readings": "1"}, "answers": ["to happen", "to occur", "to take place", "to break out"], "level": 3}
+{"id": "发现", "fields": {"hanzi": "发现", "pinyin": "fā xiàn", "pos": "v, vn", "readings": "1"}, "answers": ["to notice", "to become aware of", "to discover", "to find", "to detect", "a discovery"], "level": 3}
+{"id": "发展", "fields": {"hanzi": "发展", "pinyin": "fā zhǎn", "pos": "v, vn", "readings": "1"}, "answers": ["development", "growth", "to develop", "to grow", "to expand"], "level": 3}
+{"id": "方便", "fields": {"hanzi": "方便", "pinyin": "fāng biàn", "pos": "v, a, an", "readings": "1"}, "answers": ["convenient", "suitable", "to facilitate", "to make things easy", "having money to spare", "(euphemism) to relieve oneself"], "level": 3}
+{"id": "方便面", "fields": {"hanzi": "方便面", "pinyin": "fāng biàn miàn", "pos": "n", "readings": "1"}, "answers": ["instant noodles"], "level": 3}
+{"id": "方法", "fields": {"hanzi": "方法", "pinyin": "fāng fǎ", "pos": "n", "readings": "1"}, "answers": ["method", "way", "means"], "level": 3}
+{"id": "方向", "fields": {"hanzi": "方向", "pinyin": "fāng xiàng", "pos": "n", "readings": "1"}, "answers": ["direction", "orientation"], "level": 3}
+{"id": "房子", "fields": {"hanzi": "房子", "pinyin": "fáng zi", "pos": "n", "readings": "1"}, "answers": ["house", "building (single- or two-story)", "apartment", "room"], "level": 3}
+{"id": "放", "fields": {"hanzi": "放", "pinyin": "fàng", "pos": "v", "readings": "1"}, "answers": ["to put", "to place", "to release", "to free", "to let go", "to let out", "to set off (fireworks)"], "level": 3}
+{"id": "放假", "fields": {"hanzi": "放假", "pinyin": "fàng jià", "pos": "v", "readings": "1"}, "answers": ["to have a holiday or vacation"], "level": 3}
+{"id": "放心", "fields": {"hanzi": "放心", "pinyin": "fàng xīn", "pos": "v, vn", "readings": "1"}, "answers": ["to feel relieved", "to feel reassured", "to be at ease"], "level": 3}
+{"id": "放学", "fields": {"hanzi": "放学", "pinyin": "fàng xué", "pos": "v", "readings": "1"}, "answers": ["to dismiss students at the end of the school day"], "level": 3}
+{"id": "分开", "fields": {"hanzi": "分开", "pinyin": "fēn kāi", "pos": "v, vn", "readings": "1"}, "answers": ["to separate", "to part"], "level": 3}
+{"id": "风", "fields": {"hanzi": "风", "pinyin": "fēng", "pos": "n, g", "readings": "1"}, "answers": ["wind", "news", "style", "custom", "manner"], "level": 3}
+{"id": "封", "fields": {"hanzi": "封", "pinyin": "Fēng / fēng", "pos": "q, v, g", "readings": "2"}, "answers": ["surname Feng", "to confer", "to grant", "to bestow a title", "to seal", "classifier for sealed objects, esp. letters"], "level": 3}
+{"id": "服务", "fields": {"hanzi": "服务", "pinyin": "fú wù", "pos": "vn, v", "readings": "1"}, "answers": ["to serve", "service"], "level": 3}
+{"id": "附近", "fields": {"hanzi": "附近", "pinyin": "fù jìn", "pos": "f", "readings": "1"}, "answers": ["nearby", "neighboring", "(in the) vicinity (of)", "neighborhood"], "level": 3}
+{"id": "复习", "fields": {"hanzi": "复习", "pinyin": "fù xí", "pos": "v, vn", "readings": "1"}, "answers": ["to review", "revision", "variant of 复习"], "level": 3}
+{"id": "夫妻", "fields": {"hanzi": "夫妻", "pinyin": "fū qī", "pos": "n", "readings": "1"}, "answers": ["husband and wife", "married couple"], "level": 3}
+{"id": "该", "fields": {"hanzi": "该", "pinyin": "gāi", "pos": "v, r", "readings": "1"}, "answers": ["should", "ought to", "probably", "must be", "to deserve", "to owe", "to be sb's turn to do sth", "that", "the above-mentioned"], "level": 3}
+{"id": "感到", "fields": {"hanzi": "感到", "pinyin": "gǎn dào", "pos": "v", "readings": "1"}, "answers": ["to feel", "to sense", "to perceive"], "level": 3}
+{"id": "感冒", "fields": {"hanzi": "感冒", "pinyin": "gǎn mào", "pos": "v, vn", "readings": "1"}, "answers": ["to catch cold", "(common) cold", "(coll.) to be interested in (often used in the negative)", "(Tw) to detest", "can't stand"], "level": 3}
+{"id": "感兴趣", "fields": {"hanzi": "感兴趣", "pinyin": "gǎn xìng qù", "pos": "a", "readings": "1"}, "answers": ["to be interested"], "level": 3}
+{"id": "干", "fields": {"hanzi": "干", "pinyin": "gān / Gān / gàn", "pos": "v, a", "readings": "3"}, "answers": ["old variant of 干", "surname Gan", "dry", "dried food", "empty", "hollow", "taken in to nominal kinship", "adoptive", "foster", "futile", "in vain", "(dialect) rude", "blunt", "(dialect) to cold-shoulder", "variant of 干", "(bound form) to have to do with", "to concern oneself with", "one of the ten heavenly stems 干", "(archaic) shield", "tree trunk", "main part of sth", "to manage", "to work", "to do", "capable", "cadre", "to kill (slang)", "to fuck (vulgar)", "(coll.) pissed off", "annoyed"], "level": 3}
+{"id": "干净", "fields": {"hanzi": "干净", "pinyin": "gān jìng", "pos": "a, ad", "readings": "1"}, "answers": ["clean", "neat"], "level": 3}
+{"id": "刚", "fields": {"hanzi": "刚", "pinyin": "gāng", "pos": "d, g", "readings": "1"}, "answers": ["hard", "firm", "strong", "just", "barely", "exactly"], "level": 3}
+{"id": "刚才", "fields": {"hanzi": "刚才", "pinyin": "gāng cái", "pos": "t", "readings": "1"}, "answers": ["just now", "a moment ago", "just now (variant of 刚才)"], "level": 3}
+{"id": "刚刚", "fields": {"hanzi": "刚刚", "pinyin": "gāng gang", "pos": "d", "readings": "1"}, "answers": ["just recently", "just a moment ago"], "level": 3}
+{"id": "高铁", "fields": {"hanzi": "高铁", "pinyin": "gāo tiě", "pos": "", "readings": "1"}, "answers": ["high speed rail"], "level": 3}
+{"id": "根据", "fields": {"hanzi": "根据", "pinyin": "gēn jù", "pos": "p, n, v", "readings": "1"}, "answers": ["according to", "based on", "basis", "foundation"], "level": 3}
+{"id": "更", "fields": {"hanzi": "更", "pinyin": "gēng / gèng", "pos": "d", "readings": "2"}, "answers": ["to change or replace", "to experience", "one of the five two-hour periods into which the night was formerly divided", "watch (e.g. of a sentry or guard)", "more", "even more", "further", "still", "still more"], "level": 3}
+{"id": "工作日", "fields": {"hanzi": "工作日", "pinyin": "gōng zuò rì", "pos": "n", "readings": "1"}, "answers": ["workday", "working day", "weekday"], "level": 3}
+{"id": "公斤", "fields": {"hanzi": "公斤", "pinyin": "gōng jīn", "pos": "q", "readings": "1"}, "answers": ["kilogram (kg)"], "level": 3}
+{"id": "公园", "fields": {"hanzi": "公园", "pinyin": "gōng yuán", "pos": "n", "readings": "1"}, "answers": ["park (for public recreation)"], "level": 3}
+{"id": "故事", "fields": {"hanzi": "故事", "pinyin": "gù shì / gù shi", "pos": "n", "readings": "2"}, "answers": ["old practice", "narrative", "story", "tale"], "level": 3}
+{"id": "刮", "fields": {"hanzi": "刮", "pinyin": "guā", "pos": "v", "readings": "1"}, "answers": ["to scrape", "to blow", "to shave", "to plunder", "to extort", "to blow (of the wind)"], "level": 3}
+{"id": "关", "fields": {"hanzi": "关", "pinyin": "Guān / guān", "pos": "v, n, nr", "readings": "2"}, "answers": ["surname Guan", "mountain pass", "to close", "to shut", "to turn off", "to confine", "to lock (sb) up", "to shut (sb in a room, a bird in a cage etc)", "to concern", "to involve"], "level": 3}
+{"id": "关机", "fields": {"hanzi": "关机", "pinyin": "guān jī", "pos": "v", "readings": "1"}, "answers": ["to turn off (a machine or device)", "to finish shooting a film"], "level": 3}
+{"id": "关系", "fields": {"hanzi": "关系", "pinyin": "guān xi", "pos": "n, v", "readings": "1"}, "answers": ["relation", "relationship", "to concern", "to affect", "to have to do with", "guanxi", "variant of 关系"], "level": 3}
+{"id": "关心", "fields": {"hanzi": "关心", "pinyin": "guān xīn", "pos": "v, vn", "readings": "1"}, "answers": ["to be concerned about", "to care about"], "level": 3}
+{"id": "关于", "fields": {"hanzi": "关于", "pinyin": "guān yú", "pos": "p", "readings": "1"}, "answers": ["pertaining to", "concerning", "with regard to", "about", "a matter of"], "level": 3}
+{"id": "关注", "fields": {"hanzi": "关注", "pinyin": "guān zhù", "pos": "v, vn", "readings": "1"}, "answers": ["to pay attention to", "to follow sth closely", "to follow (on social media)", "concern", "interest", "attention"], "level": 3}
+{"id": "国家", "fields": {"hanzi": "国家", "pinyin": "guó jiā", "pos": "n", "readings": "1"}, "answers": ["country", "nation", "state"], "level": 3}
+{"id": "过节", "fields": {"hanzi": "过节", "pinyin": "guò jié", "pos": "v, vn", "readings": "1"}, "answers": ["to celebrate a festival", "after the celebrations (i.e. once the festival is over)"], "level": 3}
+{"id": "海", "fields": {"hanzi": "海", "pinyin": "Hǎi / hǎi", "pos": "n, nr", "readings": "2"}, "answers": ["surname Hai", "ocean", "sea", "great number of people or things", "(dialect) numerous"], "level": 3}
+{"id": "害怕", "fields": {"hanzi": "害怕", "pinyin": "hài pà", "pos": "v, vn", "readings": "1"}, "answers": ["to be afraid", "to be scared"], "level": 3}
+{"id": "好多", "fields": {"hanzi": "好多", "pinyin": "hǎo duō", "pos": "m", "readings": "1"}, "answers": ["many", "quite a lot", "much better"], "level": 3}
+{"id": "好久", "fields": {"hanzi": "好久", "pinyin": "hǎo jiǔ", "pos": "m", "readings": "1"}, "answers": ["quite a while"], "level": 3}
+{"id": "好像", "fields": {"hanzi": "好像", "pinyin": "hǎo xiàng", "pos": "v", "readings": "1"}, "answers": ["as if", "to seem like"], "level": 3}
+{"id": "号码", "fields": {"hanzi": "号码", "pinyin": "hào mǎ", "pos": "n", "readings": "1"}, "answers": ["number"], "level": 3}
+{"id": "合适", "fields": {"hanzi": "合适", "pinyin": "hé shì", "pos": "a", "readings": "1"}, "answers": ["suitable", "fitting", "appropriate"], "level": 3}
+{"id": "河", "fields": {"hanzi": "河", "pinyin": "hé", "pos": "n", "readings": "1"}, "answers": ["river"], "level": 3}
+{"id": "黑板", "fields": {"hanzi": "黑板", "pinyin": "hēi bǎn", "pos": "n", "readings": "1"}, "answers": ["blackboard"], "level": 3}
+{"id": "后来", "fields": {"hanzi": "后来", "pinyin": "hòu lái", "pos": "t", "readings": "1"}, "answers": ["afterwards", "later", "newly arrived"], "level": 3}
+{"id": "后年", "fields": {"hanzi": "后年", "pinyin": "hòu nián", "pos": "t", "readings": "1"}, "answers": ["the year after next"], "level": 3}
+{"id": "后天", "fields": {"hanzi": "后天", "pinyin": "hòu tiān", "pos": "n, t", "readings": "1"}, "answers": ["the day after tomorrow", "life after birth (the period in which one develops through experiences, contrasted with 天)", "acquired (not innate or congenital)", "a posteriori"], "level": 3}
+{"id": "护照", "fields": {"hanzi": "护照", "pinyin": "hù zhào", "pos": "n", "readings": "1"}, "answers": ["passport"], "level": 3}
+{"id": "花园", "fields": {"hanzi": "花园", "pinyin": "huā yuán", "pos": "n", "readings": "1"}, "answers": ["garden"], "level": 3}
+{"id": "画家", "fields": {"hanzi": "画家", "pinyin": "huà jiā", "pos": "n", "readings": "1"}, "answers": ["painter"], "level": 3}
+{"id": "环境", "fields": {"hanzi": "环境", "pinyin": "huán jìng", "pos": "n", "readings": "1"}, "answers": ["environment", "circumstances", "surroundings", "ambient"], "level": 3}
+{"id": "换", "fields": {"hanzi": "换", "pinyin": "huàn", "pos": "v", "readings": "1"}, "answers": ["to exchange", "to change (clothes etc)", "to substitute", "to switch", "to convert (currency)"], "level": 3}
+{"id": "欢迎", "fields": {"hanzi": "欢迎", "pinyin": "huān yíng", "pos": "v, vn", "readings": "1"}, "answers": ["to welcome", "welcome"], "level": 3}
+{"id": "黄色", "fields": {"hanzi": "黄色", "pinyin": "huáng sè", "pos": "n", "readings": "1"}, "answers": ["yellow (color)", "pornographic"], "level": 3}
+{"id": "回答", "fields": {"hanzi": "回答", "pinyin": "huí dá", "pos": "v, vn", "readings": "1"}, "answers": ["to reply", "to answer", "reply", "answer"], "level": 3}
+{"id": "会议", "fields": {"hanzi": "会议", "pinyin": "huì yì", "pos": "n", "readings": "1"}, "answers": ["meeting", "conference"], "level": 3}
+{"id": "或", "fields": {"hanzi": "或", "pinyin": "huò", "pos": "c, d", "readings": "1"}, "answers": ["maybe", "perhaps", "might", "possibly", "or"], "level": 3}
+{"id": "或者", "fields": {"hanzi": "或者", "pinyin": "huò zhě", "pos": "c, d", "readings": "1"}, "answers": ["or", "possibly", "maybe", "perhaps"], "level": 3}
+{"id": "机会", "fields": {"hanzi": "机会", "pinyin": "jī huì", "pos": "n", "readings": "1"}, "answers": ["opportunity", "chance", "occasion"], "level": 3}
+{"id": "鸡", "fields": {"hanzi": "鸡", "pinyin": "jī", "pos": "n", "readings": "1"}, "answers": ["fowl", "chicken", "(slang) prostitute"], "level": 3}
+{"id": "极", "fields": {"hanzi": "极", "pinyin": "jí", "pos": "d, g", "readings": "1"}, "answers": ["extremely", "pole (geography, physics)", "utmost", "top"], "level": 3}
+{"id": "急", "fields": {"hanzi": "急", "pinyin": "jí", "pos": "v, ad, a", "readings": "1"}, "answers": ["urgent", "pressing", "rapid", "hurried", "worried", "to make (sb) anxious"], "level": 3}
+{"id": "几乎", "fields": {"hanzi": "几乎", "pinyin": "jī hū", "pos": "d", "readings": "1"}, "answers": ["almost", "nearly", "practically"], "level": 3}
+{"id": "记", "fields": {"hanzi": "记", "pinyin": "jì", "pos": "v, g, q", "readings": "1"}, "answers": ["to record", "to note", "to memorize", "to remember", "mark", "sign", "classifier for blows, kicks, shots"], "level": 3}
+{"id": "季", "fields": {"hanzi": "季", "pinyin": "Jì / jì", "pos": "q, g, nr", "readings": "2"}, "answers": ["surname Ji", "season", "the last month of a season", "fourth or youngest amongst brothers", "classifier for seasonal crop yields"], "level": 3}
+{"id": "季节", "fields": {"hanzi": "季节", "pinyin": "jì jié", "pos": "n", "readings": "1"}, "answers": ["time", "season", "period"], "level": 3}
+{"id": "加", "fields": {"hanzi": "加", "pinyin": "Jiā / jiā", "pos": "v, b", "readings": "2"}, "answers": ["Canada (abbr. for 大)", "surname Jia", "to add", "plus", "(used after an adverb such as 不, 大, 稍 etc, and before a disyllabic verb, to indicate that the action of the verb is applied to sth or sb previously mentioned)", "to apply (restrictions etc) to (sb)", "to give (support, consideration etc) to (sth)"], "level": 3}
+{"id": "假期", "fields": {"hanzi": "假期", "pinyin": "jià qī", "pos": "t", "readings": "1"}, "answers": ["vacation"], "level": 3}
+{"id": "坚持", "fields": {"hanzi": "坚持", "pinyin": "jiān chí", "pos": "v", "readings": "1"}, "answers": ["to persevere with", "to persist in", "to insist on"], "level": 3}
+{"id": "检查", "fields": {"hanzi": "检查", "pinyin": "jiǎn chá", "pos": "v, vn", "readings": "1"}, "answers": ["inspection", "to examine", "to inspect"], "level": 3}
+{"id": "简单", "fields": {"hanzi": "简单", "pinyin": "jiǎn dān", "pos": "a, ad", "readings": "1"}, "answers": ["simple", "not complicated"], "level": 3}
+{"id": "见面", "fields": {"hanzi": "见面", "pinyin": "jiàn miàn", "pos": "v", "readings": "1"}, "answers": ["to meet", "to see each other"], "level": 3}
+{"id": "健康", "fields": {"hanzi": "健康", "pinyin": "jiàn kāng", "pos": "a, an, ad", "readings": "1"}, "answers": ["health", "healthy"], "level": 3}
+{"id": "讲", "fields": {"hanzi": "讲", "pinyin": "jiǎng", "pos": "v", "readings": "1"}, "answers": ["to speak", "to explain", "to negotiate", "to emphasize", "to be particular about", "as far as sth is concerned", "speech", "lecture"], "level": 3}
+{"id": "角", "fields": {"hanzi": "角", "pinyin": "Jué / jiǎo / jué", "pos": "n, q, g", "readings": "3"}, "answers": ["surname Jue", "angle", "corner", "horn", "horn-shaped", "unit of money equal to 0.1 yuan, or 10 cents (a dime)", "role (theater)", "to compete", "ancient three legged wine vessel", "third note of pentatonic scale"], "level": 3}
+{"id": "脚", "fields": {"hanzi": "脚", "pinyin": "jiǎo / jué", "pos": "n, q", "readings": "2"}, "answers": ["foot", "leg (of an animal or an object)", "base (of an object)", "classifier for kicks", "role (variant of 角)"], "level": 3}
+{"id": "接", "fields": {"hanzi": "接", "pinyin": "jiē", "pos": "v", "readings": "1"}, "answers": ["to receive", "to answer (the phone)", "to meet or welcome sb", "to connect", "to catch", "to join", "to extend", "to take one's turn on duty", "to take over for sb"], "level": 3}
+{"id": "街", "fields": {"hanzi": "街", "pinyin": "jiē", "pos": "n", "readings": "1"}, "answers": ["street"], "level": 3}
+{"id": "节", "fields": {"hanzi": "节", "pinyin": "jiē / jié", "pos": "n, q, g, v", "readings": "2"}, "answers": ["see 节骨眼", "joint", "node", "(bound form) section", "segment", "solar term (one of the 24 divisions of the year in the traditional Chinese calendar)", "seasonal festival", "(bound form) to economize", "to save", "(bound form) moral integrity", "chastity", "classifier for segments: lessons, train wagons, biblical verses etc", "knot (nautical miles per hour)"], "level": 3}
+{"id": "节目", "fields": {"hanzi": "节目", "pinyin": "jié mù", "pos": "n", "readings": "1"}, "answers": ["program", "item (on a program)"], "level": 3}
+{"id": "节日", "fields": {"hanzi": "节日", "pinyin": "jié rì", "pos": "n", "readings": "1"}, "answers": ["holiday", "festival"], "level": 3}
+{"id": "结婚", "fields": {"hanzi": "结婚", "pinyin": "jié hūn", "pos": "v, vn", "readings": "1"}, "answers": ["to marry", "to get married"], "level": 3}
+{"id": "结束", "fields": {"hanzi": "结束", "pinyin": "jié shù", "pos": "v, vn", "readings": "1"}, "answers": ["termination", "to finish", "to end", "to conclude", "to close"], "level": 3}
+{"id": "解决", "fields": {"hanzi": "解决", "pinyin": "jiě jué", "pos": "v, vn", "readings": "1"}, "answers": ["to solve", "to resolve", "to settle (a problem)", "to eliminate", "to wipe out (an enemy, bandits etc)"], "level": 3}
+{"id": "借", "fields": {"hanzi": "借", "pinyin": "jiè", "pos": "v, p", "readings": "1"}, "answers": ["to lend", "to borrow", "by means of", "to take (an opportunity)", "variant of 借"], "level": 3}
+{"id": "姐妹", "fields": {"hanzi": "姐妹", "pinyin": "jiě mèi", "pos": "n", "readings": "1"}, "answers": ["sisters", "siblings", "sister (school, city etc)"], "level": 3}
+{"id": "斤", "fields": {"hanzi": "斤", "pinyin": "jīn", "pos": "q", "readings": "1"}, "answers": ["catty", "(PRC) weight equal to 500 g", "(Tw) weight equal to 600 g", "(HK, Malaysia, Singapore) slightly over 604 g"], "level": 3}
+{"id": "经过", "fields": {"hanzi": "经过", "pinyin": "jīng guò", "pos": "p, v, n", "readings": "1"}, "answers": ["to pass", "to go through", "process", "course"], "level": 3}
+{"id": "经理", "fields": {"hanzi": "经理", "pinyin": "jīng lǐ", "pos": "n", "readings": "1"}, "answers": ["manager", "director"], "level": 3}
+{"id": "久", "fields": {"hanzi": "久", "pinyin": "jiǔ", "pos": "a, g, ad", "readings": "1"}, "answers": ["(long) time", "(long) duration of time"], "level": 3}
+{"id": "酒", "fields": {"hanzi": "酒", "pinyin": "jiǔ", "pos": "n", "readings": "1"}, "answers": ["wine (esp. rice wine)", "liquor", "spirits", "alcoholic beverage"], "level": 3}
+{"id": "旧", "fields": {"hanzi": "旧", "pinyin": "jiù", "pos": "a, g", "readings": "1"}, "answers": ["old", "opposite: new 新", "former", "worn (with age)"], "level": 3}
+{"id": "句", "fields": {"hanzi": "句", "pinyin": "gōu / jù", "pos": "q, g", "readings": "2"}, "answers": ["variant of 勾", "sentence", "clause", "phrase", "classifier for phrases or lines of verse"], "level": 3}
+{"id": "句子", "fields": {"hanzi": "句子", "pinyin": "jù zi", "pos": "n", "readings": "1"}, "answers": ["sentence"], "level": 3}
+{"id": "决定", "fields": {"hanzi": "决定", "pinyin": "jué dìng", "pos": "v, n", "readings": "1"}, "answers": ["to decide (to do something)", "to resolve", "decision", "certainly"], "level": 3}
+{"id": "卡", "fields": {"hanzi": "卡", "pinyin": "kǎ / qiǎ", "pos": "n, v, g", "readings": "2"}, "answers": ["to stop", "to block", "(computing) (coll.) slow", "(loanword) card", "truck (from \"car\")", "calorie (abbr. for 里)", "cassette", "to be stuck", "to be wedged", "customs station", "a clip", "a fastener", "a checkpost", "Taiwan pr. [kǎ]"], "level": 3}
+{"id": "开花", "fields": {"hanzi": "开花", "pinyin": "kāi huā", "pos": "v", "readings": "1"}, "answers": ["to bloom", "to blossom", "to flower", "(fig.) to burst", "to split open", "(fig.) to burst with joy", "(fig.) to spring up everywhere", "to flourish"], "level": 3}
+{"id": "开会", "fields": {"hanzi": "开会", "pinyin": "kāi huì", "pos": "v", "readings": "1"}, "answers": ["to hold a meeting", "to attend a meeting"], "level": 3}
+{"id": "开机", "fields": {"hanzi": "开机", "pinyin": "kāi jī", "pos": "v", "readings": "1"}, "answers": ["to start an engine", "to boot up (a computer)", "to press Ctrl-Alt-Delete", "to begin shooting a film or TV show"], "level": 3}
+{"id": "开心", "fields": {"hanzi": "开心", "pinyin": "kāi xīn", "pos": "a, v, an", "readings": "1"}, "answers": ["to feel happy", "to rejoice", "to have a great time", "to make fun of sb"], "level": 3}
+{"id": "看来", "fields": {"hanzi": "看来", "pinyin": "kàn lai", "pos": "v", "readings": "1"}, "answers": ["apparently", "it seems that"], "level": 3}
+{"id": "可", "fields": {"hanzi": "可", "pinyin": "kě / kè", "pos": "v, c, d", "readings": "2"}, "answers": ["(prefix) can", "may", "able to", "-able", "to approve", "to permit", "to suit", "(particle used for emphasis) certainly", "very", "used in 汗"], "level": 3}
+{"id": "可爱", "fields": {"hanzi": "可爱", "pinyin": "kě ài", "pos": "a", "readings": "1"}, "answers": ["adorable", "cute", "lovely"], "level": 3}
+{"id": "可是", "fields": {"hanzi": "可是", "pinyin": "kě shì", "pos": "c, d, v", "readings": "1"}, "answers": ["but", "however", "(used for emphasis) indeed"], "level": 3}
+{"id": "渴", "fields": {"hanzi": "渴", "pinyin": "kě", "pos": "a, v", "readings": "1"}, "answers": ["thirsty"], "level": 3}
+{"id": "刻", "fields": {"hanzi": "刻", "pinyin": "kè", "pos": "v, qt", "readings": "1"}, "answers": ["quarter (hour)", "moment", "to carve", "to engrave", "to cut", "oppressive", "classifier for short time intervals"], "level": 3}
+{"id": "客人", "fields": {"hanzi": "客人", "pinyin": "kè rén", "pos": "n", "readings": "1"}, "answers": ["visitor", "guest", "customer", "client"], "level": 3}
+{"id": "课本", "fields": {"hanzi": "课本", "pinyin": "kè běn", "pos": "n", "readings": "1"}, "answers": ["textbook"], "level": 3}
+{"id": "课文", "fields": {"hanzi": "课文", "pinyin": "kè wén", "pos": "n", "readings": "1"}, "answers": ["text"], "level": 3}
+{"id": "空调", "fields": {"hanzi": "空调", "pinyin": "kōng tiáo", "pos": "n", "readings": "1"}, "answers": ["air conditioning", "air conditioner (including units that have a heating mode)"], "level": 3}
+{"id": "哭", "fields": {"hanzi": "哭", "pinyin": "kū", "pos": "v", "readings": "1"}, "answers": ["to cry", "to weep"], "level": 3}
+{"id": "筷子", "fields": {"hanzi": "筷子", "pinyin": "kuài zi", "pos": "n", "readings": "1"}, "answers": ["chopsticks"], "level": 3}
+{"id": "矿泉水", "fields": {"hanzi": "矿泉水", "pinyin": "kuàng quán shuǐ", "pos": "n", "readings": "1"}, "answers": ["mineral water"], "level": 3}
+{"id": "来自", "fields": {"hanzi": "来自", "pinyin": "lái zì", "pos": "v", "readings": "1"}, "answers": ["to come from (a place)", "From: (in email header)"], "level": 3}
+{"id": "蓝", "fields": {"hanzi": "蓝", "pinyin": "Lán / lán", "pos": "a, g", "readings": "2"}, "answers": ["surname Lan", "blue", "indigo plant"], "level": 3}
+{"id": "老", "fields": {"hanzi": "老", "pinyin": "lǎo", "pos": "a, d, g", "readings": "1"}, "answers": ["prefix used before the surname of a person or a numeral indicating the order of birth of the children in a family or to indicate affection or familiarity", "old (of people)", "venerable (person)", "experienced", "of long standing", "always", "all the time", "of the past", "very", "outdated", "(of meat etc) tough"], "level": 3}
+{"id": "老人", "fields": {"hanzi": "老人", "pinyin": "lǎo rén", "pos": "n", "readings": "1"}, "answers": ["old man or woman", "the elderly", "one's aged parents or grandparents"], "level": 3}
+{"id": "了解", "fields": {"hanzi": "了解", "pinyin": "liǎo jiě", "pos": "v, vn", "readings": "1"}, "answers": ["to understand", "to realize", "to find out"], "level": 3}
+{"id": "离开", "fields": {"hanzi": "离开", "pinyin": "lí kāi", "pos": "v", "readings": "1"}, "answers": ["to depart", "to leave"], "level": 3}
+{"id": "礼物", "fields": {"hanzi": "礼物", "pinyin": "lǐ wù", "pos": "n", "readings": "1"}, "answers": ["gift", "present"], "level": 3}
+{"id": "历史", "fields": {"hanzi": "历史", "pinyin": "lì shǐ", "pos": "n", "readings": "1"}, "answers": ["history"], "level": 3}
+{"id": "脸", "fields": {"hanzi": "脸", "pinyin": "liǎn", "pos": "n, q", "readings": "1"}, "answers": ["face"], "level": 3}
+{"id": "练", "fields": {"hanzi": "练", "pinyin": "liàn", "pos": "v", "readings": "1"}, "answers": ["to practice", "to train", "to drill", "to perfect (one's skill)", "exercise", "(literary) white silk", "to boil and scour raw silk"], "level": 3}
+{"id": "练习", "fields": {"hanzi": "练习", "pinyin": "liàn xí", "pos": "v, vn", "readings": "1"}, "answers": ["to practice", "exercise", "drill", "practice"], "level": 3}
+{"id": "凉快", "fields": {"hanzi": "凉快", "pinyin": "liáng kuai", "pos": "a", "readings": "1"}, "answers": ["nice and cold", "pleasantly cool"], "level": 3}
+{"id": "辆", "fields": {"hanzi": "辆", "pinyin": "liàng", "pos": "q", "readings": "1"}, "answers": ["classifier for vehicles"], "level": 3}
+{"id": "聊", "fields": {"hanzi": "聊", "pinyin": "liáo", "pos": "v", "readings": "1"}, "answers": ["to chat", "to depend upon (literary)", "temporarily", "just", "slightly"], "level": 3}
+{"id": "聊天儿", "fields": {"hanzi": "聊天儿", "pinyin": "liáo tiān r", "pos": "", "readings": "1"}, "answers": ["erhua variant of 聊天", "to chat", "to gossip"], "level": 3}
+{"id": "邻居", "fields": {"hanzi": "邻居", "pinyin": "lín jū", "pos": "n", "readings": "1"}, "answers": ["neighbor", "next door"], "level": 3}
+{"id": "留学", "fields": {"hanzi": "留学", "pinyin": "liú xué", "pos": "v, vn", "readings": "1"}, "answers": ["to study abroad"], "level": 3}
+{"id": "留学生", "fields": {"hanzi": "留学生", "pinyin": "liú xué shēng", "pos": "n", "readings": "1"}, "answers": ["student studying abroad", "(foreign) exchange student"], "level": 3}
+{"id": "楼梯", "fields": {"hanzi": "楼梯", "pinyin": "lóu tī", "pos": "n", "readings": "1"}, "answers": ["stair", "staircase"], "level": 3}
+{"id": "路边", "fields": {"hanzi": "路边", "pinyin": "lù biān", "pos": "s", "readings": "1"}, "answers": ["curb", "roadside", "wayside"], "level": 3}
+{"id": "路口", "fields": {"hanzi": "路口", "pinyin": "lù kǒu", "pos": "n", "readings": "1"}, "answers": ["crossing", "intersection (of roads)"], "level": 3}
+{"id": "马", "fields": {"hanzi": "马", "pinyin": "Mǎ / mǎ", "pos": "n, nr, b", "readings": "2"}, "answers": ["surname Ma", "abbr. for Malaysia 马来西亚", "horse", "horse or cavalry piece in Chinese chess", "knight in Western chess"], "level": 3}
+{"id": "马路", "fields": {"hanzi": "马路", "pinyin": "mǎ lù", "pos": "n", "readings": "1"}, "answers": ["street", "road"], "level": 3}
+{"id": "马上", "fields": {"hanzi": "马上", "pinyin": "mǎ shàng", "pos": "d, s", "readings": "1"}, "answers": ["at once", "right away", "immediately", "on horseback (i.e. by military force)"], "level": 3}
+{"id": "满意", "fields": {"hanzi": "满意", "pinyin": "mǎn yì", "pos": "v, vn", "readings": "1"}, "answers": ["satisfied", "pleased", "to one's satisfaction"], "level": 3}
+{"id": "毛", "fields": {"hanzi": "毛", "pinyin": "Máo / máo", "pos": "nr, n, q", "readings": "2"}, "answers": ["surname Mao", "hair", "feather", "down", "wool", "mildew", "mold", "coarse or semifinished", "young", "raw", "careless", "unthinking", "nervous", "scared", "(of currency) to devalue or depreciate", "classifier for Chinese fractional monetary unit ( = 角 , = one-tenth of a yuan or 10 fen 分)"], "level": 3}
+{"id": "米", "fields": {"hanzi": "米", "pinyin": "Mǐ / mǐ", "pos": "n, q", "readings": "2"}, "answers": ["surname Mi", "rice", "meter (classifier)"], "level": 3}
+{"id": "面前", "fields": {"hanzi": "面前", "pinyin": "miàn qián", "pos": "f", "readings": "1"}, "answers": ["in front of", "facing", "(in the) presence (of)"], "level": 3}
+{"id": "名单", "fields": {"hanzi": "名单", "pinyin": "míng dān", "pos": "n", "readings": "1"}, "answers": ["list of names"], "level": 3}
+{"id": "名人", "fields": {"hanzi": "名人", "pinyin": "míng rén", "pos": "n", "readings": "1"}, "answers": ["personage", "celebrity"], "level": 3}
+{"id": "明白", "fields": {"hanzi": "明白", "pinyin": "míng bai", "pos": "v, a, an", "readings": "1"}, "answers": ["clear", "obvious", "unequivocal", "to understand", "to realize"], "level": 3}
+{"id": "男人", "fields": {"hanzi": "男人", "pinyin": "nán rén", "pos": "n", "readings": "1"}, "answers": ["a man", "a male", "men"], "level": 3}
+{"id": "男生", "fields": {"hanzi": "男生", "pinyin": "nán shēng", "pos": "n", "readings": "1"}, "answers": ["schoolboy", "male student", "boy", "guy (young adult male)"], "level": 3}
+{"id": "南", "fields": {"hanzi": "南", "pinyin": "Nán / nán", "pos": "b, f", "readings": "2"}, "answers": ["surname Nan", "south"], "level": 3}
+{"id": "南方", "fields": {"hanzi": "南方", "pinyin": "nán fāng", "pos": "s, f", "readings": "1"}, "answers": ["south", "the southern part of the country", "the South"], "level": 3}
+{"id": "难", "fields": {"hanzi": "难", "pinyin": "nán / nàn", "pos": "ad, a, v, g", "readings": "2"}, "answers": ["difficult (to...)", "problem", "difficulty", "difficult", "not good", "disaster", "distress", "to scold"], "level": 3}
+{"id": "难过", "fields": {"hanzi": "难过", "pinyin": "nán guò", "pos": "a", "readings": "1"}, "answers": ["to feel sad", "to feel unwell", "(of life) to be difficult"], "level": 3}
+{"id": "难看", "fields": {"hanzi": "难看", "pinyin": "nán kàn", "pos": "a", "readings": "1"}, "answers": ["ugly", "unsightly"], "level": 3}
+{"id": "难题", "fields": {"hanzi": "难题", "pinyin": "nán tí", "pos": "n", "readings": "1"}, "answers": ["difficult problem"], "level": 3}
+{"id": "难听", "fields": {"hanzi": "难听", "pinyin": "nán tīng", "pos": "a, v", "readings": "1"}, "answers": ["unpleasant to hear", "coarse", "vulgar", "offensive", "shameful"], "level": 3}
+{"id": "年级", "fields": {"hanzi": "年级", "pinyin": "nián jí", "pos": "n", "readings": "1"}, "answers": ["grade", "year (in school, college etc)"], "level": 3}
+{"id": "年轻", "fields": {"hanzi": "年轻", "pinyin": "nián qīng", "pos": "a", "readings": "1"}, "answers": ["young"], "level": 3}
+{"id": "牛", "fields": {"hanzi": "牛", "pinyin": "Niú / niú", "pos": "n, g, nr", "readings": "2"}, "answers": ["surname Niu", "ox", "cow", "bull", "newton (abbr. for 牛顿)", "(slang) awesome"], "level": 3}
+{"id": "努力", "fields": {"hanzi": "努力", "pinyin": "nǔ lì", "pos": "ad, an, a", "readings": "1"}, "answers": ["to make an effort", "to try hard", "to strive", "hard-working", "conscientious"], "level": 3}
+{"id": "女人", "fields": {"hanzi": "女人", "pinyin": "nǚ rén / nǚ ren", "pos": "n", "readings": "2"}, "answers": ["woman", "wife"], "level": 3}
+{"id": "女生", "fields": {"hanzi": "女生", "pinyin": "nǚ shēng", "pos": "n, nr", "readings": "1"}, "answers": ["schoolgirl", "female student", "girl"], "level": 3}
+{"id": "爬", "fields": {"hanzi": "爬", "pinyin": "pá", "pos": "v", "readings": "1"}, "answers": ["to crawl", "to climb", "to get up or sit up"], "level": 3}
+{"id": "怕", "fields": {"hanzi": "怕", "pinyin": "Pà / pà", "pos": "v", "readings": "2"}, "answers": ["surname Pa", "to be afraid", "to fear", "to dread", "to be unable to endure", "perhaps"], "level": 3}
+{"id": "拍照", "fields": {"hanzi": "拍照", "pinyin": "pāi zhào", "pos": "v, vn", "readings": "1"}, "answers": ["to take a picture"], "level": 3}
+{"id": "盘子", "fields": {"hanzi": "盘子", "pinyin": "pán zi", "pos": "n", "readings": "1"}, "answers": ["tray", "plate", "dish"], "level": 3}
+{"id": "胖", "fields": {"hanzi": "胖", "pinyin": "pán / pàng", "pos": "a", "readings": "2"}, "answers": ["healthy", "at ease", "fat", "plump"], "level": 3}
+{"id": "啤酒", "fields": {"hanzi": "啤酒", "pinyin": "pí jiǔ", "pos": "n", "readings": "1"}, "answers": ["beer (loanword)"], "level": 3}
+{"id": "平时", "fields": {"hanzi": "平时", "pinyin": "píng shí", "pos": "t", "readings": "1"}, "answers": ["ordinarily", "in normal times", "in peacetime"], "level": 3}
+{"id": "瓶子", "fields": {"hanzi": "瓶子", "pinyin": "píng zi", "pos": "n", "readings": "1"}, "answers": ["bottle"], "level": 3}
+{"id": "其实", "fields": {"hanzi": "其实", "pinyin": "qí shí", "pos": "d", "readings": "1"}, "answers": ["actually", "in fact", "really"], "level": 3}
+{"id": "其他", "fields": {"hanzi": "其他", "pinyin": "qí tā", "pos": "r", "readings": "1"}, "answers": ["other", "(sth or sb) else", "the rest"], "level": 3}
+{"id": "奇怪", "fields": {"hanzi": "奇怪", "pinyin": "qí guài", "pos": "v, a", "readings": "1"}, "answers": ["strange", "odd", "to marvel", "to be baffled"], "level": 3}
+{"id": "骑", "fields": {"hanzi": "骑", "pinyin": "jì / qí", "pos": "v", "readings": "2"}, "answers": ["(Tw) saddle horse", "mounted soldier", "to sit astride", "to ride (a horse, bike etc)", "classifier for saddle horses"], "level": 3}
+{"id": "起", "fields": {"hanzi": "起", "pinyin": "qǐ", "pos": "v, q, f", "readings": "1"}, "answers": ["to rise", "to raise", "to get up", "to set out", "to start", "to appear", "to launch", "to initiate (action)", "to draft", "to establish", "to get (from a depot or counter)", "verb suffix, to start", "starting from (a time, place, price etc)", "classifier for occurrences or unpredictable events: case, instance", "classifier for groups: batch, group"], "level": 3}
+{"id": "起飞", "fields": {"hanzi": "起飞", "pinyin": "qǐ fēi", "pos": "v, vn", "readings": "1"}, "answers": ["(of an aircraft) to take off"], "level": 3}
+{"id": "汽车", "fields": {"hanzi": "汽车", "pinyin": "qì chē", "pos": "n", "readings": "1"}, "answers": ["car", "automobile", "bus"], "level": 3}
+{"id": "铅笔", "fields": {"hanzi": "铅笔", "pinyin": "qiān bǐ", "pos": "n", "readings": "1"}, "answers": ["(lead) pencil"], "level": 3}
+{"id": "前年", "fields": {"hanzi": "前年", "pinyin": "qián nián", "pos": "t", "readings": "1"}, "answers": ["the year before last"], "level": 3}
+{"id": "前天", "fields": {"hanzi": "前天", "pinyin": "qián tiān", "pos": "t, n", "readings": "1"}, "answers": ["the day before yesterday"], "level": 3}
+{"id": "清楚", "fields": {"hanzi": "清楚", "pinyin": "qīng chu", "pos": "a, v, ad", "readings": "1"}, "answers": ["clear", "distinct", "to understand thoroughly", "to be clear about"], "level": 3}
+{"id": "请假", "fields": {"hanzi": "请假", "pinyin": "qǐng jià", "pos": "v", "readings": "1"}, "answers": ["to request leave of absence"], "level": 3}
+{"id": "请客", "fields": {"hanzi": "请客", "pinyin": "qǐng kè", "pos": "v", "readings": "1"}, "answers": ["to give a dinner party", "to entertain guests", "to invite to dinner"], "level": 3}
+{"id": "秋天", "fields": {"hanzi": "秋天", "pinyin": "qiū tiān", "pos": "t", "readings": "1"}, "answers": ["autumn"], "level": 3}
+{"id": "球场", "fields": {"hanzi": "球场", "pinyin": "qiú chǎng", "pos": "n", "readings": "1"}, "answers": ["stadium", "sports ground", "court", "pitch", "field", "golf course"], "level": 3}
+{"id": "裙子", "fields": {"hanzi": "裙子", "pinyin": "qún zi", "pos": "n", "readings": "1"}, "answers": ["skirt"], "level": 3}
+{"id": "然后", "fields": {"hanzi": "然后", "pinyin": "rán hòu", "pos": "c", "readings": "1"}, "answers": ["then", "after that", "afterwards"], "level": 3}
+{"id": "热情", "fields": {"hanzi": "热情", "pinyin": "rè qíng", "pos": "an, a, ad", "readings": "1"}, "answers": ["cordial", "enthusiastic", "passion", "passionate", "passionately"], "level": 3}
+{"id": "认得", "fields": {"hanzi": "认得", "pinyin": "rèn de", "pos": "v", "readings": "1"}, "answers": ["to recognize", "to remember sth (or sb) on seeing it", "to know"], "level": 3}
+{"id": "认为", "fields": {"hanzi": "认为", "pinyin": "rèn wéi", "pos": "v", "readings": "1"}, "answers": ["to believe", "to think", "to consider", "to feel"], "level": 3}
+{"id": "认真", "fields": {"hanzi": "认真", "pinyin": "rèn zhēn", "pos": "a, ad", "readings": "1"}, "answers": ["conscientious", "earnest", "serious", "to take seriously", "to take to heart"], "level": 3}
+{"id": "容易", "fields": {"hanzi": "容易", "pinyin": "róng yì", "pos": "a, ad", "readings": "1"}, "answers": ["easy", "straightforward", "likely", "liable to", "apt to"], "level": 3}
+{"id": "如果", "fields": {"hanzi": "如果", "pinyin": "rú guǒ", "pos": "c, v", "readings": "1"}, "answers": ["if", "in case", "in the event that"], "level": 3}
+{"id": "伞", "fields": {"hanzi": "伞", "pinyin": "sǎn", "pos": "n", "readings": "1"}, "answers": ["umbrella", "parasol", "damask silk", "variant of 伞"], "level": 3}
+{"id": "扫", "fields": {"hanzi": "扫", "pinyin": "sǎo / sào", "pos": "v", "readings": "2"}, "answers": ["to sweep", "broom"], "level": 3}
+{"id": "沙发", "fields": {"hanzi": "沙发", "pinyin": "shā fā", "pos": "n", "readings": "1"}, "answers": ["sofa (loanword)", "(Internet slang) the first reply or replier to a forum post"], "level": 3}
+{"id": "山", "fields": {"hanzi": "山", "pinyin": "Shān / shān", "pos": "n", "readings": "2"}, "answers": ["surname Shan", "mountain", "hill", "(coll.) small bundle of straw for silkworms to spin cocoons on"], "level": 3}
+{"id": "上衣", "fields": {"hanzi": "上衣", "pinyin": "shàng yī", "pos": "n", "readings": "1"}, "answers": ["jacket", "upper outer garment"], "level": 3}
+{"id": "勺子", "fields": {"hanzi": "勺子", "pinyin": "sháo zi", "pos": "n", "readings": "1"}, "answers": ["scoop", "ladle"], "level": 3}
+{"id": "身边", "fields": {"hanzi": "身边", "pinyin": "shēn biān", "pos": "s", "readings": "1"}, "answers": ["at one's side", "on hand"], "level": 3}
+{"id": "身高", "fields": {"hanzi": "身高", "pinyin": "shēn gāo", "pos": "n", "readings": "1"}, "answers": ["(a person's) height"], "level": 3}
+{"id": "生活", "fields": {"hanzi": "生活", "pinyin": "shēng huó", "pos": "vn, v", "readings": "1"}, "answers": ["to live", "life", "livelihood"], "level": 3}
+{"id": "生气", "fields": {"hanzi": "生气", "pinyin": "shēng qì", "pos": "a, n, v, an", "readings": "1"}, "answers": ["to get angry", "to take offense", "angry", "vitality", "liveliness"], "level": 3}
+{"id": "声", "fields": {"hanzi": "声", "pinyin": "shēng", "pos": "qv, g, n", "readings": "1"}, "answers": ["sound", "voice", "tone", "noise", "reputation", "classifier for sounds"], "level": 3}
+{"id": "声音", "fields": {"hanzi": "声音", "pinyin": "shēng yīn", "pos": "n", "readings": "1"}, "answers": ["voice", "sound"], "level": 3}
+{"id": "世界", "fields": {"hanzi": "世界", "pinyin": "shì jiè", "pos": "n", "readings": "1"}, "answers": ["world"], "level": 3}
+{"id": "市", "fields": {"hanzi": "市", "pinyin": "shì", "pos": "n", "readings": "1"}, "answers": ["market", "city"], "level": 3}
+{"id": "试", "fields": {"hanzi": "试", "pinyin": "shì", "pos": "v, vn", "readings": "1"}, "answers": ["to test", "to try", "experiment", "examination", "test"], "level": 3}
+{"id": "室", "fields": {"hanzi": "室", "pinyin": "Shì / shì", "pos": "n", "readings": "2"}, "answers": ["surname Shi", "room", "work unit", "grave", "scabbard", "family or clan", "one of the 28 constellations of Chinese astronomy"], "level": 3}
+{"id": "收", "fields": {"hanzi": "收", "pinyin": "shōu", "pos": "v", "readings": "1"}, "answers": ["to receive", "to accept", "to collect", "to put away", "to restrain", "to stop", "in care of (used on address line after name)"], "level": 3}
+{"id": "收到", "fields": {"hanzi": "收到", "pinyin": "shōu dào", "pos": "v", "readings": "1"}, "answers": ["to receive"], "level": 3}
+{"id": "受", "fields": {"hanzi": "受", "pinyin": "shòu", "pos": "v", "readings": "1"}, "answers": ["to receive", "to accept", "to suffer", "subjected to", "to bear", "to stand", "pleasant", "(passive marker)"], "level": 3}
+{"id": "受到", "fields": {"hanzi": "受到", "pinyin": "shòu dào", "pos": "v", "readings": "1"}, "answers": ["to receive (praise, an education, punishment etc)", "to be ...ed (praised, educated, punished etc)"], "level": 3}
+{"id": "瘦", "fields": {"hanzi": "瘦", "pinyin": "shòu", "pos": "a", "readings": "1"}, "answers": ["thin", "to lose weight", "(of clothing) tight", "(of meat) lean", "(of land) unproductive"], "level": 3}
+{"id": "叔叔", "fields": {"hanzi": "叔叔", "pinyin": "shū shu", "pos": "n", "readings": "1"}, "answers": ["father's younger brother", "uncle", "Taiwan pr. [shú shu]"], "level": 3}
+{"id": "树", "fields": {"hanzi": "树", "pinyin": "shù", "pos": "n, v", "readings": "1"}, "answers": ["tree", "to cultivate", "to set up"], "level": 3}
+{"id": "数学", "fields": {"hanzi": "数学", "pinyin": "shù xué", "pos": "n", "readings": "1"}, "answers": ["mathematics", "mathematical"], "level": 3}
+{"id": "刷", "fields": {"hanzi": "刷", "pinyin": "shuā / shuà", "pos": "v, o", "readings": "2"}, "answers": ["to brush", "to paint", "to daub", "to paste up", "to skip class (of students)", "to fire from a job", "to select"], "level": 3}
+{"id": "双", "fields": {"hanzi": "双", "pinyin": "Shuāng / shuāng", "pos": "m, q", "readings": "2"}, "answers": ["surname Shuang", "two", "double", "pair", "both", "even (number)"], "level": 3}
+{"id": "水平", "fields": {"hanzi": "水平", "pinyin": "shuǐ píng", "pos": "n", "readings": "1"}, "answers": ["level (of achievement etc)", "standard", "horizontal"], "level": 3}
+{"id": "司机", "fields": {"hanzi": "司机", "pinyin": "sī jī", "pos": "n", "readings": "1"}, "answers": ["chauffeur", "driver"], "level": 3}
+{"id": "四季", "fields": {"hanzi": "四季", "pinyin": "sì jì", "pos": "n", "readings": "1"}, "answers": ["four seasons, namely: spring 春, summer 夏, autumn 秋 and winter 冬"], "level": 3}
+{"id": "太阳", "fields": {"hanzi": "太阳", "pinyin": "tài yang", "pos": "n", "readings": "1"}, "answers": ["sun", "abbr. for 太阳穴"], "level": 3}
+{"id": "糖", "fields": {"hanzi": "糖", "pinyin": "táng", "pos": "n", "readings": "1"}, "answers": ["sugar", "sweets", "candy", "old variant of 糖"], "level": 3}
+{"id": "特别", "fields": {"hanzi": "特别", "pinyin": "tè bié", "pos": "d, a", "readings": "1"}, "answers": ["unusual", "special", "very", "especially", "particularly", "expressly", "for a specific purpose", "(often followed by 是) in particular"], "level": 3}
+{"id": "提高", "fields": {"hanzi": "提高", "pinyin": "tí gāo", "pos": "v, vn", "readings": "1"}, "answers": ["to raise", "to increase", "to improve"], "level": 3}
+{"id": "体育", "fields": {"hanzi": "体育", "pinyin": "tǐ yù", "pos": "n", "readings": "1"}, "answers": ["sports", "physical education"], "level": 3}
+{"id": "体育馆", "fields": {"hanzi": "体育馆", "pinyin": "tǐ yù guǎn", "pos": "n", "readings": "1"}, "answers": ["gym", "gymnasium", "stadium"], "level": 3}
+{"id": "甜", "fields": {"hanzi": "甜", "pinyin": "tián", "pos": "a", "readings": "1"}, "answers": ["sweet"], "level": 3}
+{"id": "跳", "fields": {"hanzi": "跳", "pinyin": "tiào", "pos": "v, vn, q", "readings": "1"}, "answers": ["to jump", "to hop", "to skip over", "to bounce", "to palpitate"], "level": 3}
+{"id": "听说", "fields": {"hanzi": "听说", "pinyin": "tīng shuō", "pos": "v", "readings": "1"}, "answers": ["to hear (sth said)", "one hears (that)", "hearsay", "listening and speaking"], "level": 3}
+{"id": "挺", "fields": {"hanzi": "挺", "pinyin": "tǐng", "pos": "d, v, g, q", "readings": "1"}, "answers": ["straight", "erect", "to stick out (a part of the body)", "to (physically) straighten up", "to support", "to withstand", "outstanding", "(coll.) quite", "very", "classifier for machine guns"], "level": 3}
+{"id": "同事", "fields": {"hanzi": "同事", "pinyin": "tóng shì", "pos": "n", "readings": "1"}, "answers": ["colleague", "co-worker"], "level": 3}
+{"id": "同意", "fields": {"hanzi": "同意", "pinyin": "tóng yì", "pos": "v, vn", "readings": "1"}, "answers": ["to agree", "to consent", "to approve"], "level": 3}
+{"id": "头发", "fields": {"hanzi": "头发", "pinyin": "tóu fa", "pos": "n", "readings": "1"}, "answers": ["hair (on the head)"], "level": 3}
+{"id": "突然", "fields": {"hanzi": "突然", "pinyin": "tū rán", "pos": "ad, a", "readings": "1"}, "answers": ["sudden", "abrupt", "unexpected"], "level": 3}
+{"id": "图书馆", "fields": {"hanzi": "图书馆", "pinyin": "tú shū guǎn", "pos": "n", "readings": "1"}, "answers": ["library"], "level": 3}
+{"id": "腿", "fields": {"hanzi": "腿", "pinyin": "tuǐ", "pos": "n", "readings": "1"}, "answers": ["leg", "hip bone", "old variant of 腿"], "level": 3}
+{"id": "外地", "fields": {"hanzi": "外地", "pinyin": "wài dì", "pos": "s", "readings": "1"}, "answers": ["parts of the country other than where one is"], "level": 3}
+{"id": "外卖", "fields": {"hanzi": "外卖", "pinyin": "wài mài", "pos": "", "readings": "1"}, "answers": ["(of a restaurant) to provide a takeout or home delivery meal", "takeout (business)", "takeout (meal)"], "level": 3}
+{"id": "外语", "fields": {"hanzi": "外语", "pinyin": "wài yǔ", "pos": "n", "readings": "1"}, "answers": ["foreign language"], "level": 3}
+{"id": "完成", "fields": {"hanzi": "完成", "pinyin": "wán chéng", "pos": "v, vn", "readings": "1"}, "answers": ["to complete", "to accomplish"], "level": 3}
+{"id": "晚点", "fields": {"hanzi": "晚点", "pinyin": "wǎn diǎn", "pos": "v", "readings": "1"}, "answers": ["(of trains etc) late", "delayed", "behind schedule", "light dinner"], "level": 3}
+{"id": "晚会", "fields": {"hanzi": "晚会", "pinyin": "wǎn huì", "pos": "n", "readings": "1"}, "answers": ["evening party"], "level": 3}
+{"id": "碗", "fields": {"hanzi": "碗", "pinyin": "wǎn", "pos": "n, q", "readings": "1"}, "answers": ["variant of 碗", "bowl", "cup"], "level": 3}
+{"id": "网球", "fields": {"hanzi": "网球", "pinyin": "wǎng qiú", "pos": "n", "readings": "1"}, "answers": ["tennis", "tennis ball"], "level": 3}
+{"id": "网站", "fields": {"hanzi": "网站", "pinyin": "wǎng zhàn", "pos": "n", "readings": "1"}, "answers": ["website", "network station", "node"], "level": 3}
+{"id": "忘记", "fields": {"hanzi": "忘记", "pinyin": "wàng jì", "pos": "v", "readings": "1"}, "answers": ["to forget"], "level": 3}
+{"id": "卫生间", "fields": {"hanzi": "卫生间", "pinyin": "wèi shēng jiān", "pos": "n", "readings": "1"}, "answers": ["bathroom", "toilet", "WC"], "level": 3}
+{"id": "为", "fields": {"hanzi": "为", "pinyin": "wéi / wèi", "pos": "p, v", "readings": "2"}, "answers": ["as (in the capacity of)", "to take sth as", "to act as", "to serve as", "to behave as", "to become", "to be", "to do", "by (in the passive voice)", "because of", "for", "to", "variant of 为"], "level": 3}
+{"id": "为了", "fields": {"hanzi": "为了", "pinyin": "wèi le", "pos": "p, v", "readings": "1"}, "answers": ["for", "for the purpose of", "in order to"], "level": 3}
+{"id": "文化", "fields": {"hanzi": "文化", "pinyin": "wén huà", "pos": "n", "readings": "1"}, "answers": ["culture", "civilization", "cultural"], "level": 3}
+{"id": "屋子", "fields": {"hanzi": "屋子", "pinyin": "wū zi", "pos": "n", "readings": "1"}, "answers": ["house", "room"], "level": 3}
+{"id": "习惯", "fields": {"hanzi": "习惯", "pinyin": "xí guàn", "pos": "n, v", "readings": "1"}, "answers": ["habit", "custom", "usual practice", "to be used to"], "level": 3}
+{"id": "洗衣机", "fields": {"hanzi": "洗衣机", "pinyin": "xǐ yī jī", "pos": "n", "readings": "1"}, "answers": ["washing machine", "washer"], "level": 3}
+{"id": "洗澡", "fields": {"hanzi": "洗澡", "pinyin": "xǐ zǎo", "pos": "v, vn", "readings": "1"}, "answers": ["to bathe", "to take a shower"], "level": 3}
+{"id": "喜爱", "fields": {"hanzi": "喜爱", "pinyin": "xǐ ài", "pos": "v, vn", "readings": "1"}, "answers": ["to like", "to love", "to be fond of", "favorite"], "level": 3}
+{"id": "西", "fields": {"hanzi": "西", "pinyin": "Xī / xī", "pos": "f, b", "readings": "2"}, "answers": ["the West", "abbr. for Spain 牙", "Spanish", "west"], "level": 3}
+{"id": "西北", "fields": {"hanzi": "西北", "pinyin": "Xī běi / xī běi", "pos": "s, ns, f", "readings": "2"}, "answers": ["Northwest China (Shaanxi, Gansu, Qinghai, Ningxia, Xinjiang)", "northwest"], "level": 3}
+{"id": "西方", "fields": {"hanzi": "西方", "pinyin": "Xī fāng", "pos": "s, f", "readings": "1"}, "answers": ["the West", "the Occident", "Western countries"], "level": 3}
+{"id": "西瓜", "fields": {"hanzi": "西瓜", "pinyin": "xī guā", "pos": "n", "readings": "1"}, "answers": ["watermelon"], "level": 3}
+{"id": "西南", "fields": {"hanzi": "西南", "pinyin": "xī nán", "pos": "s, f, ns", "readings": "1"}, "answers": ["southwest"], "level": 3}
+{"id": "夏天", "fields": {"hanzi": "夏天", "pinyin": "xià tiān", "pos": "t", "readings": "1"}, "answers": ["summer"], "level": 3}
+{"id": "先", "fields": {"hanzi": "先", "pinyin": "xiān", "pos": "d, g", "readings": "1"}, "answers": ["early", "prior", "former", "in advance", "first"], "level": 3}
+{"id": "相机", "fields": {"hanzi": "相机", "pinyin": "xiàng jī", "pos": "n", "readings": "1"}, "answers": ["camera (abbr. for 照相机)", "at the opportune moment", "as the circumstances allow"], "level": 3}
+{"id": "相信", "fields": {"hanzi": "相信", "pinyin": "xiāng xìn", "pos": "v", "readings": "1"}, "answers": ["to be convinced (that sth is true)", "to believe", "to accept sth as true"], "level": 3}
+{"id": "香蕉", "fields": {"hanzi": "香蕉", "pinyin": "xiāng jiāo", "pos": "n", "readings": "1"}, "answers": ["banana"], "level": 3}
+{"id": "箱子", "fields": {"hanzi": "箱子", "pinyin": "xiāng zi", "pos": "n", "readings": "1"}, "answers": ["suitcase", "chest", "box", "case", "trunk"], "level": 3}
+{"id": "向", "fields": {"hanzi": "向", "pinyin": "Xiàng / xiàng", "pos": "p, v, g", "readings": "2"}, "answers": ["surname Xiang", "towards", "to face", "to turn towards", "direction", "to support", "to side with", "shortly before", "formerly", "always", "all along", "(suffix) suitable for ...", "oriented to ...", "to tend toward", "to guide", "variant of 向", "orientation", "to turn toward", "to"], "level": 3}
+{"id": "像", "fields": {"hanzi": "像", "pinyin": "xiàng", "pos": "v, p, n, d", "readings": "1"}, "answers": ["to resemble", "to be like", "to look as if", "such as", "appearance", "image", "portrait", "image under a mapping (math.)"], "level": 3}
+{"id": "小区", "fields": {"hanzi": "小区", "pinyin": "xiǎo qū", "pos": "n", "readings": "1"}, "answers": ["neighborhood", "district"], "level": 3}
+{"id": "小心", "fields": {"hanzi": "小心", "pinyin": "xiǎo xīn", "pos": "a, v, ad", "readings": "1"}, "answers": ["to be careful", "to take care"], "level": 3}
+{"id": "校园", "fields": {"hanzi": "校园", "pinyin": "xiào yuán", "pos": "n", "readings": "1"}, "answers": ["campus"], "level": 3}
+{"id": "校长", "fields": {"hanzi": "校长", "pinyin": "xiào zhǎng", "pos": "n", "readings": "1"}, "answers": ["(college, university) president", "headmaster"], "level": 3}
+{"id": "鞋", "fields": {"hanzi": "鞋", "pinyin": "xié", "pos": "n", "readings": "1"}, "answers": ["shoe", "variant of 鞋"], "level": 3}
+{"id": "心里", "fields": {"hanzi": "心里", "pinyin": "xīn li", "pos": "s", "readings": "1"}, "answers": ["chest", "heart", "mind"], "level": 3}
+{"id": "新年", "fields": {"hanzi": "新年", "pinyin": "xīn nián", "pos": "t", "readings": "1"}, "answers": ["New Year"], "level": 3}
+{"id": "新闻", "fields": {"hanzi": "新闻", "pinyin": "xīn wén", "pos": "n", "readings": "1"}, "answers": ["news"], "level": 3}
+{"id": "新鲜", "fields": {"hanzi": "新鲜", "pinyin": "xīn xiān", "pos": "a", "readings": "1"}, "answers": ["fresh (experience, food etc)", "freshness", "novel", "uncommon"], "level": 3}
+{"id": "信", "fields": {"hanzi": "信", "pinyin": "xìn", "pos": "n, v", "readings": "1"}, "answers": ["letter", "mail", "to trust", "to believe", "to profess faith in", "truthful", "confidence", "trust", "at will", "at random"], "level": 3}
+{"id": "信用卡", "fields": {"hanzi": "信用卡", "pinyin": "xìn yòng kǎ", "pos": "n", "readings": "1"}, "answers": ["credit card"], "level": 3}
+{"id": "行", "fields": {"hanzi": "行", "pinyin": "háng / xíng", "pos": "v, g, q, a, n", "readings": "2"}, "answers": ["row", "line", "commercial firm", "line of business", "profession", "to rank (first, second etc) among one's siblings (by age)", "(in data tables) row", "(Tw) column", "to walk", "to go", "to travel", "a visit", "temporary", "makeshift", "current", "in circulation", "to do", "to perform", "capable", "competent", "effective", "all right", "OK!", "will do", "behavior", "conduct", "Taiwan pr. [xìng] for the behavior-conduct sense"], "level": 3}
+{"id": "行李", "fields": {"hanzi": "行李", "pinyin": "xíng li", "pos": "n", "readings": "1"}, "answers": ["luggage"], "level": 3}
+{"id": "兴趣", "fields": {"hanzi": "兴趣", "pinyin": "xìng qù", "pos": "n", "readings": "1"}, "answers": ["interest (desire to know about sth)", "interest (thing in which one is interested)", "hobby"], "level": 3}
+{"id": "休假", "fields": {"hanzi": "休假", "pinyin": "xiū jià", "pos": "v, vn, n", "readings": "1"}, "answers": ["to go on vacation", "to have a holiday", "to take leave"], "level": 3}
+{"id": "需要", "fields": {"hanzi": "需要", "pinyin": "xū yào", "pos": "v, n, vn", "readings": "1"}, "answers": ["to need", "to want", "to demand", "to require", "needs"], "level": 3}
+{"id": "选", "fields": {"hanzi": "选", "pinyin": "xuǎn", "pos": "v, g", "readings": "1"}, "answers": ["to choose", "to pick", "to select", "to elect"], "level": 3}
+{"id": "选择", "fields": {"hanzi": "选择", "pinyin": "xuǎn zé", "pos": "v, vn", "readings": "1"}, "answers": ["to select", "to pick", "choice", "option", "alternative"], "level": 3}
+{"id": "学期", "fields": {"hanzi": "学期", "pinyin": "xué qī", "pos": "n", "readings": "1"}, "answers": ["term", "semester"], "level": 3}
+{"id": "牙", "fields": {"hanzi": "牙", "pinyin": "yá", "pos": "n", "readings": "1"}, "answers": ["tooth", "ivory"], "level": 3}
+{"id": "牙刷", "fields": {"hanzi": "牙刷", "pinyin": "yá shuā", "pos": "n", "readings": "1"}, "answers": ["toothbrush"], "level": 3}
+{"id": "羊", "fields": {"hanzi": "羊", "pinyin": "Yáng / yáng", "pos": "n", "readings": "2"}, "answers": ["surname Yang", "sheep", "goat"], "level": 3}
+{"id": "养", "fields": {"hanzi": "养", "pinyin": "yǎng", "pos": "v", "readings": "1"}, "answers": ["to raise (animals)", "to bring up (children)", "to keep (pets)", "to support", "to give birth"], "level": 3}
+{"id": "要求", "fields": {"hanzi": "要求", "pinyin": "yāo qiú", "pos": "v, n", "readings": "1"}, "answers": ["to request", "to require", "requirement", "to stake a claim", "to ask", "to demand"], "level": 3}
+{"id": "页", "fields": {"hanzi": "页", "pinyin": "xié / yè", "pos": "q, g", "readings": "2"}, "answers": ["head", "page", "leaf"], "level": 3}
+{"id": "一般", "fields": {"hanzi": "一般", "pinyin": "yī bān", "pos": "a, ad, u", "readings": "1"}, "answers": ["same", "ordinary", "so-so", "common", "general", "generally", "in general"], "level": 3}
+{"id": "一边", "fields": {"hanzi": "一边", "pinyin": "yī biān", "pos": "d, f", "readings": "1"}, "answers": ["one side", "either side", "on the one hand", "on the other hand", "doing while"], "level": 3}
+{"id": "一定", "fields": {"hanzi": "一定", "pinyin": "yī dìng", "pos": "d, b", "readings": "1"}, "answers": ["surely", "certainly", "necessarily", "fixed", "a certain (extent etc)", "given", "particular", "must"], "level": 3}
+{"id": "一共", "fields": {"hanzi": "一共", "pinyin": "yī gòng", "pos": "d", "readings": "1"}, "answers": ["altogether"], "level": 3}
+{"id": "一块儿", "fields": {"hanzi": "一块儿", "pinyin": "yī kuài r", "pos": "d, s", "readings": "1"}, "answers": ["erhua variant of 一块", "a piece", "a chunk", "(coll.) one yuan", "one dollar"], "level": 3}
+{"id": "一样", "fields": {"hanzi": "一样", "pinyin": "yī yàng", "pos": "u, a, ad", "readings": "1"}, "answers": ["same", "like", "equal to", "the same as", "just like"], "level": 3}
+{"id": "一直", "fields": {"hanzi": "一直", "pinyin": "yī zhí", "pos": "d", "readings": "1"}, "answers": ["straight (in a straight line)", "continuously", "always", "all the way through"], "level": 3}
+{"id": "以后", "fields": {"hanzi": "以后", "pinyin": "yǐ hòu", "pos": "f", "readings": "1"}, "answers": ["after", "later", "afterwards", "following", "later on", "in the future"], "level": 3}
+{"id": "以前", "fields": {"hanzi": "以前", "pinyin": "yǐ qián", "pos": "f", "readings": "1"}, "answers": ["before", "formerly", "previous", "ago"], "level": 3}
+{"id": "以上", "fields": {"hanzi": "以上", "pinyin": "yǐ shàng", "pos": "f", "readings": "1"}, "answers": ["that level or higher", "that amount or more", "the above-mentioned", "(used to indicate that one has completed one's remarks) That is all."], "level": 3}
+{"id": "以外", "fields": {"hanzi": "以外", "pinyin": "yǐ wài", "pos": "f", "readings": "1"}, "answers": ["apart from", "other than", "except for", "external", "outside of", "on the other side of", "beyond"], "level": 3}
+{"id": "以为", "fields": {"hanzi": "以为", "pinyin": "yǐ wéi", "pos": "v", "readings": "1"}, "answers": ["to think (i.e. to take it to be true that ...) (Usually there is an implication that the notion is mistaken – except when expressing one's own current opinion.)"], "level": 3}
+{"id": "以下", "fields": {"hanzi": "以下", "pinyin": "yǐ xià", "pos": "f", "readings": "1"}, "answers": ["that level or lower", "that amount or less", "the following"], "level": 3}
+{"id": "音乐", "fields": {"hanzi": "音乐", "pinyin": "yīn yuè", "pos": "n", "readings": "1"}, "answers": ["music"], "level": 3}
+{"id": "银行", "fields": {"hanzi": "银行", "pinyin": "yín háng", "pos": "n", "readings": "1"}, "answers": ["bank"], "level": 3}
+{"id": "银行卡", "fields": {"hanzi": "银行卡", "pinyin": "yín háng kǎ", "pos": "", "readings": "1"}, "answers": ["bank card", "ATM card"], "level": 3}
+{"id": "饮料", "fields": {"hanzi": "饮料", "pinyin": "yǐn liào", "pos": "n", "readings": "1"}, "answers": ["drink", "beverage"], "level": 3}
+{"id": "应该", "fields": {"hanzi": "应该", "pinyin": "yīng gāi", "pos": "v", "readings": "1"}, "answers": ["ought to", "should", "must"], "level": 3}
+{"id": "影响", "fields": {"hanzi": "影响", "pinyin": "yǐng xiǎng", "pos": "v, vn", "readings": "1"}, "answers": ["influence", "effect", "to influence", "to affect (usually adversely)", "to disturb"], "level": 3}
+{"id": "用", "fields": {"hanzi": "用", "pinyin": "yòng", "pos": "v, p, g", "readings": "1"}, "answers": ["to use", "to employ", "to have to", "to eat or drink", "expense or outlay", "usefulness", "hence", "therefore"], "level": 3}
+{"id": "邮件", "fields": {"hanzi": "邮件", "pinyin": "yóu jiàn", "pos": "n", "readings": "1"}, "answers": ["mail", "post", "email"], "level": 3}
+{"id": "邮箱", "fields": {"hanzi": "邮箱", "pinyin": "yóu xiāng", "pos": "n", "readings": "1"}, "answers": ["mailbox", "post office box", "email", "email inbox"], "level": 3}
+{"id": "游客", "fields": {"hanzi": "游客", "pinyin": "yóu kè", "pos": "n", "readings": "1"}, "answers": ["traveler", "tourist", "(online gaming) guest player"], "level": 3}
+{"id": "游戏", "fields": {"hanzi": "游戏", "pinyin": "yóu xì", "pos": "n, v", "readings": "1"}, "answers": ["game", "to play"], "level": 3}
+{"id": "有关", "fields": {"hanzi": "有关", "pinyin": "yǒu guān", "pos": "vn, p, v", "readings": "1"}, "answers": ["to have sth to do with", "to relate to", "related to", "to concern", "concerning"], "level": 3}
+{"id": "有名", "fields": {"hanzi": "有名", "pinyin": "yǒu míng", "pos": "a", "readings": "1"}, "answers": ["famous", "well-known"], "level": 3}
+{"id": "有用", "fields": {"hanzi": "有用", "pinyin": "yǒu yòng", "pos": "a, v", "readings": "1"}, "answers": ["useful"], "level": 3}
+{"id": "又", "fields": {"hanzi": "又", "pinyin": "yòu", "pos": "d, c", "readings": "1"}, "answers": ["(once) again", "also", "both... and...", "and yet", "(used for emphasis) anyway"], "level": 3}
+{"id": "羽毛球", "fields": {"hanzi": "羽毛球", "pinyin": "yǔ máo qiú", "pos": "n", "readings": "1"}, "answers": ["shuttlecock", "badminton"], "level": 3}
+{"id": "雨衣", "fields": {"hanzi": "雨衣", "pinyin": "yǔ yī", "pos": "n", "readings": "1"}, "answers": ["raincoat"], "level": 3}
+{"id": "语言", "fields": {"hanzi": "语言", "pinyin": "yǔ yán", "pos": "n", "readings": "1"}, "answers": ["language"], "level": 3}
+{"id": "遇到", "fields": {"hanzi": "遇到", "pinyin": "yù dào", "pos": "v", "readings": "1"}, "answers": ["to meet", "to run into", "to come across"], "level": 3}
+{"id": "遇见", "fields": {"hanzi": "遇见", "pinyin": "yù jiàn", "pos": "v", "readings": "1"}, "answers": ["to meet"], "level": 3}
+{"id": "员", "fields": {"hanzi": "员", "pinyin": "yuán", "pos": "g, q, n", "readings": "1"}, "answers": ["person", "employee", "member"], "level": 3}
+{"id": "园", "fields": {"hanzi": "园", "pinyin": "Yuán / yuán", "pos": "g", "readings": "2"}, "answers": ["surname Yuan", "land used for growing plants", "site used for public recreation", "abbr. for a place ending in 园, such as a botanical garden 植物园, kindergarten 幼儿园 etc"], "level": 3}
+{"id": "愿意", "fields": {"hanzi": "愿意", "pinyin": "yuàn yì", "pos": "v", "readings": "1"}, "answers": ["to wish", "to want", "ready", "willing (to do sth)"], "level": 3}
+{"id": "月亮", "fields": {"hanzi": "月亮", "pinyin": "yuè liang", "pos": "n", "readings": "1"}, "answers": ["the moon"], "level": 3}
+{"id": "越", "fields": {"hanzi": "越", "pinyin": "Yuè / yuè", "pos": "d, g, b", "readings": "2"}, "answers": ["generic word for peoples or states of south China or south Asia at different historical periods", "abbr. for Vietnam 越南", "to exceed", "to climb over", "to surpass", "the more... the more"], "level": 3}
+{"id": "运动会", "fields": {"hanzi": "运动会", "pinyin": "yùn dòng huì", "pos": "n", "readings": "1"}, "answers": ["sports competition"], "level": 3}
+{"id": "运动员", "fields": {"hanzi": "运动员", "pinyin": "yùn dòng yuán", "pos": "n", "readings": "1"}, "answers": ["athlete"], "level": 3}
+{"id": "咱们", "fields": {"hanzi": "咱们", "pinyin": "zán men", "pos": "r", "readings": "1"}, "answers": ["we or us (including both the speaker and the person(s) spoken to)", "(dialect) I or me", "(dialect) (in a coaxing or familiar way) you", "also pr. [zá men]"], "level": 3}
+{"id": "脏", "fields": {"hanzi": "脏", "pinyin": "zàng / zāng", "pos": "a, g", "readings": "2"}, "answers": ["viscera", "(anatomy) organ", "dirty", "filthy", "to get (sth) dirty"], "level": 3}
+{"id": "怎么办", "fields": {"hanzi": "怎么办", "pinyin": "zěn me bàn", "pos": "r, v", "readings": "1"}, "answers": ["what's to be done"], "level": 3}
+{"id": "怎样", "fields": {"hanzi": "怎样", "pinyin": "zěn yàng", "pos": "r", "readings": "1"}, "answers": ["how", "what kind"], "level": 3}
+{"id": "张", "fields": {"hanzi": "张", "pinyin": "Zhāng / zhāng", "pos": "q, nr, v, g", "readings": "2"}, "answers": ["surname Zhang", "to open up", "to spread", "sheet of paper", "classifier for flat objects, sheet", "classifier for votes"], "level": 3}
+{"id": "照", "fields": {"hanzi": "照", "pinyin": "zhào", "pos": "v, p, g, d", "readings": "1"}, "answers": ["variant of 照", "to shine", "to illuminate", "according to", "in accordance with", "to reflect", "to look at (one's reflection)", "to take (a photo)", "photo", "as requested", "as before"], "level": 3}
+{"id": "照顾", "fields": {"hanzi": "照顾", "pinyin": "zhào gu", "pos": "v, vn", "readings": "1"}, "answers": ["to take care of", "to show consideration", "to attend to", "to look after"], "level": 3}
+{"id": "照片", "fields": {"hanzi": "照片", "pinyin": "zhào piàn", "pos": "n", "readings": "1"}, "answers": ["photograph", "picture"], "level": 3}
+{"id": "照相", "fields": {"hanzi": "照相", "pinyin": "zhào xiàng", "pos": "v, vn", "readings": "1"}, "answers": ["to take a photograph"], "level": 3}
+{"id": "着急", "fields": {"hanzi": "着急", "pinyin": "zháo jí", "pos": "a, ad", "readings": "1"}, "answers": ["to worry", "to feel anxious", "to feel a sense of urgency", "to be in a hurry", "Taiwan pr. [zhāo jí]"], "level": 3}
+{"id": "直到", "fields": {"hanzi": "直到", "pinyin": "zhí dào", "pos": "v", "readings": "1"}, "answers": ["until"], "level": 3}
+{"id": "只能", "fields": {"hanzi": "只能", "pinyin": "zhǐ néng", "pos": "v", "readings": "1"}, "answers": ["can only", "obliged to do sth", "to have no other choice"], "level": 3}
+{"id": "只是", "fields": {"hanzi": "只是", "pinyin": "zhǐ shì", "pos": "d, c, v", "readings": "1"}, "answers": ["merely", "only", "just", "nothing but", "simply", "but", "however"], "level": 3}
+{"id": "只要", "fields": {"hanzi": "只要", "pinyin": "zhǐ yào", "pos": "c", "readings": "1"}, "answers": ["if only", "so long as"], "level": 3}
+{"id": "只有", "fields": {"hanzi": "只有", "pinyin": "zhǐ yǒu", "pos": "c, d, v", "readings": "1"}, "answers": ["only have ...", "there is only ...", "(used in combination with 才) it is only if one ... (that one can ...) (Example: 只有通过治疗才能痊愈 \"the only way to cure it is with therapy\")", "it is only ... (who ...) (Example: 要 \"only men would have such a requirement\")", "(used to indicate that one has no alternative) one can only (do a certain thing) (Example: 服 \"the only thing you can do is give in\")"], "level": 3}
+{"id": "纸", "fields": {"hanzi": "纸", "pinyin": "zhǐ", "pos": "n, q", "readings": "1"}, "answers": ["variant of 纸", "paper", "classifier for documents, letter etc"], "level": 3}
+{"id": "中", "fields": {"hanzi": "中", "pinyin": "Zhōng / zhōng / zhòng", "pos": "f, b, v", "readings": "3"}, "answers": ["China", "Chinese", "surname Zhong", "within", "among", "in", "middle", "center", "while (doing sth)", "during", "(dialect) OK", "all right", "to hit (the mark)", "to be hit by", "to suffer", "to win (a prize, a lottery)"], "level": 3}
+{"id": "中间", "fields": {"hanzi": "中间", "pinyin": "zhōng jiān", "pos": "f", "readings": "1"}, "answers": ["the middle", "the inside", "in the middle", "within", "between", "among", "during", "in the meantime"], "level": 3}
+{"id": "终于", "fields": {"hanzi": "终于", "pinyin": "zhōng yú", "pos": "d", "readings": "1"}, "answers": ["at last", "in the end", "finally", "eventually"], "level": 3}
+{"id": "种", "fields": {"hanzi": "种", "pinyin": "zhǒng / zhòng", "pos": "q, v, g", "readings": "2"}, "answers": ["seed", "species", "kind", "type", "classifier for types, kinds, sorts", "to plant", "to grow", "to cultivate"], "level": 3}
+{"id": "重要", "fields": {"hanzi": "重要", "pinyin": "zhòng yào", "pos": "a", "readings": "1"}, "answers": ["important", "significant", "major"], "level": 3}
+{"id": "周末", "fields": {"hanzi": "周末", "pinyin": "zhōu mò", "pos": "t", "readings": "1"}, "answers": ["weekend"], "level": 3}
+{"id": "主要", "fields": {"hanzi": "主要", "pinyin": "zhǔ yào", "pos": "b, d", "readings": "1"}, "answers": ["main", "principal", "major", "primary"], "level": 3}
+{"id": "住院", "fields": {"hanzi": "住院", "pinyin": "zhù yuàn", "pos": "v, vn", "readings": "1"}, "answers": ["to be in hospital", "to be hospitalized"], "level": 3}
+{"id": "注意", "fields": {"hanzi": "注意", "pinyin": "zhù yì", "pos": "v, vn", "readings": "1"}, "answers": ["to take note of", "to pay attention to"], "level": 3}
+{"id": "字典", "fields": {"hanzi": "字典", "pinyin": "zì diǎn", "pos": "n", "readings": "1"}, "answers": ["Chinese character dictionary (containing entries for single characters, contrasted with a 词典, which has entries for words of one or more characters)", "(coll.) dictionary"], "level": 3}
+{"id": "自行车", "fields": {"hanzi": "自行车", "pinyin": "zì xíng chē", "pos": "n", "readings": "1"}, "answers": ["bicycle", "bike"], "level": 3}
+{"id": "子", "fields": {"hanzi": "子", "pinyin": "zǐ / zi", "pos": "g, q", "readings": "2"}, "answers": ["son", "child", "seed", "egg", "small thing", "1st earthly branch: 11 p.m.-1 a.m., midnight, 11th solar month (7th December to 5th January), year of the Rat", "Viscount, fourth of five orders of nobility 位", "ancient Chinese compass point: 0° (north)", "subsidiary", "subordinate", "sub-", "(noun suffix)"], "level": 3}
+{"id": "总", "fields": {"hanzi": "总", "pinyin": "zǒng", "pos": "d, b, v", "readings": "1"}, "answers": ["general", "overall", "to sum up", "in every case", "always", "invariably", "anyway", "after all", "eventually", "sooner or later", "surely", "(after a person's name) abbr. for 总经理 or 总编 etc"], "level": 3}
+{"id": "总是", "fields": {"hanzi": "总是", "pinyin": "zǒng shì", "pos": "d, v", "readings": "1"}, "answers": ["always"], "level": 3}
+{"id": "嘴", "fields": {"hanzi": "嘴", "pinyin": "zuǐ", "pos": "n", "readings": "1"}, "answers": ["mouth", "beak", "nozzle", "spout (of teapot etc)"], "level": 3}
+{"id": "最好", "fields": {"hanzi": "最好", "pinyin": "zuì hǎo", "pos": "d", "readings": "1"}, "answers": ["best", "(you) had better (do what we suggest)"], "level": 3}
+{"id": "最后", "fields": {"hanzi": "最后", "pinyin": "zuì hòu", "pos": "f", "readings": "1"}, "answers": ["final", "last", "finally", "ultimate"], "level": 3}
+{"id": "最近", "fields": {"hanzi": "最近", "pinyin": "zuì jìn", "pos": "t", "readings": "1"}, "answers": ["recently", "soon", "nearest"], "level": 3}
+{"id": "作业", "fields": {"hanzi": "作业", "pinyin": "zuò yè", "pos": "n, v, vn", "readings": "1"}, "answers": ["school assignment", "homework", "work", "task", "operation", "to operate"], "level": 3}
+{"id": "做客", "fields": {"hanzi": "做客", "pinyin": "zuò kè", "pos": "v", "readings": "1"}, "answers": ["to be a guest or visitor"], "level": 3}
