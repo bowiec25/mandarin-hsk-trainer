@@ -6,12 +6,27 @@ on:
   push:
     branches: [main]
   pull_request:
+    # "edited" = re-run when the PR description changes, so fixing it turns CI green.
+    types: [opened, synchronize, reopened, edited]
+
+# A newer run (e.g. after editing the PR description) cancels the older one.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+
+      # Inside the required "check" job, so protected main enforces it.
+      # The body goes in via env (never pasted into the script) so it can't inject code.
+      - name: PR description has "Still the right thing?"
+        if: github.event_name == 'pull_request'
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: python3 .github/scripts/check_pr_body.py
 
       - name: Install uv
         uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3 (pinned SHA: third-party action)

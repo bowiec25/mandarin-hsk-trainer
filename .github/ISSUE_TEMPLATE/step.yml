@@ -1,0 +1,31 @@
+# Issue form: GitHub shows this as a form when you click "New issue".
+# "required: true" means the website won't submit the issue with that box empty.
+# (gh issue create skips forms, so the PR check in .github/scripts/ is the real gate.)
+name: Step or milestone
+description: A piece of planned work (a milestone or a step)
+title: "M?: "
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What should be true when this is done?
+    validations:
+      required: true
+  - type: textarea
+    id: still-right
+    attributes:
+      label: Still the right thing?
+      description: >-
+        Re-test the original plan against what we know now. What changed since it
+        was written (new info, play-test results, earlier steps)? Say "nothing
+        changed, because ..." if so.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps
+      description: A checklist of small steps (- [ ] ...)
+    validations:
+      required: false
