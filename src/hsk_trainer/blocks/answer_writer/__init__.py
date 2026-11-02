@@ -208,6 +208,7 @@ def _load_existing(out: Path, known: set[str]) -> tuple[dict[str, AnswerLine], b
     if not out.exists():
         return {}, False
     done: dict[str, AnswerLine] = {}
+    repeated: set[str] = set()  # ids saved more than once: always asked again
     changed = False
     for number, raw in enumerate(out.read_text(encoding="utf-8").splitlines(), 1):
         if not raw.strip():
@@ -224,9 +225,12 @@ def _load_existing(out: Path, known: set[str]) -> tuple[dict[str, AnswerLine], b
             continue
         tidy = line.model_copy(update={"answers": _without_repeats(line.answers)})
         problems = _line_problems(tidy)
-        if line.prompt_version != PROMPT_VERSION or problems or line.id in done:
+        twice = line.id in done or line.id in repeated
+        if twice:
+            repeated.add(line.id)
+        if line.prompt_version != PROMPT_VERSION or problems or twice:
             why = "; ".join(problems) or (
-                "listed twice" if line.id in done else "older prompt version"
+                "listed more than once" if twice else "older prompt version"
             )
             print(f"Will redo {line.id!r}: {why}")
             done.pop(line.id, None)

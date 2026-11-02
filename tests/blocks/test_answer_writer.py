@@ -657,3 +657,24 @@ def test_summary_still_printed_when_claude_stops_the_run(tmp_path, capsys):
 def test_non_text_answers_are_not_reported_as_repeats():
     problems = block.validate_answers([line("w00", [None, 5])], make_cards(1))
     assert not any("twice" in p for p in problems)
+
+
+def test_line_saved_three_times_is_asked_again(tmp_path):
+    cards = make_cards(1)
+    write_saved(tmp_path, *[saved_line("w00", ["dad"])] * 3)
+    fake = FakeClaude(cards)
+    run(tmp_path, cards, fake)
+    assert fake.asked_ids() == ["w00"]
+    assert saved_ids(tmp_path) == ["w00"]
+
+
+def test_dry_run_leaves_an_untidy_file_unchanged(tmp_path):
+    cards = make_cards(1)
+    write_saved(
+        tmp_path, saved_line("w00", ["love", "to love"]), saved_line("gone", ["x"])
+    )
+    before = (tmp_path / "answers.jsonl").read_bytes()
+    fake = FakeClaude(cards)
+    run(tmp_path, cards, fake, dry_run=True)
+    assert fake.prompts == []
+    assert (tmp_path / "answers.jsonl").read_bytes() == before

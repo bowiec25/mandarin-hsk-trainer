@@ -121,8 +121,13 @@ def ask_claude(
         except OSError as err:
             raise ClaudeError(f"could not start claude: {err}") from err
     if result.returncode != 0:
-        if result.stdout.strip():
-            parse_reply(result.stdout, model)  # raises with Claude's own message
+        try:
+            if result.stdout.strip():
+                parse_reply(result.stdout, model)  # raises with Claude's own message
+        except ClaudeError as err:
+            if "reported an error" in str(err):
+                raise
+        # (not JSON, or JSON saying success: fall through to the exit-code message)
         hint = (result.stderr or "").strip()[:300]
         raise ClaudeError(
             f"claude exited with code {result.returncode}: {hint or 'no message'} "

@@ -131,3 +131,8 @@ def test_odd_usage_data_is_a_claude_error(extra):
 def test_nonzero_exit_with_success_json_is_still_an_error():
     with pytest.raises(ClaudeError, match="code 1"):
         ask_claude("hi", run=fake_run(json.dumps(GOOD), returncode=1))
+
+
+def test_nonzero_exit_with_non_json_keeps_the_login_hint():
+    with pytest.raises(ClaudeError, match="log in"):
+        ask_claude("hi", run=fake_run("Error: not logged in", returncode=1))
