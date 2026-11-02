@@ -287,6 +287,7 @@ Some of these **physically stop** a mistake. Others are just **instructions or h
 | `CLAUDE.md` | **Claude** | Rules and commands |
 | `docs/decisions/` (ADRs) | Future you | "We chose X because Y", so it doesn't get undone by accident |
 | `.github/pull_request_template.md` | Reviewers | Every PR: What / Why / How tested / Checklist |
+| `docs/build-map/index.html` | You, at a glance | A picture of what exists now and how it grew |
 
 ---
 
@@ -354,6 +355,7 @@ issue → plan mode → branch → small commits → PR → CI ✅ → squash-me
 | `!` prefix | You run a command, and the output lands in the chat | `! gh auth login` |
 | Status line | A bar showing folder + **branch** + model | `/statusline` (project-only: `.claude/settings.local.json`) |
 | Auto-memory | Claude remembers how you like to work, across sessions | Automatic |
+| Artifacts: a build map | A visual page of the project (every kind of part and where it lives, the journey of a change, tests, a "How it grew" timeline), updated after every step, with a frozen snapshot per step in `docs/build-map/snapshots/` | Ask: *"Make a build map artifact of this project, keep its source in `docs/build-map/index.html`, and add 'update the build map' to CLAUDE.md's after-each-step list."* ⚠️ Keep the source in git, or it's lost with the session |
 
 ---
 

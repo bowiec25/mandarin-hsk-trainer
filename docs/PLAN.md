@@ -23,13 +23,21 @@
   - [x] 4. `fetcher` block + generic `quizkit.download` helper (3 review rounds → ✅; raw data in `data/raw/hsk3_2026/`)
   - [x] 5. `normalizer` block → `cards.jsonl` (978 cards: 294 / 197 / 487; 3 review rounds → ✅; shared `quizkit.files.write_atomically`)
   - [x] 6. Word-count test (exact counts + within 5% of 300 / 500 / 1,000, + `cards.jsonl` up to date; 2 planted mistakes caught)
-- [ ] M3 First playable quiz ← *next*
+- [ ] **M3 First playable quiz** (issue #16) ← *in progress*
+  - [x] 1. Issue #16 + "Still the right thing?" check + housekeeping (build map saved as `docs/build-map/index.html`; CLAUDE.md rule to update it after each step). Decisions: `--band 2` = only the band-2 words; the grader forgives small typos, not wrong words
+  - [x] 1b. Build map: new "What we've built, by kind" section (incl. subagent vs agent), "journey of one change" (every hook, skill, subagent and gate; code review shown as a gap), frozen snapshots per step in `docs/build-map/snapshots/`
+  - [ ] 2. `grader` block (generic, `quizkit`): clean the raw dictionary answers (`to `, `(…)` notes, case) + typo tolerance
+  - [ ] 3. `deck_builder` block (generic, `quizkit`): pick cards (band, n, shuffle), reuse `build_question()` (worktree demo, optional)
+  - [ ] 4. `engine`: the quiz loop, tested with fake typed answers
+  - [ ] 5. CLI (Typer): `hsk quiz --band N --mode char|char_pinyin --n N`
+  - [ ] 6. Play-test + reuse check (toy capitals quiz) + M3 lessons
 - [ ] M4 Sentences (first agent)
   - [ ] `data-auditor` subagent (moved from M1: needs real sentences to test against)
 - [ ] M5 Learning smarts
 - [ ] M6 Web UI
 
 **Future (not v1):**
+- Several bands together (e.g. bands 1+2 in one quiz). M3's `--band N` means only band N's new words (user's call, 2026-11-02); a combined option comes later.
 - Listening practice: words and sentences read aloud (text-to-speech). Setup already allows it: stable card ids (audio files named after them), modes as config (a new `listen` mode), and the `readings` field flags the multi-reading words whose pinyin may need an HSK-correct override.
 
 **Side topics (cover when relevant):**

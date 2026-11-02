@@ -435,3 +435,33 @@ You now have: decision records, data shapes, hooks and permissions, the `/new-bl
 - **Proof it's real:** deleting one card → 3 tests failed; a wrong expected number → 1 test failed. Both restored.
 - **Not a block,** so no `/new-block`, test-writer or reviewer: just a test file and a PR.
 - **M2 is done.** Its lessons are in PLAYBOOK.md under "🎓 Lessons by milestone".
+
+## M3 Step 1: Start of M3, the check and the housekeeping (2026-11-02)
+
+> **In plain words:** before building the quiz, we checked the old plan against what we know now, made two decisions, opened issue #16, and saved the build map in the repo so it can't get lost.
+
+**"Still the right thing?" Yes, with 4 changes:**
+- `build_question()` already exists (M1), so the `deck_builder` only has to *pick* cards.
+- The answers are raw dictionary text (`"(coll.) father"`, `"to love"`), so the grader must **clean** them first. That's the hardest part, so it comes first.
+- Words with several readings show them all in `char_pinyin` (吧 = `bā / ba / biā`). We left it that way on purpose.
+- Scores aren't saved until M5. Fine for a first version.
+
+**Your decisions:**
+- `--band 2` = only the 197 new band-2 words. "Bands 1+2 together" is noted in PLAN.md for later.
+- The marker forgives small typos (`lvoe`) but not wrong words.
+
+**Housekeeping:**
+- `docs/build-map/index.html` = the source of the "HSK Trainer Build Map" page. It has a new **"How it grew"** timeline (one line per step).
+- CLAUDE.md now says: after each step, update the build map too. This is guidance (🔵): Claude follows it, nothing enforces it.
+
+**The 3 new parts, as a factory line:** `deck_builder` = the dealer (picks the cards), `grader` = the marker (right or wrong?), `engine` = the game host (asks, waits, keeps score). The CLI is the front door.
+
+## M3 Step 1b: The build map shows every kind of part, plus snapshots (2026-11-02)
+
+> **In plain words:** you asked to see *what kinds of things* we've built, where they live, and when each check kicks in. You also wanted to look back at the map as it was after each step.
+
+- **New section 1, "What we've built, by kind":** the **workshop** (Claude Code setup: CLAUDE.md, settings.json, hooks, skill, subagents), the **checks** (tests, ruff, CI, protected main), and the **product** (generic `quizkit` and Mandarin `hsk_trainer`). It also has a small "subagent vs agent" comparison.
+- **New section 3, "The journey of one change":** 11 boxes in order, from plan to merge, each naming the tool that does the job. **Code review is shown as a dashed gap**: it was in the plan but never set up.
+- **Snapshots:** `docs/build-map/snapshots/` keeps a frozen copy after each step (`m2-done`, `m3-step1`, `m3-step1b`), linked from "How it grew". The map moved to `docs/build-map/index.html`.
+- **Subagent vs agent:** a subagent is a helper *inside Claude Code* while we build (test-writer, block-reviewer). An agent is *part of the app*: Python that calls the Claude API by itself. The first one is `sentence_writer` in M4.
+- **Watch-out:** the `.env` hook blocked two shell commands just because their text mentioned `.env`. That's the hook doing its job. The fix: write the text with the Write/Edit tools, or put the script in a file and run that.

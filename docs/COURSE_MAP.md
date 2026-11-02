@@ -20,5 +20,6 @@ Topic names follow the course's main themes. Rename rows to match your lesson ti
 | **Code review** | 🔜 | M1 onwards | `/code-review` on every PR before merge |
 | **Session management** | ✅ | M2 break | `/clear` between big steps (handoff in a memory note + PLAN.md), vs `/compact` (summary) and `--continue` / `--resume` |
 | **Parallel work (worktrees)** | 🔜 | M3 | Two Claude sessions on two features via git worktrees |
+| **Artifacts** (shareable pages) | ✅ | M2 end, M3 Step 1 | The "HSK Trainer Build Map": a visual page of the whole build, republished after every step, with a frozen snapshot per step linked from its "How it grew" timeline; source kept in git as `docs/build-map/index.html` |
 | **MCP servers** | 🔜 | optional | Not needed yet. Candidate later: a GitHub or browser MCP for testing the M6 web UI |
 | **Claude API / Agent SDK** | 🔜 | M4–M5 | `sentence_writer` agent with tool use; optional grading fallback |
