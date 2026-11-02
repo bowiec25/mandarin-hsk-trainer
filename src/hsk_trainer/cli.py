@@ -1,7 +1,7 @@
 """Command-line entry point: `uv run hsk quiz --band 1 --mode char --n 10`.
 
 Not a block: it is the thin shell that wires the blocks to the keyboard and screen
-(cards.jsonl -> deck_builder -> engine's QuizSession, graded with the cedict_cleaner).
+(cards.jsonl -> deck_builder -> engine's run_quiz, graded with the cedict_cleaner).
 """
 
 import sys
@@ -14,7 +14,7 @@ from pydantic import ValidationError
 from hsk_trainer.blocks.cedict_cleaner import clean_answer
 from hsk_trainer.modes import HSK_MODES
 from quizkit.blocks.deck_builder import build_deck
-from quizkit.blocks.engine import Attempt, QuizSession
+from quizkit.blocks.engine import Attempt, run_quiz
 from quizkit.blocks.grader import GradeSettings, clean
 from quizkit.files import load_cards
 from quizkit.models import Question
@@ -130,7 +130,6 @@ def quiz(
         questions = build_deck(
             load_cards(cards), HSK_MODES[mode], n, levels=[band], seed=seed
         )
-        session = QuizSession(questions, cleaner=clean_answer, settings=SETTINGS)
     except (ValidationError, ValueError) as err:  # bad or partial data file
         _fail(f"Can't build a quiz from {cards}:", str(err))
 
@@ -142,18 +141,14 @@ def quiz(
         f"Band {band}, {len(questions)} words. Type the meaning in English; Ctrl-C stops."
     )
 
-    # Our own loop over QuizSession (not run_quiz), so a Ctrl-C landing *anywhere* in
-    # it still keeps the score: on Windows it can arrive just after input() returns.
+    # run_quiz treats Ctrl-C anywhere in its loop as a quit, so the score is kept.
     try:
-        while (question := session.current) is not None:
-            typed = _ask(question)
-            if typed is None:
-                break
-            _tell(session.answer(typed))
-    except KeyboardInterrupt:
-        print()
+        result = run_quiz(
+            questions, ask=_ask, tell=_tell, cleaner=clean_answer, settings=SETTINGS
+        )
+    except ValueError as err:  # a card nobody can answer: found before question 1
+        _fail(f"Can't build a quiz from {cards}:", str(err))
 
-    result = session.result()
     print()
     if not result.finished:
         print(f"Stopped after {result.answered} of {result.total}.")

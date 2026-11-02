@@ -23,7 +23,7 @@
   - [x] 4. `fetcher` block + generic `quizkit.download` helper (3 review rounds → ✅; raw data in `data/raw/hsk3_2026/`)
   - [x] 5. `normalizer` block → `cards.jsonl` (978 cards: 294 / 197 / 487; 3 review rounds → ✅; shared `quizkit.files.write_atomically`)
   - [x] 6. Word-count test (exact counts + within 5% of 300 / 500 / 1,000, + `cards.jsonl` up to date; 2 planted mistakes caught)
-- [ ] **M3 First playable quiz** (issue #16) ← *in progress*
+- [x] **M3 First playable quiz** (issue #16, done 2026-11-02)
   - [x] 1. Issue #16 + "Still the right thing?" check + housekeeping (build map saved as `docs/build-map/index.html`; CLAUDE.md rule to update it after each step). Decisions: `--band 2` = only the band-2 words; the grader forgives small typos, not wrong words
   - [x] 1b. Build map: new "What we've built, by kind" section (incl. subagent vs agent), "journey of one change" (every hook, skill, subagent and gate; code review shown as a gap), frozen snapshots per step in `docs/build-map/snapshots/`
   - [x] 1b+. Build map: "Flow diagrams: three views" (how a step is built, in lanes; what the app does; one Claude action up close)
@@ -33,8 +33,8 @@
   - [x] 3. `deck_builder` block (generic, `quizkit`): `build_deck(cards, mode, n, levels, seed)`; `levels` is a list so "bands together" is free later; its own block so M5 can make "what's next" smart. Built **in parallel with the engine** using a git worktree (first worktree demo). Future ideas now live in `docs/FUTURE.md`
   - [x] 4. `engine` block (generic, `quizkit`, PR #24), in two layers: `QuizSession` (the brain, no screen code, so the M6 web UI can reuse it) + `run_quiz(questions, ask, tell, cleaner, settings)` (the loop; `ask` returning `None` = quit). Built in a **parallel worktree session**; merged `main` in first, no conflicts
   - [x] 5. CLI (Typer, PR #26): `hsk quiz --band N --mode char|char_pinyin --n N [--seed S]`. Not a block (the shell around them). Ctrl-C / end-of-input quits and keeps the score; "Only 197 band-2 words"; sentence modes refused until M4; UTF-8 output for Windows pipes. Tested with scripted keystrokes (31 tests); `/code-review`: 8 findings, 6 fixed
-  - [ ] 6. Play-test + reuse check (toy capitals quiz) + M3 lessons
-- [ ] M4 Sentences (first agent)
+  - [x] 6. Play-test (works; the user's verdict: grading needs judgment, not rules → M4 answer agent) + reuse check (`examples/capitals_quiz.py` plays with `hsk_trainer` blocked; `tests/test_reuse.py` also scans that no `quizkit` file imports `hsk_trainer`). The check found a weak spot, so the **engine** now treats Ctrl-C anywhere in `run_quiz` as a quit (full block routine) and the CLI uses `run_quiz` again. Plus the M3 lessons in the playbook
+- [ ] **M4 Sentences (first agent)** ← *next*
   - [ ] `data-auditor` subagent (moved from M1: needs real sentences to test against)
   - [ ] **Answer agent** (user's call, 2026-11-02): an offline batch agent writes each card's clean answer list *with synonyms* ("father, dad, papa"); a script validates it; the user spot-checks; committed as a file. Replaces the M3 rule-based `cedict_cleaner` (a stopgap). Needs a new ADR
 - [ ] M5 Learning smarts

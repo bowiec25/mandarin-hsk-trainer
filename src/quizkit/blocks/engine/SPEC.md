@@ -38,8 +38,9 @@ session.result()        # the QuizResult so far
 run_quiz(questions, ask, tell, cleaner=None, settings=None) -> QuizResult
 ```
 
-Both choices keep screen code out of the engine:
-- **`ask` returns `None` to quit.** The CLI decides which key means quit (e.g. Ctrl-C); the engine just stops.
+These choices keep screen code out of the engine:
+- **`ask` returns `None` to quit.** The front end decides which key means quit; the engine just stops.
+- **Ctrl-C (`KeyboardInterrupt`) anywhere in the loop is also a quit** (added M3 Step 6, after the reuse check). On Windows, Ctrl-C can arrive just *after* `input()` returns, while grading or inside `tell`, so catching it only in `ask` isn't enough. `run_quiz` catches it around the whole loop, so every quiz built on it keeps the score without copying a workaround.
 - **`tell` gets the whole `Attempt`**, not a ready-made sentence. The CLI writes the words ("✓ Correct!" / "✗ The answer was: love"), so a web page can show it its own way.
 
 ## Outputs
@@ -76,7 +77,10 @@ Example: quit after 3 of 10 with 2 right → `correct=2, answered=3, total=10, f
 | `ask` returns `None` (quit) | Stops at once and returns the result so far (`finished=False`). Quitting before question 1 (the first `ask` returns `None`) gives 0 answered, no crash |
 | Blank answer `""` | **Not** a quit: the grader marks it wrong and it counts as answered |
 | `session.answer()` called after the last question | **Raises `RuntimeError`** (a bug in whatever is calling the engine) |
-| `ask` or `tell` raises (e.g. Ctrl-C as `KeyboardInterrupt`) | Passed through, not swallowed, and `run_quiz` returns nothing. So the CLI should turn Ctrl-C into a quit (`ask` returns `None`) to keep the score so far |
+| `KeyboardInterrupt` (Ctrl-C) raised anywhere in `run_quiz`'s loop: in `ask`, while grading, or in `tell` | **A quit:** `run_quiz` stops and returns the result so far (`finished=False`). An answer already marked counts (even if `tell` was interrupted while showing it); an answer interrupted while being marked doesn't. `ask`/`tell` are not called again |
+| `KeyboardInterrupt` while the session is being **created** (before the loop, e.g. inside a cleaner during the up-front check) | Passed through: the quiz hasn't started, so there is no score to keep |
+| `ask` or `tell` raises anything else (e.g. `ValueError`) | Passed through, not swallowed (a bug must be loud), and `run_quiz` returns nothing |
+| `QuizSession` (the brain) and Ctrl-C | Not its job: the brain has no loop, so whoever drives it step by step handles Ctrl-C |
 | A card nobody can answer, or a broken cleaner | Found **when the session is created**, before question 1 (each question is graded once with a blank answer), so the grader's error is raised before `ask` is called and no answers are lost mid-quiz. A data bug must be loud, as in the grader's SPEC |
 | The same question appears twice | Asked twice, both recorded (removing repeats is `deck_builder`'s job) |
 | A `QuizResult` built by hand with `total` < 1 or more attempts than `total` | pydantic **rejects** it (`ValidationError`), so a result is trustworthy outside `QuizSession` too (e.g. M5's progress store) |
@@ -91,7 +95,8 @@ Automatic tests in `tests/blocks/test_engine.py`. They use toy English questions
 - **`tell`** is called once per answer, with that answer's `Attempt`, and not after a quit
 - **Cleaner and settings are passed through** (a toy cleaner changes the outcome; `allow_typos=False` makes `"Pariss"` wrong)
 - **Step by step:** `current` moves forward, `done` flips, `answer()` after the end → `RuntimeError`, `result()` partway works
-- **Errors:** empty list → `ValueError`; an error from `ask` or the grader is passed through
+- **Ctrl-C is a quit, anywhere in the loop:** `KeyboardInterrupt` from `ask` after 1 answer → `answered=1`; before question 1 → `answered=0`; from `tell` on answer 2 → that answer still counts (`answered=2`), `ask` not called again; while answer 2 is being marked → it doesn't count (`answered=1`); the result is returned, nothing raised. But Ctrl-C while the session is being **created** → passed through, `ask` never called
+- **Errors:** empty list → `ValueError`; any other error from `ask`, `tell` or the grader is passed through
 - **Own copy:** changing the list, or a question's answers, after starting has no effect
 - **Bad card found early:** an unanswerable question 2 raises before `ask` is ever called
 - **Result can't change:** `attempts` can't be appended to; a hand-built `QuizResult` with bad numbers is rejected

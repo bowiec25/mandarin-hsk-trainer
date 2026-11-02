@@ -123,11 +123,18 @@ def run_quiz(
     cleaner: Cleaner | None = None,
     settings: GradeSettings | None = None,
 ) -> QuizResult:
-    """The voice: ask every question in turn; `ask` returning None means quit."""
+    """The voice: ask every question in turn; `ask` returning None means quit.
+
+    Ctrl-C (KeyboardInterrupt) anywhere in the loop is a quit too: on Windows it can
+    land just after input() returns, while grading or in `tell`, not only in `ask`.
+    """
     session = QuizSession(questions, cleaner=cleaner, settings=settings)
-    while (question := session.current) is not None:
-        typed = ask(question)
-        if typed is None:
-            break
-        tell(session.answer(typed))
+    try:
+        while (question := session.current) is not None:
+            typed = ask(question)
+            if typed is None:
+                break
+            tell(session.answer(typed))
+    except KeyboardInterrupt:
+        pass  # keep the score so far
     return session.result()
