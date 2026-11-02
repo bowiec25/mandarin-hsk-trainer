@@ -435,3 +435,23 @@ You now have: decision records, data shapes, hooks and permissions, the `/new-bl
 - **Proof it's real:** deleting one card → 3 tests failed; a wrong expected number → 1 test failed. Both restored.
 - **Not a block,** so no `/new-block`, test-writer or reviewer: just a test file and a PR.
 - **M2 is done.** Its lessons are in PLAYBOOK.md under "🎓 Lessons by milestone".
+
+## M3 Step 1: Start of M3, the check and the housekeeping (2026-11-02)
+
+> **In plain words:** before building the quiz, we checked the old plan against what we know now, made two decisions, opened issue #16, and saved the build map in the repo so it can't get lost.
+
+**"Still the right thing?" Yes, with 4 changes:**
+- `build_question()` already exists (M1), so the `deck_builder` only has to *pick* cards.
+- The answers are raw dictionary text (`"(coll.) father"`, `"to love"`), so the grader must **clean** them first. That's the hardest part, so it comes first.
+- Words with several readings show them all in `char_pinyin` (吧 = `bā / ba / biā`). We left it that way on purpose.
+- Scores aren't saved until M5. Fine for a first version.
+
+**Your decisions:**
+- `--band 2` = only the 197 new band-2 words. "Bands 1+2 together" is noted in PLAN.md for later.
+- The marker forgives small typos (`lvoe`) but not wrong words.
+
+**Housekeeping:**
+- `docs/build-map.html` = the source of the "HSK Trainer Build Map" page. It has a new **"How it grew"** timeline (one line per step).
+- CLAUDE.md now says: after each step, update the build map too. This is guidance (🔵): Claude follows it, nothing enforces it.
+
+**The 3 new parts, as a factory line:** `deck_builder` = the dealer (picks the cards), `grader` = the marker (right or wrong?), `engine` = the game host (asks, waits, keeps score). The CLI is the front door.
