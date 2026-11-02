@@ -190,7 +190,7 @@ a { color: var(--info); }
 
 <header>
   <h1>HSK Trainer Build Map</h1>
-  <p class="lede">What exists after M0–M2 and M3 Step 1b + flow diagrams (2026-11-02): every kind of part we built and where it lives, three flow diagrams, the data pipeline, every check a change has to pass, and how new blocks get built. Older versions: see section 9. Repo: <span class="mono">bowiec25/mandarin-hsk-trainer</span>.</p>
+  <p class="lede">What exists after M0–M2 and M3 Step 1c (2026-11-02): every kind of part we built and where it lives, three flow diagrams, the data pipeline, every check a change has to pass, and how new blocks get built. Older versions: see section 9. Repo: <span class="mono">bowiec25/mandarin-hsk-trainer</span>.</p>
 </header>
 
 <section aria-label="Summary">
@@ -199,7 +199,7 @@ a { color: var(--info); }
     <div class="tile"><b>294 · 197 · 487</b><span>new words in bands 1 · 2 · 3</span></div>
     <div class="tile"><b>123</b><span>automatic tests, all passing</span></div>
     <div class="tile"><b>2</b><span>blocks built: fetcher, normalizer</span></div>
-    <div class="tile"><b>2 · 1 · 2</b><span>hooks · skills · subagents</span></div>
+    <div class="tile"><b>2 · 2 · 2</b><span>hooks · skills used · subagents</span></div>
     <div class="tile"><b>4</b><span>decision records (ADRs)</span></div>
     <div class="tile"><b>3 / 7</b><span>milestones done</span></div>
   </div>
@@ -207,7 +207,7 @@ a { color: var(--info); }
     <div class="ms done"><b>M0</b>Setup<br><small>done</small></div>
     <div class="ms done"><b>M1</b>Foundations<br><small>done</small></div>
     <div class="ms done"><b>M2</b>Data in<br><small>done</small></div>
-    <div class="ms next"><b>M3</b>First quiz<br><small>in progress · step 1 of 6</small></div>
+    <div class="ms next"><b>M3</b>First quiz<br><small>in progress · step 1 of 6 done</small></div>
     <div class="ms"><b>M4</b>Sentences (agent)</div>
     <div class="ms"><b>M5</b>Learning smarts</div>
     <div class="ms"><b>M6</b>Web UI</div>
@@ -233,7 +233,8 @@ a { color: var(--info); }
         <div class="item guide"><b>skill: /new-block</b>"hire a new worker": 3 questions + scaffold<small>you type it</small></div>
         <div class="item guide"><b>subagent: test-writer</b>writes tests from the SPEC only<small>after the SPEC, before code</small></div>
         <div class="item guide"><b>subagent: block-reviewer</b>fresh, read-only eyes on one block<small>before a block PR, until ✅</small></div>
-        <div class="item todo"><b>code review</b><code>/code-review</code> or the Claude GitHub app<small>not set up yet</small></div>
+        <div class="item guide"><b>skill: /code-review</b>built in; hunts for bugs in the change<small>before every PR · CLAUDE.md rule</small></div>
+        <div class="item auto"><b>Claude GitHub app</b>reviews every PR; answers <code>@claude</code><small>on GitHub · read + comment only</small></div>
       </div>
     </div>
     <div class="layer">
@@ -242,6 +243,7 @@ a { color: var(--info); }
         <div class="item guide"><b>tests/ (pytest)</b>123 tests, run before "done"<small>Claude + CI</small></div>
         <div class="item guide"><b>ruff</b>lint + format check<small>Claude + CI</small></div>
         <div class="item auto"><b>CI: ci.yml</b>same checks on a clean machine<small>every push and PR</small></div>
+        <div class="item auto"><b>claude-code-review.yml</b>runs the Claude review on GitHub<small>every PR · token renew by 2027-11</small></div>
         <div class="item hard"><b>protected main</b>PR + green CI required, admins too<small>GitHub setting</small></div>
         <div class="item guide"><b>PR template</b>What / Why / How tested + reviewer verdict<small>every PR</small></div>
       </div>
@@ -322,11 +324,11 @@ a { color: var(--info); }
 <rect class="box auto" x="690" y="231" width="96" height="22" rx="6"/><text class="t" x="738.0" y="246.0" text-anchor="middle">format</text>
 <rect class="box guide" x="800" y="295.0" width="96" height="50" rx="6"/><text class="t" x="848.0" y="317.0" text-anchor="middle">7 · Checks</text><text class="s" x="848.0" y="332.0" text-anchor="middle">ruff + pytest</text>
 <rect class="box guide" x="910" y="205.0" width="96" height="50" rx="6"/><text class="t" x="958.0" y="227.0" text-anchor="middle">8 · Review</text><text class="s" x="958.0" y="242.0" text-anchor="middle">block-reviewer</text>
-<rect class="box guide todo" x="1020" y="205.0" width="96" height="50" rx="6"/><text class="t" x="1068.0" y="227.0" text-anchor="middle">9 · Code review</text><text class="s" x="1068.0" y="242.0" text-anchor="middle">/code-review · 1c</text>
+<rect class="box guide" x="1020" y="205.0" width="96" height="50" rx="6"/><text class="t" x="1068.0" y="227.0" text-anchor="middle">9 · Code review</text><text class="s" x="1068.0" y="242.0" text-anchor="middle">/code-review skill</text>
 <rect class="box guide" x="1130" y="115.0" width="96" height="50" rx="6"/><text class="t" x="1178.0" y="137.0" text-anchor="middle">10 · Docs + map</text><text class="s" x="1178.0" y="152.0" text-anchor="middle">log · snapshot</text>
 <rect class="box " x="1130" y="295.0" width="96" height="50" rx="6"/><text class="t" x="1178.0" y="317.0" text-anchor="middle">11 · Commit, push</text><text class="s" x="1178.0" y="332.0" text-anchor="middle">branch → GitHub</text>
 <rect class="box auto" x="1240" y="380" width="96" height="40" rx="6"/><text class="t" x="1288.0" y="397.0" text-anchor="middle">12 · CI</text><text class="s" x="1288.0" y="412.0" text-anchor="middle">ruff + pytest</text>
-<rect class="box auto todo" x="1240" y="440" width="96" height="40" rx="6"/><text class="t" x="1288.0" y="457.0" text-anchor="middle">Claude review</text><text class="s" x="1288.0" y="472.0" text-anchor="middle">app · Step 1c</text>
+<rect class="box auto" x="1240" y="440" width="96" height="40" rx="6"/><text class="t" x="1288.0" y="457.0" text-anchor="middle">Claude review</text><text class="s" x="1288.0" y="472.0" text-anchor="middle">GitHub app</text>
 <rect class="box hard" x="1350" y="405" width="96" height="50" rx="6"/><text class="t" x="1398.0" y="427.0" text-anchor="middle">Protected main</text><text class="s" x="1398.0" y="442.0" text-anchor="middle">green CI needed</text>
 <rect class="box you" x="1350" y="25.0" width="96" height="50" rx="6"/><text class="t" x="1398.0" y="47.0" text-anchor="middle">13 · You merge</text><text class="s" x="1398.0" y="62.0" text-anchor="middle">your call</text>
 <path class="ar " d="M236,50 H243 V140 H250" marker-end="url(#fa)"/>
@@ -354,7 +356,7 @@ a { color: var(--info); }
 <path class="ar next" d="M1398,25 V-10 H188 V25" marker-end="url(#fnext)"/>
 <text class="next-t" x="700" y="-15" text-anchor="middle">merged → the next step starts at 1</text>
     </svg>
-      <figcaption>Read left to right. Each lane is one "who". The two red loops are where problems get caught early: failing checks, and the reviewer's issues. Both send the work back to 6. Box 9 and the Claude review on GitHub are being added in Step 1c. Not every step uses every box: a docs-only step skips 3–5 and 8.</figcaption>
+      <figcaption>Read left to right. Each lane is one "who". The two red loops are where problems get caught early: failing checks, and the reviewer's issues. Both send the work back to 6. Box 9 and the Claude review on GitHub were added in Step 1c: the same reviewer, before and after the PR. Not every step uses every box: a docs-only step skips 3–5 and 8.</figcaption>
     </figure>
     <figure class="card diagram fl">
       <h3>View B · What the app does with the words (the product)</h3>
@@ -587,15 +589,20 @@ a { color: var(--info); }
       <span class="chip guide">Subagent: block-reviewer</span>
       <ul><li>fresh eyes each round, until ✅</li><li>verdict pasted into the PR</li></ul>
     </div>
-    <div class="gate todo">
+    <div class="gate guide">
       <h3>Code review</h3>
-      <span class="chip todo">Not set up yet</span>
-      <ul><li><code>/code-review</code> (local) or the Claude GitHub app (on GitHub)</li><li>decision pending</li></ul>
+      <span class="chip guide">Skill: /code-review</span>
+      <ul><li>Claude runs it before opening the PR</li><li>result noted in the PR</li></ul>
     </div>
     <div class="gate auto">
       <h3>CI on GitHub</h3>
       <span class="chip auto">Automatic</span>
       <ul><li><code>uv sync --locked</code></li><li>same 3 checks, on a clean machine</li></ul>
+    </div>
+    <div class="gate auto">
+      <h3>Claude review on GitHub</h3>
+      <span class="chip auto">Automatic, advice only</span>
+      <ul><li>GitHub app comments on the PR's lines</li><li>you read them before merging</li></ul>
     </div>
     <div class="gate hard">
       <h3>Protected main</h3>
@@ -677,6 +684,7 @@ a { color: var(--info); }
         <li>CI runs on every push and PR</li>
         <li>contract test in every block</li>
         <li><code>.gitignore</code> keeps <code>.env</code> out of git</li>
+        <li>Claude review comments on every PR</li>
       </ul>
       <p>Happens without anyone remembering.</p>
     </div>
@@ -687,6 +695,7 @@ a { color: var(--info); }
         <li>script vs agent rule (ADR 0002)</li>
         <li>test-writer "only write in tests/"</li>
         <li>update this build map after every step</li>
+        <li><code>/code-review</code> before every PR</li>
       </ul>
       <p>Claude follows it; nothing enforces it.</p>
     </div>
@@ -725,6 +734,7 @@ a { color: var(--info); }
     <p class="lede">One line per step, newest first. Click <b>snapshot</b> to see the whole map exactly as it was after that step.</p>
   </div>
   <ol class="timeline card" reversed>
+    <li><span class="when">2026-11-02</span><span class="what">M3 Step 1c</span><span>Code review, two layers: <code>/code-review</code> before every PR (CLAUDE.md rule + PR checkbox), and the Claude GitHub app reviewing every PR (#18, subscription token). Was planned since M1 but never wired in · <a href="snapshots/m3-step1c.html">snapshot</a></span></li>
     <li><span class="when">2026-11-02</span><span class="what">Map: flow diagrams</span><span>New section 2 with three flow views: how one step gets built (in lanes, with the fail loops), what the app does with the words, and one Claude action up close (hooks + permissions) · <a href="snapshots/m3-flows.html">snapshot</a></span></li>
     <li><span class="when">2026-11-02</span><span class="what">M3 Step 1b</span><span>New section 1 (every kind of part, where it lives, subagent vs agent) and section 3 (the journey of a change: every hook, skill, subagent and gate). Code review shown as a gap. Frozen snapshots per step · <a href="snapshots/m3-step1b.html">snapshot</a></span></li>
     <li><span class="when">2026-11-02</span><span class="what">M3 Step 1</span><span>Issue #16 opened; "Still the right thing?" check; decisions: <code>--band 2</code> = only band-2 words, grader forgives typos. Build map saved in git, and updating it is now a CLAUDE.md rule · <a href="snapshots/m3-step1.html">snapshot</a></span></li>
@@ -738,7 +748,7 @@ a { color: var(--info); }
 </section>
 
 <footer>
-  Latest map, after M3 Step 1b + flow diagrams, 2026-11-02. There are no snapshots from before M2 done (the map started then). Known gaps, by choice: words with several readings keep all of them (197 words), "bands 1+2 together" comes later, listening practice is a "Future (not v1)" note in PLAN.md. Not by choice: no code review step yet (Step 1c, in progress).
+  Latest map, after M3 Step 1c, 2026-11-02. There are no snapshots from before M2 done (the map started then). Known gaps, by choice: words with several readings keep all of them (197 words), "bands 1+2 together" comes later, listening practice is a "Future (not v1)" note in PLAN.md. Reminder: the Claude review token expires after 1 year (renew by 2027-11).
 </footer>
 
 </main>

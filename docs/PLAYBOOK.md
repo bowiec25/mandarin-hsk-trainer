@@ -91,6 +91,7 @@ The short version: what each stage built, and **what to think about next time**.
 - [ ] 10. 🔁 The working routine: issue → branch → PR → merge (⚪, but 🔴 enforced at merge)
 - [ ] 11. 🤖 Skills for repeated jobs, e.g. `/new-block` (🔵, with the mechanical part in a script)
 - [ ] 12. 🤖 Subagents for fresh-eyes checks, e.g. a read-only reviewer (tools 🔴, triggers 🔵)
+- [ ] 13. 🤖 Code review: `/code-review` before each PR (🔵) + Claude GitHub app on every PR (🟠, advice only)
 
 ---
 
@@ -122,6 +123,8 @@ Some of these **physically stop** a mistake. Others are just **instructions or h
 | `allow` list | (loosens) | Claude Code | Every tool use | Claude only | Makes things *less* strict: only list safe read/test commands |
 | Subagent **tool limits** (reviewer can't edit) | 🔴 | Claude Code | Whenever the subagent runs | That subagent | Only as strict as the tool list: "only write in tests/" is just 🔵 |
 | Subagent **triggers** (skill steps, CLAUDE.md rule) | 🔵 | Claude following instructions | Building a block | Claude only | Not forced. The PR checkbox + pasted verdict lets you check it happened |
+| `/code-review` before each PR | 🔵 | Claude (CLAUDE.md rule + PR checkbox) | Before opening a PR | Claude only | Not forced; it's advice, not a gate |
+| Claude review on GitHub | 🟠 | GitHub Action (`claude-code-review.yml`) | Every PR open + push | Every PR | Comments only, doesn't block; token expires yearly |
 | Skills (`/new-block`) | 🔵 | Claude following SKILL.md | When you type the command (or Claude spots a match) | Claude only | Not enforced, so the file-making is done by a tested script |
 | `CLAUDE.md` rules | 🔵 | Claude reading it | Start of every session | Claude only | Not enforced: Claude can forget or misjudge. Make anything important a 🔴 rule or hook |
 | Running ruff/pytest locally | 🔵 / ⚪ | Claude (per CLAUDE.md) or you | When someone runs them | Whoever runs them | Nothing forces it locally. CI is the real gate |
@@ -395,3 +398,28 @@ issue → plan mode → branch → small commits → PR → CI ✅ → squash-me
 - A read-only reviewer can't run tests, so it reviews by reading. Claude still runs pytest.
 - **Fresh reviewer each round.** Round 2 found a gap round 1 missed. A new subagent has no memory of "what I already approved".
 - **A subagent flags, reality decides.** The test-writer only sees the SPEC, so it can ask "may `pos` be empty?" but not answer it. Check questions like that against the real data (here: 11 words had no `pos`, which would have crashed the real run).
+
+---
+
+## 13. 🤖 Code review: a second pair of eyes on every change
+
+**Plain meaning:** Claude reads the change like a careful teacher and hunts for bugs that **no test was written for**. Two copies of the same reviewer, in two places:
+
+| | `/code-review` (local) | Claude GitHub app (automatic) |
+|---|---|---|
+| Where | In your Claude session | On GitHub, on every PR |
+| When | Before the PR is opened | When a PR opens + on every new push |
+| Who starts it | Claude (CLAUDE.md rule) 🔵 | Starts itself 🟠 |
+| Where findings go | The chat (or PR comments with `--comment`) | Comments on the PR's lines |
+| Can it block a merge? | No | No (unless you make it a required check) |
+
+Also: write **`@claude`** in any PR or issue comment to ask the GitHub app a question. In our setup it can only **read and comment**, not push code.
+
+💬 **Ask Claude:** *"Add code review: a CLAUDE.md rule to run `/code-review` before every PR, a PR-template checkbox, and set up the Claude GitHub app."* Then **you** type `/install-github-app` (it opens the browser), pick both workflows and your subscription.
+📍 **Where:** `.github/workflows/claude-code-review.yml` + `claude.yml`, secret `CLAUDE_CODE_OAUTH_TOKEN` (GitHub → Settings → Secrets), rule in `CLAUDE.md`, checkbox in the PR template.
+⚠️ **Watch out:**
+- **The subscription token expires after 1 year.** Put a renewal date in your plan (here: by 2027-11). When it expires, the review job fails.
+- **Never paste the token in chat.** The installer saves it as a GitHub secret.
+- **Review is advice, not a gate.** Tests + CI + protected `main` are the gates. You decide which comments matter.
+- **The `/install-github-app` PR is quick to merge**, but read its files first: check what permissions the workflows get.
+- **Review is not the same as block review.** `block-reviewer` checks "does it match its SPEC?"; code review checks "is the code right?"

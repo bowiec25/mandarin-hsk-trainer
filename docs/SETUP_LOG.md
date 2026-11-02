@@ -466,3 +466,25 @@ You now have: decision records, data shapes, hooks and permissions, the `/new-bl
 - **Subagent vs agent:** a subagent is a helper *inside Claude Code* while we build (test-writer, block-reviewer). An agent is *part of the app*: Python that calls the Claude API by itself. The first one is `sentence_writer` in M4.
 - **Later the same day, flow diagrams:** a new section 2 with three views. **A** = how one step gets built, in lanes (you, Claude, helpers, your computer, GitHub), with the red "fail → go back" loops. **B** = what the app does with the words (built now vs planned). **C** = one Claude action up close: hook → permission rules → tool → format hook. Before publishing, I checked them with a headless-browser screenshot. That caught overlapping labels and odd number symbols, which I fixed.
 - **Watch-out:** the `.env` hook blocked two shell commands just because their text mentioned `.env`. That's the hook doing its job. The fix: write the text with the Write/Edit tools, or put the script in a file and run that.
+
+## M3 Step 1c: Code review, two layers (2026-11-02)
+
+> **In plain words:** a second pair of eyes on every change. Claude reads the change like a careful teacher and hunts for bugs nobody wrote a test for. It was in the plan since M1 but never wired in (a tool without a trigger), so you spotted a real gap.
+
+| | `/code-review` | Claude GitHub app |
+|---|---|---|
+| Like | A friend proofreading before you hand in | The teacher who reads every essay handed in |
+| Where / when | Here, before the PR | On GitHub, every PR + every push |
+| Trigger | CLAUDE.md rule + PR checkbox (🔵) | Runs by itself (🟠) |
+
+**What happened:**
+1. You ran `/install-github-app`: it installed the Claude app, saved a **subscription token** as a GitHub secret (`CLAUDE_CODE_OAUTH_TOKEN`), and opened PR #18 with 2 workflow files. You merged it. CI and the first `claude-review` run were both green.
+2. I read the 2 files: `claude-code-review.yml` runs the same `/code-review` skill on GitHub and comments on the PR's lines. `claude.yml` answers `@claude`, and it can only read and comment, not push code (a safe default).
+3. Wired in the triggers: CLAUDE.md rule, PR-template checkbox, playbook section 13, strictness table rows.
+4. Build map: code review is now solid in all three places (section 1, View A, the journey).
+
+**Good to know:**
+- **Review is advice, not a gate.** It can't block a merge. CI + protected `main` are the gates.
+- ⚠️ **The token expires after 1 year:** renew by 2027-11 (noted in PLAN.md).
+- `/code-review` is **built into** Claude Code, so there was nothing to install, only a trigger to add.
+
