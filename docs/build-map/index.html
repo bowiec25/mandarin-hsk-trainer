@@ -190,14 +190,14 @@ a { color: var(--info); }
 
 <header>
   <h1>HSK Trainer Build Map</h1>
-  <p class="lede">What exists after M0–M2 and M3 Step 4 (2026-11-02): every kind of part we built and where it lives, three flow diagrams, the data pipeline, every check a change has to pass, and how new blocks get built. Older versions: see section 9. Repo: <span class="mono">bowiec25/mandarin-hsk-trainer</span>.</p>
+  <p class="lede">What exists after M0–M2 and M3 Step 5 (2026-11-02): you can now play a real quiz with <code>uv run hsk quiz</code>: every kind of part we built and where it lives, three flow diagrams, the data pipeline, every check a change has to pass, and how new blocks get built. Older versions: see section 9. Repo: <span class="mono">bowiec25/mandarin-hsk-trainer</span>.</p>
 </header>
 
 <section aria-label="Summary">
   <div class="tiles">
     <div class="tile hi"><b>978</b><span>quiz cards in <code>cards.jsonl</code></span></div>
     <div class="tile"><b>294 · 197 · 487</b><span>new words in bands 1 · 2 · 3</span></div>
-    <div class="tile"><b>317</b><span>automatic tests, all passing</span></div>
+    <div class="tile"><b>348</b><span>automatic tests, all passing</span></div>
     <div class="tile"><b>6</b><span>blocks built: fetcher, normalizer, grader, cedict_cleaner, deck_builder, engine</span></div>
     <div class="tile"><b>2 · 2 · 2</b><span>hooks · skills used · subagents</span></div>
     <div class="tile"><b>4</b><span>decision records (ADRs)</span></div>
@@ -207,7 +207,7 @@ a { color: var(--info); }
     <div class="ms done"><b>M0</b>Setup<br><small>done</small></div>
     <div class="ms done"><b>M1</b>Foundations<br><small>done</small></div>
     <div class="ms done"><b>M2</b>Data in<br><small>done</small></div>
-    <div class="ms next"><b>M3</b>First quiz<br><small>in progress · step 4 of 6 done</small></div>
+    <div class="ms next"><b>M3</b>First quiz<br><small>in progress · step 5 of 6 done</small></div>
     <div class="ms"><b>M4</b>Sentences (agent)</div>
     <div class="ms"><b>M5</b>Learning smarts</div>
     <div class="ms"><b>M6</b>Web UI</div>
@@ -241,7 +241,7 @@ a { color: var(--info); }
     <div class="layer">
       <div class="layer-head"><b>🛡️ Checks</b><span class="mono">tests/ · .github/ · GitHub settings</span><span>Prove the code is right, on your machine and on GitHub.</span></div>
       <div class="items">
-        <div class="item guide"><b>tests/ (pytest)</b>317 tests, run before "done"<small>Claude + CI</small></div>
+        <div class="item guide"><b>tests/ (pytest)</b>348 tests, run before "done"<small>Claude + CI</small></div>
         <div class="item guide"><b>ruff</b>lint + format check<small>Claude + CI</small></div>
         <div class="item auto"><b>CI: ci.yml</b>same checks on a clean machine<small>every push and PR</small></div>
         <div class="item auto"><b>claude-code-review.yml</b>runs the Claude review on GitHub<small>every PR · renew token before 2027-10-15</small></div>
@@ -255,7 +255,7 @@ a { color: var(--info); }
         <div class="item"><b>models.py</b>Card + Question shapes</div>
         <div class="item"><b>modes.py</b>modes as config, <code>build_question()</code></div>
         <div class="item"><b>blocks/base.py</b><code>BlockSpec</code>, every block's ID card</div>
-        <div class="item"><b>download.py · files.py</b>verified download, safe file writes</div>
+        <div class="item"><b>download.py · files.py</b>verified download, safe file writes, <code>load_cards</code></div>
         <div class="item"><b>scaffold.py</b>makes new block folders<small>called by /new-block</small></div>
         <div class="item"><b>block: grader</b>right or wrong? case, "to", typos (0/1/2)<small>script · takes a quiz's own cleaner</small></div>
         <div class="item"><b>block: deck_builder</b>the dealer: level(s), how many, shuffle<small>script · smart "what's next" in M5</small></div>
@@ -270,7 +270,7 @@ a { color: var(--info); }
         <div class="item"><b>block: cedict_cleaner</b>dictionary meaning → typeable answers<small>script · stopgap until the M4 answer agent</small></div>
         <div class="item"><b>modes.py</b>the 4 HSK modes</div>
         <div class="item"><b>data/</b><code>raw/</code> → <code>processed/cards.jsonl</code></div>
-        <div class="item todo"><b>cli.py → hsk quiz</b>the front door<small>M3 Step 5 (now a stub)</small></div>
+        <div class="item"><b>cli.py → hsk quiz</b>the front door: band, mode, how many<small>not a block: wires the blocks to your keyboard · Ctrl-C keeps the score</small></div>
         <div class="item todo"><b>AGENT: sentence_writer</b>calls Claude by itself to write sentences<small>M4, the first real agent</small></div>
         <div class="item todo"><b>AGENT: answer writer</b>clean answer lists with synonyms<small>M4 · replaces cedict_cleaner</small></div>
       </div>
@@ -365,7 +365,7 @@ a { color: var(--info); }
     </figure>
     <figure class="card diagram fl">
       <h3>View B · What the app does with the words (the product)</h3>
-      <svg viewBox="0 0 1120 315" role="img" aria-label="Product flow: the pinned source is fetched into data/raw, the normalizer writes 978 cards to cards.jsonl. Planned: the deck_builder deals cards using the mode config, the engine asks you and gets your answer, the grader marks it using the cedict_cleaner (both built), progress_store remembers in M5. In M4 an offline sentence_writer agent calls the Claude API, its sentences go through a validator into sentences.jsonl, which the deck_builder adds.">
+      <svg viewBox="0 0 1120 315" role="img" aria-label="Product flow: the pinned source is fetched into data/raw, the normalizer writes 978 cards to cards.jsonl. Planned: the deck_builder deals cards using the mode config, the engine asks you through the hsk quiz CLI and gets your answer, the grader marks it using the cedict_cleaner (all built), progress_store remembers in M5. In M4 an offline sentence_writer agent calls the Claude API, its sentences go through a validator into sentences.jsonl, which the deck_builder adds.">
       <defs>
         <marker id="fb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker>
       </defs>
@@ -394,9 +394,9 @@ a { color: var(--info); }
 <path class="ar " d="M520,60 H540" marker-end="url(#fa)"/>
 <path class="ar " d="M650,60 H690" marker-end="url(#fa)"/>
 <path class="ar " d="M800,60 H840" marker-end="url(#fa)"/>
-<path class="ar plan" d="M950,52 H990" marker-end="url(#fb)"/>
-<path class="ar plan" d="M990,68 H950" marker-end="url(#fb)"/>
-<text class="s" x="970" y="46" text-anchor="middle">ask</text>
+<path class="ar " d="M950,52 H990" marker-end="url(#fa)"/>
+<path class="ar " d="M990,68 H950" marker-end="url(#fa)"/>
+<text class="s" x="970" y="46" text-anchor="middle">hsk quiz</text>
 <text class="s" x="970" y="88" text-anchor="middle">answer</text>
 <path class="ar " d="M885,85 V145" marker-end="url(#fa)"/>
 <path class="ar " d="M905,145 V85" marker-end="url(#fa)"/>
@@ -414,7 +414,7 @@ a { color: var(--info); }
 <path class="ar plan" d="M650,270 H760 V85" marker-end="url(#fa)"/>
 <text class="s" x="766" y="250">adds sentences</text>
     </svg>
-      <figcaption>Top row: from the word list to you. M3 adds the middle part: the marker (grader) and its HSK answer tidier (cedict_cleaner) are built; the dealer (deck_builder) and the game host (engine) are built too. Still dashed: the ask/answer link to you (the CLI, Step 5), progress_store (M5) and the whole M4 sentence row. The M4 agent is the only part that calls Claude, and it runs offline, as a batch, before you study. At quiz time nothing needs the internet or the API.</figcaption>
+      <figcaption>Top row: from the word list to you. M3 adds the middle part: the marker (grader) and its HSK answer tidier (cedict_cleaner) are built; the dealer (deck_builder) and the game host (engine) are built too, and since Step 5 the CLI (<code>hsk quiz</code>) links them to you. Still dashed: progress_store (M5) and the whole M4 sentence row. The M4 agent is the only part that calls Claude, and it runs offline, as a batch, before you study. At quiz time nothing needs the internet or the API.</figcaption>
     </figure>
     <figure class="card diagram fl">
       <h3>View C · One Claude action, up close (the safety nets)</h3>
@@ -643,7 +643,7 @@ a { color: var(--info); }
 
 <section>
   <div>
-    <h2>6. What the 317 tests guard</h2>
+    <h2>6. What the 348 tests guard</h2>
     <p class="lede">Red bar = runs against the real committed data. Everything else uses small fake data, so it's fast and works offline.</p>
   </div>
   <div class="card table-wrap">
@@ -653,6 +653,7 @@ a { color: var(--info); }
         <tr><td class="mono">blocks/test_cedict_cleaner.py</td><td class="n">63</td><td class="bar"><span class="real" style="width:100%"></span></td><td>the 8 cleaning rules + real data: all 978 cards keep an answer, and the grader accepts each one</td></tr>
         <tr><td class="mono">blocks/test_grader.py</td><td class="n">63</td><td class="bar"><span style="width:100%"></span></td><td>case, punctuation, "to", typo limits 0/1/2, cleaner hand-off (toy data, no Chinese)</td></tr>
         <tr><td class="mono">blocks/test_engine.py</td><td class="n">35</td><td class="bar"><span style="width:56%"></span></td><td>the quiz loop with fake typed answers: score, record, quit, bad cards caught before question 1</td></tr>
+        <tr><td class="mono">test_cli.py</td><td class="n">31</td><td class="bar"><span class="real" style="width:49%"></span></td><td><code>hsk quiz</code> played with scripted keystrokes on the real cards: score, "love" / "to love" for 爱, quitting (incl. Ctrl-C), short decks, every error, hanzi through a Windows pipe</td></tr>
         <tr><td class="mono">blocks/test_deck_builder.py</td><td class="n">31</td><td class="bar"><span style="width:48%"></span></td><td>levels, count, no repeats (by id), same seed = same deck, every failure mode (toy capitals)</td></tr>
         <tr><td class="mono">test_hsk_deck.py</td><td class="n">2</td><td class="bar"><span class="real" style="width:3%"></span></td><td>real data: band 1 → 10 hanzi-only questions; band 2 asked for 500 → all of band 2</td></tr>
         <tr><td class="mono">blocks/test_normalizer.py</td><td class="n">39</td><td class="bar"><span style="width:65%"></span></td><td>every card's shape and every failure mode of the normalizer</td></tr>
@@ -667,7 +668,7 @@ a { color: var(--info); }
         <tr><td class="mono">test_quizkit_blocks.py</td><td class="n">1</td><td class="bar"><span style="width:2%"></span></td><td>the block ID card (<code>BlockSpec</code>)</td></tr>
         <tr><td class="mono">test_smoke.py</td><td class="n">1</td><td class="bar"><span style="width:2%"></span></td><td>both packages import</td></tr>
       </tbody>
-      <tfoot><tr><td>Total</td><td class="n">317</td><td></td><td>run locally and by CI on every PR</td></tr></tfoot>
+      <tfoot><tr><td>Total</td><td class="n">348</td><td></td><td>run locally and by CI on every PR</td></tr></tfoot>
     </table>
   </div>
 </section>
@@ -746,6 +747,7 @@ a { color: var(--info); }
     <p class="lede">One line per step, newest first. Click <b>snapshot</b> to see the whole map exactly as it was after that step.</p>
   </div>
   <ol class="timeline card" reversed>
+    <li><span class="when">2026-11-02</span><span class="what">M3 Step 5 (#26)</span><span><b>the first playable quiz</b>: <code>uv run hsk quiz --band 1 --mode char --n 10</code> (Typer). Tested with <b>scripted keystrokes</b>; <code>/code-review</code> found 8 things (fixed 6, e.g. a Windows Ctrl-C could lose the score) · <a href="snapshots/m3-step5.html">snapshot</a></span></li>
     <li><span class="when">2026-11-02</span><span class="what">M3 Step 4 (#24)</span><span><code>engine</code> (the quizmaster: <code>QuizSession</code> + <code>run_quiz</code>), built by a <b>2nd Claude session in a worktree</b> in parallel with Step 3; merged <code>main</code> in first, no conflicts; worktree removed after · <a href="snapshots/m3-step4.html">snapshot</a></span></li>
     <li><span class="when">2026-11-02</span><span class="what">M3 Step 3 (#23)</span><span><code>deck_builder</code> (the dealer), built while a 2nd Claude session built the engine in a <b>git worktree</b>. Future ideas got their own list (<code>docs/FUTURE.md</code>), starting with your smart "what's next" deck · <a href="snapshots/m3-step3.html">snapshot</a></span></li>
     <li><span class="when">2026-11-02</span><span class="what">M3 Step 2 (#22)</span><span>Grading as 2 blocks: generic <code>grader</code> (quizkit) + HSK <code>cedict_cleaner</code>. A real-data test across both found a bug toy tests missed (给 = "to" was dropped). Your call: rules are a stopgap; an answer agent replaces them in M4 · <a href="snapshots/m3-step2.html">snapshot</a></span></li>
@@ -764,7 +766,7 @@ a { color: var(--info); }
 </section>
 
 <footer>
-  Latest map, after M3 Step 4, 2026-11-02. There are no snapshots from before M2 done (the map started then). Known gaps, by choice: words with several readings keep all of them (197 words), "bands 1+2 together" comes later, listening practice, sentence translation (needs a judgment agent) and other later ideas are listed in docs/FUTURE.md; synonyms not in the dictionary wait for the M4 answer agent. Reminder: the Claude review token expires after 1 year (renew before 2027-10-15). Green on GitHub is not the same as reviewed.
+  Latest map, after M3 Step 5, 2026-11-02. There are no snapshots from before M2 done (the map started then). Known gaps, by choice: words with several readings keep all of them (197 words), "bands 1+2 together" comes later, listening practice, sentence translation (needs a judgment agent) and other later ideas are listed in docs/FUTURE.md; synonyms not in the dictionary wait for the M4 answer agent. Reminder: the Claude review token expires after 1 year (renew before 2027-10-15). Green on GitHub is not the same as reviewed.
 </footer>
 
 </main>
