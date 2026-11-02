@@ -534,3 +534,19 @@ You now have: decision records, data shapes, hooks and permissions, the `/new-bl
 - **The reviewer caught drift:** I added a SPEC line ("levels 1 and 99: use what's there") *after* the test-writer was done, so no test covered it. Lesson: a SPEC change after the tests means a new test.
 - **Printing is the CLI's job**, not a generic block's: asking for more cards than exist just gives a shorter list, and the CLI will say "only 197 band-2 words".
 - **`/code-review`: 7 findings, all handled.** Fixed: a duplicated card could come up twice (now unique by id, first copy wins, tested); a card the mode doesn't fit only crashed *if drawn*, so sometimes yes, sometimes no (now every card at the chosen levels is checked first); `n=2.0` or `True` slipped through (now a `TypeError`); two tests each loaded the real cards their own way (now one shared `real_cards` helper in `tests/conftest.py`); a test hard-coded 197 (the count is pinned once, in `test_word_counts.py`); dead code. The 7th (docs not done yet) was just timing. Lesson: **"works most of the time" bugs hide behind randomness**; check everything up front so failures are repeatable.
+
+## M3 Step 4: The engine, built by a second Claude session in parallel (2026-11-02)
+
+> **In plain words:** the `engine` is the **quizmaster**: it shows each question, takes your answer, asks the grader, and keeps score. A second Claude session built it in its own folder (a git worktree) while this session built the deck builder.
+
+1. **Two layers**, so the same quizmaster works in a terminal now and on a web page later (M6):
+   - `QuizSession` = the brain (which question, mark it, keep score). No keyboard or screen code.
+   - `run_quiz(questions, ask, tell, cleaner, settings)` = the voice: a short loop that gets each answer from `ask` and shows feedback with `tell`. The CLI will pass real typing and printing; tests pass fake answers. `ask` returning nothing (`None`) means "quit".
+   - Results are frozen records: `Attempt` (one answer) and `QuizResult` (correct / answered / total / finished).
+2. **Same loop:** `/new-block` → SPEC with you → **test-writer** (28 tests, 35 after fixes) → build → **block-reviewer** ✅ (3 minor fixes) → **`/code-review`** (7 findings, 3 fixed: bad cards are found before question 1, not mid-quiz; the questions are copied so nothing outside can change them; settings made once) → reviewer ✅ again → PR #24 → CI green, GitHub review "No issues found".
+3. **Worktree, end to end:** the engine branch started before Step 3 merged, so before its PR it ran `git merge origin/main` (no conflicts, because it only added new files). After the merge I removed the extra folder: `git worktree remove ../mandarin-hsk-trainer-engine`.
+
+**Good to know:**
+- **The secrets-file hook fired in both sessions:** the engine session's `gh pr create` and my own log entry were blocked because their text mentioned the secrets file. Same fix both times: write the text with the Write/Edit tools (and `--body-file` for PRs). The safety net works in every session, because it's in git.
+- **Parallel work paid off:** two blocks reviewed and merged in about the time of one. The cost: an extra terminal to manage, a starter prompt, and one "update from main" step.
+- **Carry to Step 5 (CLI):** Ctrl-C or end-of-input must become a quit, or the score so far is lost.

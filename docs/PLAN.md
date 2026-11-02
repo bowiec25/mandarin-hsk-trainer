@@ -31,8 +31,8 @@
   - [x] 1d. Proved the GitHub review with a planted-bug test PR (#20, closed, not merged): caught ×10-instead-of-×100, missed divide-by-zero. Workflow left as installed (it works on code PRs)
   - [x] 2. Grading, as 2 blocks (the clutter scan showed most clutter is dictionary-specific): **2a `grader`** (generic, `quizkit`: case, punctuation, leading to/a/an/the, typos 0/1/2 by length via rapidfuzz OSA; a quiz passes its own `cleaner`) + **2b `cedict_cleaner`** (`hsk_trainer`: 8 rules, every one of the 978 cards keeps an answer; a stopgap until the M4 answer agent). The real-data test caught a grader bug (给 = "to" was dropped)
   - [x] 3. `deck_builder` block (generic, `quizkit`): `build_deck(cards, mode, n, levels, seed)`; `levels` is a list so "bands together" is free later; its own block so M5 can make "what's next" smart. Built **in parallel with the engine** using a git worktree (first worktree demo). Future ideas now live in `docs/FUTURE.md`
-  - [ ] 4. `engine`: the quiz loop, tested with fake typed answers
-  - [ ] 5. CLI (Typer): `hsk quiz --band N --mode char|char_pinyin --n N`
+  - [x] 4. `engine` block (generic, `quizkit`, PR #24), in two layers: `QuizSession` (the brain, no screen code, so the M6 web UI can reuse it) + `run_quiz(questions, ask, tell, cleaner, settings)` (the loop; `ask` returning `None` = quit). Built in a **parallel worktree session**; merged `main` in first, no conflicts
+  - [ ] 5. CLI (Typer): `hsk quiz --band N --mode char|char_pinyin --n N`. Carry-over from Step 4: turn Ctrl-C / end-of-input into a quit (`ask` returns `None`), or the score so far is lost; say "only 197 band-2 words" when the deck is shorter than `--n`
   - [ ] 6. Play-test + reuse check (toy capitals quiz) + M3 lessons
 - [ ] M4 Sentences (first agent)
   - [ ] `data-auditor` subagent (moved from M1: needs real sentences to test against)

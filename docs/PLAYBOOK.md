@@ -370,7 +370,9 @@ issue → plan mode → branch → small commits → PR → CI ✅ → squash-me
 - **Pick two features that only share a shape, not code** (here the engine only needs `list[Question]`, which already existed). If one needs the other's code, do them one after the other.
 - **Only one session edits the shared docs** (plan, log, maps). Otherwise both PRs change the same lines and you get a merge conflict.
 - **The second session may not see your memory notes** (they're stored per folder), so give it a starter prompt with the context. CLAUDE.md, skills and subagents are in git, so it has those.
-- **Merge one PR, then update the other from `main`** before merging it.
+- **Merge one PR, then update the other from `main`** before merging it (`git fetch origin` + `git merge origin/main`, then re-run the checks).
+- **Hand back with a short report.** The second session ended with a pasteable summary (what was built, the process, what carries to the next step, ideas for later), which made writing the shared docs easy.
+- **Clean up after the merge:** `git worktree remove ../<folder>` (it refuses if there is uncommitted work, which is a useful check) and close that terminal.
 
 ---
 
