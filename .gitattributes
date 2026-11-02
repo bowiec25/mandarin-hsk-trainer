@@ -1,2 +1,5 @@
 # Store all text files with LF line endings (matches CI on Linux; avoids CRLF noise on Windows)
 * text=auto eol=lf
+
+# Downloaded source files: store byte-for-byte so their fingerprints stay valid
+data/raw/** -text

@@ -139,6 +139,19 @@ Some of these **physically stop** a mistake. Others are just **instructions or h
 
 ⚠️ **Watch out:** `uv init` starts git itself, on `master`. Check with `git branch --show-current`.
 
+**Downloaded data:** if you check files against a fingerprint (checksum), add `data/raw/** -text` to `.gitattributes`. Otherwise git may change their line endings, and the fingerprints stop matching on another computer.
+
+### 📥 Data you download (from M2)
+| What | Why | Where here |
+|---|---|---|
+| **Pin the exact version** (a commit SHA, not "latest") | The data never changes under you | ADR 0004, `fetcher/__init__.py` |
+| **Check size + fingerprint (SHA-256)** of every file | Catches changed or broken downloads | `quizkit/download.py` |
+| **Write to a temp file, then swap it in** | Never leaves a half-written file | `_write_atomically()` |
+| **Check the licence** and keep it next to the data | Public repos re-publish the data | `data/raw/hsk3_2026/LICENSE` |
+| **Tests use a fake downloader** | Fast, works offline, no flaky internet | `fetch=` parameter |
+
+💬 **Ask Claude:** *"Download X pinned to version Y, check size + SHA-256, write atomically, and test it with a fake downloader."*
+
 ---
 
 ## 2. 🔒 Secrets

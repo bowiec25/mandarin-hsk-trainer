@@ -374,3 +374,30 @@ You now have: decision records, data shapes, hooks and permissions, the `/new-bl
 - **Proof:** made a real demo block → 3 tests passed. Then changed its inputs without updating the SPEC → the test **failed** with a clear message. Demo deleted afterwards.
 - **Caught along the way:** the first version of the template produced lines that were too long for `ruff format`. Testing the *generated* files, not just the script, caught it.
 - **No plan mode:** a small, clear fix with no design choices.
+
+## M2 Step 4: The `fetcher` block (2026-11-02)
+
+> **In plain words:** our first real worker. It **downloads the 3 HSK word-list files + the licence** from the pinned version, and **checks each one's size and fingerprint**. Wrong file → it stops and saves nothing. It's also built from a **generic download helper** that any future quiz can reuse.
+
+**What we built:**
+| Piece | Plain meaning | Where |
+|---|---|---|
+| 📥 `fetcher` block | Knows the HSK "shopping list": which files, which version, expected sizes + fingerprints | `src/hsk_trainer/blocks/fetcher/` |
+| 🔧 `download_verified()` | Generic: download any file + check it, never leaving a half-file | `src/quizkit/download.py` |
+| 📦 The data | 4 files, 914 KB | `data/raw/hsk3_2026/` |
+
+**The full routine, for the first time for real:**
+1. `/new-block fetcher` → 3 questions (you chose: script, Chinese-only, **but keep the download part generic**)
+2. Job description filled in with you, section by section
+3. 🧪 test-writer → 22 tests (18 failing, as expected) + 4 gaps in the job description, which we settled
+4. Built the code → all green → **real download** worked; the 2nd run downloaded nothing
+5. 🔍 reviewer, **3 rounds**:
+   - Round 1 ⚠️: 3 promises had no real test (one safety feature's code never actually ran in tests)
+   - Round 2 ⚠️: a disk error didn't name the file
+   - Round 3 ✅ ready (+ 2 optional fixes, also done)
+
+**Lessons:**
+- **The reviewer earned its keep:** all 3 rounds found real gaps that the passing tests didn't show.
+- **Prove a test is real:** we broke the clean-up code on purpose, and the new test caught it.
+- **Line endings can break fingerprints:** `.gitattributes` now stores `data/raw/` byte-for-byte.
+- Also fixed: the scaffold wrote Windows line endings, and a `sed` command mangled a line (fixed with the editor tool).
