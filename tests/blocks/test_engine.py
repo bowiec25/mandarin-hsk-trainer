@@ -276,8 +276,11 @@ def test_broken_cleaner_error_is_passed_through():
     def broken(answer: str) -> list[str]:
         return "not a list"  # type: ignore[return-value]
 
+    ask, asked = fake_ask(["Paris"])
+    tell, _ = collector()
     with pytest.raises(TypeError):
-        play([FRANCE], ["Paris"], cleaner=broken)
+        block.run_quiz([FRANCE], ask, tell, cleaner=broken)
+    assert asked == []  # found before question 1
 
 
 def test_same_question_twice_is_asked_twice():
@@ -322,3 +325,19 @@ def test_result_rejects_more_attempts_than_total():
     result, _, _ = play([FRANCE, ITALY], ["Paris", "Rome"])
     with pytest.raises(ValidationError):
         block.QuizResult(attempts=result.attempts, total=1)
+
+
+def test_unanswerable_card_is_found_before_the_first_question():
+    unanswerable = q("Nowhere", "   ")
+    ask, asked = fake_ask(["Paris", "anything"])
+    tell, _ = collector()
+    with pytest.raises(ValueError):
+        block.run_quiz([FRANCE, unanswerable], ask, tell)
+    assert asked == []  # failed before anything was asked, so no answers were lost
+
+
+def test_changing_a_question_after_starting_has_no_effect():
+    france = q("France", "Paris")
+    session = block.QuizSession([france])
+    france.accepted_answers.append("Lyon")  # the list inside a frozen model can change
+    assert session.answer("Lyon").grade.correct is False

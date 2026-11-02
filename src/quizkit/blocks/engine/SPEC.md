@@ -55,7 +55,7 @@ Everything is returned in memory as pydantic models (frozen). Nothing is saved t
 **`QuizResult`**: the whole quiz
 | Field | Type | Plain meaning |
 |---|---|---|
-| `attempts` | `tuple[Attempt, ...]` | Every answer, in the order asked (a tuple, so a finished result truly can't change) |
+| `attempts` | `tuple[Attempt, ...]` | Every answer, in the order asked (a tuple, so answers can't be added or removed afterwards) |
 | `total` | `int` | How many questions the quiz had (at least 1, and never fewer than `answered`) |
 | `correct` | `int` (computed) | How many were right. A typo-forgiven answer **counts as right** |
 | `answered` | `int` (computed) | `len(attempts)`, less than `total` if the learner quit early |
@@ -77,10 +77,10 @@ Example: quit after 3 of 10 with 2 right → `correct=2, answered=3, total=10, f
 | Blank answer `""` | **Not** a quit: the grader marks it wrong and it counts as answered |
 | `session.answer()` called after the last question | **Raises `RuntimeError`** (a bug in whatever is calling the engine) |
 | `ask` or `tell` raises (e.g. Ctrl-C as `KeyboardInterrupt`) | Passed through, not swallowed, and `run_quiz` returns nothing. So the CLI should turn Ctrl-C into a quit (`ask` returns `None`) to keep the score so far |
-| The grader raises (a card nobody can answer, or a broken cleaner) | Passed through (a data bug must be loud, as in the grader's SPEC) |
+| A card nobody can answer, or a broken cleaner | Found **when the session is created**, before question 1 (each question is graded once with a blank answer), so the grader's error is raised before `ask` is called and no answers are lost mid-quiz. A data bug must be loud, as in the grader's SPEC |
 | The same question appears twice | Asked twice, both recorded (removing repeats is `deck_builder`'s job) |
 | A `QuizResult` built by hand with `total` < 1 or more attempts than `total` | pydantic **rejects** it (`ValidationError`), so a result is trustworthy outside `QuizSession` too (e.g. M5's progress store) |
-| The caller changes its `questions` list after starting | No effect: the session keeps its own copy |
+| The caller changes its `questions` list, or a question's answers, after starting | No effect: the session keeps its own deep copy |
 
 ## How to test
 Automatic tests in `tests/blocks/test_engine.py`. They use toy English questions only (e.g. capitals), to prove the engine is generic, and **fake typed answers**: `ask` comes from a list (`iter(["Paris", "rome", None])`) and `tell` just collects what it's given. No real keyboard.
@@ -92,7 +92,8 @@ Automatic tests in `tests/blocks/test_engine.py`. They use toy English questions
 - **Cleaner and settings are passed through** (a toy cleaner changes the outcome; `allow_typos=False` makes `"Pariss"` wrong)
 - **Step by step:** `current` moves forward, `done` flips, `answer()` after the end → `RuntimeError`, `result()` partway works
 - **Errors:** empty list → `ValueError`; an error from `ask` or the grader is passed through
-- **Own copy:** changing the list after starting has no effect
+- **Own copy:** changing the list, or a question's answers, after starting has no effect
+- **Bad card found early:** an unanswerable question 2 raises before `ask` is ever called
 - **Result can't change:** `attempts` can't be appended to; a hand-built `QuizResult` with bad numbers is rejected
 - **Contract test:** folder parts exist and `BLOCK_SPEC` matches this SPEC
 

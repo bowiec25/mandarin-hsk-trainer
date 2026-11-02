@@ -76,11 +76,15 @@ class QuizSession:
     ) -> None:
         if not questions:
             raise ValueError("a quiz needs at least one question")
-        # Own copy: later changes to the caller's list don't leak in.
-        self._questions = list(questions)
+        # Own deep copy: later changes to the caller's list *or its questions* don't leak in.
+        self._questions = [q.model_copy(deep=True) for q in questions]
         self._cleaner = cleaner
-        self._settings = settings
+        self._settings = settings or GradeSettings()
         self._attempts: list[Attempt] = []
+        # Fail before question 1, not mid-quiz: a card nobody can answer (or a broken
+        # cleaner) makes the grader raise, so grade a blank answer for each one now.
+        for question in self._questions:
+            grade("", question.accepted_answers, self._cleaner, self._settings)
 
     @property
     def current(self) -> Question | None:
