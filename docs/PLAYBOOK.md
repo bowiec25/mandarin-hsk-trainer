@@ -56,7 +56,15 @@ The short version: what each stage built, and **what to think about next time**.
 7. **Test the real committed data, not just the code.** Exact counts + "re-running gives the same file" means CI catches accidents.
 
 ### 🎮 M3: First playable quiz
-*(added when M3 is done)*
+**Built:** the code review setup (`/code-review` before every PR + the Claude GitHub app on every PR), the `grader` and `cedict_cleaner` (marking answers), the `deck_builder` (picking words) and `engine` (running the quiz), built in parallel with a git worktree, the `hsk quiz` CLI, and a toy capitals quiz proving the generic parts are reusable.
+**Think about next time:**
+1. **Prove "reusable" with a second, tiny user, and lock it in with a test.** The capitals quiz needed zero changes to `quizkit` to run (and showed one weak spot, see 2); a scan test now fails if `quizkit` ever imports Mandarin code. Calling something generic isn't proof.
+2. **Fix a shared weak spot where it lives, not in each user.** The CLI first worked around a late-Ctrl-C bug with its own loop; the capitals quiz showed every new quiz would have to copy that. Fixing it once in the engine removed both workarounds. A second user is what makes this kind of thing visible.
+3. **The front door takes longer than you'd think.** Most CLI bugs were at the edges: Ctrl-C, Windows text encoding, CI colouring the output, showing "havent" instead of "haven't". Test them with scripted typing, and run each fix's test against the old code to see it fail.
+4. **Two review layers, and check that they really ran.** Locally, `/code-review` was the deep one (7–8 findings per PR); the GitHub review was lighter. Green on GitHub isn't the same as reviewed: read the log, and test the review once with a planted bug.
+5. **Test blocks together on the real data.** The cleaner and grader each passed their own tests; together, on all 978 cards, they found a bug (给 = "to").
+6. **Rules are a stopgap for language.** The play-test confirmed it: marking answers needs judgment. Shipping with rules was right (you can study now), but plan the agent and collect the cases it gets wrong.
+7. **Parallel sessions pay off for independent parts.** Two blocks in the time of one, using a worktree, as long as only one session edits the shared docs.
 
 ### ✍️ M4: Sentences (first AI agent)
 *(added when M4 is done)*
@@ -201,6 +209,7 @@ Some of these **physically stop** a mistake. Others are just **instructions or h
 - **Test interactive programs with scripted typing.** Typer's `CliRunner` (or feeding text to stdin) plays the whole program in a test: answers, quitting, errors. No real keyboard needed.
 - **Prove a fix's test fails without the fix.** Run the new test against the old code once (`git stash` the fix). If it passes there, it isn't testing the bug.
 - **Windows + Chinese: force UTF-8 output.** Printing 爱 through a pipe crashes on Windows (old code page). Call `sys.stdout.reconfigure(encoding="utf-8")` at start-up, and keep one test that runs the real program through a pipe.
+- **Guard your architecture with a test.** If one package must never use another (here: generic `quizkit` must never import `hsk_trainer`), a short test can scan the imports and fail the build. Prove it once with a planted import.
 - **CI can differ from your machine** (colours, OS, paths). When a test fails only on CI, copy CI's environment locally (here `GITHUB_ACTIONS=true`) to reproduce it before fixing. Tests that read terminal output should strip colour codes.
 - **Show people the original words, not the computer's matching form.** The grader compares "havent"; the screen must say "haven't".
 - **Rules vs judgment:** if hand-written rules keep growing to cover messy language, that's a sign the job wants an agent (offline, validated by a script). Rules can be a stopgap to ship sooner.

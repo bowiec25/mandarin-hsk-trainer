@@ -247,22 +247,122 @@ def test_empty_questions_raises_value_error_in_run_quiz():
 
 
 def test_error_from_ask_is_passed_through():
+    """Any error other than Ctrl-C is a bug and must be loud."""
+
     def ask(question: Question) -> str | None:
-        raise KeyboardInterrupt
+        raise ValueError("broken ask")
 
     tell, _ = collector()
-    with pytest.raises(KeyboardInterrupt):
+    with pytest.raises(ValueError, match="broken ask"):
         block.run_quiz(CAPITALS, ask, tell)
 
 
 def test_error_from_tell_is_passed_through():
+    """Any error other than Ctrl-C is a bug and must be loud."""
     ask, _ = fake_ask(["Paris"])
 
     def tell(attempt) -> None:
+        raise ValueError("broken tell")
+
+    with pytest.raises(ValueError, match="broken tell"):
+        block.run_quiz(CAPITALS, ask, tell)
+
+
+# -- Ctrl-C (KeyboardInterrupt) anywhere in run_quiz's loop is a quit --------------
+
+
+def run_expecting_no_ctrl_c(questions, ask, tell, **kwargs):
+    """Call run_quiz; a KeyboardInterrupt escaping it fails the test.
+
+    (Left uncaught, pytest would treat it as the user aborting the whole test run.)
+    """
+    try:
+        return block.run_quiz(questions, ask, tell, **kwargs)
+    except KeyboardInterrupt:
+        pytest.fail("KeyboardInterrupt escaped run_quiz: Ctrl-C should be a quit")
+
+
+def test_ctrl_c_from_ask_after_one_answer_returns_result_so_far():
+    typed = iter(["Paris"])
+    asked: list[Question] = []
+
+    def ask(question: Question) -> str | None:
+        asked.append(question)
+        try:
+            return next(typed)
+        except StopIteration:
+            raise KeyboardInterrupt from None
+
+    tell, told = collector()
+    result = run_expecting_no_ctrl_c(CAPITALS, ask, tell)
+    assert (result.correct, result.answered, result.total) == (1, 1, 3)
+    assert result.finished is False
+    assert asked == [FRANCE, ITALY]  # ask not called again after Ctrl-C
+    assert told == list(result.attempts)
+
+
+def test_ctrl_c_before_first_question_gives_zero_answered():
+    asked: list[Question] = []
+
+    def ask(question: Question) -> str | None:
+        asked.append(question)
         raise KeyboardInterrupt
 
-    with pytest.raises(KeyboardInterrupt):
-        block.run_quiz(CAPITALS, ask, tell)
+    tell, told = collector()
+    result = run_expecting_no_ctrl_c(CAPITALS, ask, tell)
+    assert (result.correct, result.answered, result.total) == (0, 0, 3)
+    assert result.finished is False
+    assert result.attempts == ()
+    assert len(asked) == 1
+    assert told == []
+
+
+def test_ctrl_c_from_tell_still_counts_the_marked_answer():
+    """Interrupted while *showing* answer 2: it was already marked, so it counts."""
+    ask, asked = fake_ask(["Paris", "Lisbon", "Madrid"])
+    told: list = []
+
+    def tell(attempt) -> None:
+        told.append(attempt)
+        if len(told) == 2:
+            raise KeyboardInterrupt
+
+    result = run_expecting_no_ctrl_c(CAPITALS, ask, tell)
+    assert (result.correct, result.answered, result.total) == (1, 2, 3)
+    assert result.finished is False
+    assert [a.typed for a in result.attempts] == ["Paris", "Lisbon"]
+    assert asked == [FRANCE, ITALY]  # ask not called again
+    assert told == list(result.attempts)  # tell saw both, and wasn't called again
+
+
+def test_ctrl_c_while_grading_does_not_count_that_answer():
+    """Interrupted while *marking* answer 2: it isn't counted.
+
+    QuizSession grades a blank answer per question at creation, so the cleaner is only
+    armed once question 2 has been asked (after creation), then interrupts the marking.
+    """
+    armed = False
+    typed = iter(["Paris", "Lisbon", "Madrid"])
+    asked: list[Question] = []
+
+    def ask(question: Question) -> str | None:
+        nonlocal armed
+        asked.append(question)
+        armed = len(asked) == 2
+        return next(typed)
+
+    def interrupting_cleaner(answer: str) -> list[str]:
+        if armed:
+            raise KeyboardInterrupt
+        return [answer]
+
+    tell, told = collector()
+    result = run_expecting_no_ctrl_c(CAPITALS, ask, tell, cleaner=interrupting_cleaner)
+    assert (result.correct, result.answered, result.total) == (1, 1, 3)
+    assert result.finished is False
+    assert [a.typed for a in result.attempts] == ["Paris"]
+    assert asked == [FRANCE, ITALY]  # ask not called again
+    assert told == list(result.attempts)  # tell not called for the unmarked answer
 
 
 def test_grader_error_is_passed_through():
@@ -334,6 +434,19 @@ def test_unanswerable_card_is_found_before_the_first_question():
     with pytest.raises(ValueError):
         block.run_quiz([FRANCE, unanswerable], ask, tell)
     assert asked == []  # failed before anything was asked, so no answers were lost
+
+
+def test_ctrl_c_while_creating_the_session_is_passed_through():
+    """SPEC: before the loop there is no score to keep, so Ctrl-C is not swallowed."""
+
+    def interrupting_cleaner(text):
+        raise KeyboardInterrupt
+
+    ask, asked = fake_ask(["Paris"])
+    tell, _ = collector()
+    with pytest.raises(KeyboardInterrupt):
+        block.run_quiz([FRANCE], ask, tell, cleaner=interrupting_cleaner)
+    assert asked == []
 
 
 def test_changing_a_question_after_starting_has_no_effect():
