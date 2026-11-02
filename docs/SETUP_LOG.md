@@ -582,3 +582,17 @@ You now have: decision records, data shapes, hooks and permissions, the `/new-bl
 - **`/code-review` on this step: 9 findings.** Fixed 7: the capitals quiz now prints safely through Windows pipes, shows the right spelling after a typo, and says "Stopped after N of M"; the reuse test no longer depends on the example's prompt wording or quiz length; a second scan catches *hidden* imports (`importlib.import_module("hsk_trainer")`), proved with a planted one (the `/new-block` tool may name the package as text: allowed, with its reason); plus the engine fix above. One was out of date (said the docs were missing; they were written while it ran).
 - **A second `/code-review` after the engine change: 7 findings, 4 fixed.** The CLI's "bad cards file" message could have swallowed an unrelated error mid-quiz (now the data check runs before the quiz, on its own); Ctrl-C is now handled only by the engine (the CLI and the example handle just end-of-input themselves); a safety guard on the example's UTF-8 switch; the reuse test can't hang. Kept on purpose: the engine treating Ctrl-C as a quit (a quiz always has a person at the keyboard, and `finished=False` shows it stopped early). Skipped: two tiny timing windows with nothing to lose.
 - **The test-writer spotted a test-suite trap:** if a test lets a real Ctrl-C escape, pytest thinks *you* pressed Ctrl-C and silently stops the whole run. Its helper turns that into a normal test failure.
+
+## M4 Step 1: A stronger "Still the right thing?" check (2026-11-02)
+
+> **In plain words:** before each piece of work we ask "is the original plan still right, given what we know now?". That used to be a line in CLAUDE.md, easy to skip. Now an issue and a PR can't go through without an answer.
+
+1. **"Still the right thing?" for M4 (issue #28).** Yes, with one change of order: the **answer agent** comes before `sentence_writer`. The play-test showed grading is the weak spot, and it's a smaller first agent to learn on. The `data-auditor` subagent moved here from M1.
+2. **Issue form** (`.github/ISSUE_TEMPLATE/step.yml`): "New issue" on GitHub now shows a form with a required "Still the right thing?" box. Blank issues are off (`config.yml`).
+3. **PR template:** a new "Still the right thing?" section.
+4. **CI check** (`.github/scripts/check_pr_body.py`): reads the PR description and fails if that section is missing or empty (the template's hint comment doesn't count). It's a step in the existing `check` job, which protected `main` already requires, so no settings change. CI now also re-runs when a PR description is **edited**, so fixing it turns CI green. 14 tests in `tests/test_pr_body.py`.
+
+**Good to know:**
+- **The form only works on the website.** `gh issue create` (what Claude uses) skips forms, so Claude must write the section itself. The PR check catches everyone, whatever tool they use.
+- **The check proves an answer was written, not that it's a good one.** The thinking is still ours; the gate just makes sure the question is asked every time.
+- **Safe with untrusted text:** the PR description is passed to the script as an environment variable, never pasted into the workflow, so a crafted description can't run code.

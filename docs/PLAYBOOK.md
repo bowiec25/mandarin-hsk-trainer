@@ -137,7 +137,8 @@ Some of these **physically stop** a mistake. Others are just **instructions or h
 | `CLAUDE.md` rules | 🔵 | Claude reading it | Start of every session | Claude only | Not enforced: Claude can forget or misjudge. Make anything important a 🔴 rule or hook |
 | Running ruff/pytest locally | 🔵 / ⚪ | Claude (per CLAUDE.md) or you | When someone runs them | Whoever runs them | Nothing forces it locally. CI is the real gate |
 | ADRs, PR template | ⚪ | People | When writing PRs / decisions | Everyone | Just a form to fill in |
-| "Still the right thing?", small steps | ⚪ | You + Claude | Each plan | Everyone | A habit |
+| "Still the right thing?" in issues + PRs | ⚪ → 🔴 | GitHub (issue form + CI check) | Each issue and PR | Everyone | Proves an answer was written, not that it's good. `gh issue create` skips the form, so the PR check is the real gate |
+| Small steps | ⚪ | You + Claude | Each plan | Everyone | A habit |
 
 ### The big lesson
 - **If it really matters, make it 🔴.** E.g. "Don't read `.env`" in CLAUDE.md is only 🔵, but the deny rule plus the hook makes it 🔴.
@@ -328,7 +329,7 @@ issue → plan mode → branch → small commits → PR → CI ✅ → squash-me
 | Merge | `! gh pr merge <n> --squash` (after a look at `gh pr diff <n>`) |
 
 **Habits that pay off:**
-- Every plan starts with **"Still the right thing?"**, and you can ask Claude to *"challenge this step"*
+- Every plan starts with **"Still the right thing?"**, and you can ask Claude to *"challenge this step"*. Make it hard to skip: a **required field in an issue form** (`.github/ISSUE_TEMPLATE/*.yml`, `required: true`) plus a **PR-description CI check** inside the required job (copy `.github/scripts/check_pr_body.py` + its test). Add `edited` to the `pull_request` trigger types so fixing the description re-runs CI
 - Ask Claude to **verify** things rather than assume (e.g. look up versions, run the checks)
 - One small step at a time, then stop and check
 

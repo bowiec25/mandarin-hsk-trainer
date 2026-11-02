@@ -4,6 +4,9 @@
 ## Why
 <!-- Link the issue (e.g. "Closes #3") and say why this change is needed. -->
 
+## Still the right thing?
+<!-- Required (CI fails if empty). What changed from the plan, and why? Or "Nothing changed, because ...". -->
+
 ## How tested
 <!-- Commands run, what you checked by hand. -->
 
