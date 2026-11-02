@@ -30,7 +30,7 @@
   - [x] 1c. Code review (PR #18 + this step's PR): `/code-review` before every PR + Claude GitHub app (`/install-github-app`, subscription token; ⚠️ the token was made 2026-11-02 and expires after 1 year, so **renew it before 2027-10-15**)
   - [x] 1d. Proved the GitHub review with a planted-bug test PR (#20, closed, not merged): caught ×10-instead-of-×100, missed divide-by-zero. Workflow left as installed (it works on code PRs)
   - [x] 2. Grading, as 2 blocks (the clutter scan showed most clutter is dictionary-specific): **2a `grader`** (generic, `quizkit`: case, punctuation, leading to/a/an/the, typos 0/1/2 by length via rapidfuzz OSA; a quiz passes its own `cleaner`) + **2b `cedict_cleaner`** (`hsk_trainer`: 8 rules, every one of the 978 cards keeps an answer; a stopgap until the M4 answer agent). The real-data test caught a grader bug (给 = "to" was dropped)
-  - [ ] 3. `deck_builder` block (generic, `quizkit`): pick cards (band, n, shuffle), reuse `build_question()` (worktree demo, optional)
+  - [x] 3. `deck_builder` block (generic, `quizkit`): `build_deck(cards, mode, n, levels, seed)`; `levels` is a list so "bands together" is free later; its own block so M5 can make "what's next" smart. Built **in parallel with the engine** using a git worktree (first worktree demo). Future ideas now live in `docs/FUTURE.md`
   - [ ] 4. `engine`: the quiz loop, tested with fake typed answers
   - [ ] 5. CLI (Typer): `hsk quiz --band N --mode char|char_pinyin --n N`
   - [ ] 6. Play-test + reuse check (toy capitals quiz) + M3 lessons
@@ -40,15 +40,12 @@
 - [ ] M5 Learning smarts
 - [ ] M6 Web UI
 
-**Future (not v1):**
-- **Sentence translation** (user wants this eventually, 2026-11-02): the learner translates whole sentences. Rules can't judge sentence meaning, so this **needs a judgment agent** for grading (cached verdicts, so the quiz stays offline-first). Builds on the M5 agent grading fallback.
-- Several bands together (e.g. bands 1+2 in one quiz). M3's `--band N` means only band N's new words (user's call, 2026-11-02); a combined option comes later.
-- Listening practice: words and sentences read aloud (text-to-speech). Setup already allows it: stable card ids (audio files named after them), modes as config (a new `listen` mode), and the `readings` field flags the multi-reading words whose pinyin may need an HSK-correct override.
+**Future (not v1):** moved to its own list, **`docs/FUTURE.md`** (smart "what's next" deck, mistake log, sentence translation, bands together, listening). Add new ideas there.
 
 **Side topics (cover when relevant):**
 - [ ] VS Code + Claude extension vs terminal: when to use which
 - [x] Managing Claude sessions (`/clear`, `/compact`, `--continue`/`--resume`, one session per task) (covered at the 2026-11-02 break)
-- [ ] Git worktrees for parallel Claude sessions (intro at M3, when two features can run side by side)
+- [x] Git worktrees for parallel Claude sessions (M3 Steps 3–4: deck_builder here, engine in a second session in `../mandarin-hsk-trainer-engine`)
 
 ---
 
