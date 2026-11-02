@@ -195,6 +195,11 @@ Some of these **physically stop** a mistake. Others are just **instructions or h
 **Ask Claude:** *"Add ruff and pytest as dev tools with a smoke test"*. Then later: *"Write the tests first, show me they fail, then write the code."*
 **Where here:** `pyproject.toml` (dev deps), `tests/`
 
+**Tips:**
+- **Scan the real data before you design.** A 20-line throwaway script that counts the clutter types turns guesses into a table (M3 Step 2: 354 answers start with "to ", only 2 cards are truly stuck).
+- **Test blocks together on the real data, not just alone on toy examples.** Running cleaner + grader over all 978 cards found a bug neither block's own tests could (给 = "to" got stripped to nothing).
+- **Rules vs judgment:** if hand-written rules keep growing to cover messy language, that's a sign the job wants an agent (offline, validated by a script). Rules can be a stopgap to ship sooner.
+
 ---
 
 ## 4. 🧑‍⚖️ CI (GitHub runs the checks)

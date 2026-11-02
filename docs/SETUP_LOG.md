@@ -503,3 +503,20 @@ You now have: decision records, data shapes, hooks and permissions, the `/new-bl
   - **A reviewer catches some bugs, not all.** Tests are what make a rule certain. That's why the test-writer stays in the routine.
   - The workflow file stays as installed for now. The "don't run duplicate reviews" idea can wait until double runs actually cost us something.
 - **Cleanup:** PR #20 was closed with a note, not merged, and its branch deleted.
+
+## M3 Step 2: Marking answers: the grader + the HSK cleaner (2026-11-02)
+
+> **In plain words:** the quiz needs a "teacher" that marks your answer right or wrong. We built it in two parts: a **generic teacher** (the `grader`) and an **HSK answer key tidier** (the `cedict_cleaner`).
+
+1. **Scanned first.** Before building, a throwaway script looked at all 4,110 dictionary answers. Most clutter ("(coll.)", "sb/sth", "surname Bai", "abbr. for …") belongs to *this dictionary* (CC-CEDICT), not to quizzes in general. Only 2 cards (些, 辆) had no typeable answer at all.
+2. **So we split the job.** The **grader** (in `quizkit`, reusable for any quiz) handles what every quiz needs: case, spaces, punctuation, a leading "to/a/an/the", and small typos (0 for 1–3 letters, 1 for 4–7, 2 for 8+; a swap like "loev" counts as 1, using the `rapidfuzz` library). A quiz hands it a **cleaner** for its own clutter. The **cedict_cleaner** (in `hsk_trainer`) is that cleaner for our dictionary: 8 rules.
+3. **Same loop for each:** `/new-block` → SPEC section by section with you → **test-writer** (50 + 58 tests) → build → **block-reviewer** → fix → re-review.
+
+**Good to know:**
+- **The test-writer's guesses showed where the SPEC was vague** (e.g. "is the space counted in the length?"). We fixed the SPEC, not just the code.
+- **The real-data test found a bug the toy tests couldn't.** 给 means just "to". The grader stripped a leading "to", leaving nothing, so nobody could ever answer it. Fix: ignore "to" only when more words follow. Lesson: test on the real data, not just examples.
+- **The reviewer caught the SPEC contradicting itself** after that fix (an old line still said "typing *to* is always wrong").
+- **Synonyms** ("papa" for 爸爸) aren't accepted unless the dictionary lists them. That needs judgment, so it's an agent's job.
+- **Your call: rules are a stopgap.** You'd rather have judgment than rule sets. Plan: in **M4**, an offline **answer agent** writes each card's answer list with synonyms (a script checks it, you spot-check, it gets committed), replacing the cleaner. You also want **sentence translation** one day, which needs a judgment agent for grading. Both are in PLAN.md.
+- **Known weak spots (left for the agent):** 得 picks up junk from a colon list ("degree"); 吧 accepts "smack!".
+- **`/code-review` before the PR: 10 findings, 5 fixed.** I checked each against the real data first. Fixed: 下午 = "p.m." couldn't be answered with "pm" (dots in abbreviations now removed); "email" vs "e-mail" said "check spelling" (an exact match now ignores spaces, 62 hyphenated meanings); a note before "surname" slipped past rule 1; other apostrophe characters; rare Chinese characters. Skipped, with reasons: comma synonyms (3 real cases, the answer agent replaces it), typing "classifier for vehicles" in full (nobody does), "hour" accepted for "four" (the agreed 1-typo trade-off; the play-test will tell), "sb/sth" (0 cases), speed (978 cards is tiny). Lesson: **check a finding against the real data before fixing it**, which sorts real bugs from theoretical ones.
