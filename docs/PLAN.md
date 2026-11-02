@@ -24,7 +24,8 @@
   - [x] 5. `normalizer` block → `cards.jsonl` (978 cards: 294 / 197 / 487; 3 review rounds → ✅; shared `quizkit.files.write_atomically`)
   - [x] 6. Word-count test (exact counts + within 5% of 300 / 500 / 1,000, + `cards.jsonl` up to date; 2 planted mistakes caught)
 - [ ] **M3 First playable quiz** (issue #16) ← *in progress*
-  - [x] 1. Issue #16 + "Still the right thing?" check + housekeeping (build map saved as `docs/build-map.html`; CLAUDE.md rule to update it after each step). Decisions: `--band 2` = only the band-2 words; the grader forgives small typos, not wrong words
+  - [x] 1. Issue #16 + "Still the right thing?" check + housekeeping (build map saved as `docs/build-map/index.html`; CLAUDE.md rule to update it after each step). Decisions: `--band 2` = only the band-2 words; the grader forgives small typos, not wrong words
+  - [x] 1b. Build map: new "What we've built, by kind" section (incl. subagent vs agent), "journey of one change" (every hook, skill, subagent and gate; code review shown as a gap), frozen snapshots per step in `docs/build-map/snapshots/`
   - [ ] 2. `grader` block (generic, `quizkit`): clean the raw dictionary answers (`to `, `(…)` notes, case) + typo tolerance
   - [ ] 3. `deck_builder` block (generic, `quizkit`): pick cards (band, n, shuffle), reuse `build_question()` (worktree demo, optional)
   - [ ] 4. `engine`: the quiz loop, tested with fake typed answers

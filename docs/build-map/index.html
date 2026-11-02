@@ -128,6 +128,30 @@ tfoot td { font-weight: 600; border-bottom: none; }
 .timeline .what { font-weight: 600; }
 @media (max-width: 640px) { .timeline li { grid-template-columns: 1fr; gap: 2px; } }
 
+/* Parts by kind (layers) */
+.layers { display: grid; gap: 10px; }
+.layer { display: grid; grid-template-columns: 210px 1fr; gap: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+.layer.future { border-style: dashed; background: transparent; }
+.layer-head b { display: block; font: 600 16px/1.25 var(--font-display); }
+.layer-head .mono { display: block; color: var(--muted); font-size: 11.5px; margin: 2px 0 4px; }
+.layer-head span:last-child { display: block; color: var(--muted); font-size: 12.5px; }
+.items { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 8px; align-content: start; }
+.item { border: 1px solid var(--line); border-left: 4px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 12.5px; display: grid; gap: 2px; align-content: start; }
+.item b { font: 500 12px/1.3 var(--font-mono); }
+.item small { color: var(--muted); font-size: 11.5px; }
+.item.hard { border-left-color: var(--accent); }
+.item.auto { border-left-color: var(--warn); }
+.item.guide { border-left-color: var(--info); }
+.item.todo { border-style: dashed; border-left-style: dashed; color: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 8px; font-size: 12.5px; color: var(--muted); align-items: center; }
+@media (max-width: 640px) { .layer { grid-template-columns: 1fr; } }
+.versus { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.versus .card { display: grid; gap: 6px; align-content: start; font-size: 13.5px; }
+.versus h3 { margin: 0; font: 600 16px/1.25 var(--font-display); }
+.versus ul { margin: 0; padding-left: 16px; }
+.gate.todo { border-style: dashed; background: transparent; }
+.chip.todo { color: var(--muted); border-style: dashed; }
+
 footer { color: var(--muted); font-size: 12.5px; border-top: 1px solid var(--line); padding-top: 14px; }
 a { color: var(--info); }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -138,7 +162,7 @@ a { color: var(--info); }
 
 <header>
   <h1>HSK Trainer Build Map</h1>
-  <p class="lede">What exists after M0–M2 and M3 Step 1 (2026-11-02): the data pipeline, every check a change has to pass, and how new blocks get built. Repo: <span class="mono">bowiec25/mandarin-hsk-trainer</span>.</p>
+  <p class="lede">What exists after M0–M2 and M3 Step 1b (2026-11-02): every kind of part we built and where it lives, the data pipeline, every check a change has to pass, and how new blocks get built. Older versions: see section 8. Repo: <span class="mono">bowiec25/mandarin-hsk-trainer</span>.</p>
 </header>
 
 <section aria-label="Summary">
@@ -147,6 +171,7 @@ a { color: var(--info); }
     <div class="tile"><b>294 · 197 · 487</b><span>new words in bands 1 · 2 · 3</span></div>
     <div class="tile"><b>123</b><span>automatic tests, all passing</span></div>
     <div class="tile"><b>2</b><span>blocks built: fetcher, normalizer</span></div>
+    <div class="tile"><b>2 · 1 · 2</b><span>hooks · skills · subagents</span></div>
     <div class="tile"><b>4</b><span>decision records (ADRs)</span></div>
     <div class="tile"><b>3 / 7</b><span>milestones done</span></div>
   </div>
@@ -163,7 +188,86 @@ a { color: var(--info); }
 
 <section>
   <div>
-    <h2>1. How the words get in</h2>
+    <h2>1. What we've built, by kind</h2>
+    <p class="lede">Two worlds. The <b>workshop</b> (top) shapes how Claude builds; it is never part of the app. The <b>product</b> (bottom) is the app itself. The <b>checks</b> sit in between and guard every change. Left stripe = how strict it is.</p>
+  </div>
+  <div class="legend">
+    <span class="chip hard">Hard stop</span><span class="chip auto">Automatic</span><span class="chip guide">Guidance</span><span class="chip todo">Not built yet</span>
+  </div>
+  <div class="layers">
+    <div class="layer">
+      <div class="layer-head"><b>🧰 Workshop: Claude Code setup</b><span class="mono">CLAUDE.md · .claude/</span><span>Used while building. Claude Code reads it; the app never does.</span></div>
+      <div class="items">
+        <div class="item guide"><b>CLAUDE.md</b>the briefing note: rules + commands<small>read at the start of every session</small></div>
+        <div class="item hard"><b>.claude/settings.json</b>permissions (allow list, deny <code>.env</code>) + wires up the hooks<small>always on · shared in git</small></div>
+        <div class="item hard"><b>hook: block_env.py</b>stops any tool touching <code>.env</code><small>fires BEFORE every tool use</small></div>
+        <div class="item auto"><b>hook: format_python.py</b>tidies Python with ruff<small>fires AFTER every edit</small></div>
+        <div class="item guide"><b>skill: /new-block</b>"hire a new worker": 3 questions + scaffold<small>you type it</small></div>
+        <div class="item guide"><b>subagent: test-writer</b>writes tests from the SPEC only<small>after the SPEC, before code</small></div>
+        <div class="item guide"><b>subagent: block-reviewer</b>fresh, read-only eyes on one block<small>before a block PR, until ✅</small></div>
+        <div class="item todo"><b>code review</b><code>/code-review</code> or the Claude GitHub app<small>not set up yet</small></div>
+      </div>
+    </div>
+    <div class="layer">
+      <div class="layer-head"><b>🛡️ Checks</b><span class="mono">tests/ · .github/ · GitHub settings</span><span>Prove the code is right, on your machine and on GitHub.</span></div>
+      <div class="items">
+        <div class="item guide"><b>tests/ (pytest)</b>123 tests, run before "done"<small>Claude + CI</small></div>
+        <div class="item guide"><b>ruff</b>lint + format check<small>Claude + CI</small></div>
+        <div class="item auto"><b>CI: ci.yml</b>same checks on a clean machine<small>every push and PR</small></div>
+        <div class="item hard"><b>protected main</b>PR + green CI required, admins too<small>GitHub setting</small></div>
+        <div class="item guide"><b>PR template</b>What / Why / How tested + reviewer verdict<small>every PR</small></div>
+      </div>
+    </div>
+    <div class="layer">
+      <div class="layer-head"><b>⚙️ Product: generic</b><span class="mono">src/quizkit/</span><span>Works for any quiz. No Chinese in here.</span></div>
+      <div class="items">
+        <div class="item"><b>models.py</b>Card + Question shapes</div>
+        <div class="item"><b>modes.py</b>modes as config, <code>build_question()</code></div>
+        <div class="item"><b>blocks/base.py</b><code>BlockSpec</code>, every block's ID card</div>
+        <div class="item"><b>download.py · files.py</b>verified download, safe file writes</div>
+        <div class="item"><b>scaffold.py</b>makes new block folders<small>called by /new-block</small></div>
+        <div class="item todo"><b>grader · deck_builder · engine</b>mark, deal, run the quiz<small>M3 Steps 2–4</small></div>
+      </div>
+    </div>
+    <div class="layer">
+      <div class="layer-head"><b>🀄 Product: Mandarin</b><span class="mono">src/hsk_trainer/ · data/</span><span>Only what is special about HSK.</span></div>
+      <div class="items">
+        <div class="item"><b>block: fetcher</b>download + verify the word list<small>script</small></div>
+        <div class="item"><b>block: normalizer</b>raw list → 978 cards<small>script</small></div>
+        <div class="item"><b>modes.py</b>the 4 HSK modes</div>
+        <div class="item"><b>data/</b><code>raw/</code> → <code>processed/cards.jsonl</code></div>
+        <div class="item todo"><b>cli.py → hsk quiz</b>the front door<small>M3 Step 5 (now a stub)</small></div>
+        <div class="item todo"><b>AGENT: sentence_writer</b>calls Claude by itself to write sentences<small>M4, the first real agent</small></div>
+      </div>
+    </div>
+  </div>
+  <div class="versus">
+    <div class="card">
+      <h3>Subagent (what we have)</h3>
+      <ul>
+        <li>A helper <b>inside Claude Code</b>, while we build</li>
+        <li>A Markdown file: <code>.claude/agents/*.md</code></li>
+        <li>Main Claude hands it a job; it reports back</li>
+        <li>Runs on your Claude subscription</li>
+        <li>Examples: test-writer, block-reviewer</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Agent (M4, not built yet)</h3>
+      <ul>
+        <li>Part of <b>the app</b>: Python that calls the Claude API itself</li>
+        <li>Lives in <code>src/</code> as a block, with a SPEC and tests</li>
+        <li>Uses our script functions as tools (e.g. <code>check_vocab_level</code>)</li>
+        <li>Runs without Claude Code; costs API tokens, so it's logged</li>
+        <li>Example: sentence_writer</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div>
+    <h2>2. How the words get in</h2>
     <p class="lede">Two Mandarin-specific workers on top, built from generic <code>quizkit</code> parts underneath. Dashed boxes are still to come.</p>
   </div>
   <figure class="card diagram">
@@ -263,74 +367,71 @@ a { color: var(--info); }
 
 <section>
   <div>
-    <h2>2. The gates every change passes</h2>
-    <p class="lede">From an edit on your machine to a merge on GitHub. The colour on top says how strict each gate is (see section 5).</p>
+    <h2>3. The journey of one change: what kicks in, and when</h2>
+    <p class="lede">From an idea to a merge on GitHub, in order. Each box names the tool that does the job, and the colour on top says how strict it is (see section 6). Dashed = not set up yet.</p>
   </div>
   <div class="gates">
+    <div class="gate">
+      <h3>Plan</h3>
+      <span class="chip habit">Habit</span>
+      <ul><li>"Still the right thing?" check</li><li>plan mode for big decisions</li><li>you say go</li></ul>
+    </div>
+    <div class="gate guide">
+      <h3>/new-block</h3>
+      <span class="chip guide">Skill</span>
+      <ul><li>scaffold script makes folder, SPEC, contract test</li><li>SPEC written with you</li></ul>
+    </div>
+    <div class="gate guide">
+      <h3>Tests first</h3>
+      <span class="chip guide">Subagent: test-writer</span>
+      <ul><li>tests from the SPEC only</li><li>flags SPEC gaps</li></ul>
+    </div>
     <div class="gate hard">
       <h3>Claude edits</h3>
-      <span class="chip hard">Hard stop</span>
-      <ul>
-        <li><code>block_env.py</code> hook blocks any tool touching <code>.env</code></li>
-        <li>deny rule: can't read <code>.env</code></li>
-      </ul>
+      <span class="chip hard">Hook, before each tool</span>
+      <ul><li><code>block_env.py</code> blocks anything touching <code>.env</code></li><li>deny rule in settings.json</li></ul>
     </div>
     <div class="gate auto">
       <h3>Auto-tidy</h3>
-      <span class="chip auto">Automatic</span>
-      <ul>
-        <li><code>format_python.py</code> hook runs <code>ruff format</code> after every <code>.py</code> edit</li>
-      </ul>
+      <span class="chip auto">Hook, after each edit</span>
+      <ul><li><code>format_python.py</code> runs <code>ruff format</code></li></ul>
     </div>
     <div class="gate guide">
       <h3>Local checks</h3>
       <span class="chip guide">Rule in CLAUDE.md</span>
-      <ul>
-        <li><code>ruff check</code></li>
-        <li><code>ruff format --check</code></li>
-        <li><code>pytest</code> (123 tests)</li>
-      </ul>
+      <ul><li><code>ruff check</code> + <code>ruff format --check</code></li><li><code>pytest</code> (123 tests)</li></ul>
     </div>
     <div class="gate guide">
-      <h3>Branch + PR</h3>
-      <span class="chip guide">Rule + template</span>
-      <ul>
-        <li>one step = one branch</li>
-        <li>PR checklist</li>
-        <li>block PRs paste the reviewer's ✅</li>
-      </ul>
+      <h3>Block review</h3>
+      <span class="chip guide">Subagent: block-reviewer</span>
+      <ul><li>fresh eyes each round, until ✅</li><li>verdict pasted into the PR</li></ul>
+    </div>
+    <div class="gate todo">
+      <h3>Code review</h3>
+      <span class="chip todo">Not set up yet</span>
+      <ul><li><code>/code-review</code> (local) or the Claude GitHub app (on GitHub)</li><li>decision pending</li></ul>
     </div>
     <div class="gate auto">
       <h3>CI on GitHub</h3>
       <span class="chip auto">Automatic</span>
-      <ul>
-        <li><code>uv sync --locked</code></li>
-        <li>same 3 checks, on a clean machine</li>
-      </ul>
+      <ul><li><code>uv sync --locked</code></li><li>same 3 checks, on a clean machine</li></ul>
     </div>
     <div class="gate hard">
       <h3>Protected main</h3>
       <span class="chip hard">Hard stop, for everyone</span>
-      <ul>
-        <li>PR required</li>
-        <li>green CI required</li>
-        <li>admins included, squash only</li>
-      </ul>
+      <ul><li>PR + green CI required</li><li>admins included, squash only</li></ul>
     </div>
     <div class="gate you">
       <h3>You merge</h3>
       <span class="chip you">Your call</span>
-      <ul>
-        <li><code>gh pr merge N --squash</code></li>
-        <li>Claude never merges</li>
-      </ul>
+      <ul><li><code>gh pr merge N --squash</code></li><li>Claude never merges</li></ul>
     </div>
   </div>
 </section>
 
 <section>
   <div>
-    <h2>3. How a new block gets built</h2>
+    <h2>4. How a new block gets built</h2>
     <p class="lede">The routine used for the fetcher and the normalizer. The highlighted step repeats until the reviewer says ready.</p>
   </div>
   <div class="routine">
@@ -347,7 +448,7 @@ a { color: var(--info); }
 
 <section>
   <div>
-    <h2>4. What the 123 tests guard</h2>
+    <h2>5. What the 123 tests guard</h2>
     <p class="lede">Red bar = runs against the real committed data. Everything else uses small fake data, so it's fast and works offline.</p>
   </div>
   <div class="card table-wrap">
@@ -373,7 +474,7 @@ a { color: var(--info); }
 
 <section>
   <div>
-    <h2>5. How strict is each safety net?</h2>
+    <h2>6. How strict is each safety net?</h2>
     <p class="lede">The M1 lesson: if it really matters, make it a hard stop. Only GitHub settings stop everyone, you included.</p>
   </div>
   <div class="strict">
@@ -422,7 +523,7 @@ a { color: var(--info); }
 
 <section>
   <div>
-    <h2>6. Where the decisions and notes live</h2>
+    <h2>7. Where the decisions and notes live</h2>
   </div>
   <div class="docs">
     <div class="card doc"><b>ADR 0001</b><span>HSK 3.0 is the standard</span></div>
@@ -433,18 +534,19 @@ a { color: var(--info); }
     <div class="card doc"><b>docs/SETUP_LOG.md</b><span>why each step was done, in plain English</span></div>
     <div class="card doc"><b>docs/COURSE_MAP.md</b><span>course topics vs where we used them</span></div>
     <div class="card doc"><b>docs/PLAYBOOK.md</b><span>your checklist and lessons for the next project</span></div>
-    <div class="card doc"><b>docs/build-map.html</b><span>the source of this page, kept in git</span></div>
+    <div class="card doc"><b>docs/build-map/</b><span>the source of this page + a frozen snapshot per step</span></div>
   </div>
 </section>
 
 <section>
   <div>
-    <h2>7. How it grew</h2>
-    <p class="lede">One line per step, newest first. Each step republishes this page, so its version history shows the build over time.</p>
+    <h2>8. How it grew</h2>
+    <p class="lede">One line per step, newest first. Click <b>snapshot</b> to see the whole map exactly as it was after that step.</p>
   </div>
   <ol class="timeline card" reversed>
-    <li><span class="when">2026-11-02</span><span class="what">M3 Step 1</span><span>Issue #16 opened; "Still the right thing?" check; decisions: <code>--band 2</code> = only band-2 words, grader forgives typos. Build map saved in git, and updating it is now a CLAUDE.md rule</span></li>
-    <li><span class="when">2026-11-02</span><span class="what">M2 done (#15)</span><span>Word-count test on the real data. First version of this map</span></li>
+    <li><span class="when">2026-11-02</span><span class="what">M3 Step 1b</span><span>New section 1 (every kind of part, where it lives, subagent vs agent) and section 3 (the journey of a change: every hook, skill, subagent and gate). Code review shown as a gap. Frozen snapshots per step · <a href="snapshots/m3-step1b.html">snapshot</a></span></li>
+    <li><span class="when">2026-11-02</span><span class="what">M3 Step 1</span><span>Issue #16 opened; "Still the right thing?" check; decisions: <code>--band 2</code> = only band-2 words, grader forgives typos. Build map saved in git, and updating it is now a CLAUDE.md rule · <a href="snapshots/m3-step1.html">snapshot</a></span></li>
+    <li><span class="when">2026-11-02</span><span class="what">M2 done (#15)</span><span>Word-count test on the real data. First version of this map · <a href="snapshots/m2-done.html">snapshot</a></span></li>
     <li><span class="when">2026-11-02</span><span class="what">M2 Step 5 (#14)</span><span><code>normalizer</code> block → 978 cards</span></li>
     <li><span class="when">2026-11-02</span><span class="what">M2 Step 4 (#13)</span><span><code>fetcher</code> block + generic verified download</span></li>
     <li><span class="when">2026-11-02</span><span class="what">M2 Steps 2–3</span><span>ADR 0004 (2026 syllabus, pinned); contract test checks SPEC inputs/outputs</span></li>
@@ -454,7 +556,7 @@ a { color: var(--info); }
 </section>
 
 <footer>
-  Snapshot after M3 Step 1, 2026-11-02. Known gaps, by choice: words with several readings keep all of them (197 words), "bands 1+2 together" comes later, and listening practice is a "Future (not v1)" note in PLAN.md.
+  Latest map, after M3 Step 1b, 2026-11-02. There are no snapshots from before M2 done (the map started then). Known gaps, by choice: words with several readings keep all of them (197 words), "bands 1+2 together" comes later, listening practice is a "Future (not v1)" note in PLAN.md. Not by choice: no code review step yet.
 </footer>
 
 </main>

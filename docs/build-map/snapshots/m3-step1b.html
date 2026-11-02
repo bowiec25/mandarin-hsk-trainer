@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HSK Trainer Build Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a technical field map. Summary first, then the data pipeline, the gates a change passes, the block routine, tests, strictness, docs, timeline. */
+/* Source of the "HSK Trainer Build Map" artifact. Edit here, then republish (see CLAUDE.md, after each step). */
+:root {
+  --bg: #f3f5f7;
+  --surface: #ffffff;
+  --ink: #1c2530;
+  --muted: #5d6a78;
+  --line: #d3dae2;
+  --accent: #b8322a;      /* seal red: the one highlight */
+  --pass: #2f7d5b;        /* semantic: done / green */
+  --warn: #a8690f;        /* semantic: automatic */
+  --info: #2f5f9e;        /* semantic: guidance */
+  --font-display: "IBM Plex Sans Condensed", "Arial Narrow", sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12171d; --surface: #1a2129; --ink: #e3e8ee; --muted: #98a5b3; --line: #2e3843;
+    --accent: #e3645a; --pass: #58b48b; --warn: #d9a046; --info: #6f9ee0;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12171d; --surface: #1a2129; --ink: #e3e8ee; --muted: #98a5b3; --line: #2e3843;
+  --accent: #e3645a; --pass: #58b48b; --warn: #d9a046; --info: #6f9ee0;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--font-body); }
+main { max-width: 1040px; margin: 0 auto; padding: 32px 20px 64px; display: grid; gap: 40px; }
+h1, h2 { font-family: var(--font-display); font-weight: 600; text-wrap: balance; margin: 0; letter-spacing: 0.01em; }
+h1 { font-size: 34px; line-height: 1.15; }
+h2 { font-size: 22px; margin-bottom: 6px; }
+p { margin: 0; max-width: 68ch; }
+.lede { color: var(--muted); margin-top: 6px; }
+code, .mono { font-family: var(--font-mono); font-size: 0.88em; }
+section { display: grid; gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+
+/* Summary tiles */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+.tile b { display: block; font: 600 30px/1.1 var(--font-display); font-variant-numeric: tabular-nums; }
+.tile span { color: var(--muted); font-size: 13px; }
+.tile.hi b { color: var(--accent); }
+
+/* Milestones */
+.milestones { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.ms { border-top: 4px solid var(--line); padding-top: 8px; font-size: 13px; }
+.ms b { display: block; font-family: var(--font-display); font-size: 15px; }
+.ms.done { border-color: var(--pass); }
+.ms.next { border-color: var(--accent); }
+.ms small { color: var(--muted); }
+@media (max-width: 640px) { .milestones { grid-template-columns: repeat(2, 1fr); } }
+
+/* Diagrams */
+figure { margin: 0; }
+.diagram { overflow-x: auto; }
+.diagram svg { display: block; width: 100%; min-width: 760px; height: auto; color: var(--ink); }
+figcaption { color: var(--muted); font-size: 13px; margin-top: 8px; max-width: 80ch; }
+
+/* Change gates */
+.gates { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; counter-reset: gate; }
+.gate { background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 6px; align-content: start; }
+.gate h3 { margin: 0; font: 600 15px/1.25 var(--font-display); }
+.gate h3::before { counter-increment: gate; content: counter(gate) "  "; color: var(--muted); font-family: var(--font-mono); font-size: 12px; }
+.gate ul { margin: 0; padding-left: 16px; font-size: 13px; color: var(--muted); }
+.gate.hard { border-top-color: var(--accent); }
+.gate.auto { border-top-color: var(--warn); }
+.gate.guide { border-top-color: var(--info); }
+.gate.you { border-top-color: var(--pass); }
+
+.chip { display: inline-block; font: 500 11px/1 var(--font-body); padding: 4px 7px; border-radius: 999px; border: 1px solid currentColor; letter-spacing: 0.02em; width: fit-content; }
+.chip.hard { color: var(--accent); }
+.chip.auto { color: var(--warn); }
+.chip.guide { color: var(--info); }
+.chip.habit { color: var(--muted); }
+.chip.you { color: var(--pass); }
+
+/* Block routine */
+.routine { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+.step { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 13px; }
+.step b { display: block; font: 600 14px/1.3 var(--font-display); margin-bottom: 2px; }
+.step .who { color: var(--muted); font-size: 12px; }
+.step.loop { border-color: var(--accent); }
+
+/* Tests table */
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+th { font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+td.n { font-variant-numeric: tabular-nums; text-align: right; width: 44px; font-weight: 600; }
+td.bar { width: 28%; }
+.bar span { display: block; height: 8px; border-radius: 4px; background: var(--info); opacity: 0.8; }
+.bar span.real { background: var(--accent); }
+tfoot td { font-weight: 600; border-bottom: none; }
+.table-wrap { overflow-x: auto; }
+
+/* Strictness */
+.strict { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.strict .card { display: grid; gap: 8px; align-content: start; }
+.strict ul { margin: 0; padding-left: 16px; font-size: 13.5px; }
+.strict p { font-size: 13px; color: var(--muted); }
+
+/* Docs */
+.docs { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
+.doc { font-size: 13.5px; }
+.doc b { display: block; font-family: var(--font-mono); font-size: 12.5px; font-weight: 500; }
+.doc span { color: var(--muted); }
+
+/* Timeline */
+.timeline { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.timeline li { display: grid; grid-template-columns: 96px 150px 1fr; gap: 12px; padding: 9px 4px; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+.timeline li:first-child { border-left: 3px solid var(--accent); padding-left: 10px; }
+.timeline .when { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.timeline .what { font-weight: 600; }
+@media (max-width: 640px) { .timeline li { grid-template-columns: 1fr; gap: 2px; } }
+
+/* Parts by kind (layers) */
+.layers { display: grid; gap: 10px; }
+.layer { display: grid; grid-template-columns: 210px 1fr; gap: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+.layer.future { border-style: dashed; background: transparent; }
+.layer-head b { display: block; font: 600 16px/1.25 var(--font-display); }
+.layer-head .mono { display: block; color: var(--muted); font-size: 11.5px; margin: 2px 0 4px; }
+.layer-head span:last-child { display: block; color: var(--muted); font-size: 12.5px; }
+.items { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 8px; align-content: start; }
+.item { border: 1px solid var(--line); border-left: 4px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 12.5px; display: grid; gap: 2px; align-content: start; }
+.item b { font: 500 12px/1.3 var(--font-mono); }
+.item small { color: var(--muted); font-size: 11.5px; }
+.item.hard { border-left-color: var(--accent); }
+.item.auto { border-left-color: var(--warn); }
+.item.guide { border-left-color: var(--info); }
+.item.todo { border-style: dashed; border-left-style: dashed; color: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 8px; font-size: 12.5px; color: var(--muted); align-items: center; }
+@media (max-width: 640px) { .layer { grid-template-columns: 1fr; } }
+.versus { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.versus .card { display: grid; gap: 6px; align-content: start; font-size: 13.5px; }
+.versus h3 { margin: 0; font: 600 16px/1.25 var(--font-display); }
+.versus ul { margin: 0; padding-left: 16px; }
+.gate.todo { border-style: dashed; background: transparent; }
+.chip.todo { color: var(--muted); border-style: dashed; }
+
+footer { color: var(--muted); font-size: 12.5px; border-top: 1px solid var(--line); padding-top: 14px; }
+a { color: var(--info); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<main>
+<p style="margin:0;padding:10px 14px;border:1px dashed #b8322a;border-radius:8px;font-size:13px">📸 Frozen snapshot: <b>after M3 Step 1b (2026-11-02)</b>. <a href="../index.html">Open the latest map</a></p>
+
+<header>
+  <h1>HSK Trainer Build Map</h1>
+  <p class="lede">What exists after M0–M2 and M3 Step 1b (2026-11-02): every kind of part we built and where it lives, the data pipeline, every check a change has to pass, and how new blocks get built. Older versions: see section 8. Repo: <span class="mono">bowiec25/mandarin-hsk-trainer</span>.</p>
+</header>
+
+<section aria-label="Summary">
+  <div class="tiles">
+    <div class="tile hi"><b>978</b><span>quiz cards in <code>cards.jsonl</code></span></div>
+    <div class="tile"><b>294 · 197 · 487</b><span>new words in bands 1 · 2 · 3</span></div>
+    <div class="tile"><b>123</b><span>automatic tests, all passing</span></div>
+    <div class="tile"><b>2</b><span>blocks built: fetcher, normalizer</span></div>
+    <div class="tile"><b>2 · 1 · 2</b><span>hooks · skills · subagents</span></div>
+    <div class="tile"><b>4</b><span>decision records (ADRs)</span></div>
+    <div class="tile"><b>3 / 7</b><span>milestones done</span></div>
+  </div>
+  <div class="milestones" aria-label="Milestones">
+    <div class="ms done"><b>M0</b>Setup<br><small>done</small></div>
+    <div class="ms done"><b>M1</b>Foundations<br><small>done</small></div>
+    <div class="ms done"><b>M2</b>Data in<br><small>done</small></div>
+    <div class="ms next"><b>M3</b>First quiz<br><small>in progress · step 1 of 6</small></div>
+    <div class="ms"><b>M4</b>Sentences (agent)</div>
+    <div class="ms"><b>M5</b>Learning smarts</div>
+    <div class="ms"><b>M6</b>Web UI</div>
+  </div>
+</section>
+
+<section>
+  <div>
+    <h2>1. What we've built, by kind</h2>
+    <p class="lede">Two worlds. The <b>workshop</b> (top) shapes how Claude builds; it is never part of the app. The <b>product</b> (bottom) is the app itself. The <b>checks</b> sit in between and guard every change. Left stripe = how strict it is.</p>
+  </div>
+  <div class="legend">
+    <span class="chip hard">Hard stop</span><span class="chip auto">Automatic</span><span class="chip guide">Guidance</span><span class="chip todo">Not built yet</span>
+  </div>
+  <div class="layers">
+    <div class="layer">
+      <div class="layer-head"><b>🧰 Workshop: Claude Code setup</b><span class="mono">CLAUDE.md · .claude/</span><span>Used while building. Claude Code reads it; the app never does.</span></div>
+      <div class="items">
+        <div class="item guide"><b>CLAUDE.md</b>the briefing note: rules + commands<small>read at the start of every session</small></div>
+        <div class="item hard"><b>.claude/settings.json</b>permissions (allow list, deny <code>.env</code>) + wires up the hooks<small>always on · shared in git</small></div>
+        <div class="item hard"><b>hook: block_env.py</b>stops any tool touching <code>.env</code><small>fires BEFORE every tool use</small></div>
+        <div class="item auto"><b>hook: format_python.py</b>tidies Python with ruff<small>fires AFTER every edit</small></div>
+        <div class="item guide"><b>skill: /new-block</b>"hire a new worker": 3 questions + scaffold<small>you type it</small></div>
+        <div class="item guide"><b>subagent: test-writer</b>writes tests from the SPEC only<small>after the SPEC, before code</small></div>
+        <div class="item guide"><b>subagent: block-reviewer</b>fresh, read-only eyes on one block<small>before a block PR, until ✅</small></div>
+        <div class="item todo"><b>code review</b><code>/code-review</code> or the Claude GitHub app<small>not set up yet</small></div>
+      </div>
+    </div>
+    <div class="layer">
+      <div class="layer-head"><b>🛡️ Checks</b><span class="mono">tests/ · .github/ · GitHub settings</span><span>Prove the code is right, on your machine and on GitHub.</span></div>
+      <div class="items">
+        <div class="item guide"><b>tests/ (pytest)</b>123 tests, run before "done"<small>Claude + CI</small></div>
+        <div class="item guide"><b>ruff</b>lint + format check<small>Claude + CI</small></div>
+        <div class="item auto"><b>CI: ci.yml</b>same checks on a clean machine<small>every push and PR</small></div>
+        <div class="item hard"><b>protected main</b>PR + green CI required, admins too<small>GitHub setting</small></div>
+        <div class="item guide"><b>PR template</b>What / Why / How tested + reviewer verdict<small>every PR</small></div>
+      </div>
+    </div>
+    <div class="layer">
+      <div class="layer-head"><b>⚙️ Product: generic</b><span class="mono">src/quizkit/</span><span>Works for any quiz. No Chinese in here.</span></div>
+      <div class="items">
+        <div class="item"><b>models.py</b>Card + Question shapes</div>
+        <div class="item"><b>modes.py</b>modes as config, <code>build_question()</code></div>
+        <div class="item"><b>blocks/base.py</b><code>BlockSpec</code>, every block's ID card</div>
+        <div class="item"><b>download.py · files.py</b>verified download, safe file writes</div>
+        <div class="item"><b>scaffold.py</b>makes new block folders<small>called by /new-block</small></div>
+        <div class="item todo"><b>grader · deck_builder · engine</b>mark, deal, run the quiz<small>M3 Steps 2–4</small></div>
+      </div>
+    </div>
+    <div class="layer">
+      <div class="layer-head"><b>🀄 Product: Mandarin</b><span class="mono">src/hsk_trainer/ · data/</span><span>Only what is special about HSK.</span></div>
+      <div class="items">
+        <div class="item"><b>block: fetcher</b>download + verify the word list<small>script</small></div>
+        <div class="item"><b>block: normalizer</b>raw list → 978 cards<small>script</small></div>
+        <div class="item"><b>modes.py</b>the 4 HSK modes</div>
+        <div class="item"><b>data/</b><code>raw/</code> → <code>processed/cards.jsonl</code></div>
+        <div class="item todo"><b>cli.py → hsk quiz</b>the front door<small>M3 Step 5 (now a stub)</small></div>
+        <div class="item todo"><b>AGENT: sentence_writer</b>calls Claude by itself to write sentences<small>M4, the first real agent</small></div>
+      </div>
+    </div>
+  </div>
+  <div class="versus">
+    <div class="card">
+      <h3>Subagent (what we have)</h3>
+      <ul>
+        <li>A helper <b>inside Claude Code</b>, while we build</li>
+        <li>A Markdown file: <code>.claude/agents/*.md</code></li>
+        <li>Main Claude hands it a job; it reports back</li>
+        <li>Runs on your Claude subscription</li>
+        <li>Examples: test-writer, block-reviewer</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Agent (M4, not built yet)</h3>
+      <ul>
+        <li>Part of <b>the app</b>: Python that calls the Claude API itself</li>
+        <li>Lives in <code>src/</code> as a block, with a SPEC and tests</li>
+        <li>Uses our script functions as tools (e.g. <code>check_vocab_level</code>)</li>
+        <li>Runs without Claude Code; costs API tokens, so it's logged</li>
+        <li>Example: sentence_writer</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div>
+    <h2>2. How the words get in</h2>
+    <p class="lede">Two Mandarin-specific workers on top, built from generic <code>quizkit</code> parts underneath. Dashed boxes are still to come.</p>
+  </div>
+  <figure class="card diagram">
+    <svg viewBox="0 0 960 380" role="img" aria-label="Data pipeline: the pinned GitHub source is downloaded and verified by the fetcher into data/raw, the normalizer turns it into 978 cards in cards.jsonl, using generic quizkit helpers; the quiz in M3 and the sentence agent in M4 come next.">
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+        </marker>
+      </defs>
+      <g font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="12" fill="currentColor">
+        <!-- Row label -->
+        <text x="10" y="24" font-size="11" opacity="0.65" letter-spacing="0.06em">HSK_TRAINER  ·  MANDARIN-SPECIFIC</text>
+
+        <!-- Row 1 boxes -->
+        <g fill="none" stroke="currentColor" stroke-width="1.2">
+          <rect x="10" y="40" width="140" height="58" rx="6"/>
+          <rect x="210" y="40" width="140" height="58" rx="6"/>
+          <rect x="410" y="40" width="140" height="58" rx="6"/>
+          <rect x="610" y="40" width="140" height="58" rx="6"/>
+        </g>
+        <rect x="810" y="40" width="140" height="58" rx="6" fill="none" stroke="#b8322a" stroke-width="2"/>
+
+        <text x="80" y="64" text-anchor="middle" font-weight="600">Pinned source</text>
+        <text x="80" y="82" text-anchor="middle" font-size="11" opacity="0.7">GitHub @ 7ac65bf</text>
+        <text x="280" y="64" text-anchor="middle" font-weight="600">fetcher</text>
+        <text x="280" y="82" text-anchor="middle" font-size="11" opacity="0.7">script · 16 tests</text>
+        <text x="480" y="64" text-anchor="middle" font-weight="600">data/raw/hsk3_2026</text>
+        <text x="480" y="82" text-anchor="middle" font-size="11" opacity="0.7">1, 2, 3.json + LICENSE</text>
+        <text x="680" y="64" text-anchor="middle" font-weight="600">normalizer</text>
+        <text x="680" y="82" text-anchor="middle" font-size="11" opacity="0.7">script · 39 tests</text>
+        <text x="880" y="64" text-anchor="middle" font-weight="600" fill="#b8322a">cards.jsonl</text>
+        <text x="880" y="82" text-anchor="middle" font-size="11" opacity="0.8">978 cards</text>
+
+        <!-- Row 1 arrows -->
+        <g stroke="currentColor" stroke-width="1.2" marker-end="url(#arr)">
+          <line x1="150" y1="69" x2="207" y2="69"/>
+          <line x1="350" y1="69" x2="407" y2="69"/>
+          <line x1="550" y1="69" x2="607" y2="69"/>
+          <line x1="750" y1="69" x2="807" y2="69"/>
+        </g>
+        <text x="180" y="61" text-anchor="middle" font-size="11">download</text>
+        <text x="380" y="61" text-anchor="middle" font-size="11">verified</text>
+        <text x="380" y="114" text-anchor="middle" font-size="10" opacity="0.7">size + SHA-256</text>
+        <text x="580" y="61" text-anchor="middle" font-size="11">read</text>
+        <text x="780" y="61" text-anchor="middle" font-size="11">writes</text>
+        <text x="780" y="114" text-anchor="middle" font-size="10" opacity="0.7">checked by</text>
+        <text x="780" y="126" text-anchor="middle" font-size="10" opacity="0.7">word-count test</text>
+
+        <!-- Row 2: quizkit band -->
+        <rect x="190" y="150" width="580" height="96" rx="8" fill="none" stroke="currentColor" stroke-opacity="0.35" stroke-dasharray="3 4"/>
+        <text x="10" y="176" font-size="11" opacity="0.65" letter-spacing="0.06em">QUIZKIT</text>
+        <text x="10" y="192" font-size="11" opacity="0.65">generic, reusable</text>
+        <text x="10" y="206" font-size="11" opacity="0.65">by any quiz</text>
+        <g fill="none" stroke="currentColor" stroke-width="1.2">
+          <rect x="210" y="170" width="160" height="56" rx="6"/>
+          <rect x="400" y="170" width="160" height="56" rx="6"/>
+          <rect x="590" y="170" width="160" height="56" rx="6"/>
+        </g>
+        <text x="290" y="194" text-anchor="middle" font-weight="600" font-family="IBM Plex Mono, Consolas, monospace" font-size="11.5">download.py</text>
+        <text x="290" y="212" text-anchor="middle" font-size="11" opacity="0.7">verified download</text>
+        <text x="480" y="194" text-anchor="middle" font-weight="600" font-family="IBM Plex Mono, Consolas, monospace" font-size="11.5">files.py</text>
+        <text x="480" y="212" text-anchor="middle" font-size="11" opacity="0.7">write temp, then swap</text>
+        <text x="670" y="194" text-anchor="middle" font-weight="600" font-family="IBM Plex Mono, Consolas, monospace" font-size="11.5">models.py</text>
+        <text x="670" y="212" text-anchor="middle" font-size="11" opacity="0.7">Card shape + rules</text>
+
+        <!-- uses lines (dashed, up) -->
+        <g stroke="currentColor" stroke-width="1" stroke-dasharray="4 3" opacity="0.75" marker-end="url(#arr)">
+          <line x1="260" y1="170" x2="260" y2="101"/>
+          <line x1="450" y1="170" x2="300" y2="101"/>
+          <line x1="510" y1="170" x2="650" y2="101"/>
+          <line x1="690" y1="170" x2="690" y2="101"/>
+        </g>
+        <text x="236" y="140" text-anchor="middle" font-size="10" opacity="0.7">uses</text>
+        <text x="714" y="140" text-anchor="middle" font-size="10" opacity="0.7">uses</text>
+
+        <!-- Row 3: future -->
+        <text x="10" y="300" font-size="11" opacity="0.65" letter-spacing="0.06em">COMING NEXT</text>
+        <g fill="none" stroke="currentColor" stroke-opacity="0.55" stroke-width="1.2" stroke-dasharray="6 4">
+          <rect x="190" y="290" width="380" height="62" rx="6"/>
+          <rect x="610" y="290" width="340" height="62" rx="6"/>
+        </g>
+        <text x="380" y="315" text-anchor="middle" font-weight="600" opacity="0.8">M4  sentence_writer (agent) → validator</text>
+        <text x="380" y="334" text-anchor="middle" font-size="11" opacity="0.65">example sentences, checked by a script</text>
+        <text x="780" y="315" text-anchor="middle" font-weight="600" opacity="0.8">M3  deck_builder → grader → hsk quiz</text>
+        <text x="780" y="334" text-anchor="middle" font-size="11" opacity="0.65">modes char, char_pinyin · issue #16</text>
+        <g stroke="currentColor" stroke-width="1.2" opacity="0.6" stroke-dasharray="6 4" marker-end="url(#arr)">
+          <polyline points="880,98 880,270 880,287" fill="none"/>
+          <line x1="570" y1="321" x2="607" y2="321"/>
+        </g>
+        <text x="892" y="270" font-size="11" opacity="0.75">cards</text>
+        <text x="588" y="312" text-anchor="middle" font-size="10" opacity="0.75">adds</text>
+      </g>
+    </svg>
+    <figcaption>The raw data is pinned to one exact version and checked by fingerprint, so every later step starts from the same trusted files. Every later step reads only <code>cards.jsonl</code>, never the raw format. M3 decisions: <code>--band 2</code> = only the new band-2 words; the grader forgives small typos, not wrong words.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div>
+    <h2>3. The journey of one change: what kicks in, and when</h2>
+    <p class="lede">From an idea to a merge on GitHub, in order. Each box names the tool that does the job, and the colour on top says how strict it is (see section 6). Dashed = not set up yet.</p>
+  </div>
+  <div class="gates">
+    <div class="gate">
+      <h3>Plan</h3>
+      <span class="chip habit">Habit</span>
+      <ul><li>"Still the right thing?" check</li><li>plan mode for big decisions</li><li>you say go</li></ul>
+    </div>
+    <div class="gate guide">
+      <h3>/new-block</h3>
+      <span class="chip guide">Skill</span>
+      <ul><li>scaffold script makes folder, SPEC, contract test</li><li>SPEC written with you</li></ul>
+    </div>
+    <div class="gate guide">
+      <h3>Tests first</h3>
+      <span class="chip guide">Subagent: test-writer</span>
+      <ul><li>tests from the SPEC only</li><li>flags SPEC gaps</li></ul>
+    </div>
+    <div class="gate hard">
+      <h3>Claude edits</h3>
+      <span class="chip hard">Hook, before each tool</span>
+      <ul><li><code>block_env.py</code> blocks anything touching <code>.env</code></li><li>deny rule in settings.json</li></ul>
+    </div>
+    <div class="gate auto">
+      <h3>Auto-tidy</h3>
+      <span class="chip auto">Hook, after each edit</span>
+      <ul><li><code>format_python.py</code> runs <code>ruff format</code></li></ul>
+    </div>
+    <div class="gate guide">
+      <h3>Local checks</h3>
+      <span class="chip guide">Rule in CLAUDE.md</span>
+      <ul><li><code>ruff check</code> + <code>ruff format --check</code></li><li><code>pytest</code> (123 tests)</li></ul>
+    </div>
+    <div class="gate guide">
+      <h3>Block review</h3>
+      <span class="chip guide">Subagent: block-reviewer</span>
+      <ul><li>fresh eyes each round, until ✅</li><li>verdict pasted into the PR</li></ul>
+    </div>
+    <div class="gate todo">
+      <h3>Code review</h3>
+      <span class="chip todo">Not set up yet</span>
+      <ul><li><code>/code-review</code> (local) or the Claude GitHub app (on GitHub)</li><li>decision pending</li></ul>
+    </div>
+    <div class="gate auto">
+      <h3>CI on GitHub</h3>
+      <span class="chip auto">Automatic</span>
+      <ul><li><code>uv sync --locked</code></li><li>same 3 checks, on a clean machine</li></ul>
+    </div>
+    <div class="gate hard">
+      <h3>Protected main</h3>
+      <span class="chip hard">Hard stop, for everyone</span>
+      <ul><li>PR + green CI required</li><li>admins included, squash only</li></ul>
+    </div>
+    <div class="gate you">
+      <h3>You merge</h3>
+      <span class="chip you">Your call</span>
+      <ul><li><code>gh pr merge N --squash</code></li><li>Claude never merges</li></ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div>
+    <h2>4. How a new block gets built</h2>
+    <p class="lede">The routine used for the fetcher and the normalizer. The highlighted step repeats until the reviewer says ready.</p>
+  </div>
+  <div class="routine">
+    <div class="step"><b>/new-block</b>3 questions: goal, script or agent, which package<div class="who">skill</div></div>
+    <div class="step"><b>Scaffold</b>folder, SPEC.md, contract test, made identically every time<div class="who">script: quizkit.scaffold</div></div>
+    <div class="step"><b>SPEC with you</b>7 sections, one at a time<div class="who">you + Claude</div></div>
+    <div class="step"><b>Tests first</b>written from the SPEC only; also flags SPEC gaps<div class="who">test-writer subagent</div></div>
+    <div class="step"><b>Build</b>code until every test passes, then a real run<div class="who">Claude</div></div>
+    <div class="step loop"><b>Review rounds</b>fresh, read-only reviewer each round until ✅<div class="who">block-reviewer subagent</div></div>
+    <div class="step"><b>PR → CI → merge</b>verdict pasted in, CI green, you merge<div class="who">you</div></div>
+  </div>
+  <p class="lede">Track record: fetcher took 3 review rounds, normalizer 3. The test-writer found 7 SPEC gaps for the normalizer, including one (11 words with no part of speech) that would have crashed the real run.</p>
+</section>
+
+<section>
+  <div>
+    <h2>5. What the 123 tests guard</h2>
+    <p class="lede">Red bar = runs against the real committed data. Everything else uses small fake data, so it's fast and works offline.</p>
+  </div>
+  <div class="card table-wrap">
+    <table>
+      <thead><tr><th>Test file</th><th class="n">Tests</th><th></th><th>What it protects</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">blocks/test_normalizer.py</td><td class="n">39</td><td class="bar"><span style="width:100%"></span></td><td>every card's shape and every failure mode of the normalizer</td></tr>
+        <tr><td class="mono">test_hooks.py</td><td class="n">19</td><td class="bar"><span style="width:49%"></span></td><td>the <code>.env</code> blocker and the auto-format hook</td></tr>
+        <tr><td class="mono">blocks/test_fetcher.py</td><td class="n">16</td><td class="bar"><span style="width:41%"></span></td><td>downloads, fingerprints, no half-written files (fake downloader)</td></tr>
+        <tr><td class="mono">test_scaffold.py</td><td class="n">15</td><td class="bar"><span style="width:38%"></span></td><td><code>/new-block</code>'s file maker and SPEC checker</td></tr>
+        <tr><td class="mono">test_quizkit_download.py</td><td class="n">11</td><td class="bar"><span style="width:28%"></span></td><td>the generic verified download helper</td></tr>
+        <tr><td class="mono">test_word_counts.py</td><td class="n">7</td><td class="bar"><span class="real" style="width:18%"></span></td><td>real data: 294 / 197 / 487, within 5% of 300 / 500 / 1,000, file up to date</td></tr>
+        <tr><td class="mono">test_quizkit_models.py</td><td class="n">7</td><td class="bar"><span style="width:18%"></span></td><td>Card and Question rules (no blank answers, level ≥ 1)</td></tr>
+        <tr><td class="mono">test_hsk_modes.py</td><td class="n">4</td><td class="bar"><span style="width:10%"></span></td><td>the 4 HSK quiz modes</td></tr>
+        <tr><td class="mono">test_quizkit_modes.py</td><td class="n">3</td><td class="bar"><span style="width:8%"></span></td><td>modes as config</td></tr>
+        <tr><td class="mono">test_quizkit_blocks.py</td><td class="n">1</td><td class="bar"><span style="width:3%"></span></td><td>the block ID card (<code>BlockSpec</code>)</td></tr>
+        <tr><td class="mono">test_smoke.py</td><td class="n">1</td><td class="bar"><span style="width:3%"></span></td><td>both packages import</td></tr>
+      </tbody>
+      <tfoot><tr><td>Total</td><td class="n">123</td><td></td><td>run locally and by CI on every PR</td></tr></tfoot>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div>
+    <h2>6. How strict is each safety net?</h2>
+    <p class="lede">The M1 lesson: if it really matters, make it a hard stop. Only GitHub settings stop everyone, you included.</p>
+  </div>
+  <div class="strict">
+    <div class="card">
+      <span class="chip hard">Hard stop</span>
+      <ul>
+        <li>deny rule + hook on <code>.env</code></li>
+        <li>GitHub secret push protection</li>
+        <li>protected <code>main</code> (PR + green CI, admins too)</li>
+        <li>reviewer has no edit tools</li>
+        <li><code>uv sync --locked</code> in CI</li>
+      </ul>
+      <p>Can't be skipped by accident.</p>
+    </div>
+    <div class="card">
+      <span class="chip auto">Automatic</span>
+      <ul>
+        <li>ruff format after every edit</li>
+        <li>CI runs on every push and PR</li>
+        <li>contract test in every block</li>
+        <li><code>.gitignore</code> keeps <code>.env</code> out of git</li>
+      </ul>
+      <p>Happens without anyone remembering.</p>
+    </div>
+    <div class="card">
+      <span class="chip guide">Guidance</span>
+      <ul>
+        <li>CLAUDE.md rules (checks before "done", use <code>/new-block</code>)</li>
+        <li>script vs agent rule (ADR 0002)</li>
+        <li>test-writer "only write in tests/"</li>
+        <li>update this build map after every step</li>
+      </ul>
+      <p>Claude follows it; nothing enforces it.</p>
+    </div>
+    <div class="card">
+      <span class="chip habit">Habit</span>
+      <ul>
+        <li>"Still the right thing?" before each plan</li>
+        <li>docs updated after every step</li>
+        <li>small steps, stop for your go-ahead</li>
+      </ul>
+      <p>Part of how we work.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div>
+    <h2>7. Where the decisions and notes live</h2>
+  </div>
+  <div class="docs">
+    <div class="card doc"><b>ADR 0001</b><span>HSK 3.0 is the standard</span></div>
+    <div class="card doc"><b>ADR 0002</b><span>script vs agent: if code can check it, write a script</span></div>
+    <div class="card doc"><b>ADR 0003</b><span>block contract: SPEC.md + code + tests, pydantic in and out</span></div>
+    <div class="card doc"><b>ADR 0004</b><span>word list = 2026 syllabus, pinned to one version</span></div>
+    <div class="card doc"><b>docs/PLAN.md</b><span>the plan and the "Where we are" checklist</span></div>
+    <div class="card doc"><b>docs/SETUP_LOG.md</b><span>why each step was done, in plain English</span></div>
+    <div class="card doc"><b>docs/COURSE_MAP.md</b><span>course topics vs where we used them</span></div>
+    <div class="card doc"><b>docs/PLAYBOOK.md</b><span>your checklist and lessons for the next project</span></div>
+    <div class="card doc"><b>docs/build-map/</b><span>the source of this page + a frozen snapshot per step</span></div>
+  </div>
+</section>
+
+<section>
+  <div>
+    <h2>8. How it grew</h2>
+    <p class="lede">One line per step, newest first. Click <b>snapshot</b> to see the whole map exactly as it was after that step.</p>
+  </div>
+  <ol class="timeline card" reversed>
+    <li><span class="when">2026-11-02</span><span class="what">M3 Step 1b</span><span>New section 1 (every kind of part, where it lives, subagent vs agent) and section 3 (the journey of a change: every hook, skill, subagent and gate). Code review shown as a gap. Frozen snapshots per step · <a href="m3-step1b.html">snapshot</a></span></li>
+    <li><span class="when">2026-11-02</span><span class="what">M3 Step 1</span><span>Issue #16 opened; "Still the right thing?" check; decisions: <code>--band 2</code> = only band-2 words, grader forgives typos. Build map saved in git, and updating it is now a CLAUDE.md rule · <a href="m3-step1.html">snapshot</a></span></li>
+    <li><span class="when">2026-11-02</span><span class="what">M2 done (#15)</span><span>Word-count test on the real data. First version of this map · <a href="m2-done.html">snapshot</a></span></li>
+    <li><span class="when">2026-11-02</span><span class="what">M2 Step 5 (#14)</span><span><code>normalizer</code> block → 978 cards</span></li>
+    <li><span class="when">2026-11-02</span><span class="what">M2 Step 4 (#13)</span><span><code>fetcher</code> block + generic verified download</span></li>
+    <li><span class="when">2026-11-02</span><span class="what">M2 Steps 2–3</span><span>ADR 0004 (2026 syllabus, pinned); contract test checks SPEC inputs/outputs</span></li>
+    <li><span class="when">2026-11-01</span><span class="what">M1 done</span><span>ADRs 0001–0003, Card/Question models, hooks, <code>/new-block</code>, two subagents</span></li>
+    <li><span class="when">2026-11-01</span><span class="what">M0 done</span><span>uv + gh, repo on GitHub, CI, protected <code>main</code></span></li>
+  </ol>
+</section>
+
+<footer>
+  Latest map, after M3 Step 1b, 2026-11-02. There are no snapshots from before M2 done (the map started then). Known gaps, by choice: words with several readings keep all of them (197 words), "bands 1+2 together" comes later, listening practice is a "Future (not v1)" note in PLAN.md. Not by choice: no code review step yet.
+</footer>
+
+</main>
+</body>
+</html>
