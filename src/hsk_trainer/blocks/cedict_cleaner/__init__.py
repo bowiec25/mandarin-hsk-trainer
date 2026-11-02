@@ -17,7 +17,8 @@ BLOCK_SPEC = BlockSpec(
     outputs=["list[str]"],
 )
 
-HANZI = re.compile(r"[㐀-鿿]")
+# Common hanzi + extension A, compatibility ideographs, extensions B and later.
+HANZI = re.compile("[㐀-鿿豈-﫿\U00020000-\U0003ffff]")
 
 # Rule 1: meanings that aren't the HSK meaning.
 _DROP = re.compile(
@@ -90,7 +91,7 @@ def clean_answer(meaning: str) -> list[str]:
         return []
 
     main = _without_notes(meaning, keep_plain_words=False)
-    if not main:
+    if not main or _DROP.search(main):  # again, e.g. "(Tw) surname Bai"
         return []
 
     # Rules 5 and 6: colon lists, then classifiers, replace the meaning.

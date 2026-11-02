@@ -24,7 +24,8 @@ BLOCK_SPEC = BlockSpec(
 
 Cleaner = Callable[[str], list[str]]
 
-_APOSTROPHES = re.compile(r"['’]")  # "one's" -> "ones" (not "one s")
+_APOSTROPHES = re.compile(r"['’‘ʼ`]")  # "one's" -> "ones" (not "one s")
+_INNER_DOTS = re.compile(r"(?<=\w)\.(?=\w)")  # "p.m." -> "pm." (not "p m")
 _PUNCTUATION = re.compile(r"[^\w\s]|_")  # anything else that isn't a letter/digit
 
 
@@ -61,7 +62,7 @@ def clean(text: str, settings: GradeSettings) -> str:
     and one leading ignored word if more words follow ("to love" -> "love",
     but a lone "to" stays "to")."""
     text = unicodedata.normalize("NFKC", text).casefold()
-    text = _APOSTROPHES.sub("", text)
+    text = _INNER_DOTS.sub("", _APOSTROPHES.sub("", text))
     words = _PUNCTUATION.sub(" ", text).split()
     ignored = {w.casefold() for w in settings.ignore_leading}
     if len(words) > 1 and words[0] in ignored:  # a lone "to" is a real answer
@@ -115,8 +116,11 @@ def grade(
     expected = _expected(accepted, cleaner, settings)
     typed = clean(answer, settings)
 
-    if typed and typed in expected:
-        return Grade(correct=True, matched=typed, typo=False, expected=expected)
+    # Exact match ignores spaces, so "email" = "e-mail" (-> "e mail") = "e mail".
+    squashed = typed.replace(" ", "")
+    exact = next((o for o in expected if o.replace(" ", "") == squashed), None)
+    if typed and exact:
+        return Grade(correct=True, matched=exact, typo=False, expected=expected)
 
     best: tuple[int, str] | None = None
     if typed:

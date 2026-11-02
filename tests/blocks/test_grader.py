@@ -262,6 +262,27 @@ def test_all_accepted_answers_empty_once_clean_raises_value_error():
         grade("love", ["!!!", "...", "  "])
 
 
+@pytest.mark.parametrize("answer", ["pm", "PM", "p.m.", "P.M."])
+def test_dotted_abbreviation_matches_without_dots(answer):
+    """Real case: an HSK word has the meaning "p.m."; "a.m." must not lose its "a"."""
+    assert grade(answer, ["p.m."]).correct is True
+    assert grade(answer.replace("p", "a").replace("P", "A"), ["a.m."]).correct is True
+
+
+@pytest.mark.parametrize("answer", ["one‘s", "oneʼs", "one`s", "one’s"])
+def test_other_apostrophe_forms_are_removed(answer):
+    result = grade(answer, ["one's"])
+    assert result.correct is True
+    assert result.typo is False
+
+
+@pytest.mark.parametrize("answer", ["email", "e-mail", "e mail"])
+def test_spacing_and_hyphens_are_an_exact_match_not_a_typo(answer):
+    result = grade(answer, ["e-mail"])
+    assert result.correct is True
+    assert result.typo is False
+
+
 def test_lone_ignored_word_is_kept_as_a_real_answer():
     """A dictionary meaning can be just "to" (e.g. a preposition): typing it counts."""
     result = grade("to", ["to", "to give"])

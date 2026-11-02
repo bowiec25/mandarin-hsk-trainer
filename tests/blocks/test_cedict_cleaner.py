@@ -69,6 +69,7 @@ def load_cards() -> list[Card]:
         "old variant of 么[me5]",
         "see 什么[shen2 me5]",
         "used in 琵琶[pi2 pa5]",
+        "(Tw) surname Bai",
     ],
 )
 def test_rule1_non_hsk_meanings_are_dropped(meaning):
@@ -167,6 +168,13 @@ def test_rule7_comma_keeps_whole_and_first_part():
 def test_rule8_results_with_chinese_are_dropped():
     meaning = "the Great Learning, one of the Four Books 四书"
     assert clean(meaning) == ["the Great Learning"]
+
+
+@pytest.mark.parametrize("char", ["豈", "\U00020bb7"])
+def test_rule8_rare_chinese_characters_count_as_chinese(char):
+    """Compatibility ideographs and extension B+ characters are Chinese too."""
+    assert clean(f"see {char}") == []
+    assert clean(f"an old word {char}") == []
 
 
 def test_rule8_extension_a_character_counts_as_chinese():

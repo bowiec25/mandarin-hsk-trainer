@@ -23,7 +23,7 @@ This is the `cleaner` shape the grader expects: `grade(answer, card.answers, cle
 
 | # | Rule | Example in → out |
 |---|---|---|
-| 1 | **Drop** meanings that aren't the HSK meaning: starting `surname`, `abbr.`, `also written`, `also pr.`, `Taiwan pr.`; containing `variant of`; `see` / `used in` followed by Chinese | `"surname Bai"` → `[]` |
+| 1 | **Drop** meanings that aren't the HSK meaning: starting `surname`, `abbr.`, `also written`, `also pr.`, `Taiwan pr.`; containing `variant of`; `see` / `used in` followed by Chinese. Checked on the raw meaning **and** again after notes are removed (so `"(Tw) surname Bai"` is dropped too) | `"surname Bai"` → `[]` |
 | 2 | **Remove** `(…)` notes and `[…]` pinyin | `"(coll.) father"` → `["father"]` |
 | 3 | If a removed note is **one plain word** (letters only, not a label like `(coll.)`, `(Tw)`, `(slang)`, `(sb)`), **also** keep a version with it | `"(cooked) rice"` → `["rice", "cooked rice"]` |
 | 4 | **Remove** placeholder words `sb`, `sth` (also `sb's`, `sth's`), `etc` and `...` / `…` | `"to let sb off lightly"` → `["to let off lightly"]` |
@@ -43,7 +43,7 @@ Case, a leading "to", punctuation and typos are the grader's job, not this block
 - Always a list, never a bare string (the grader would reject that with `TypeError`).
 
 ## Tools
-- **Python built-ins only**: `re` for the patterns; Chinese characters detected by Unicode range (U+3400–U+9FFF, the common hanzi plus extension A).
+- **Python built-ins only**: `re` for the patterns; Chinese characters detected by Unicode range (U+3400–U+9FFF common hanzi + extension A, U+F900–U+FAFF compatibility ideographs, U+20000 and up for extensions B+).
 - No new libraries, no files, no network, no agent.
 - Tests only: `data/processed/cards.jsonl` (read-only) for the "all 978 cards" check.
 

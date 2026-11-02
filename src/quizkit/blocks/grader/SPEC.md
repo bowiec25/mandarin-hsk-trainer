@@ -42,7 +42,7 @@ grade(answer, accepted, cleaner=None, settings=GradeSettings()) -> Grade
 
 Length is counted on the **clean accepted answer** (after normalising), not on what was typed: all its characters, spaces between words included ("ice cream" = 9).
 
-**"Clean" text** means fully normalised: NFKC, casefolded, punctuation removed, spaces collapsed, one leading ignored word removed **only when more words follow**. `"Love!"` and `"to love"` both become `"love"`, but a lone `"to"` stays `"to"` (real case: 给 has the meaning "to"). An accepted answer that is empty once clean (e.g. `"!!!"`) is dropped, just like one the cleaner drops.
+**"Clean" text** means fully normalised: NFKC, casefolded, apostrophes (`' ’ ‘ ʼ` and backtick) and dots inside abbreviations deleted (`"one's"` → `"ones"`, `"p.m."` → `"pm"`), other punctuation turned into spaces, spaces collapsed, one leading ignored word removed **only when more words follow**. `"Love!"` and `"to love"` both become `"love"`, but a lone `"to"` stays `"to"` (real case: 给 has the meaning "to"). An accepted answer that is empty once clean (e.g. `"!!!"`) is dropped, just like one the cleaner drops.
 
 ## Outputs
 One `Grade` (pydantic, frozen), returned in memory. Nothing is saved to a file. `matched` and `expected` hold **clean** text (see Inputs); `expected` keeps first-seen order.
@@ -69,6 +69,7 @@ One `Grade` (pydantic, frozen), returned in memory. Nothing is saved to a file. 
 | The cleaner raises | The error is passed through (a cleaner bug must not be hidden) |
 | The cleaner returns a plain string instead of a list (`"rice"` not `["rice"]`) | **Raises `TypeError`** (otherwise it would silently split into letters) |
 | Exact match for one answer and a typo of another | **Exact match wins** (`typo=False`) |
+| Same letters, different spacing or hyphens (`"email"` vs `"e-mail"`, `"icecream"` vs `"ice cream"`) | Counts as an **exact** match (spaces are ignored for the exact check), not a typo |
 | Several answers clean to the same text | Listed **once** in `expected` |
 | Odd characters (Chinese typed, "café", full-width letters) | Normalised (Unicode NFKC) and compared, no crash |
 | Settings out of range (e.g. -1 typos) | pydantic **rejects** them when created |
