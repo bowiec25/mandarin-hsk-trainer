@@ -414,7 +414,7 @@ a { color: var(--info); }
 <path class="ar plan" d="M650,270 H760 V85" marker-end="url(#fa)"/>
 <text class="s" x="766" y="250">adds sentences</text>
     </svg>
-      <figcaption>Top row: from the word list to you. M3 adds the middle part: the marker (grader) and its HSK answer tidier (cedict_cleaner) are built; the dealer (deck_builder) and the game host (engine) are built too. Still dashed: the ask/answer link to you (the CLI, Step 5) and progress_store (M5). The M4 agent is the only part that calls Claude, and it runs offline, as a batch, before you study. At quiz time nothing needs the internet or the API.</figcaption>
+      <figcaption>Top row: from the word list to you. M3 adds the middle part: the marker (grader) and its HSK answer tidier (cedict_cleaner) are built; the dealer (deck_builder) and the game host (engine) are built too. Still dashed: the ask/answer link to you (the CLI, Step 5), progress_store (M5) and the whole M4 sentence row. The M4 agent is the only part that calls Claude, and it runs offline, as a batch, before you study. At quiz time nothing needs the internet or the API.</figcaption>
     </figure>
     <figure class="card diagram fl">
       <h3>View C · One Claude action, up close (the safety nets)</h3>
@@ -747,8 +747,8 @@ a { color: var(--info); }
   </div>
   <ol class="timeline card" reversed>
     <li><span class="when">2026-11-02</span><span class="what">M3 Step 4 (#24)</span><span><code>engine</code> (the quizmaster: <code>QuizSession</code> + <code>run_quiz</code>), built by a <b>2nd Claude session in a worktree</b> in parallel with Step 3; merged <code>main</code> in first, no conflicts; worktree removed after · <a href="snapshots/m3-step4.html">snapshot</a></span></li>
-    <li><span class="when">2026-11-02</span><span class="what">M3 Step 3</span><span><code>deck_builder</code> (the dealer), built while a 2nd Claude session built the engine in a <b>git worktree</b>. Future ideas got their own list (<code>docs/FUTURE.md</code>), starting with your smart "what's next" deck · <a href="snapshots/m3-step3.html">snapshot</a></span></li>
-    <li><span class="when">2026-11-02</span><span class="what">M3 Step 2</span><span>Grading as 2 blocks: generic <code>grader</code> (quizkit) + HSK <code>cedict_cleaner</code>. A real-data test across both found a bug toy tests missed (给 = "to" was dropped). Your call: rules are a stopgap; an answer agent replaces them in M4 · <a href="snapshots/m3-step2.html">snapshot</a></span></li>
+    <li><span class="when">2026-11-02</span><span class="what">M3 Step 3 (#23)</span><span><code>deck_builder</code> (the dealer), built while a 2nd Claude session built the engine in a <b>git worktree</b>. Future ideas got their own list (<code>docs/FUTURE.md</code>), starting with your smart "what's next" deck · <a href="snapshots/m3-step3.html">snapshot</a></span></li>
+    <li><span class="when">2026-11-02</span><span class="what">M3 Step 2 (#22)</span><span>Grading as 2 blocks: generic <code>grader</code> (quizkit) + HSK <code>cedict_cleaner</code>. A real-data test across both found a bug toy tests missed (给 = "to" was dropped). Your call: rules are a stopgap; an answer agent replaces them in M4 · <a href="snapshots/m3-step2.html">snapshot</a></span></li>
     <li><span class="when">2026-11-02</span><span class="what">M3 Step 1d</span><span>Proved the GitHub review with a planted-bug PR (#20, closed): it caught ×10-instead-of-×100 and missed the divide-by-zero. Lesson: green ≠ reviewed, and a reviewer catches some bugs, not all · <a href="snapshots/m3-step1d.html">snapshot</a></span></li>
     <li><span class="when">2026-11-02</span><span class="what">M3 Step 1c</span><span>Code review, two layers: <code>/code-review</code> before every PR (CLAUDE.md rule + PR checkbox), and the Claude GitHub app reviewing every PR (#18, subscription token). Was planned since M1 but never wired in · <a href="snapshots/m3-step1c.html">snapshot</a></span></li>
     <li><span class="when">2026-11-02</span><span class="what">Map: flow diagrams</span><span>New section 2 with three flow views: how one step gets built (in lanes, with the fail loops), what the app does with the words, and one Claude action up close (hooks + permissions) · <a href="snapshots/m3-flows.html">snapshot</a></span></li>
@@ -764,7 +764,7 @@ a { color: var(--info); }
 </section>
 
 <footer>
-  Latest map, after M3 Step 4, 2026-11-02. There are no snapshots from before M2 done (the map started then). Known gaps, by choice: words with several readings keep all of them (197 words), "bands 1+2 together" comes later, listening practice and sentence translation (needs a judgment agent) are "Future (not v1)" notes in PLAN.md; synonyms not in the dictionary wait for the M4 answer agent. Reminder: the Claude review token expires after 1 year (renew before 2027-10-15). Green on GitHub is not the same as reviewed.
+  Latest map, after M3 Step 4, 2026-11-02. There are no snapshots from before M2 done (the map started then). Known gaps, by choice: words with several readings keep all of them (197 words), "bands 1+2 together" comes later, listening practice, sentence translation (needs a judgment agent) and other later ideas are listed in docs/FUTURE.md; synonyms not in the dictionary wait for the M4 answer agent. Reminder: the Claude review token expires after 1 year (renew before 2027-10-15). Green on GitHub is not the same as reviewed.
 </footer>
 
 </main>
