@@ -36,10 +36,12 @@
   - [ ] 6. Play-test + reuse check (toy capitals quiz) + M3 lessons
 - [ ] M4 Sentences (first agent)
   - [ ] `data-auditor` subagent (moved from M1: needs real sentences to test against)
+  - [ ] **Answer agent** (user's call, 2026-11-02): an offline batch agent writes each card's clean answer list *with synonyms* ("father, dad, papa"); a script validates it; the user spot-checks; committed as a file. Replaces the M3 rule-based `cedict_cleaner` (a stopgap). Needs a new ADR
 - [ ] M5 Learning smarts
 - [ ] M6 Web UI
 
 **Future (not v1):**
+- **Sentence translation** (user wants this eventually, 2026-11-02): the learner translates whole sentences. Rules can't judge sentence meaning, so this **needs a judgment agent** for grading (cached verdicts, so the quiz stays offline-first). Builds on the M5 agent grading fallback.
 - Several bands together (e.g. bands 1+2 in one quiz). M3's `--band N` means only band N's new words (user's call, 2026-11-02); a combined option comes later.
 - Listening practice: words and sentences read aloud (text-to-speech). Setup already allows it: stable card ids (audio files named after them), modes as config (a new `listen` mode), and the `readings` field flags the multi-reading words whose pinyin may need an HSK-correct override.
 

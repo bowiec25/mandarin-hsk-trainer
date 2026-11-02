@@ -120,8 +120,15 @@ def test_length_is_counted_on_accepted_answer_not_typed_answer():
 # Failure modes
 
 
-@pytest.mark.parametrize("answer", ["", "   ", "!!!", "to", "the"])
-def test_blank_or_only_punctuation_or_ignored_words_is_wrong(answer):
+@pytest.mark.parametrize("answer", ["", "   ", "!!!"])
+def test_blank_or_only_punctuation_is_wrong(answer):
+    result = grade(answer, ["to love"])
+    assert result.correct is False
+    assert result.matched is None
+
+
+@pytest.mark.parametrize("answer", ["to", "the"])
+def test_lone_ignored_word_does_not_match_a_longer_answer(answer):
     result = grade(answer, ["to love"])
     assert result.correct is False
     assert result.matched is None
@@ -246,13 +253,21 @@ def test_settings_are_frozen():
 
 
 def test_accepted_answer_empty_once_clean_is_dropped():
-    result = grade("hate", ["the", "to love"])
+    result = grade("hate", ["!!!", "to love"])
     assert result.expected == ["love"]
 
 
 def test_all_accepted_answers_empty_once_clean_raises_value_error():
     with pytest.raises(ValueError):
-        grade("love", ["the", "to", "!!!"])
+        grade("love", ["!!!", "...", "  "])
+
+
+def test_lone_ignored_word_is_kept_as_a_real_answer():
+    """A dictionary meaning can be just "to" (e.g. a preposition): typing it counts."""
+    result = grade("to", ["to", "to give"])
+    assert result.correct is True
+    assert result.matched == "to"
+    assert result.expected == ["to", "give"]
 
 
 def test_multi_word_length_counts_spaces():

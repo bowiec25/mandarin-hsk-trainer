@@ -42,7 +42,7 @@ grade(answer, accepted, cleaner=None, settings=GradeSettings()) -> Grade
 
 Length is counted on the **clean accepted answer** (after normalising), not on what was typed: all its characters, spaces between words included ("ice cream" = 9).
 
-**"Clean" text** means fully normalised: NFKC, casefolded, punctuation removed, spaces collapsed, one leading ignored word removed. `"Love!"` and `"to love"` both become `"love"`. An accepted answer that is empty once clean (e.g. `"the"`) is dropped, just like one the cleaner drops.
+**"Clean" text** means fully normalised: NFKC, casefolded, punctuation removed, spaces collapsed, one leading ignored word removed **only when more words follow**. `"Love!"` and `"to love"` both become `"love"`, but a lone `"to"` stays `"to"` (real case: 给 has the meaning "to"). An accepted answer that is empty once clean (e.g. `"!!!"`) is dropped, just like one the cleaner drops.
 
 ## Outputs
 One `Grade` (pydantic, frozen), returned in memory. Nothing is saved to a file. `matched` and `expected` hold **clean** text (see Inputs); `expected` keeps first-seen order.
@@ -63,7 +63,8 @@ One `Grade` (pydantic, frozen), returned in memory. Nothing is saved to a file. 
 ## Failure modes
 | Situation | What it does |
 |---|---|
-| Blank answer, or only punctuation / ignored words ("to") | Marks it **wrong** (`correct=False`), no crash |
+| Blank answer, or only punctuation | Marks it **wrong** (`correct=False`), no crash |
+| A lone ignored word typed ("to") | A normal answer: wrong unless "to" is accepted (or within typo reach, e.g. "the" for "then") |
 | `accepted` is empty, or the cleaner drops *every* answer | **Raises `ValueError`**: a card nobody can answer is a data bug, so it must be loud |
 | The cleaner raises | The error is passed through (a cleaner bug must not be hidden) |
 | The cleaner returns a plain string instead of a list (`"rice"` not `["rice"]`) | **Raises `TypeError`** (otherwise it would silently split into letters) |
@@ -75,7 +76,7 @@ One `Grade` (pydantic, frozen), returned in memory. Nothing is saved to a file. 
 ## How to test
 Automatic tests in `tests/blocks/test_grader.py` (English and toy data only, to prove the grader is generic; the one exception is Chinese *typed* as an odd input, from Failure modes):
 - **Pass:** `"love"`, `"Love!"`, `"to love"`, `" love "`, `"loev"` (typo) for `["to love"]`
-- **Fail:** `"hate"`, `""`, `"to"`; short words stay strict (`"eat"` for `["cat"]`)
+- **Fail:** `"hate"`, `""`, `"!!!"`; `"to"` for `["to love"]`; short words stay strict (`"eat"` for `["cat"]`)
 - **Typo limits by length:** 0 / 1 / 2, including one over each limit
 - **Cleaner:** one answer → several; one → `[]` (dropped); all dropped → `ValueError`
 - **Exact match beats typo match**; `expected` has no duplicates

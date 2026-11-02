@@ -58,12 +58,13 @@ class Grade(BaseModel):
 
 def clean(text: str, settings: GradeSettings) -> str:
     """Normalise text for comparing: NFKC, casefold, no punctuation, single spaces,
-    and one leading ignored word ("to love" -> "love")."""
+    and one leading ignored word if more words follow ("to love" -> "love",
+    but a lone "to" stays "to")."""
     text = unicodedata.normalize("NFKC", text).casefold()
     text = _APOSTROPHES.sub("", text)
     words = _PUNCTUATION.sub(" ", text).split()
     ignored = {w.casefold() for w in settings.ignore_leading}
-    if words and words[0] in ignored:
+    if len(words) > 1 and words[0] in ignored:  # a lone "to" is a real answer
         words = words[1:]
     return " ".join(words)
 
