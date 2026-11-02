@@ -478,13 +478,15 @@ You now have: decision records, data shapes, hooks and permissions, the `/new-bl
 | Trigger | CLAUDE.md rule + PR checkbox (🔵) | Runs by itself (🟠) |
 
 **What happened:**
-1. You ran `/install-github-app`: it installed the Claude app, saved a **subscription token** as a GitHub secret (`CLAUDE_CODE_OAUTH_TOKEN`), and opened PR #18 with 2 workflow files. You merged it. CI and the first `claude-review` run were both green.
-2. I read the 2 files: `claude-code-review.yml` runs the same `/code-review` skill on GitHub and comments on the PR's lines. `claude.yml` answers `@claude`, and it can only read and comment, not push code (a safe default).
+1. You ran `/install-github-app`: it installed the Claude app, saved a **subscription token** as a GitHub secret (`CLAUDE_CODE_OAUTH_TOKEN`), and opened PR #18 with 2 workflow files. You merged it. CI was green. The `claude-review` check was green too, **but it had skipped**: the log says the workflow file must already be on `main` before it runs. Green is not the same as reviewed.
+2. I read the 2 files: `claude-code-review.yml` runs a code-review **plugin** (`code-review@claude-code-plugins`) on GitHub and comments on the PR's lines. It's a cousin of the local `/code-review` skill, not the identical thing. `claude.yml` answers `@claude`. (I first told you it could only read and comment. The local review showed that's wrong: it uses the Claude app's own permissions, which may include pushing a branch. Protected `main` still stops it reaching `main`.)
 3. Wired in the triggers: CLAUDE.md rule, PR-template checkbox, playbook section 13, strictness table rows.
 4. Build map: code review is now solid in all three places (section 1, View A, the journey).
 
 **Good to know:**
 - **Review is advice, not a gate.** It can't block a merge. CI + protected `main` are the gates.
-- ⚠️ **The token expires after 1 year:** renew by 2027-11 (noted in PLAN.md).
+- ⚠️ **The token expires after 1 year:** renew before 2027-10-15 (noted in PLAN.md).
+- **First live test of `/code-review` (local), before the PR:** 10 findings. The real ones: 2 wrong claims in my docs ("read and comment only", "the same skill"), a vague renewal date, a stale COURSE_MAP row. All fixed. Ideas for the workflow files (stop duplicate runs, check that the review can fetch the PR) go in a **separate PR**, because changing a workflow makes its own review skip.
+- **Not fixed, with reason:** outsiders can't spend the token with `@claude`, because the action checks that the commenter has write access to the repo. Fork PRs get no review (GitHub hides secrets from forks); fine for a solo repo.
 - `/code-review` is **built into** Claude Code, so there was nothing to install, only a trigger to add.
 

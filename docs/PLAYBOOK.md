@@ -403,7 +403,7 @@ issue → plan mode → branch → small commits → PR → CI ✅ → squash-me
 
 ## 13. 🤖 Code review: a second pair of eyes on every change
 
-**Plain meaning:** Claude reads the change like a careful teacher and hunts for bugs that **no test was written for**. Two copies of the same reviewer, in two places:
+**Plain meaning:** Claude reads the change like a careful teacher and hunts for bugs that **no test was written for**. Two cousins of the same reviewer, in two places (the GitHub one is a plugin, `code-review@claude-code-plugins`):
 
 | | `/code-review` (local) | Claude GitHub app (automatic) |
 |---|---|---|
@@ -413,12 +413,15 @@ issue → plan mode → branch → small commits → PR → CI ✅ → squash-me
 | Where findings go | The chat (or PR comments with `--comment`) | Comments on the PR's lines |
 | Can it block a merge? | No | No (unless you make it a required check) |
 
-Also: write **`@claude`** in any PR or issue comment to ask the GitHub app a question. In our setup it can only **read and comment**, not push code.
+Also: write **`@claude`** in any PR or issue comment to ask the GitHub app a question. It works with the Claude app's own permissions, so it **may push a branch**. Protected `main` is what stops it reaching `main`.
 
 💬 **Ask Claude:** *"Add code review: a CLAUDE.md rule to run `/code-review` before every PR, a PR-template checkbox, and set up the Claude GitHub app."* Then **you** type `/install-github-app` (it opens the browser), pick both workflows and your subscription.
 📍 **Where:** `.github/workflows/claude-code-review.yml` + `claude.yml`, secret `CLAUDE_CODE_OAUTH_TOKEN` (GitHub → Settings → Secrets), rule in `CLAUDE.md`, checkbox in the PR template.
 ⚠️ **Watch out:**
-- **The subscription token expires after 1 year.** Put a renewal date in your plan (here: by 2027-11). When it expires, the review job fails.
+- **The subscription token expires after 1 year.** Put an exact renewal date **before** expiry in your plan (here: before 2027-10-15). When it expires, the review job fails, and since review is advice-only, nobody may notice.
+- **Green ≠ reviewed.** The review only runs once its workflow file on the branch matches `main`. The first run (the install PR itself) and any PR that edits the workflow show green but **skip**. Check the run log once.
+- **Change the workflow in its own PR.** Otherwise you lose the review on your real changes.
+- **Fork PRs get no review** (GitHub hides secrets from forks). `@claude` only works for people with write access.
 - **Never paste the token in chat.** The installer saves it as a GitHub secret.
 - **Review is advice, not a gate.** Tests + CI + protected `main` are the gates. You decide which comments matter.
 - **The `/install-github-app` PR is quick to merge**, but read its files first: check what permissions the workflows get.

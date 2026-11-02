@@ -235,7 +235,7 @@ a { color: var(--info); }
         <div class="item guide"><b>subagent: test-writer</b>writes tests from the SPEC only<small>after the SPEC, before code</small></div>
         <div class="item guide"><b>subagent: block-reviewer</b>fresh, read-only eyes on one block<small>before a block PR, until ✅</small></div>
         <div class="item guide"><b>skill: /code-review</b>built in; hunts for bugs in the change<small>before every PR · CLAUDE.md rule</small></div>
-        <div class="item auto"><b>Claude GitHub app</b>reviews every PR; answers <code>@claude</code><small>on GitHub · read + comment only</small></div>
+        <div class="item auto"><b>Claude GitHub app</b>reviews every PR; answers <code>@claude</code><small>on GitHub · comments; may push a branch</small></div>
       </div>
     </div>
     <div class="layer">
@@ -244,7 +244,7 @@ a { color: var(--info); }
         <div class="item guide"><b>tests/ (pytest)</b>123 tests, run before "done"<small>Claude + CI</small></div>
         <div class="item guide"><b>ruff</b>lint + format check<small>Claude + CI</small></div>
         <div class="item auto"><b>CI: ci.yml</b>same checks on a clean machine<small>every push and PR</small></div>
-        <div class="item auto"><b>claude-code-review.yml</b>runs the Claude review on GitHub<small>every PR · token renew by 2027-11</small></div>
+        <div class="item auto"><b>claude-code-review.yml</b>runs the Claude review on GitHub<small>every PR · renew token before 2027-10-15</small></div>
         <div class="item hard"><b>protected main</b>PR + green CI required, admins too<small>GitHub setting</small></div>
         <div class="item guide"><b>PR template</b>What / Why / How tested + reviewer verdict<small>every PR</small></div>
       </div>
@@ -357,7 +357,7 @@ a { color: var(--info); }
 <path class="ar next" d="M1398,25 V-10 H188 V25" marker-end="url(#fnext)"/>
 <text class="next-t" x="700" y="-15" text-anchor="middle">merged → the next step starts at 1</text>
     </svg>
-      <figcaption>Read left to right. Each lane is one "who". The two red loops are where problems get caught early: failing checks, and the reviewer's issues. Both send the work back to 6. Box 9 and the Claude review on GitHub were added in Step 1c: the same reviewer, before and after the PR. Not every step uses every box: a docs-only step skips 3–5 and 8.</figcaption>
+      <figcaption>Read left to right. Each lane is one "who". The two red loops are where problems get caught early: failing checks, and the reviewer's issues. Both send the work back to 6. Box 9 and the Claude review on GitHub were added in Step 1c: two cousins of one reviewer: the local skill before the PR, a review plugin on GitHub after it. Not every step uses every box: a docs-only step skips 3–5 and 8.</figcaption>
     </figure>
     <figure class="card diagram fl">
       <h3>View B · What the app does with the words (the product)</h3>
@@ -749,7 +749,7 @@ a { color: var(--info); }
 </section>
 
 <footer>
-  Latest map, after M3 Step 1c, 2026-11-02. There are no snapshots from before M2 done (the map started then). Known gaps, by choice: words with several readings keep all of them (197 words), "bands 1+2 together" comes later, listening practice is a "Future (not v1)" note in PLAN.md. Reminder: the Claude review token expires after 1 year (renew by 2027-11).
+  Latest map, after M3 Step 1c, 2026-11-02. There are no snapshots from before M2 done (the map started then). Known gaps, by choice: words with several readings keep all of them (197 words), "bands 1+2 together" comes later, listening practice is a "Future (not v1)" note in PLAN.md. Reminder: the Claude review token expires after 1 year (renew before 2027-10-15). Green on GitHub is not the same as reviewed.
 </footer>
 
 </main>
