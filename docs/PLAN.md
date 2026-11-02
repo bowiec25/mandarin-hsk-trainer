@@ -38,11 +38,10 @@
   - [x] 1. Stronger "Still the right thing?" (user's ask: don't stay wedded to the original plan): required field in a GitHub **issue form**, a section in the **PR template**, and a **CI check** that fails a PR with that section empty (`.github/scripts/check_pr_body.py`, 22 tests). It runs inside the required `check` job, so protected `main` enforces it. Re-check of M4: the answer agent now comes **before** `sentence_writer` (it fixes the play-test problem and is a smaller first agent)
   - [x] 2. **ADR 0005**: grading = two layers. (1) an **answer list** written once by an offline batch agent, checked by a script, spot-checked, committed; (2) a **Claude judge** asked only when the list says "wrong", verdicts cached. Both call Claude via `claude -p` (**subscription**, no API key; tested: ~8 s a call, reports tokens). Still-the-right-thing change: the user spotted that sentence translation can't use a fixed list, so the judge (planned for M5) moves into M4
   - [x] 3. `answer_writer` agent + validator → `data/generated/answers.jsonl` (all 978; 25 `claude -p` calls, ~148k tokens; the checker caught 9, re-runs fixed them; trial of 20 + random spot-check of 20 approved: "a bit generous is fine"). Shared `quizkit.claude.ask_claude` helper (no tools, empty folder). 2 block-reviewer rounds → ✅. The quiz plugs the file in at Step 4
-  - [ ] 4. Judge: a generic slot in `quizkit` + the HSK judge (`claude -p`), cache, `--no-judge`; the quiz reads `answers.jsonl` (+ cedict_cleaner answers). Carry-over from the Step 3 review: when the prompt version changes, keep old answer lines until they're replaced (today they're dropped first, fine while nothing reads the file)
+  - [ ] 4a. **One answer list** (issue #33, ADR 0006; changed from ADR 0005 after measuring: the old cleaner list added 1,434 mostly-junk answers like 猫 "modem"). The quiz reads only `answers.jsonl`; delete `cedict_cleaner` and the unused `cleaner` slot; `cards.jsonl` calls the dictionary text `meanings`. Carry-over from the Step 3 review: when the prompt version changes, keep old answer lines until they're replaced
+  - [ ] 4b. Judge: a generic slot in `quizkit` + the HSK judge (`claude -p`), cache, `--no-judge`
   - [ ] 5. `sentence_writer` + `sentence_validator` (unlocks `char_sentence`, `full`)
-  - [ ] 6. `data-auditor` subagent
-  - [ ] `data-auditor` subagent (moved from M1: needs real sentences to test against)
-  - [ ] **Answer agent** (user's call, 2026-11-02): an offline batch agent writes each card's clean answer list *with synonyms* ("father, dad, papa"); a script validates it; the user spot-checks; committed as a file. Replaces the M3 rule-based `cedict_cleaner` (a stopgap). Needs a new ADR
+  - [ ] 6. `data-auditor` subagent (moved from M1: needs real sentences to test against)
 - [ ] M5 Learning smarts
 - [ ] M6 Web UI
 

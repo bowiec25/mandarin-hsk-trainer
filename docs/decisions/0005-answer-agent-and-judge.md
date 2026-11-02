@@ -1,6 +1,6 @@
 # 0005: Answer list + Claude judge, run under the Claude subscription
 
-- **Status:** Accepted (2026-11-02)
+- **Status:** Accepted (2026-11-02); partly superseded by [0006](0006-one-answer-list.md) (one answer list: the quiz no longer adds the `cedict_cleaner` answers)
 - **In plain words:** grading gets two layers. **1. An answer list**: Claude writes, once and ahead of time, the English answers a learner might type for each word ("father, dad, papa"); a script checks the list and it's committed. **2. A Claude judge**: only when the list says "wrong", the quiz asks Claude "is this answer right?" and saves the verdict so it never asks twice. Both call Claude through `claude -p` (Claude Code run from a script), so they run under your subscription, not a paid API key.
 
 ## Context
