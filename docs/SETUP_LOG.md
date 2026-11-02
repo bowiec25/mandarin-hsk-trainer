@@ -464,4 +464,30 @@ You now have: decision records, data shapes, hooks and permissions, the `/new-bl
 - **New section 3, "The journey of one change":** 11 boxes in order, from plan to merge, each naming the tool that does the job. **Code review is shown as a dashed gap**: it was in the plan but never set up.
 - **Snapshots:** `docs/build-map/snapshots/` keeps a frozen copy after each step (`m2-done`, `m3-step1`, `m3-step1b`), linked from "How it grew". The map moved to `docs/build-map/index.html`.
 - **Subagent vs agent:** a subagent is a helper *inside Claude Code* while we build (test-writer, block-reviewer). An agent is *part of the app*: Python that calls the Claude API by itself. The first one is `sentence_writer` in M4.
+- **Later the same day, flow diagrams:** a new section 2 with three views. **A** = how one step gets built, in lanes (you, Claude, helpers, your computer, GitHub), with the red "fail → go back" loops. **B** = what the app does with the words (built now vs planned). **C** = one Claude action up close: hook → permission rules → tool → format hook. Before publishing, I checked them with a headless-browser screenshot. That caught overlapping labels and odd number symbols, which I fixed.
 - **Watch-out:** the `.env` hook blocked two shell commands just because their text mentioned `.env`. That's the hook doing its job. The fix: write the text with the Write/Edit tools, or put the script in a file and run that.
+
+## M3 Step 1c: Code review, two layers (2026-11-02)
+
+> **In plain words:** a second pair of eyes on every change. Claude reads the change like a careful teacher and hunts for bugs nobody wrote a test for. It was in the plan since M1 but never wired in (a tool without a trigger), so you spotted a real gap.
+
+| | `/code-review` | Claude GitHub app |
+|---|---|---|
+| Like | A friend proofreading before you hand in | The teacher who reads every essay handed in |
+| Where / when | Here, before the PR | On GitHub, every PR + every push |
+| Trigger | CLAUDE.md rule + PR checkbox (🔵) | Runs by itself (🟠) |
+
+**What happened:**
+1. You ran `/install-github-app`: it installed the Claude app, saved a **subscription token** as a GitHub secret (`CLAUDE_CODE_OAUTH_TOKEN`), and opened PR #18 with 2 workflow files. You merged it. CI was green. The `claude-review` check was green too, **but it had skipped**: the log says the workflow file must already be on `main` before it runs. Green is not the same as reviewed.
+2. I read the 2 files: `claude-code-review.yml` runs a code-review **plugin** (`code-review@claude-code-plugins`) on GitHub and comments on the PR's lines. It's a cousin of the local `/code-review` skill, not the identical thing. `claude.yml` answers `@claude`. (I first told you it could only read and comment. The local review showed that's wrong: it uses the Claude app's own permissions, which may include pushing a branch. Protected `main` still stops it reaching `main`.)
+3. Wired in the triggers: CLAUDE.md rule, PR-template checkbox, playbook section 13, strictness table rows.
+4. Build map: code review is now solid in all three places (section 1, View A, the journey).
+
+**Good to know:**
+- **Review is advice, not a gate.** It can't block a merge. CI + protected `main` are the gates.
+- ⚠️ **The token expires after 1 year:** renew before 2027-10-15 (noted in PLAN.md).
+- **First live test of `/code-review` (local), before the PR:** 10 findings. The real ones: 2 wrong claims in my docs ("read and comment only", "the same skill"), a vague renewal date, a stale COURSE_MAP row. All fixed. Ideas for the workflow files (stop duplicate runs, check that the review can fetch the PR) go in a **separate PR**, because changing a workflow makes its own review skip.
+- **Not fixed, with reason:** outsiders can't spend the token with `@claude`, because the action checks that the commenter has write access to the repo. Fork PRs get no review (GitHub hides secrets from forks); fine for a solo repo.
+- `/code-review` is **built into** Claude Code, so there was nothing to install, only a trigger to add.
+- **First real GitHub review run (PR #19):** it really ran this time (no skip), but Claude finished in **3 seconds, 2 turns, 0 comments**, and its output is hidden in the log. A real review of this diff would take minutes. So it's **installed but not proven**. Next (Step 1d): a test PR with a **planted bug** to see if it catches it, then fix the workflow file in its own PR.
+
