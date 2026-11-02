@@ -56,8 +56,11 @@ def run(src: Path = DEFAULT_SRC, dest: Path = DEFAULT_DEST) -> list[Card]:
     lines = "".join(
         json.dumps(c.model_dump(), ensure_ascii=False) + "\n" for c in cards
     )
-    dest.parent.mkdir(parents=True, exist_ok=True)
-    write_atomically(dest, lines.encode("utf-8"))
+    try:
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        write_atomically(dest, lines.encode("utf-8"))
+    except OSError as err:  # disk full, no permission...
+        raise NormalizeError(f"{dest.name}: could not save ({err})") from err
     return cards
 
 
@@ -74,45 +77,64 @@ def _load_words(file: Path) -> list:
 
 
 def _to_card(raw: dict, band: int, file: Path) -> Card:
-    hanzi = str(raw.get("simplified") or "").strip()
+    simplified = raw.get("simplified")
+    hanzi = simplified.strip() if isinstance(simplified, str) else ""
 
     def fail(problem: str) -> NormalizeError:
         return NormalizeError(f"{file.name}: word {hanzi!r} (band {band}) {problem}")
 
     if not hanzi:
         raise fail("has no characters")
-    forms = raw.get("forms") or []
+    forms = raw.get("forms")
     if not forms:
         raise fail("has no readings")
+    pos = raw.get("pos") or []  # may be empty: 11 real words have none
+    if not isinstance(forms, list) or not _is_str_list(pos):
+        raise fail("is malformed (forms must be a list, pos a list of text)")
 
     readings: list[str] = []
     answers: list[str] = []
-    try:
-        for form in forms:
-            pinyin = str(form["transcriptions"]["pinyin"]).strip()
-            if not pinyin:
-                raise fail("has a reading with blank pinyin")
-            if pinyin not in readings:
-                readings.append(pinyin)
-            for meaning in form["meanings"]:  # list of strings
-                for part in split_meaning(str(meaning)):
-                    if part not in answers:
-                        answers.append(part)
-    except (KeyError, TypeError):
-        raise fail("has a malformed reading")
+    for form in forms:
+        pinyin = _get(form, "transcriptions", "pinyin")
+        meanings = _get(form, "meanings")
+        if not isinstance(pinyin, str) or not _is_str_list(meanings):
+            raise fail(
+                "has a malformed reading (pinyin must be text, meanings a list of text)"
+            )
+        if not pinyin.strip():
+            raise fail("has a reading with blank pinyin")
+        if pinyin.strip() not in readings:
+            readings.append(pinyin.strip())
+        for meaning in meanings:
+            for part in split_meaning(meaning):
+                if part not in answers:
+                    answers.append(part)
     if not answers:
         raise fail("has no meanings")
 
     fields = {
         "hanzi": hanzi,
         "pinyin": " / ".join(readings),
-        "pos": ", ".join(raw.get("pos") or []),
+        "pos": ", ".join(pos),
         "readings": str(len(readings)),
     }
     try:
         return Card(id=hanzi, fields=fields, answers=answers, level=band)
     except ValidationError as err:
         raise fail(f"can't become a card ({err})") from None
+
+
+def _get(obj: object, *keys: str) -> object:
+    """Follow nested keys, or return None if any step isn't a dict / key is missing."""
+    for key in keys:
+        if not isinstance(obj, dict):
+            return None
+        obj = obj.get(key)
+    return obj
+
+
+def _is_str_list(value: object) -> bool:
+    return isinstance(value, list) and all(isinstance(v, str) for v in value)
 
 
 def split_meaning(text: str) -> list[str]:

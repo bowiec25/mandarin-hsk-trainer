@@ -35,8 +35,10 @@ script: it only reshapes data (no language judgment), and code can check every c
 All errors are a `NormalizeError` (defined in this block) whose message names the file, and the word and `band N` where there is one. On any error nothing is written.
 - A raw file is missing, isn't valid JSON, or isn't a list of words → error naming the file
 - A word has no characters, no readings (`forms` empty), a reading with blank pinyin, or no non-blank meanings → error naming the word and band (bad data never slips through silently)
+- A word's data has the wrong shape (e.g. `meanings` is text instead of a list, a missing key, a `null`) → error naming the word and band
 - The same word appears twice (in one band or across bands) → error, since ids must be unique
 - Output folder missing → create it
+- The output can't be saved (disk full, no permission) → error naming the output file
 - Never leave a half-written `cards.jsonl`: write to a temp file first, then swap it in (an old good file stays if anything fails)
 
 ## How to test

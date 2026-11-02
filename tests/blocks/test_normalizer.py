@@ -259,10 +259,55 @@ def test_word_missing_data_raises_error_naming_word_and_band(tmp_path, bad):
     with pytest.raises(block.NormalizeError) as err:
         normalize(tmp_path, {1: [AI], 2: [bad], 3: [SHUO]}, dest=dest)
     msg = str(err.value)
-    assert "band 2" in msg
+    assert "band 2" in msg and "2.json" in msg
     if bad["simplified"]:
         assert "坏" in msg
     assert not dest.exists()
+
+
+@pytest.mark.parametrize(
+    "bad",
+    [
+        word("坏", [{"meanings": ["bad"]}]),  # no transcriptions key
+        word("坏", [{"transcriptions": {"pinyin": "huài"}}]),  # no meanings key
+        word("坏", [form("huài", "bad")]),  # meanings is text, not a list
+        word("坏", [form(None, ["bad"])]),  # pinyin is null
+        word("坏", [form("huài", [None])]),  # a meaning is null
+        word("坏", [form("huài", ["bad"])], pos="vn"),  # pos is text, not a list
+    ],
+    ids=[
+        "no-transcriptions",
+        "no-meanings-key",
+        "meanings-text",
+        "pinyin-null",
+        "meaning-null",
+        "pos-text",
+    ],
+)
+def test_wrong_shaped_word_raises_error_naming_word_and_band(tmp_path, bad):
+    """Bad data never slips through silently (no letters-as-answers, no 'None')."""
+    dest = tmp_path / "out" / "cards.jsonl"
+    with pytest.raises(block.NormalizeError, match=r"2\.json.*坏.*band 2"):
+        normalize(tmp_path, {1: [AI], 2: [bad], 3: [SHUO]}, dest=dest)
+    assert not dest.exists()
+
+
+def test_save_failure_raises_normalize_error(tmp_path, monkeypatch):
+    """Disk full / no permission → a clear NormalizeError, not a raw OSError."""
+
+    def disk_full(dest, data):
+        raise OSError("disk full")
+
+    monkeypatch.setattr(block, "write_atomically", disk_full)
+    with pytest.raises(block.NormalizeError, match="cards.jsonl"):
+        normalize(tmp_path)
+
+
+def test_non_utf8_file_raises_error_naming_file(tmp_path):
+    src = write_raw(tmp_path / "raw")
+    (src / "1.json").write_bytes(b"\xff\xfe\x00bad")
+    with pytest.raises(block.NormalizeError, match=r"1\.json"):
+        block.run(src=src, dest=tmp_path / "out" / "cards.jsonl")
 
 
 def test_raw_file_not_a_list_raises_error_naming_file(tmp_path):
