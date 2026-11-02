@@ -550,3 +550,17 @@ You now have: decision records, data shapes, hooks and permissions, the `/new-bl
 - **The secrets-file hook fired in both sessions:** the engine session's `gh pr create` and my own log entry were blocked because their text mentioned the secrets file. Same fix both times: write the text with the Write/Edit tools (and `--body-file` for PRs). The safety net works in every session, because it's in git.
 - **Parallel work paid off:** two blocks reviewed and merged in about the time of one. The cost: an extra terminal to manage, a starter prompt, and one "update from main" step.
 - **Carry to Step 5 (CLI):** Ctrl-C or end-of-input must become a quit, or the score so far is lost.
+
+## M3 Step 5: The CLI, the first playable quiz (2026-11-02)
+
+> **In plain words:** you can now study: `uv run hsk quiz --band 1 --mode char --n 10` shows 10 band-1 words, you type the English, it marks each one and gives a score.
+
+1. **"Still the right thing?"** Yes, with three changes: only `char` and `char_pinyin` can run (the sentence modes need M4 sentences, so the CLI refuses them politely); Chinese output on Windows needed care; and the two Step 4 carry-overs went in here (Ctrl-C keeps the score, short decks say so).
+2. **Typer** (`uv add typer`): it gives `--help` for free and a test helper, `CliRunner`, that types fake answers into the program.
+3. **Not a block.** The CLI does no reusable job; it's the dashboard that wires the blocks to your keyboard. So no SPEC / test-writer / block-reviewer, but it has its own tests (`tests/test_cli.py`, 31) and `/code-review` still ran.
+4. **New generic helper:** `quizkit.files.load_cards(path)` reads a `cards.jsonl`. The shared test setup now uses it, and the Step 6 capitals quiz will too.
+
+**Good to know:**
+- **Tests caught three real bugs before review:** wrong answers showed "havent" (the grader's matching form, not for people); piping the output crashed on 爱 (Windows' old code page, fixed by forcing UTF-8, checked by running it with and without the fix); and the cards file was only found from the project folder.
+- **`/code-review` ran in the background** and found 8 things. Fixed 6: the typo message still showed "havent"; on Windows a Ctrl-C can arrive *just after* typing and lose the score (now the whole loop catches it, so the CLI drives `QuizSession` itself instead of `run_quiz`); a broken cards file printed a traceback; the "run the normalizer" hint was wrong from other folders; a slow test search; near-duplicate answers shown. Skipped 2, with reasons in the PR (installed-package paths; the test helper copying the deck logic on purpose).
+- **Each fix was proved:** running the new tests against the old CLI made 5 of them fail.

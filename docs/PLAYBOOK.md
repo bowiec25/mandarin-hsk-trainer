@@ -198,6 +198,10 @@ Some of these **physically stop** a mistake. Others are just **instructions or h
 **Tips:**
 - **Scan the real data before you design.** A 20-line throwaway script that counts the clutter types turns guesses into a table (M3 Step 2: 354 answers start with "to ", only 2 cards are truly stuck).
 - **Test blocks together on the real data, not just alone on toy examples.** Running cleaner + grader over all 978 cards found a bug neither block's own tests could (给 = "to" got stripped to nothing).
+- **Test interactive programs with scripted typing.** Typer's `CliRunner` (or feeding text to stdin) plays the whole program in a test: answers, quitting, errors. No real keyboard needed.
+- **Prove a fix's test fails without the fix.** Run the new test against the old code once (`git stash` the fix). If it passes there, it isn't testing the bug.
+- **Windows + Chinese: force UTF-8 output.** Printing 爱 through a pipe crashes on Windows (old code page). Call `sys.stdout.reconfigure(encoding="utf-8")` at start-up, and keep one test that runs the real program through a pipe.
+- **Show people the original words, not the computer's matching form.** The grader compares "havent"; the screen must say "haven't".
 - **Rules vs judgment:** if hand-written rules keep growing to cover messy language, that's a sign the job wants an agent (offline, validated by a script). Rules can be a stopgap to ship sooner.
 
 ---
