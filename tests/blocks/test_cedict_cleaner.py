@@ -41,17 +41,11 @@ def test_inputs_and_outputs_match_spec():
 # Called as block.clean_answer (not imported at the top), so the contract tests above
 # still run before the block is built.
 
-CARDS_JSONL = Path(__file__).parents[2] / "data" / "processed" / "cards.jsonl"
 HANZI = re.compile(r"[㐀-鿿]")
 
 
 def clean(meaning: str) -> list[str]:
     return block.clean_answer(meaning)
-
-
-def load_cards() -> list[Card]:
-    with CARDS_JSONL.open(encoding="utf-8") as f:
-        return [Card.model_validate_json(line) for line in f if line.strip()]
 
 
 # Rule 1: drop meanings that aren't the HSK meaning
@@ -227,9 +221,9 @@ def test_always_returns_a_list_of_strings(meaning):
     assert all(isinstance(r, str) for r in result)
 
 
-def test_real_meanings_give_clean_unique_nonblank_results():
+def test_real_meanings_give_clean_unique_nonblank_results(real_cards):
     """Every meaning in the 978 cards: no brackets, no Chinese, no blanks, no dupes."""
-    for card in load_cards():
+    for card in real_cards:
         for meaning in card.answers:
             result = clean(meaning)
             assert isinstance(result, list), (card.id, meaning)
@@ -243,28 +237,26 @@ def test_real_meanings_give_clean_unique_nonblank_results():
 # Real data: all 978 cards
 
 
-def test_cards_file_has_978_cards():
-    assert len(load_cards()) == 978
+def test_cards_file_has_978_cards(real_cards):
+    assert len(real_cards) == 978
 
 
-def test_every_card_keeps_at_least_one_answer():
-    empty = [
-        card.id for card in load_cards() if not any(clean(m) for m in card.answers)
-    ]
+def test_every_card_keeps_at_least_one_answer(real_cards):
+    empty = [card.id for card in real_cards if not any(clean(m) for m in card.answers)]
     assert empty == [], f"cards with no typeable answer: {empty}"
 
 
-def test_grader_accepts_first_clean_answer_of_every_card():
+def test_grader_accepts_first_clean_answer_of_every_card(real_cards):
     wrong = []
-    for card in load_cards():
+    for card in real_cards:
         first = next(r for m in card.answers for r in clean(m))
         if not grade(first, card.answers, cleaner=block.clean_answer).correct:
             wrong.append((card.id, first))
     assert wrong == []
 
 
-def card_by_id(card_id: str) -> Card:
-    return next(c for c in load_cards() if c.id == card_id)
+def card_by_id(cards: list[Card], card_id: str) -> Card:
+    return next(c for c in cards if c.id == card_id)
 
 
 @pytest.mark.parametrize(
@@ -278,11 +270,11 @@ def card_by_id(card_id: str) -> Card:
         ("百", "hundred"),
     ],
 )
-def test_spot_check_accepted(card_id, typed):
-    card = card_by_id(card_id)
+def test_spot_check_accepted(real_cards, card_id, typed):
+    card = card_by_id(real_cards, card_id)
     assert grade(typed, card.answers, cleaner=block.clean_answer).correct
 
 
-def test_spot_check_bai_surname_not_accepted():
-    card = card_by_id("百")
+def test_spot_check_bai_surname_not_accepted(real_cards):
+    card = card_by_id(real_cards, "百")
     assert not grade("Bai", card.answers, cleaner=block.clean_answer).correct
