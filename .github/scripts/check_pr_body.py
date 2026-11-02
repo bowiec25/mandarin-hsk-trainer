@@ -17,10 +17,11 @@ def section_text(body: str) -> str | None:
     """The text under the heading (up to the next ## heading), or None if absent."""
     lines = body.replace("\r\n", "\n").split("\n")
     for i, line in enumerate(lines):
-        if line.strip().lower() == HEADING.lower():
+        title = line.strip().lstrip("#").strip().lower()
+        if line.strip().startswith("#") and title.startswith("still the right thing"):
             rest = []
             for later in lines[i + 1 :]:
-                if later.startswith("## "):
+                if re.match(r"\s*#", later):  # any heading ends the section
                     break
                 rest.append(later)
             return "\n".join(rest)

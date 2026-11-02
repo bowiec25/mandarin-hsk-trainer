@@ -9,6 +9,11 @@ on:
     # "edited" = re-run when the PR description changes, so fixing it turns CI green.
     types: [opened, synchronize, reopened, edited]
 
+# A newer run (e.g. after editing the PR description) cancels the older one.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   check:
     runs-on: ubuntu-latest
