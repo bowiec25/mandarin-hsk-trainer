@@ -1,0 +1,978 @@
+{"id": "爱", "hanzi": "爱", "answers": ["love", "like", "be fond of", "affection", "enjoy"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "八", "hanzi": "八", "answers": ["eight", "8"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "爸爸", "hanzi": "爸爸", "answers": ["father", "dad", "papa", "daddy", "pa"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "吧", "hanzi": "吧", "answers": ["suggestion particle", "modal particle", "particle", "sentence final particle", "let's", "right", "okay", "i presume"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "白天", "hanzi": "白天", "answers": ["daytime", "during the day", "day", "in the daytime"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "百", "hanzi": "百", "answers": ["hundred", "one hundred", "100"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "半", "hanzi": "半", "answers": ["half", "half of", "semi", "and a half", "half an"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "包子", "hanzi": "包子", "answers": ["steamed stuffed bun", "steamed bun", "bao", "baozi", "stuffed bun", "filled bun"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "杯子", "hanzi": "杯子", "answers": ["cup", "glass", "mug", "tumbler"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "本", "hanzi": "本", "answers": ["measure word for books", "classifier for books", "volume", "book measure word", "measure word", "this", "root", "origin", "original"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "边", "hanzi": "边", "answers": ["side", "edge", "border", "boundary", "margin", "beside", "direction suffix", "at the same time"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "便宜", "hanzi": "便宜", "answers": ["cheap", "inexpensive", "low priced", "low cost", "cheaply priced"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "病", "hanzi": "病", "answers": ["illness", "disease", "sick", "sickness", "fall ill", "be ill", "ailment"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "不", "hanzi": "不", "answers": ["not", "no", "negation", "negative prefix", "un", "isn't", "don't"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "不客气", "hanzi": "不客气", "answers": ["you're welcome", "you are welcome", "don't mention it", "not at all", "no problem", "impolite", "rude"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "不要", "hanzi": "不要", "answers": ["don't", "do not", "must not", "don't want", "do not want", "no"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "菜", "hanzi": "菜", "answers": ["dish", "vegetable", "vegetables", "food", "cuisine", "course", "greens"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "茶", "hanzi": "茶", "answers": ["tea", "tea plant", "tea leaves"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "唱", "hanzi": "唱", "answers": ["sing", "chant", "sing a song"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "超市", "hanzi": "超市", "answers": ["supermarket", "super market", "grocery store", "market", "grocery"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "车", "hanzi": "车", "answers": ["car", "vehicle", "vehicles", "cars", "bus", "machine"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "吃", "hanzi": "吃", "answers": ["eat", "eat food", "have a meal", "consume"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "出租车", "hanzi": "出租车", "answers": ["taxi", "cab", "taxi cab"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "穿", "hanzi": "穿", "answers": ["wear", "put on", "dress", "wear clothes"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "打电话", "hanzi": "打电话", "answers": ["make a phone call", "call", "phone", "make a call", "call on the phone", "telephone", "ring"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "大", "hanzi": "大", "answers": ["big", "large", "great", "old", "elder", "eldest"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "大家", "hanzi": "大家", "answers": ["everyone", "everybody", "all", "all of you", "people"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "大学", "hanzi": "大学", "answers": ["university", "college"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "大学生", "hanzi": "大学生", "answers": ["university student", "college student", "undergraduate", "student"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "到", "hanzi": "到", "answers": ["arrive", "reach", "get to", "go to", "to", "until", "up to"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "的", "hanzi": "的", "answers": ["possessive particle", "of", "s", "structural particle", "particle", "possessive", "attributive particle"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "弟弟", "hanzi": "弟弟", "answers": ["younger brother", "little brother", "brother"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "第", "hanzi": "第", "answers": ["ordinal prefix", "ordinal marker", "ordinal number prefix", "prefix for ordinal numbers", "number prefix", "ordinal"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "点", "hanzi": "点", "answers": ["o'clock", "point", "dot", "order food", "a little", "spot", "order", "hour"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "电话", "hanzi": "电话", "answers": ["telephone", "phone", "phone call", "call", "phone number"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "电脑", "hanzi": "电脑", "answers": ["computer", "pc", "laptop"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "电视", "hanzi": "电视", "answers": ["television", "tv", "tv set"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "电影", "hanzi": "电影", "answers": ["movie", "film", "movies", "motion picture"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "电影院", "hanzi": "电影院", "answers": ["cinema", "movie theater", "movie theatre", "theater", "theatre", "movies"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "店", "hanzi": "店", "answers": ["shop", "store", "inn", "hotel"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "东西", "hanzi": "东西", "answers": ["thing", "stuff", "object", "things", "item", "goods"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "都", "hanzi": "都", "answers": ["all", "both", "already", "even", "entirely"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "读", "hanzi": "读", "answers": ["read", "read aloud", "study", "read out", "attend school", "pronounce"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "读书", "hanzi": "读书", "answers": ["study", "read", "read a book", "read books", "attend school", "go to school"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "对", "hanzi": "对", "answers": ["correct", "right", "yes", "toward", "towards", "to", "pair", "couple", "treat", "face"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "对不起", "hanzi": "对不起", "answers": ["sorry", "i'm sorry", "excuse me", "pardon me", "apologize", "i beg your pardon"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "多", "hanzi": "多", "answers": ["many", "much", "a lot", "more", "too many", "how", "a lot of"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "多少", "hanzi": "多少", "answers": ["how many", "how much", "what number", "number", "amount"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "儿子", "hanzi": "儿子", "answers": ["son"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "二", "hanzi": "二", "answers": ["two", "2"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "饭", "hanzi": "饭", "answers": ["meal", "cooked rice", "rice", "food"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "饭店", "hanzi": "饭店", "answers": ["restaurant", "hotel"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "房间", "hanzi": "房间", "answers": ["room"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "飞机", "hanzi": "飞机", "answers": ["airplane", "plane", "aeroplane", "aircraft"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "非常", "hanzi": "非常", "answers": ["very", "extremely", "really", "very much", "unusual", "extraordinary"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "分", "hanzi": "分", "answers": ["minute", "divide", "separate", "cent", "point", "one hundredth of a yuan"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "分钟", "hanzi": "分钟", "answers": ["minute", "minutes"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "高兴", "hanzi": "高兴", "answers": ["happy", "glad", "pleased", "delighted", "cheerful"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "哥哥", "hanzi": "哥哥", "answers": ["older brother", "elder brother", "big brother", "brother"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "歌", "hanzi": "歌", "answers": ["song", "sing", "songs"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "个", "hanzi": "个", "answers": ["measure word", "classifier", "general measure word", "general classifier", "individual", "piece"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "给", "hanzi": "给", "answers": ["give", "to", "for", "let", "allow", "provide", "supply"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "工作", "hanzi": "工作", "answers": ["work", "job", "task", "employment", "operate"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "公司", "hanzi": "公司", "answers": ["company", "firm", "corporation", "business"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "狗", "hanzi": "狗", "answers": ["dog"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "贵", "hanzi": "贵", "answers": ["expensive", "costly", "precious", "noble", "honorable", "your"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "国", "hanzi": "国", "answers": ["country", "nation", "state", "national"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "还", "hanzi": "还", "answers": ["still", "also", "yet", "even more", "in addition", "return", "give back", "pay back", "else", "fairly"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "孩子", "hanzi": "孩子", "answers": ["child", "kid", "children", "kids"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "汉语", "hanzi": "汉语", "answers": ["Chinese", "Chinese language", "Mandarin"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "汉字", "hanzi": "汉字", "answers": ["Chinese character", "Chinese characters", "character", "hanzi", "kanji"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "好", "hanzi": "好", "answers": ["good", "well", "fine", "nice", "ok", "okay", "all right", "very", "easy to"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "好吃", "hanzi": "好吃", "answers": ["delicious", "tasty", "good to eat", "yummy"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "好看", "hanzi": "好看", "answers": ["good-looking", "nice-looking", "pretty", "beautiful", "good to watch", "attractive", "nice to look at"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "好听", "hanzi": "好听", "answers": ["pleasant to hear", "nice to hear", "good to listen to", "sounds good", "melodious", "pleasant sounding"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "好玩儿", "hanzi": "好玩儿", "answers": ["fun", "amusing", "interesting", "enjoyable", "entertaining", "good to play"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "号", "hanzi": "号", "answers": ["number", "day of the month", "date", "size", "mark", "sign", "day", "ordinal number", "classifier for people"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "喝", "hanzi": "喝", "answers": ["drink", "have a drink"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "和", "hanzi": "和", "answers": ["and", "with", "together with", "as well as", "harmony", "peace"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "很", "hanzi": "很", "answers": ["very", "quite", "rather", "really", "awfully", "pretty"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "后", "hanzi": "后", "answers": ["after", "behind", "back", "later", "afterwards", "rear", "after that", "queen"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "回", "hanzi": "回", "answers": ["return", "go back", "come back", "back", "reply", "answer", "time", "occurrence"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "会", "hanzi": "会", "answers": ["can", "will", "know how to", "be able to", "be likely to", "meeting", "meet", "would", "gathering"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "火车", "hanzi": "火车", "answers": ["train"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "鸡蛋", "hanzi": "鸡蛋", "answers": ["egg", "chicken egg", "hen's egg"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "几", "hanzi": "几", "answers": ["how many", "several", "a few", "how much", "some", "almost"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "家", "hanzi": "家", "answers": ["home", "family", "house", "household", "family home"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "家人", "hanzi": "家人", "answers": ["family member", "family members", "family", "relatives", "relative"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "见", "hanzi": "见", "answers": ["see", "meet", "catch sight of", "appear"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "件", "hanzi": "件", "answers": ["measure word", "classifier", "piece", "item", "measure word for clothes", "measure word for things", "measure word for matters"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "饺子", "hanzi": "饺子", "answers": ["dumpling", "dumplings", "jiaozi", "pot-sticker"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "叫", "hanzi": "叫", "answers": ["call", "be called", "named", "shout", "ask", "order", "tell", "let", "by", "cry"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "姐姐", "hanzi": "姐姐", "answers": ["older sister", "elder sister", "big sister", "sister", "sis"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "今年", "hanzi": "今年", "answers": ["this year"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "今天", "hanzi": "今天", "answers": ["today", "now", "the present", "nowadays"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "九", "hanzi": "九", "answers": ["nine", "9"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "觉得", "hanzi": "觉得", "answers": ["think", "feel", "to feel that", "consider", "believe", "reckon", "find"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "开", "hanzi": "开", "answers": ["open", "turn on", "start", "drive", "operate", "switch on", "boil", "run", "hold", "write out"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "开车", "hanzi": "开车", "answers": ["drive", "drive a car", "driving", "drive a vehicle", "start a car"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "看", "hanzi": "看", "answers": ["look", "see", "watch", "read", "look at", "visit", "think", "consider", "take care of"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "看病", "hanzi": "看病", "answers": ["see a doctor", "visit a doctor", "see a patient", "go to the doctor", "get medical treatment"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "看见", "hanzi": "看见", "answers": ["see", "catch sight of", "spot", "notice"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "可以", "hanzi": "可以", "answers": ["can", "may", "able to", "be allowed to", "permissible", "not bad", "okay"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "课", "hanzi": "课", "answers": ["class", "lesson", "course", "subject"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "口", "hanzi": "口", "answers": ["mouth", "classifier for family members", "measure word for people", "bite", "mouthful"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "块", "hanzi": "块", "answers": ["piece", "chunk", "lump", "yuan", "measure word for money", "dollar", "measure word for pieces", "classifier for pieces"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "来", "hanzi": "来", "answers": ["come", "arrive", "come here", "coming", "next"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "老师", "hanzi": "老师", "answers": ["teacher", "instructor", "tutor"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "了", "hanzi": "了", "answers": ["completed action particle", "aspect particle", "change of state particle", "particle", "le", "finish"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "冷", "hanzi": "冷", "answers": ["cold", "chilly", "cool"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "里", "hanzi": "里", "answers": ["inside", "in", "interior", "inner", "li", "lining"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "两", "hanzi": "两", "answers": ["two", "both", "a couple of", "a few", "tael"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "零", "hanzi": "零", "answers": ["zero", "nought", "nil", "oh"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "六", "hanzi": "六", "answers": ["six", "6"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "妈妈", "hanzi": "妈妈", "answers": ["mother", "mom", "mum", "mama", "mommy", "mummy"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "吗", "hanzi": "吗", "answers": ["question particle", "yes-no question particle", "interrogative particle", "ma"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "买", "hanzi": "买", "answers": ["buy", "purchase", "shop for"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "卖", "hanzi": "卖", "answers": ["sell", "sell goods", "vend"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "忙", "hanzi": "忙", "answers": ["busy", "hurry", "rush", "hurriedly", "bustling"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "猫", "hanzi": "猫", "answers": ["cat", "kitty", "kitten"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "没关系", "hanzi": "没关系", "answers": ["it doesn't matter", "never mind", "no problem", "it's okay", "that's all right", "don't mention it", "not at all"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "没有", "hanzi": "没有", "answers": ["not have", "do not have", "don't have", "there is not", "haven't", "have not", "doesn't exist", "without", "no"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "妹妹", "hanzi": "妹妹", "answers": ["younger sister", "little sister", "sister", "sis"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "们", "hanzi": "们", "answers": ["plural marker", "plural suffix", "plural particle", "plural marker for people", "plural"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "米饭", "hanzi": "米饭", "answers": ["cooked rice", "rice", "steamed rice"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "面包", "hanzi": "面包", "answers": ["bread", "loaf"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "面条儿", "hanzi": "面条儿", "answers": ["noodles", "noodle"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "名字", "hanzi": "名字", "answers": ["name", "given name", "full name"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "明年", "hanzi": "明年", "answers": ["next year"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "明天", "hanzi": "明天", "answers": ["tomorrow"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "哪", "hanzi": "哪", "answers": ["which", "what", "how", "where"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "哪儿", "hanzi": "哪儿", "answers": ["where", "wherever", "anywhere", "somewhere", "what place"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "哪里", "hanzi": "哪里", "answers": ["where", "wherever", "anywhere", "somewhere", "what place", "not at all", "you flatter me"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "哪些", "hanzi": "哪些", "answers": ["which ones", "which", "what", "who", "what ones"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "那", "hanzi": "那", "answers": ["that", "those", "then", "in that case", "the"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "那边", "hanzi": "那边", "answers": ["over there", "that side", "yonder", "there", "the other side"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "那儿", "hanzi": "那儿", "answers": ["there", "that place", "over there"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "那里", "hanzi": "那里", "answers": ["there", "that place", "over there"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "那些", "hanzi": "那些", "answers": ["those", "those ones"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "男", "hanzi": "男", "answers": ["male", "man", "boy", "masculine"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "男朋友", "hanzi": "男朋友", "answers": ["boyfriend", "male friend"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "呢", "hanzi": "呢", "answers": ["question particle", "particle", "what about", "and you", "modal particle", "final particle"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "能", "hanzi": "能", "answers": ["can", "be able to", "able to", "ability", "may", "could"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "你", "hanzi": "你", "answers": ["you", "you singular"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "你们", "hanzi": "你们", "answers": ["you plural", "you all", "you guys", "you", "all of you"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "年", "hanzi": "年", "answers": ["year", "years"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "您", "hanzi": "您", "answers": ["you polite", "you formal", "you respectful", "you courteous", "you"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "牛奶", "hanzi": "牛奶", "answers": ["milk", "cow's milk"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "女", "hanzi": "女", "answers": ["female", "woman", "girl", "daughter"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "女儿", "hanzi": "女儿", "answers": ["daughter"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "女朋友", "hanzi": "女朋友", "answers": ["girlfriend"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "女士", "hanzi": "女士", "answers": ["lady", "madam", "ms", "miss", "woman", "madame"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "朋友", "hanzi": "朋友", "answers": ["friend", "friends", "pal", "buddy"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "漂亮", "hanzi": "漂亮", "answers": ["beautiful", "pretty", "good-looking", "nice", "lovely", "handsome"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "苹果", "hanzi": "苹果", "answers": ["apple", "apples"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "七", "hanzi": "七", "answers": ["seven", "7"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "起床", "hanzi": "起床", "answers": ["get up", "get out of bed", "wake up", "rise", "get out of the bed"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "千", "hanzi": "千", "answers": ["thousand", "one thousand", "1000"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "前", "hanzi": "前", "answers": ["front", "before", "ago", "forward", "ahead", "previous", "former", "in front"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "钱", "hanzi": "钱", "answers": ["money", "coin", "cash"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "请", "hanzi": "请", "answers": ["please", "invite", "ask", "request", "treat", "hire"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "请问", "hanzi": "请问", "answers": ["excuse me", "may I ask", "could I ask", "can I ask", "please may I ask", "excuse me may I ask"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "去", "hanzi": "去", "answers": ["go", "go to", "leave"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "去年", "hanzi": "去年", "answers": ["last year"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "热", "hanzi": "热", "answers": ["hot", "heat", "warm", "warm up", "heat up", "popular"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "人", "hanzi": "人", "answers": ["person", "people", "human", "man"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "认识", "hanzi": "认识", "answers": ["know", "recognize", "be familiar with", "get acquainted with", "meet", "knowledge", "understanding", "be acquainted with"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "日", "hanzi": "日", "answers": ["day", "sun", "date", "day of the month"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "三", "hanzi": "三", "answers": ["three", "3"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "商店", "hanzi": "商店", "answers": ["shop", "store"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "上", "hanzi": "上", "answers": ["up", "on", "above", "upper", "go up", "previous", "last", "attend", "get on", "climb"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "上班", "hanzi": "上班", "answers": ["go to work", "work", "start work", "be on duty", "go to the office", "go to work at the office"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "上课", "hanzi": "上课", "answers": ["go to class", "attend class", "have class", "have a class", "attend a class", "teach a class"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "上午", "hanzi": "上午", "answers": ["morning", "am", "forenoon", "in the morning"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "上学", "hanzi": "上学", "answers": ["go to school", "attend school", "be at school"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "少", "hanzi": "少", "answers": ["few", "little", "less", "lack", "be short of", "seldom", "young", "be missing"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "什么", "hanzi": "什么", "answers": ["what", "something", "anything", "which"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "生病", "hanzi": "生病", "answers": ["get sick", "fall ill", "be sick", "become ill", "be ill", "sick", "ill"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "十", "hanzi": "十", "answers": ["ten", "10"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "时候", "hanzi": "时候", "answers": ["time", "moment", "when", "period", "while", "length of time"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "时间", "hanzi": "时间", "answers": ["time", "period", "period of time", "duration"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "事", "hanzi": "事", "answers": ["matter", "thing", "affair", "business", "work", "item"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "是", "hanzi": "是", "answers": ["to be", "is", "am", "are", "yes", "correct", "right", "true"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "手机", "hanzi": "手机", "answers": ["mobile phone", "cell phone", "cellphone", "mobile", "phone", "smartphone"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "书", "hanzi": "书", "answers": ["book", "books", "letter", "document", "to write"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "书店", "hanzi": "书店", "answers": ["bookstore", "book store", "bookshop", "book shop"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "谁", "hanzi": "谁", "answers": ["who", "whom", "whose"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "水", "hanzi": "水", "answers": ["water", "liquid", "river", "beverage"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "水果", "hanzi": "水果", "answers": ["fruit", "fruits"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "睡", "hanzi": "睡", "answers": ["sleep", "lie down", "go to sleep"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "睡觉", "hanzi": "睡觉", "answers": ["sleep", "go to bed", "go to sleep"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "说", "hanzi": "说", "answers": ["say", "speak", "talk", "tell", "explain"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "说话", "hanzi": "说话", "answers": ["speak", "talk", "say", "chat", "words"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "四", "hanzi": "四", "answers": ["four", "4"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "岁", "hanzi": "岁", "answers": ["years old", "year of age", "age", "year", "old", "years of age"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "他", "hanzi": "他", "answers": ["he", "him", "his"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "他们", "hanzi": "他们", "answers": ["they", "them", "their"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "它", "hanzi": "它", "answers": ["it", "its"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "它们", "hanzi": "它们", "answers": ["they", "them", "those", "their", "they for things"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "她", "hanzi": "她", "answers": ["she", "her", "hers"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "她们", "hanzi": "她们", "answers": ["they", "them", "their", "they for females"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "太", "hanzi": "太", "answers": ["too", "too much", "very", "extremely", "so", "excessively"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "天", "hanzi": "天", "answers": ["day", "sky", "heaven", "days"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "天气", "hanzi": "天气", "answers": ["weather"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "听", "hanzi": "听", "answers": ["listen", "hear", "listen to", "obey"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "听见", "hanzi": "听见", "answers": ["hear", "can hear", "catch the sound of"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "同学", "hanzi": "同学", "answers": ["classmate", "fellow student", "schoolmate", "student", "classmates"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "外", "hanzi": "外", "answers": ["outside", "foreign", "external", "outer", "out", "in addition", "abroad"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "外边", "hanzi": "外边", "answers": ["outside", "outdoors", "outer side", "abroad", "outer surface"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "玩", "hanzi": "玩", "answers": ["play", "have fun", "have a good time", "amuse oneself", "hang out"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "晚", "hanzi": "晚", "answers": ["late", "evening", "night"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "晚饭", "hanzi": "晚饭", "answers": ["dinner", "supper", "evening meal", "evening dinner"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "晚上", "hanzi": "晚上", "answers": ["evening", "night", "in the evening", "at night", "tonight"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "喂", "hanzi": "喂", "answers": ["hello", "hey", "hi", "feed", "hello on the phone"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "问", "hanzi": "问", "answers": ["ask", "inquire", "enquire", "question"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "问题", "hanzi": "问题", "answers": ["question", "problem", "issue", "topic", "trouble"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "我", "hanzi": "我", "answers": ["I", "me", "my", "myself"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "我们", "hanzi": "我们", "answers": ["we", "us", "our", "ourselves"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "五", "hanzi": "五", "answers": ["five", "5"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "午饭", "hanzi": "午饭", "answers": ["lunch", "midday meal", "noon meal"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "喜欢", "hanzi": "喜欢", "answers": ["like", "be fond of", "love", "enjoy"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "下", "hanzi": "下", "answers": ["down", "below", "under", "next", "get off", "go down", "times", "lower", "fall"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "下班", "hanzi": "下班", "answers": ["get off work", "finish work", "leave work", "clock out", "knock off work"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "下课", "hanzi": "下课", "answers": ["finish class", "class is over", "get out of class", "end class", "class ends", "dismiss class"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "下午", "hanzi": "下午", "answers": ["afternoon", "in the afternoon", "pm"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "下雨", "hanzi": "下雨", "answers": ["rain", "it rains", "raining", "it is raining"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "先生", "hanzi": "先生", "answers": ["mister", "mr", "sir", "gentleman", "husband", "teacher"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "现在", "hanzi": "现在", "answers": ["now", "at present", "currently", "at the moment", "nowadays", "present"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "想", "hanzi": "想", "answers": ["want", "think", "would like", "miss", "want to", "desire", "think about", "wish"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "小", "hanzi": "小", "answers": ["small", "little", "young", "tiny", "minor"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "小朋友", "hanzi": "小朋友", "answers": ["child", "kid", "little friend", "children", "young child", "boy and girl"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "小时", "hanzi": "小时", "answers": ["hour", "hours"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "小学", "hanzi": "小学", "answers": ["primary school", "elementary school", "grade school"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "小学生", "hanzi": "小学生", "answers": ["primary school student", "elementary school student", "schoolchild", "pupil", "elementary student", "primary student"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "些", "hanzi": "些", "answers": ["some", "a few", "several", "a little"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "写", "hanzi": "写", "answers": ["write"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "谢谢", "hanzi": "谢谢", "answers": ["thank you", "thanks", "thank", "thank you very much"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "新", "hanzi": "新", "answers": ["new", "newly", "fresh", "recent"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "星期", "hanzi": "星期", "answers": ["week", "day of the week"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "星期日", "hanzi": "星期日", "answers": ["sunday"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "星期天", "hanzi": "星期天", "answers": ["sunday"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "休息", "hanzi": "休息", "answers": ["rest", "take a rest", "take a break", "break", "relax"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "学", "hanzi": "学", "answers": ["learn", "study", "imitate"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "学生", "hanzi": "学生", "answers": ["student", "pupil", "schoolchild"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "学习", "hanzi": "学习", "answers": ["study", "learn", "studying"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "学校", "hanzi": "学校", "answers": ["school"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "雪", "hanzi": "雪", "answers": ["snow"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "要", "hanzi": "要", "answers": ["want", "need", "will", "must", "should", "be going to", "ask for", "about to"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "也", "hanzi": "也", "answers": ["also", "too", "as well", "either"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "一", "hanzi": "一", "answers": ["one", "a", "an", "1", "single", "whole", "as soon as"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "一半", "hanzi": "一半", "answers": ["half", "one half"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "一点儿", "hanzi": "一点儿", "answers": ["a little", "a bit", "a little bit", "a little more", "a bit more", "somewhat"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "一些", "hanzi": "一些", "answers": ["some", "a few", "a little", "several", "a bit"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "衣服", "hanzi": "衣服", "answers": ["clothes", "clothing", "garment", "clothes and garments", "dress"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "医生", "hanzi": "医生", "answers": ["doctor", "physician"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "医院", "hanzi": "医院", "answers": ["hospital"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "椅子", "hanzi": "椅子", "answers": ["chair"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "有", "hanzi": "有", "answers": ["have", "there is", "there are", "has", "own", "exist"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "有的", "hanzi": "有的", "answers": ["some", "some of them", "there are some", "some people", "some exist"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "有点儿", "hanzi": "有点儿", "answers": ["a little", "a bit", "slightly", "somewhat", "kind of", "rather", "a little bit", "sort of"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "有些", "hanzi": "有些", "answers": ["some", "somewhat", "a few", "certain"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "雨", "hanzi": "雨", "answers": ["rain", "rainfall"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "元", "hanzi": "元", "answers": ["yuan", "currency unit", "dollar", "kuai", "Chinese currency"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "月", "hanzi": "月", "answers": ["month", "moon", "monthly"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "再", "hanzi": "再", "answers": ["again", "once more", "further", "then", "more"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "再见", "hanzi": "再见", "answers": ["goodbye", "see you", "bye", "see you again", "see you later"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "在", "hanzi": "在", "answers": ["at", "in", "be at", "be located at", "exist", "be present", "in the process of", "on"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "早", "hanzi": "早", "answers": ["early", "morning", "good morning", "long ago", "earlier"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "早饭", "hanzi": "早饭", "answers": ["breakfast"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "早上", "hanzi": "早上", "answers": ["morning", "early morning", "in the morning"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "怎么", "hanzi": "怎么", "answers": ["how", "why", "what", "how come", "in what way"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "怎么样", "hanzi": "怎么样", "answers": ["how", "how about", "how is it", "how was it", "how are things", "what about"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "找", "hanzi": "找", "answers": ["look for", "find", "seek", "search for", "give change", "visit"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "这", "hanzi": "这", "answers": ["this", "these", "here"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "这边", "hanzi": "这边", "answers": ["this side", "here", "over here", "this way"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "这儿", "hanzi": "这儿", "answers": ["here", "this place", "over here"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "这里", "hanzi": "这里", "answers": ["here", "this place", "over here"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "这些", "hanzi": "这些", "answers": ["these", "these ones"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "真", "hanzi": "真", "answers": ["really", "truly", "real", "true", "genuine", "indeed", "very"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "正在", "hanzi": "正在", "answers": ["in the process of", "in the middle of", "currently", "right now", "progressive marker", "be doing"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "知道", "hanzi": "知道", "answers": ["know", "be aware of", "realize", "know about"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "只", "hanzi": "只", "answers": ["only", "just", "merely", "measure word for animals", "classifier for animals", "measure word", "but"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "中国", "hanzi": "中国", "answers": ["China"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "中文", "hanzi": "中文", "answers": ["Chinese", "Chinese language"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "中午", "hanzi": "中午", "answers": ["noon", "midday", "lunchtime", "at noon"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "中学", "hanzi": "中学", "answers": ["middle school", "secondary school", "high school", "junior high school"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "中学生", "hanzi": "中学生", "answers": ["middle school student", "high school student", "secondary school student", "junior high student"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "住", "hanzi": "住", "answers": ["live", "stay", "reside", "dwell", "lodge", "stop"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "桌子", "hanzi": "桌子", "answers": ["table", "desk"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "字", "hanzi": "字", "answers": ["character", "word", "letter", "written character", "Chinese character"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "昨天", "hanzi": "昨天", "answers": ["yesterday"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "坐", "hanzi": "坐", "answers": ["sit", "take a seat", "take", "travel by", "ride", "sit down"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "做", "hanzi": "做", "answers": ["do", "make", "be", "work as", "cook", "produce"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "做饭", "hanzi": "做饭", "answers": ["cook", "cook a meal", "prepare a meal", "make food", "cook food", "make a meal"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "啊", "hanzi": "啊", "answers": ["ah", "oh", "modal particle", "interjection", "particle", "sentence-final particle", "wow"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "爱好", "hanzi": "爱好", "answers": ["hobby", "interest", "like", "be fond of", "be keen on", "pastime"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "白色", "hanzi": "白色", "answers": ["white", "white color"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "班", "hanzi": "班", "answers": ["class", "team", "shift", "work shift", "group", "grade", "squad"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "帮", "hanzi": "帮", "answers": ["help", "assist", "aid", "support", "help out"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "帮忙", "hanzi": "帮忙", "answers": ["help", "give a hand", "lend a hand", "do a favor", "help out", "assist"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "包", "hanzi": "包", "answers": ["bag", "package", "wrap", "packet", "bundle", "to include", "to cover", "to hold", "parcel"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "本子", "hanzi": "本子", "answers": ["notebook", "book", "exercise book", "notepad"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "比", "hanzi": "比", "answers": ["compare", "than", "compared to", "ratio", "gesture"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "笔", "hanzi": "笔", "answers": ["pen", "pencil", "writing brush", "brush", "writing instrument"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "别", "hanzi": "别", "answers": ["don't", "do not", "other", "another", "leave", "different", "part from", "distinguish"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "不错", "hanzi": "不错", "answers": ["not bad", "pretty good", "good", "correct", "right", "quite good", "nice"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "不好意思", "hanzi": "不好意思", "answers": ["embarrassed", "sorry", "excuse me", "feel embarrassed", "embarrassing", "shy", "sheepish"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "车站", "hanzi": "车站", "answers": ["station", "bus stop", "bus station", "train station", "railway station", "stop"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "出", "hanzi": "出", "answers": ["go out", "come out", "out", "exit", "produce", "happen", "occur", "emerge"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "出国", "hanzi": "出国", "answers": ["go abroad", "leave the country", "travel abroad", "go overseas", "abroad"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "出来", "hanzi": "出来", "answers": ["come out", "come out of", "emerge", "appear", "walk out", "out"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "出门", "hanzi": "出门", "answers": ["go out", "leave home", "go out the door", "go on a journey", "leave the house", "travel"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "出去", "hanzi": "出去", "answers": ["go out", "get out", "walk out", "leave", "exit", "out"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "床", "hanzi": "床", "answers": ["bed", "couch", "classifier for beds"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "词", "hanzi": "词", "answers": ["word", "term", "lyrics", "statement", "speech", "vocabulary"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "次", "hanzi": "次", "answers": ["time", "occurrence", "times", "next", "second", "measure word for events", "classifier for occurrences", "order", "secondary"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "从", "hanzi": "从", "answers": ["from", "follow", "through", "via", "obey", "since"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "从小", "hanzi": "从小", "answers": ["from childhood", "since childhood", "from a young age", "since young", "as a child", "from childhood on", "since little", "from small"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "错", "hanzi": "错", "answers": ["wrong", "mistake", "error", "incorrect", "bad", "miss"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "打", "hanzi": "打", "answers": ["hit", "beat", "strike", "play", "fight", "dozen", "make", "type", "call", "from"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "打车", "hanzi": "打车", "answers": ["take a taxi", "hail a taxi", "catch a cab", "take a cab", "call a taxi", "taxi", "get a taxi"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "打开", "hanzi": "打开", "answers": ["open", "turn on", "switch on", "open up", "unfold"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "但", "hanzi": "但", "answers": ["but", "however", "yet", "still", "only", "merely"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "但是", "hanzi": "但是", "answers": ["but", "however", "yet", "nevertheless", "still"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "地", "hanzi": "地", "answers": ["ground", "earth", "land", "place", "field", "ly", "adverbial particle", "structural particle", "adverb particle"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "地铁", "hanzi": "地铁", "answers": ["subway", "metro", "underground", "underground railway", "subway train", "tube"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "得", "hanzi": "得", "answers": ["get", "obtain", "have to", "must", "structural particle", "gain", "need to", "complement particle", "allowed"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "等", "hanzi": "等", "answers": ["wait", "wait for", "etc", "and so on", "et cetera", "await", "grade", "class", "rank"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "懂", "hanzi": "懂", "answers": ["understand", "comprehend", "know", "get it"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "动", "hanzi": "动", "answers": ["move", "stir", "touch", "use", "set in motion", "motion", "act"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "饭馆", "hanzi": "饭馆", "answers": ["restaurant", "eatery", "small restaurant", "diner", "cafe"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "飞", "hanzi": "飞", "answers": ["fly", "flutter", "flight", "go by air"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "高", "hanzi": "高", "answers": ["tall", "high", "lofty", "loud", "above average", "elevated"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "高中", "hanzi": "高中", "answers": ["senior high school", "high school", "senior high", "upper secondary school", "senior middle school"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "告诉", "hanzi": "告诉", "answers": ["tell", "inform", "let know", "notify", "say to"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "个子", "hanzi": "个子", "answers": ["height", "stature", "build", "size", "body size", "figure"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "跟", "hanzi": "跟", "answers": ["with", "follow", "and", "heel", "to", "accompany", "go with", "towards", "compared with"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "公交车", "hanzi": "公交车", "answers": ["bus", "public bus", "city bus", "town bus", "public transport vehicle", "public transit vehicle"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "过", "hanzi": "过", "answers": ["experienced action marker", "experiential particle", "pass", "cross", "spend time", "celebrate", "go over", "too", "excessively"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "过来", "hanzi": "过来", "answers": ["come over", "come here", "come across", "come", "manage", "cope", "handle", "come up"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "过年", "hanzi": "过年", "answers": ["celebrate the new year", "celebrate chinese new year", "celebrate spring festival", "spend the new year", "new year"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "过去", "hanzi": "过去", "answers": ["past", "in the past", "go over", "pass by", "previously", "former", "formerly", "go past"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "还是", "hanzi": "还是", "answers": ["or", "still", "had better", "nevertheless", "would be better to"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "黑色", "hanzi": "黑色", "answers": ["black", "black color"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "红茶", "hanzi": "红茶", "answers": ["black tea", "red tea"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "红色", "hanzi": "红色", "answers": ["red", "red color", "revolutionary"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "后面", "hanzi": "后面", "answers": ["behind", "back", "rear", "at the back", "after", "later", "afterwards"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "花", "hanzi": "花", "answers": ["flower", "spend", "blossom", "to spend money", "spend time", "bloom"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "画", "hanzi": "画", "answers": ["draw", "paint", "painting", "picture", "drawing"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "坏", "hanzi": "坏", "answers": ["bad", "broken", "spoiled", "break down", "rotten", "out of order"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "回来", "hanzi": "回来", "answers": ["come back", "return", "return here", "get back"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "回去", "hanzi": "回去", "answers": ["go back", "return", "head back", "return there"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "机场", "hanzi": "机场", "answers": ["airport", "airfield"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "机票", "hanzi": "机票", "answers": ["plane ticket", "air ticket", "flight ticket", "airline ticket", "airplane ticket", "ticket"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "记得", "hanzi": "记得", "answers": ["remember", "recall", "keep in mind"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "间", "hanzi": "间", "answers": ["room", "between", "among", "classifier for rooms", "measure word for rooms", "within", "interval"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "教", "hanzi": "教", "answers": ["teach", "instruct", "religion", "teaching", "educate"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "教室", "hanzi": "教室", "answers": ["classroom"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "介绍", "hanzi": "介绍", "answers": ["introduce", "introduction", "present", "give a presentation", "recommend"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "近", "hanzi": "近", "answers": ["near", "close", "close to", "nearby", "approximately"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "进", "hanzi": "进", "answers": ["enter", "go in", "advance", "go forward", "come in", "move forward"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "进来", "hanzi": "进来", "answers": ["come in", "enter", "come inside"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "进去", "hanzi": "进去", "answers": ["go in", "enter", "go inside"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "经常", "hanzi": "经常", "answers": ["often", "frequently", "constantly", "regularly", "usually", "daily", "everyday"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "酒店", "hanzi": "酒店", "answers": ["hotel", "restaurant", "wine shop", "pub"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "就", "hanzi": "就", "answers": ["then", "just", "right away", "immediately", "only", "as soon as", "at once", "exactly", "precisely", "simply"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "咖啡", "hanzi": "咖啡", "answers": ["coffee"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "开始", "hanzi": "开始", "answers": ["begin", "start", "beginning", "commence", "initial"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "开学", "hanzi": "开学", "answers": ["school starts", "start of term", "school opening", "start school", "begin a new term", "new semester begins"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "考", "hanzi": "考", "answers": ["test", "take an exam", "exam", "examine", "give an exam", "check", "take a test"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "考试", "hanzi": "考试", "answers": ["exam", "test", "examination", "take an exam", "take a test"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "可能", "hanzi": "可能", "answers": ["possible", "maybe", "perhaps", "might", "probably", "possibility", "probable", "may"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "裤子", "hanzi": "裤子", "answers": ["pants", "trousers", "a pair of pants"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "快", "hanzi": "快", "answers": ["fast", "quick", "quickly", "rapid", "soon", "almost", "hurry", "speed", "sharp"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "快乐", "hanzi": "快乐", "answers": ["happy", "joyful", "happiness", "glad", "cheerful", "merry"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "快要", "hanzi": "快要", "answers": ["about to", "almost", "nearly", "soon", "going to", "on the verge of"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "篮球", "hanzi": "篮球", "answers": ["basketball"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "累", "hanzi": "累", "answers": ["tired", "weary", "exhausted", "fatigued", "wear out", "strain", "work hard"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "离", "hanzi": "离", "answers": ["leave", "from", "away from", "part from", "be apart from", "separate from", "distance from", "without"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "里面", "hanzi": "里面", "answers": ["inside", "interior", "in", "within"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "楼", "hanzi": "楼", "answers": ["building", "floor", "storey", "story", "multi-storey building", "upstairs"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "路", "hanzi": "路", "answers": ["road", "way", "path", "route", "street", "journey", "line"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "路上", "hanzi": "路上", "answers": ["on the road", "on the way", "on the journey", "en route", "road surface"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "旅游", "hanzi": "旅游", "answers": ["travel", "tour", "tourism", "trip", "journey", "sightseeing"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "绿茶", "hanzi": "绿茶", "answers": ["green tea"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "绿色", "hanzi": "绿色", "answers": ["green", "green color"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "慢", "hanzi": "慢", "answers": ["slow", "slowly"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "没意思", "hanzi": "没意思", "answers": ["boring", "dull", "uninteresting", "not interesting", "of no interest"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "每", "hanzi": "每", "answers": ["every", "each"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "门", "hanzi": "门", "answers": ["door", "gate", "doorway", "entrance", "gateway"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "门口", "hanzi": "门口", "answers": ["doorway", "entrance", "gate", "door", "at the door"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "门票", "hanzi": "门票", "answers": ["ticket", "admission ticket", "entrance ticket", "entry ticket"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "面", "hanzi": "面", "answers": ["noodles", "face", "surface", "side", "flour", "aspect"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "名", "hanzi": "名", "answers": ["name", "famous", "classifier for people", "measure word for people", "place", "rank"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "拿", "hanzi": "拿", "answers": ["take", "hold", "carry", "grab", "get", "pick up", "seize"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "那么", "hanzi": "那么", "answers": ["so", "like that", "in that way", "that way", "such", "then", "in that case"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "那样", "hanzi": "那样", "answers": ["like that", "that kind", "that sort", "that way", "such", "that kind of"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "奶茶", "hanzi": "奶茶", "answers": ["milk tea", "bubble tea"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "奶奶", "hanzi": "奶奶", "answers": ["grandmother", "grandma", "paternal grandmother", "granny", "nana"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "男孩儿", "hanzi": "男孩儿", "answers": ["boy", "little boy", "male child"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "鸟", "hanzi": "鸟", "answers": ["bird"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "女孩儿", "hanzi": "女孩儿", "answers": ["girl", "little girl", "female child"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "旁边", "hanzi": "旁边", "answers": ["beside", "next to", "side", "nearby", "adjacent", "next to it"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "跑", "hanzi": "跑", "answers": ["run", "run away", "escape", "jog", "run around"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "跑步", "hanzi": "跑步", "answers": ["run", "jog", "running", "jogging", "go running"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "票", "hanzi": "票", "answers": ["ticket", "ballot", "vote", "banknote", "bill"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "妻子", "hanzi": "妻子", "answers": ["wife", "spouse"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "起来", "hanzi": "起来", "answers": ["get up", "stand up", "rise", "begin", "start", "up", "arise"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "前面", "hanzi": "前面", "answers": ["front", "in front", "ahead", "in front of", "before", "ahead of", "above", "preceding"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "晴", "hanzi": "晴", "answers": ["clear", "sunny", "fine", "clear weather", "fair"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "球", "hanzi": "球", "answers": ["ball", "sphere", "globe", "ball game", "match"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "让", "hanzi": "让", "answers": ["let", "allow", "permit", "make", "have someone do", "yield", "by", "give way"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "肉", "hanzi": "肉", "answers": ["meat", "flesh", "pulp"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "商场", "hanzi": "商场", "answers": ["shopping mall", "mall", "department store", "shopping center", "shopping centre", "market"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "上来", "hanzi": "上来", "answers": ["come up", "come up here", "approach", "go up", "up"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "上面", "hanzi": "上面", "answers": ["above", "on top", "on top of", "upper side", "top", "over", "up there", "on"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "上去", "hanzi": "上去", "answers": ["go up", "walk up", "climb up", "up"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "上网", "hanzi": "上网", "answers": ["go online", "surf the internet", "get online", "use the internet", "connect to the internet", "browse the internet"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "身体", "hanzi": "身体", "answers": ["body", "health", "physique"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "生日", "hanzi": "生日", "answers": ["birthday"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "时", "hanzi": "时", "answers": ["time", "hour", "o'clock", "when", "season", "period"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "事情", "hanzi": "事情", "answers": ["matter", "thing", "affair", "business", "task"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "手", "hanzi": "手", "answers": ["hand"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "手表", "hanzi": "手表", "answers": ["wristwatch", "watch", "wrist watch"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "书包", "hanzi": "书包", "answers": ["schoolbag", "school bag", "bookbag", "book bag", "satchel", "backpack"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "舒服", "hanzi": "舒服", "answers": ["comfortable", "feeling well", "well", "cozy", "comfy"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "送", "hanzi": "送", "answers": ["give", "send", "deliver", "see off", "give as a present", "take", "accompany"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "虽然", "hanzi": "虽然", "answers": ["although", "though", "even though", "even if"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "所以", "hanzi": "所以", "answers": ["so", "therefore", "as a result", "thus", "consequently"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "疼", "hanzi": "疼", "answers": ["hurt", "pain", "sore", "painful", "ache", "love dearly"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "踢", "hanzi": "踢", "answers": ["kick", "play soccer", "play football", "play"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "题", "hanzi": "题", "answers": ["question", "problem", "topic", "exam question", "subject", "title"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "条", "hanzi": "条", "answers": ["measure word for long thin things", "classifier for long thin things", "measure word", "classifier", "strip", "item", "article"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "跳舞", "hanzi": "跳舞", "answers": ["dance"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "头", "hanzi": "头", "answers": ["head", "boss", "chief", "top", "end", "beginning", "first", "hair style"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "外国", "hanzi": "外国", "answers": ["foreign country", "foreign", "abroad", "overseas", "foreign countries"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "外面", "hanzi": "外面", "answers": ["outside", "exterior", "outdoors", "surface", "out"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "完", "hanzi": "完", "answers": ["finish", "be over", "complete", "end", "finished", "done", "run out"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "万", "hanzi": "万", "answers": ["ten thousand", "10000", "10 thousand", "myriad"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "网上", "hanzi": "网上", "answers": ["online", "on the internet", "on the net", "internet", "on the web"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "往", "hanzi": "往", "answers": ["toward", "towards", "to", "go toward", "in the direction of", "bound for"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "忘", "hanzi": "忘", "answers": ["forget", "overlook", "neglect"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "为什么", "hanzi": "为什么", "answers": ["why", "for what reason", "how come", "what for"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "位", "hanzi": "位", "answers": ["polite measure word for people", "measure word for people", "classifier for people", "measure word", "classifier", "seat", "position", "place"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "希望", "hanzi": "希望", "answers": ["hope", "wish", "expect"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "洗", "hanzi": "洗", "answers": ["wash", "bathe", "clean", "develop photos", "shuffle"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "洗手间", "hanzi": "洗手间", "answers": ["toilet", "restroom", "bathroom", "washroom", "lavatory", "public toilet", "men's room", "ladies' room", "wc"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "下来", "hanzi": "下来", "answers": ["come down", "down", "descend", "get down", "come down here"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "下面", "hanzi": "下面", "answers": ["below", "under", "underneath", "next", "the following", "beneath"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "下去", "hanzi": "下去", "answers": ["go down", "continue", "go on", "descend", "keep going", "carry on"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "小孩儿", "hanzi": "小孩儿", "answers": ["child", "kid", "small child", "children", "little kid"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "小时候", "hanzi": "小时候", "answers": ["in childhood", "when young", "as a child", "childhood", "when I was little", "when I was a child", "when little"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "笑", "hanzi": "笑", "answers": ["laugh", "smile", "laugh at"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "姓", "hanzi": "姓", "answers": ["surname", "family name", "be surnamed", "last name", "name"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "姓名", "hanzi": "姓名", "answers": ["full name", "name", "surname and given name", "first and last name"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "颜色", "hanzi": "颜色", "answers": ["color", "colour"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "眼睛", "hanzi": "眼睛", "answers": ["eye", "eyes"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "药", "hanzi": "药", "answers": ["medicine", "drug", "medication", "pill"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "药店", "hanzi": "药店", "answers": ["pharmacy", "drugstore", "drug store", "chemist", "chemist's", "apothecary"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "爷爷", "hanzi": "爷爷", "answers": ["grandfather", "grandpa", "paternal grandfather", "granddad", "grandad", "father's father"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "一会儿", "hanzi": "一会儿", "answers": ["a moment", "a while", "a little while", "a short while", "in a moment", "a bit", "shortly"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "一起", "hanzi": "一起", "answers": ["together", "with", "in the same place", "altogether"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "已经", "hanzi": "已经", "answers": ["already"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "意思", "hanzi": "意思", "answers": ["meaning", "idea", "opinion", "interest", "fun", "wish", "intention"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "因为", "hanzi": "因为", "answers": ["because", "owing to", "on account of", "since", "due to"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "阴", "hanzi": "阴", "answers": ["overcast", "cloudy", "shady", "yin", "gloomy"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "游", "hanzi": "游", "answers": ["swim", "travel", "tour", "roam", "walk"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "游泳", "hanzi": "游泳", "answers": ["swim", "swimming"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "有时", "hanzi": "有时", "answers": ["sometimes", "now and then", "at times", "occasionally"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "有意思", "hanzi": "有意思", "answers": ["interesting", "fun", "enjoyable", "meaningful Cho", "amusing"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "右", "hanzi": "右", "answers": ["right", "right side", "right-hand side"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "右边", "hanzi": "右边", "answers": ["right side", "right", "to the right", "right-hand side", "on the right"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "鱼", "hanzi": "鱼", "answers": ["fish"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "远", "hanzi": "远", "answers": ["far", "distant", "remote", "far away"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "运动", "hanzi": "运动", "answers": ["exercise", "sports", "sport", "movement", "motion", "workout"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "站", "hanzi": "站", "answers": ["stand", "station", "stop", "stand up"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "长", "hanzi": "长", "answers": ["long", "length", "grow", "elder", "chief", "head"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "丈夫", "hanzi": "丈夫", "answers": ["husband"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "这么", "hanzi": "这么", "answers": ["so", "this way", "like this", "this much", "such", "this"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "这样", "hanzi": "这样", "answers": ["like this", "this way", "so", "such", "this kind of", "thus"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "着", "hanzi": "着", "answers": ["aspect particle", "progressive particle", "continuous particle", "ongoing action particle", "particle indicating ongoing state", "verb particle"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "正", "hanzi": "正", "answers": ["just", "exactly", "straight", "upright", "proper", "positive", "in the middle of", "correct"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "周", "hanzi": "周", "answers": ["week", "weekly", "circle", "cycle", "complete", "all over"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "准备", "hanzi": "准备", "answers": ["prepare", "preparation", "plan", "intend", "get ready", "be about to"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "自己", "hanzi": "自己", "answers": ["oneself", "self", "myself", "own", "one's own", "yourself", "himself", "herself"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "走", "hanzi": "走", "answers": ["walk", "go", "leave", "go away", "move", "depart"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "走路", "hanzi": "走路", "answers": ["walk", "go on foot", "walk on foot", "walking"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "足球", "hanzi": "足球", "answers": ["soccer", "football", "soccer ball"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "最", "hanzi": "最", "answers": ["most", "est", "extremely", "superlative"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "左", "hanzi": "左", "answers": ["left", "left side", "left-hand side"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "左边", "hanzi": "左边", "answers": ["left side", "left", "to the left", "left-hand side", "on the left"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "阿姨", "hanzi": "阿姨", "answers": ["aunt", "auntie", "maternal aunt", "nursemaid", "nanny", "childcare worker"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "矮", "hanzi": "矮", "answers": ["short", "low"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "爱人", "hanzi": "爱人", "answers": ["spouse", "husband or wife", "lover", "husband", "wife", "partner"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "安静", "hanzi": "安静", "answers": ["quiet", "peaceful", "calm", "silent", "still"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "安全", "hanzi": "安全", "answers": ["safe", "safety", "secure", "security"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "把", "hanzi": "把", "answers": ["hold", "grasp", "handle", "measure word for things with handles", "bundle", "handful", "object marker particle", "ba particle"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "班级", "hanzi": "班级", "answers": ["class", "grade", "school class", "class of students"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "搬", "hanzi": "搬", "answers": ["move", "carry", "relocate", "shift", "move heavy things", "transport"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "搬家", "hanzi": "搬家", "answers": ["move house", "relocate", "move", "move home", "moving house"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "办", "hanzi": "办", "answers": ["do", "handle", "manage", "deal with", "run", "set up", "take care of"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "办法", "hanzi": "办法", "answers": ["method", "way", "means", "solution", "measure", "approach"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "办公室", "hanzi": "办公室", "answers": ["office"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "半天", "hanzi": "半天", "answers": ["half a day", "a long time", "quite a while", "half day", "a good while"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "帮助", "hanzi": "帮助", "answers": ["help", "assist", "aid", "assistance", "support"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "饱", "hanzi": "饱", "answers": ["full", "eat till full", "full up", "satisfied", "sated"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "报纸", "hanzi": "报纸", "answers": ["newspaper", "newsprint", "paper"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "北", "hanzi": "北", "answers": ["north"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "北方", "hanzi": "北方", "answers": ["north", "northern part", "northern region", "northern china"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "被", "hanzi": "被", "answers": ["by", "passive marker", "passive voice", "passive particle", "quilt", "blanket", "passive"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "比较", "hanzi": "比较", "answers": ["compare", "relatively", "comparatively", "quite", "fairly", "rather", "comparison", "contrast"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "比如", "hanzi": "比如", "answers": ["for example", "for instance", "such as", "like", "e.g."], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "比赛", "hanzi": "比赛", "answers": ["competition", "match", "game", "contest", "compete", "race"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "笔记", "hanzi": "笔记", "answers": ["notes", "note", "take notes", "notetaking", "written notes"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "笔记本", "hanzi": "笔记本", "answers": ["notebook", "laptop", "notepad", "laptop computer"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "必须", "hanzi": "必须", "answers": ["must", "have to", "need to", "necessarily", "compulsory", "required"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "变", "hanzi": "变", "answers": ["change", "become", "transform", "become different", "vary", "turn"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "变成", "hanzi": "变成", "answers": ["turn into", "become", "change into", "transform into", "change to"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "变化", "hanzi": "变化", "answers": ["change", "variation", "vary", "changes", "transformation"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "遍", "hanzi": "遍", "answers": ["time", "times", "once through", "everywhere", "all over", "classifier for actions", "measure word for times"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "表演", "hanzi": "表演", "answers": ["perform", "performance", "show", "act", "performing", "demonstrate", "exhibition", "play"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "别的", "hanzi": "别的", "answers": ["other", "else", "another", "different", "something else", "others"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "别人", "hanzi": "别人", "answers": ["other people", "others", "someone else", "other person", "another person", "somebody else"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "宾馆", "hanzi": "宾馆", "answers": ["hotel", "guesthouse", "lodge", "inn"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "冰", "hanzi": "冰", "answers": ["ice", "cold", "icy", "freeze", "chill"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "冰箱", "hanzi": "冰箱", "answers": ["refrigerator", "fridge", "icebox", "freezer"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "病人", "hanzi": "病人", "answers": ["patient", "sick person", "invalid", "sick people", "ill person"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "不但", "hanzi": "不但", "answers": ["not only", "not only but also", "not just"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "不见", "hanzi": "不见", "answers": ["not see", "disappear", "missing", "gone", "not meet", "not visible", "vanish"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "不久", "hanzi": "不久", "answers": ["soon", "not long", "before long", "soon after", "not long after", "shortly", "not long ago"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "不同", "hanzi": "不同", "answers": ["different", "not the same", "distinct", "not alike", "unlike", "dissimilar"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "不行", "hanzi": "不行", "answers": ["not okay", "won't do", "no good", "not allowed", "out of the question", "not work", "not capable", "no way", "cannot"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "不用", "hanzi": "不用", "answers": ["need not", "no need", "don't need to", "needn't", "not necessary", "don't have to"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "才", "hanzi": "才", "answers": ["only", "just", "not until", "only then", "just now", "then and only then", "talent", "ability", "only just"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "菜单", "hanzi": "菜单", "answers": ["menu"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "参加", "hanzi": "参加", "answers": ["participate", "take part", "join", "attend", "take part in", "participate in"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "草", "hanzi": "草", "answers": ["grass", "straw", "draft", "herb", "weed"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "草地", "hanzi": "草地", "answers": ["lawn", "meadow", "grassland", "grass", "turf", "field", "grassy area"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "层", "hanzi": "层", "answers": ["layer", "floor", "story", "level", "storey", "tier"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "查", "hanzi": "查", "answers": ["check", "investigate", "look up", "examine", "search", "inspect", "research", "look into"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "差", "hanzi": "差", "answers": ["bad", "poor", "lacking", "to lack", "difference", "inferior", "short of", "fall short", "not up to standard", "wrong"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "差不多", "hanzi": "差不多", "answers": ["almost", "nearly", "about the same", "more or less", "similar", "not bad", "good enough", "roughly"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "尝", "hanzi": "尝", "answers": ["taste", "try", "try food", "sample", "experience"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "常", "hanzi": "常", "answers": ["often", "frequently", "always", "common", "usually", "constant"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "常常", "hanzi": "常常", "answers": ["often", "frequently", "usually", "a lot"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "常见", "hanzi": "常见", "answers": ["common", "commonly seen", "frequently seen", "often seen", "usual"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "常用", "hanzi": "常用", "answers": ["commonly used", "in common use", "common", "frequently used", "in common usage"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "衬衫", "hanzi": "衬衫", "answers": ["shirt", "blouse"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "成绩", "hanzi": "成绩", "answers": ["grades", "results", "achievement", "score", "scores", "performance", "marks"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "城市", "hanzi": "城市", "answers": ["city", "town", "urban area"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "迟到", "hanzi": "迟到", "answers": ["be late", "arrive late", "late", "come late"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "出发", "hanzi": "出发", "answers": ["set off", "depart", "start a journey", "set out", "leave", "start out"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "出生", "hanzi": "出生", "answers": ["be born", "born", "birth"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "出院", "hanzi": "出院", "answers": ["leave hospital", "be discharged from hospital", "discharged from hospital", "get out of hospital", "leave the hospital"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "初中", "hanzi": "初中", "answers": ["junior high school", "junior high", "middle school", "lower secondary school"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "除了", "hanzi": "除了", "answers": ["besides", "except", "apart from", "in addition to", "except for", "other than", "aside from"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "船", "hanzi": "船", "answers": ["boat", "ship", "vessel"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "春天", "hanzi": "春天", "answers": ["spring", "springtime", "spring season"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "词典", "hanzi": "词典", "answers": ["dictionary"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "聪明", "hanzi": "聪明", "answers": ["smart", "clever", "intelligent", "bright"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "打扫", "hanzi": "打扫", "answers": ["clean", "sweep", "clean up", "tidy up", "clean the house"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "打算", "hanzi": "打算", "answers": ["plan", "intend", "plan to", "intention", "intend to", "be going to"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "大概", "hanzi": "大概", "answers": ["probably", "roughly", "approximately", "about", "general idea", "approximate", "rough", "maybe"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "大人", "hanzi": "大人", "answers": ["adult", "grown-up", "grownup"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "大小", "hanzi": "大小", "answers": ["size", "dimensions", "measurement", "big and small", "large and small"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "大熊猫", "hanzi": "大熊猫", "answers": ["giant panda", "panda"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "大衣", "hanzi": "大衣", "answers": ["overcoat", "coat", "topcoat"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "带", "hanzi": "带", "answers": ["bring", "take", "carry", "take along", "wear", "lead", "belt", "band", "ribbon"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "担心", "hanzi": "担心", "answers": ["worry", "be worried", "worried", "anxious", "to worry about", "concerned", "uneasy"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "蛋糕", "hanzi": "蛋糕", "answers": ["cake"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "当然", "hanzi": "当然", "answers": ["of course", "certainly", "naturally", "sure", "definitely", "without doubt"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "到处", "hanzi": "到处", "answers": ["everywhere", "all over", "in all places", "at every place"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "地点", "hanzi": "地点", "answers": ["place", "location", "site", "venue", "spot"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "地方", "hanzi": "地方", "answers": ["place", "location", "area", "space", "region", "room", "local"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "地图", "hanzi": "地图", "answers": ["map"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "的话", "hanzi": "的话", "answers": ["if", "if so", "in case", "if that is the case"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "得到", "hanzi": "得到", "answers": ["get", "obtain", "receive", "gain", "acquire"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "得分", "hanzi": "得分", "answers": ["score", "score points", "get points", "points scored"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "灯", "hanzi": "灯", "answers": ["lamp", "light", "lantern"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "电", "hanzi": "电", "answers": ["electricity", "electric", "lightning", "power", "electrical"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "电梯", "hanzi": "电梯", "answers": ["elevator", "lift", "escalator"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "丢", "hanzi": "丢", "answers": ["lose", "lost", "throw", "throw away", "drop", "misplace"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "东", "hanzi": "东", "answers": ["east", "eastern", "host", "landlord"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "东北", "hanzi": "东北", "answers": ["northeast", "north east", "northeast China", "Manchuria"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "东方", "hanzi": "东方", "answers": ["east", "the Orient", "eastern"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "东南", "hanzi": "东南", "answers": ["southeast", "south east"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "冬天", "hanzi": "冬天", "answers": ["winter"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "懂得", "hanzi": "懂得", "answers": ["understand", "know", "comprehend", "know how to", "grasp"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "动物", "hanzi": "动物", "answers": ["animal", "animals"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "动物园", "hanzi": "动物园", "answers": ["zoo"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "短", "hanzi": "短", "answers": ["short", "brief", "lack"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "短裤", "hanzi": "短裤", "answers": ["shorts", "short pants", "short trousers"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "段", "hanzi": "段", "answers": ["section", "paragraph", "segment", "stage", "measure word for sections", "classifier", "measure word", "period"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "锻炼", "hanzi": "锻炼", "answers": ["exercise", "work out", "train", "physical exercise", "temper", "toughen"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "对话", "hanzi": "对话", "answers": ["dialogue", "conversation", "talk", "have a dialogue"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "饿", "hanzi": "饿", "answers": ["hungry", "be hungry", "starve", "starving"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "而且", "hanzi": "而且", "answers": ["moreover", "and also", "but also", "furthermore", "in addition", "also"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "耳朵", "hanzi": "耳朵", "answers": ["ear", "ears"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "耳机", "hanzi": "耳机", "answers": ["headphones", "earphones", "headset", "earbuds"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "发", "hanzi": "发", "answers": ["send", "send out", "issue", "develop", "emit", "hair", "distribute", "give out"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "发烧", "hanzi": "发烧", "answers": ["have a fever", "fever", "run a fever", "have a temperature", "high temperature"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "发生", "hanzi": "发生", "answers": ["happen", "occur", "take place", "break out"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "发现", "hanzi": "发现", "answers": ["discover", "find", "notice", "find out", "realize", "discovery"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "发展", "hanzi": "发展", "answers": ["develop", "development", "grow", "growth", "expand"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "方便", "hanzi": "方便", "answers": ["convenient", "handy", "suitable", "easy", "facilitate"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "方便面", "hanzi": "方便面", "answers": ["instant noodles", "instant noodle", "cup noodles", "ramen"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "方法", "hanzi": "方法", "answers": ["method", "way", "means", "approach", "technique"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "方向", "hanzi": "方向", "answers": ["direction", "orientation", "bearing"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "房子", "hanzi": "房子", "answers": ["house", "building", "apartment", "room", "home"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "放", "hanzi": "放", "answers": ["put", "place", "release", "let go", "set free", "put down", "set off", "play"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "放假", "hanzi": "放假", "answers": ["have a holiday", "have a vacation", "take a holiday", "go on vacation", "holiday", "vacation", "be on vacation", "day off"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "放心", "hanzi": "放心", "answers": ["rest assured", "feel relieved", "be at ease", "relax", "not worry", "feel reassured", "set one's mind at rest"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "放学", "hanzi": "放学", "answers": ["school is over", "finish school", "get out of school", "dismiss school", "after school", "school lets out"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "分开", "hanzi": "分开", "answers": ["separate", "part", "split up", "divide", "be apart"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "风", "hanzi": "风", "answers": ["wind", "breeze", "style", "custom", "news"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "封", "hanzi": "封", "answers": ["measure word for letters", "classifier for letters", "seal", "classifier", "measure word", "confer"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "服务", "hanzi": "服务", "answers": ["service", "serve", "provide service"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "附近", "hanzi": "附近", "answers": ["nearby", "near", "vicinity", "neighborhood", "close by", "surrounding area"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "复习", "hanzi": "复习", "answers": ["review", "revise", "revision", "go over"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "夫妻", "hanzi": "夫妻", "answers": ["husband and wife", "married couple", "couple", "spouses"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "该", "hanzi": "该", "answers": ["should", "ought to", "must", "have to", "supposed to", "deserve", "owe", "that", "this"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "感到", "hanzi": "感到", "answers": ["feel", "sense", "perceive", "to feel that"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "感冒", "hanzi": "感冒", "answers": ["cold", "common cold", "catch a cold", "have a cold", "flu"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "感兴趣", "hanzi": "感兴趣", "answers": ["interested", "be interested", "interested in", "to be interested in", "have interest in"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "干", "hanzi": "干", "answers": ["dry", "do", "work", "manage", "dried", "trunk", "main part"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "干净", "hanzi": "干净", "answers": ["clean", "neat", "tidy"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "刚", "hanzi": "刚", "answers": ["just", "just now", "barely", "exactly", "only just", "hard", "firm"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "刚才", "hanzi": "刚才", "answers": ["just now", "a moment ago", "a while ago", "moments ago"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "刚刚", "hanzi": "刚刚", "answers": ["just now", "just", "a moment ago", "just recently", "a second ago", "only just"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "高铁", "hanzi": "高铁", "answers": ["high speed rail", "high speed train", "bullet train"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "根据", "hanzi": "根据", "answers": ["according to", "based on", "on the basis of", "basis", "foundation", "in accordance with"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "更", "hanzi": "更", "answers": ["more", "even more", "still more", "further", "even", "still", "much more"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "工作日", "hanzi": "工作日", "answers": ["workday", "working day", "weekday", "work day", "business day"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "公斤", "hanzi": "公斤", "answers": ["kilogram", "kilo", "kg", "kilogramme"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "公园", "hanzi": "公园", "answers": ["park", "public park"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "故事", "hanzi": "故事", "answers": ["story", "tale", "narrative"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "刮", "hanzi": "刮", "answers": ["blow", "scrape", "shave", "scrape off"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "关", "hanzi": "关", "answers": ["close", "shut", "turn off", "switch off", "lock up", "confine", "mountain pass"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "关机", "hanzi": "关机", "answers": ["turn off", "shut down", "power off", "switch off", "turn off a device", "turn off the phone"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "关系", "hanzi": "关系", "answers": ["relationship", "relation", "connection", "guanxi", "relations", "concern", "affect"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "关心", "hanzi": "关心", "answers": ["care about", "be concerned about", "concern", "care", "be concerned", "show concern for"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "关于", "hanzi": "关于", "answers": ["about", "concerning", "regarding", "with regard to", "pertaining to", "on", "with respect to"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "关注", "hanzi": "关注", "answers": ["pay attention to", "follow", "attention", "concern", "pay attention", "follow closely", "focus on", "interest"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "国家", "hanzi": "国家", "answers": ["country", "nation", "state"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "过节", "hanzi": "过节", "answers": ["celebrate a festival", "celebrate a holiday", "celebrate festival", "observe a festival", "have a holiday", "celebrate"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "海", "hanzi": "海", "answers": ["sea", "ocean"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "害怕", "hanzi": "害怕", "answers": ["afraid", "scared", "be afraid", "be scared", "fear", "frightened"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "好多", "hanzi": "好多", "answers": ["many", "a lot", "lots", "quite a lot", "much better", "a great many", "so many", "so much"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "好久", "hanzi": "好久", "answers": ["a long time", "quite a while", "very long time", "a good while", "ages"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "好像", "hanzi": "好像", "answers": ["seem", "as if", "seem like", "looks like", "seems", "be like", "as though", "it seems"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "号码", "hanzi": "号码", "answers": ["number", "numeral", "digit number", "phone number"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "合适", "hanzi": "合适", "answers": ["suitable", "appropriate", "fitting", "fit", "right", "proper"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "河", "hanzi": "河", "answers": ["river"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "黑板", "hanzi": "黑板", "answers": ["blackboard", "chalkboard", "board"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "后来", "hanzi": "后来", "answers": ["later", "afterwards", "afterward", "then", "later on", "subsequently"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "后年", "hanzi": "后年", "answers": ["the year after next", "in two years"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "后天", "hanzi": "后天", "answers": ["the day after tomorrow", "acquired", "postnatal"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "护照", "hanzi": "护照", "answers": ["passport"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "花园", "hanzi": "花园", "answers": ["garden", "flower garden"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "画家", "hanzi": "画家", "answers": ["painter", "artist"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "环境", "hanzi": "环境", "answers": ["environment", "surroundings", "circumstances", "conditions", "setting"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "换", "hanzi": "换", "answers": ["change", "exchange", "swap", "switch", "replace", "substitute", "trade", "convert"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "欢迎", "hanzi": "欢迎", "answers": ["welcome", "greet", "welcome warmly"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "黄色", "hanzi": "黄色", "answers": ["yellow", "the color yellow", "yellow color"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "回答", "hanzi": "回答", "answers": ["answer", "reply", "respond", "response"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "会议", "hanzi": "会议", "answers": ["meeting", "conference", "convention", "assembly"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "或", "hanzi": "或", "answers": ["or", "either", "maybe", "perhaps", "possibly"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "或者", "hanzi": "或者", "answers": ["or", "either", "perhaps", "maybe", "possibly", "either or"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "机会", "hanzi": "机会", "answers": ["opportunity", "chance", "occasion", "opening"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "鸡", "hanzi": "鸡", "answers": ["chicken", "hen", "rooster", "fowl"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "极", "hanzi": "极", "answers": ["extremely", "very", "utmost", "pole", "top", "extreme"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "急", "hanzi": "急", "answers": ["urgent", "anxious", "worried", "hurried", "impatient", "in a hurry", "rapid", "pressing"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "几乎", "hanzi": "几乎", "answers": ["almost", "nearly", "practically", "virtually Eh"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "记", "hanzi": "记", "answers": ["remember", "record", "memorize", "note down", "write down", "note", "mark"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "季", "hanzi": "季", "answers": ["season", "quarter", "last month of a season"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "季节", "hanzi": "季节", "answers": ["season", "time of year", "period", "time"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "加", "hanzi": "加", "answers": ["add", "plus", "increase", "put in", "apply"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "假期", "hanzi": "假期", "answers": ["vacation", "holiday", "holidays", "break", "time off", "leave"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "坚持", "hanzi": "坚持", "answers": ["persist", "persevere", "insist", "insist on", "stick to", "keep at", "persist in", "adhere to"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "检查", "hanzi": "检查", "answers": ["check", "inspect", "examine", "inspection", "examination", "check up", "checkup"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "简单", "hanzi": "简单", "answers": ["simple", "easy", "not complicated", "uncomplicated", "straightforward"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "见面", "hanzi": "见面", "answers": ["meet", "see each other", "meet up", "meet face to face", "see someone"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "健康", "hanzi": "健康", "answers": ["healthy", "health", "fit", "in good health", "well"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "讲", "hanzi": "讲", "answers": ["speak", "say", "talk", "tell", "explain", "lecture", "speech", "emphasize"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "角", "hanzi": "角", "answers": ["corner", "angle", "horn", "dime", "role", "ten cents", "jiao"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "脚", "hanzi": "脚", "answers": ["foot", "feet", "leg", "base", "paw"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "接", "hanzi": "接", "answers": ["receive", "pick up", "answer the phone", "connect", "catch", "meet", "join", "take over", "welcome"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "街", "hanzi": "街", "answers": ["street", "road", "avenue", "main street"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "节", "hanzi": "节", "answers": ["festival", "section", "segment", "joint", "holiday", "lesson classifier", "measure word for classes", "save", "node"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "节目", "hanzi": "节目", "answers": ["program", "show", "item", "performance", "programme", "act"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "节日", "hanzi": "节日", "answers": ["festival", "holiday", "festive day", "celebration"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "结婚", "hanzi": "结婚", "answers": ["marry", "get married", "wed", "marriage", "be married"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "结束", "hanzi": "结束", "answers": ["end", "finish", "conclude", "close", "terminate", "wrap up", "over", "ending"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "解决", "hanzi": "解决", "answers": ["solve", "resolve", "settle", "fix", "deal with", "solution", "work out", "settle a problem"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "借", "hanzi": "借", "answers": ["borrow", "lend", "loan", "borrow or lend", "by means of"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "姐妹", "hanzi": "姐妹", "answers": ["sisters", "sister", "siblings", "sisterhood"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "斤", "hanzi": "斤", "answers": ["catty", "half a kilogram", "500 grams", "jin", "weight unit", "measure word for weight"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "经过", "hanzi": "经过", "answers": ["pass", "go through", "pass through", "process", "course", "undergo", "after", "through"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "经理", "hanzi": "经理", "answers": ["manager", "director", "boss", "executive", "supervisor"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "久", "hanzi": "久", "answers": ["long time", "long", "for a long time", "lasting", "a long while", "long duration"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "酒", "hanzi": "酒", "answers": ["alcohol", "wine", "liquor", "alcoholic drink", "spirits", "booze"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "旧", "hanzi": "旧", "answers": ["old", "used", "worn", "former", "secondhand", "old-fashioned"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "句", "hanzi": "句", "answers": ["sentence", "measure word for sentences", "classifier for sentences", "phrase", "clause", "line"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "句子", "hanzi": "句子", "answers": ["sentence"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "决定", "hanzi": "决定", "answers": ["decide", "decision", "resolve", "determine"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "卡", "hanzi": "卡", "answers": ["card", "stuck", "to be stuck", "block", "calorie", "get stuck"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "开花", "hanzi": "开花", "answers": ["bloom", "blossom", "flower", "come into flower"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "开会", "hanzi": "开会", "answers": ["have a meeting", "hold a meeting", "attend a meeting", "meeting", "have meeting"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "开机", "hanzi": "开机", "answers": ["turn on", "boot up", "start up", "power on", "switch on", "start a machine"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "开心", "hanzi": "开心", "answers": ["happy", "glad", "joyful", "cheerful", "have fun", "enjoy oneself", "feel happy", "delighted"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "看来", "hanzi": "看来", "answers": ["it seems", "it seems that", "apparently", "it looks like", "seemingly", "it appears"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "可", "hanzi": "可", "answers": ["can", "may", "but", "very", "certainly", "able to", "permit", "approve"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "可爱", "hanzi": "可爱", "answers": ["cute", "lovely", "adorable", "lovable", "endearing"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "可是", "hanzi": "可是", "answers": ["but", "however", "yet", "nevertheless", "still", "indeed"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "渴", "hanzi": "渴", "answers": ["thirsty", "be thirsty", "feel thirsty", "thirst"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "刻", "hanzi": "刻", "answers": ["quarter of an hour", "quarter", "fifteen minutes", "carve", "engrave", "moment", "cut"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "客人", "hanzi": "客人", "answers": ["guest", "visitor", "customer", "client"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "课本", "hanzi": "课本", "answers": ["textbook", "text book", "course book", "coursebook", "school book"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "课文", "hanzi": "课文", "answers": ["text", "lesson text", "text of a lesson", "passage", "reading passage", "lesson"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "空调", "hanzi": "空调", "answers": ["air conditioner", "air conditioning", "aircon", "air con", "AC"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "哭", "hanzi": "哭", "answers": ["cry", "weep", "sob"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "筷子", "hanzi": "筷子", "answers": ["chopsticks", "chopstick"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "矿泉水", "hanzi": "矿泉水", "answers": ["mineral water", "spring water", "bottled water"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "来自", "hanzi": "来自", "answers": ["come from", "from", "be from", "originate from", "come from a place"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "蓝", "hanzi": "蓝", "answers": ["blue", "indigo"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "老", "hanzi": "老", "answers": ["old", "aged", "elderly", "experienced", "always", "very", "outdated", "long-standing"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "老人", "hanzi": "老人", "answers": ["old person", "elderly person", "the elderly", "old man", "old woman", "senior citizen", "old people"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "了解", "hanzi": "了解", "answers": ["understand", "know", "find out", "learn about", "get to know", "comprehend"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "离开", "hanzi": "离开", "answers": ["leave", "depart", "go away", "part from", "move away"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "礼物", "hanzi": "礼物", "answers": ["gift", "present"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "历史", "hanzi": "历史", "answers": ["history"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "脸", "hanzi": "脸", "answers": ["face"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "练", "hanzi": "练", "answers": ["practice", "train", "drill", "exercise", "rehearse"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "练习", "hanzi": "练习", "answers": ["practice", "exercise", "drill", "train", "practise"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "凉快", "hanzi": "凉快", "answers": ["cool", "nice and cool", "pleasantly cool", "refreshingly cool", "cold"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "辆", "hanzi": "辆", "answers": ["measure word for vehicles", "classifier for vehicles", "vehicle classifier", "measure word for cars", "vehicle measure word"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "聊", "hanzi": "聊", "answers": ["chat", "talk", "gossip", "chat casually"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "聊天儿", "hanzi": "聊天儿", "answers": ["chat", "have a chat", "talk", "gossip", "chitchat"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "邻居", "hanzi": "邻居", "answers": ["neighbor", "neighbour", "next door", "neighbors", "neighbours"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "留学", "hanzi": "留学", "answers": ["study abroad", "overseas study", "study overseas", "be an international student"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "留学生", "hanzi": "留学生", "answers": ["international student", "student studying abroad", "exchange student", "foreign student", "overseas student", "study abroad student"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "楼梯", "hanzi": "楼梯", "answers": ["stairs", "staircase", "stairway", "steps", "stair"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "路边", "hanzi": "路边", "answers": ["roadside", "side of the road", "wayside", "curb", "roadside area", "by the road"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "路口", "hanzi": "路口", "answers": ["intersection", "crossroads", "junction", "crossing", "road junction", "street corner"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "马", "hanzi": "马", "answers": ["horse", "knight", "chess horse"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "马路", "hanzi": "马路", "answers": ["road", "street", "main road", "roadway"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "马上", "hanzi": "马上", "answers": ["immediately", "right away", "at once", "soon", "straight away", "in a moment", "right now", "shortly"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "满意", "hanzi": "满意", "answers": ["satisfied", "pleased", "content", "satisfactory", "happy with", "to be satisfied", "satisfaction"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "毛", "hanzi": "毛", "answers": ["hair", "fur", "feather", "wool", "body hair", "down", "mao", "ten cents", "dime"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "米", "hanzi": "米", "answers": ["meter", "rice", "metre", "uncooked rice", "m"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "面前", "hanzi": "面前", "answers": ["in front of", "before", "in front", "facing", "in the presence of", "in one's presence"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "名单", "hanzi": "名单", "answers": ["list of names", "name list", "list", "roster", "namelist"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "名人", "hanzi": "名人", "answers": ["celebrity", "famous person", "famous people", "well-known person", "personage", "public figure"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "明白", "hanzi": "明白", "answers": ["understand", "clear", "realize", "obvious", "know", "get it", "plain"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "男人", "hanzi": "男人", "answers": ["man", "men", "male", "husband"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "男生", "hanzi": "男生", "answers": ["boy", "male student", "schoolboy", "guy", "boy student", "young man"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "南", "hanzi": "南", "answers": ["south", "southern"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "南方", "hanzi": "南方", "answers": ["south", "southern part", "southern region", "southern China", "the southern part of the country"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "难", "hanzi": "难", "answers": ["difficult", "hard", "difficulty", "tough", "not easy", "problem", "bad", "disaster"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "难过", "hanzi": "难过", "answers": ["sad", "feel sad", "upset", "sorrowful", "feel bad", "unhappy", "feel unwell", "having a hard time", "difficult to bear"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "难看", "hanzi": "难看", "answers": ["ugly", "unsightly", "bad-looking", "unattractive", "plain", "embarrassing", "not good-looking"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "难题", "hanzi": "难题", "answers": ["difficult problem", "hard problem", "tough problem", "difficult question", "hard question", "puzzle", "challenge", "difficulty"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "难听", "hanzi": "难听", "answers": ["unpleasant to hear", "ugly sounding", "harsh sounding", "bad sounding", "offensive", "vulgar", "grating", "unpleasant sounding"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "年级", "hanzi": "年级", "answers": ["grade", "year", "school year", "grade level", "class year", "year in school", "level"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "年轻", "hanzi": "年轻", "answers": ["young", "youthful", "in one's youth"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "牛", "hanzi": "牛", "answers": ["cow", "ox", "bull", "cattle", "cattle animal", "awesome"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "努力", "hanzi": "努力", "answers": ["work hard", "try hard", "make an effort", "strive", "hard-working", "diligent", "effort", "endeavor", "put in effort"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "女人", "hanzi": "女人", "answers": ["woman", "women", "female", "wife"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "女生", "hanzi": "女生", "answers": ["girl", "female student", "schoolgirl", "girl student", "young woman"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "爬", "hanzi": "爬", "answers": ["climb", "crawl", "creep", "clamber"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "怕", "hanzi": "怕", "answers": ["afraid", "fear", "be afraid", "scared", "dread", "be scared", "worry that", "perhaps"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "拍照", "hanzi": "拍照", "answers": ["take a picture", "take a photo", "take photos", "take pictures", "photograph", "take a photograph", "shoot a photo"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "盘子", "hanzi": "盘子", "answers": ["plate", "dish", "tray", "saucer", "platter"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "胖", "hanzi": "胖", "answers": ["fat", "plump", "chubby", "overweight", "heavy", "obese"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "啤酒", "hanzi": "啤酒", "answers": ["beer", "lager"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "平时", "hanzi": "平时", "answers": ["usually", "normally", "ordinarily", "in normal times", "at ordinary times", "generally", "regularly", "on usual days", "in peacetime"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "瓶子", "hanzi": "瓶子", "answers": ["bottle", "jar", "flask", "vase"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "其实", "hanzi": "其实", "answers": ["actually", "in fact", "really", "as a matter of fact", "to tell the truth", "truthfully", "in reality", "indeed"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "其他", "hanzi": "其他", "answers": ["other", "else", "the rest", "others", "something else", "someone else", "remaining"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "奇怪", "hanzi": "奇怪", "answers": ["strange", "odd", "weird", "peculiar", "curious", "surprising", "baffled", "bizarre", "puzzling", "to be baffled"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "骑", "hanzi": "骑", "answers": ["ride", "ride a bike", "sit astride"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "起", "hanzi": "起", "answers": ["rise", "get up", "start", "begin", "raise", "appear", "up"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "起飞", "hanzi": "起飞", "answers": ["take off", "takeoff", "lift off", "depart"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "汽车", "hanzi": "汽车", "answers": ["car", "automobile", "vehicle", "bus"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "铅笔", "hanzi": "铅笔", "answers": ["pencil", "lead pencil"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "前年", "hanzi": "前年", "answers": ["the year before last", "two years ago"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "前天", "hanzi": "前天", "answers": ["the day before yesterday", "two days ago"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "清楚", "hanzi": "清楚", "answers": ["clear", "distinct", "understand", "be clear about", "know clearly", "clearly"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "请假", "hanzi": "请假", "answers": ["ask for leave", "request leave", "take leave", "ask for time off", "take time off", "request time off"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "请客", "hanzi": "请客", "answers": ["treat", "host a meal", "invite to dinner", "treat someone to a meal", "entertain guests", "give a dinner party", "invite guests"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "秋天", "hanzi": "秋天", "answers": ["autumn", "fall", "the autumn season"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "球场", "hanzi": "球场", "answers": ["court", "field", "pitch", "sports ground", "stadium", "ball court", "golf course"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "裙子", "hanzi": "裙子", "answers": ["skirt", "dress"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "然后", "hanzi": "然后", "answers": ["then", "after that", "afterwards", "and then", "afterward", "after"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "热情", "hanzi": "热情", "answers": ["enthusiastic", "warm", "cordial", "passionate", "enthusiasm", "passion", "hospitable", "friendly"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "认得", "hanzi": "认得", "answers": ["recognize", "know", "to recognise", "remember on seeing", "be familiar with"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "认为", "hanzi": "认为", "answers": ["think", "believe", "consider", "feel", "hold that"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "认真", "hanzi": "认真", "answers": ["serious", "conscientious", "earnest", "diligent", "seriously", "take seriously", "careful"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "容易", "hanzi": "容易", "answers": ["easy", "simple", "likely", "apt to", "liable to", "straightforward"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "如果", "hanzi": "如果", "answers": ["if", "in case", "suppose", "provided that", "in the event that"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "伞", "hanzi": "伞", "answers": ["umbrella", "parasol"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "扫", "hanzi": "扫", "answers": ["sweep", "clean", "broom", "scan"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "沙发", "hanzi": "沙发", "answers": ["sofa", "couch"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "山", "hanzi": "山", "answers": ["mountain", "hill", "mount"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "上衣", "hanzi": "上衣", "answers": ["jacket", "top", "upper garment", "coat", "shirt"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "勺子", "hanzi": "勺子", "answers": ["spoon", "ladle", "scoop"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "身边", "hanzi": "身边", "answers": ["by one's side", "at one's side", "beside", "nearby", "on hand", "around one", "with one"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "身高", "hanzi": "身高", "answers": ["height", "body height", "person's height"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "生活", "hanzi": "生活", "answers": ["life", "live", "living", "livelihood", "daily life"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "生气", "hanzi": "生气", "answers": ["angry", "get angry", "be angry", "mad", "take offense", "upset"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "声", "hanzi": "声", "answers": ["sound", "voice", "noise", "tone"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "声音", "hanzi": "声音", "answers": ["voice", "sound", "noise"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "世界", "hanzi": "世界", "answers": ["world"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "市", "hanzi": "市", "answers": ["city", "market", "municipality", "town"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "试", "hanzi": "试", "answers": ["try", "test", "attempt", "experiment", "exam", "examination", "try out"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "室", "hanzi": "室", "answers": ["room", "chamber", "office"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "收", "hanzi": "收", "answers": ["receive", "accept", "collect", "put away", "take in", "gather", "get"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "收到", "hanzi": "收到", "answers": ["receive", "get", "receive something"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "受", "hanzi": "受", "answers": ["receive", "suffer", "accept", "bear", "endure", "be subjected to", "stand"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "受到", "hanzi": "受到", "answers": ["receive", "be subjected to", "suffer", "get", "be given", "experience"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "瘦", "hanzi": "瘦", "answers": ["thin", "skinny", "slim", "lean", "lose weight"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "叔叔", "hanzi": "叔叔", "answers": ["uncle", "father's younger brother", "paternal uncle"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "树", "hanzi": "树", "answers": ["tree", "trees"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "数学", "hanzi": "数学", "answers": ["mathematics", "math", "maths"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "刷", "hanzi": "刷", "answers": ["brush", "scrub", "paint", "swipe", "scrub with a brush"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "双", "hanzi": "双", "answers": ["pair", "pair of", "two", "double", "both"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "水平", "hanzi": "水平", "answers": ["level", "standard", "proficiency", "skill level", "horizontal"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "司机", "hanzi": "司机", "answers": ["driver", "chauffeur"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "四季", "hanzi": "四季", "answers": ["four seasons", "seasons"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "太阳", "hanzi": "太阳", "answers": ["sun", "sunshine"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "糖", "hanzi": "糖", "answers": ["sugar", "candy", "sweets", "sweet", "confection"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "特别", "hanzi": "特别", "answers": ["especially", "particularly", "special", "very", "unusual", "really", "extra"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "提高", "hanzi": "提高", "answers": ["improve", "raise", "increase", "enhance", "elevate", "boost"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "体育", "hanzi": "体育", "answers": ["sports", "physical education", "pe", "gym", "athletics"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "体育馆", "hanzi": "体育馆", "answers": ["gym", "gymnasium", "stadium", "sports hall", "sports arena"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "甜", "hanzi": "甜", "answers": ["sweet"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "跳", "hanzi": "跳", "answers": ["jump", "hop", "leap", "bounce", "skip"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "听说", "hanzi": "听说", "answers": ["hear", "hear that", "heard", "i heard", "it is said", "hearsay", "apparently"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "挺", "hanzi": "挺", "answers": ["quite", "very", "pretty", "rather", "fairly", "straight", "stick out"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "同事", "hanzi": "同事", "answers": ["colleague", "coworker", "co-worker", "workmate"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "同意", "hanzi": "同意", "answers": ["agree", "consent", "approve", "agree with"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "头发", "hanzi": "头发", "answers": ["hair", "hair on the head"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "突然", "hanzi": "突然", "answers": ["suddenly", "sudden", "abrupt", "unexpected", "all of a sudden", "abruptly"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "图书馆", "hanzi": "图书馆", "answers": ["library"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "腿", "hanzi": "腿", "answers": ["leg", "legs"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "外地", "hanzi": "外地", "answers": ["other places", "another place", "non-local", "elsewhere", "out of town", "outside area", "other parts of the country"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "外卖", "hanzi": "外卖", "answers": ["takeout", "takeaway", "food delivery", "delivery", "take-out", "take away food"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "外语", "hanzi": "外语", "answers": ["foreign language", "foreign languages"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "完成", "hanzi": "完成", "answers": ["complete", "finish", "accomplish", "achieve", "fulfill"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "晚点", "hanzi": "晚点", "answers": ["late", "delayed", "behind schedule", "delay", "be late"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "晚会", "hanzi": "晚会", "answers": ["evening party", "party", "soiree", "evening gala", "gala", "evening show"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "碗", "hanzi": "碗", "answers": ["bowl", "cup", "bowlful"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "网球", "hanzi": "网球", "answers": ["tennis", "tennis ball"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "网站", "hanzi": "网站", "answers": ["website", "web site", "site", "web page"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "忘记", "hanzi": "忘记", "answers": ["forget", "forgot", "forget about"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "卫生间", "hanzi": "卫生间", "answers": ["bathroom", "toilet", "restroom", "washroom", "wc", "lavatory"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "为", "hanzi": "为", "answers": ["for", "as", "because of", "to be", "to become", "act as", "do", "by"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "为了", "hanzi": "为了", "answers": ["for", "in order to", "for the purpose of", "so as to", "for the sake of"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "文化", "hanzi": "文化", "answers": ["culture", "civilization", "cultural"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "屋子", "hanzi": "屋子", "answers": ["room", "house", "building"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "习惯", "hanzi": "习惯", "answers": ["habit", "be used to", "get used to", "custom", "accustomed to", "become accustomed to"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "洗衣机", "hanzi": "洗衣机", "answers": ["washing machine", "washer", "clothes washer"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "洗澡", "hanzi": "洗澡", "answers": ["take a bath", "take a shower", "bathe", "shower", "bath", "have a bath"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "喜爱", "hanzi": "喜爱", "answers": ["like", "love", "be fond of", "favorite", "adore", "be fond of something"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "西", "hanzi": "西", "answers": ["west", "western"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "西北", "hanzi": "西北", "answers": ["northwest", "north west"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "西方", "hanzi": "西方", "answers": ["the west", "western countries", "occident", "western world"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "西瓜", "hanzi": "西瓜", "answers": ["watermelon"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "西南", "hanzi": "西南", "answers": ["southwest", "south west"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "夏天", "hanzi": "夏天", "answers": ["summer", "summertime"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "先", "hanzi": "先", "answers": ["first", "earlier", "before", "in advance", "beforehand", "previously", "at first"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "相机", "hanzi": "相机", "answers": ["camera"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "相信", "hanzi": "相信", "answers": ["believe", "trust", "be convinced", "believe in", "have faith in"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "香蕉", "hanzi": "香蕉", "answers": ["banana"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "箱子", "hanzi": "箱子", "answers": ["box", "suitcase", "case", "chest", "trunk", "crate"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "向", "hanzi": "向", "answers": ["toward", "towards", "to", "face", "direction", "turn toward", "facing"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "像", "hanzi": "像", "answers": ["resemble", "be like", "look like", "like", "such as", "image", "portrait", "take after", "seem"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "小区", "hanzi": "小区", "answers": ["residential area", "neighborhood", "housing estate", "residential community", "community", "housing complex", "district", "compound"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "小心", "hanzi": "小心", "answers": ["be careful", "careful", "take care", "careful of", "watch out", "cautious", "look out", "carefully"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "校园", "hanzi": "校园", "answers": ["campus", "school campus", "school grounds"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "校长", "hanzi": "校长", "answers": ["principal", "headmaster", "school principal", "president", "head teacher", "university president", "school head"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "鞋", "hanzi": "鞋", "answers": ["shoe", "shoes", "footwear"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "心里", "hanzi": "心里", "answers": ["in the heart", "heart", "mind", "in one's heart", "in the mind", "inside", "in one's mind"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "新年", "hanzi": "新年", "answers": ["new year", "new years"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "新闻", "hanzi": "新闻", "answers": ["news", "news report", "piece of news"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "新鲜", "hanzi": "新鲜", "answers": ["fresh", "novel", "new and fresh", "freshness", "new", "strange"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "信", "hanzi": "信", "answers": ["letter", "mail", "believe", "trust", "message", "believe in"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "信用卡", "hanzi": "信用卡", "answers": ["credit card", "credit cards"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "行", "hanzi": "行", "answers": ["ok", "okay", "all right", "capable", "to walk", "row", "line", "can do", "will do"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "行李", "hanzi": "行李", "answers": ["luggage", "baggage", "bags"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "兴趣", "hanzi": "兴趣", "answers": ["interest", "hobby", "interests", "hobbies"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "休假", "hanzi": "休假", "answers": ["take a vacation", "go on vacation", "take leave", "vacation", "have a holiday", "holiday", "be on leave", "take time off", "leave"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "需要", "hanzi": "需要", "answers": ["need", "require", "want", "demand", "needs", "requirement", "have to"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "选", "hanzi": "选", "answers": ["choose", "select", "pick", "elect", "choose from", "pick out"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "选择", "hanzi": "选择", "answers": ["choose", "choice", "select", "option", "pick", "alternative", "selection"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "学期", "hanzi": "学期", "answers": ["semester", "term", "school term", "school semester"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "牙", "hanzi": "牙", "answers": ["tooth", "teeth", "ivory"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "牙刷", "hanzi": "牙刷", "answers": ["toothbrush", "tooth brush"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "羊", "hanzi": "羊", "answers": ["sheep", "goat", "lamb"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "养", "hanzi": "养", "answers": ["raise", "keep", "bring up", "support", "feed", "keep a pet", "raise animals", "nurture", "rear", "grow"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "要求", "hanzi": "要求", "answers": ["request", "require", "demand", "requirement", "ask for", "ask"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "页", "hanzi": "页", "answers": ["page", "leaf", "sheet"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "一般", "hanzi": "一般", "answers": ["general", "generally", "ordinary", "common", "usually", "average", "so-so", "in general", "normal"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "一边", "hanzi": "一边", "answers": ["while", "at the same time", "one side", "on the one hand", "doing while", "simultaneously"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "一定", "hanzi": "一定", "answers": ["certainly", "definitely", "must", "surely", "necessarily", "for sure", "fixed", "certain"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "一共", "hanzi": "一共", "answers": ["altogether", "in total", "in all", "total", "a total of"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "一块儿", "hanzi": "一块儿", "answers": ["together", "together with", "in the same place", "at the same place", "along with"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "一样", "hanzi": "一样", "answers": ["same", "alike", "just like", "like", "identical", "equal"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "一直", "hanzi": "一直", "answers": ["always", "continuously", "all along", "straight", "straight ahead", "all the time", "keep", "constantly"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "以后", "hanzi": "以后", "answers": ["after", "later", "afterwards", "in the future", "later on", "from now on", "following"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "以前", "hanzi": "以前", "answers": ["before", "previously", "formerly", "ago", "in the past", "previous", "earlier"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "以上", "hanzi": "以上", "answers": ["above", "more than", "over", "at or above", "that is all", "above mentioned"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "以外", "hanzi": "以外", "answers": ["outside", "except", "apart from", "other than", "besides", "beyond", "except for", "excluding"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "以为", "hanzi": "以为", "answers": ["think", "thought", "believe", "assume", "suppose", "mistakenly think", "consider"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "以下", "hanzi": "以下", "answers": ["below", "the following", "under", "less than", "at or below", "fewer than"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "音乐", "hanzi": "音乐", "answers": ["music"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "银行", "hanzi": "银行", "answers": ["bank"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "银行卡", "hanzi": "银行卡", "answers": ["bank card", "ATM card", "debit card", "card", "cash card"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "饮料", "hanzi": "饮料", "answers": ["drink", "beverage", "soft drink", "drinks", "beverages"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "应该", "hanzi": "应该", "answers": ["should", "ought to", "must", "supposed to", "have to", "ought"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "影响", "hanzi": "影响", "answers": ["influence", "affect", "effect", "impact", "disturb"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "用", "hanzi": "用", "answers": ["use", "employ", "utilize", "need", "with", "by means of", "usefulness"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "邮件", "hanzi": "邮件", "answers": ["mail", "email", "post", "e-mail", "message"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "邮箱", "hanzi": "邮箱", "answers": ["mailbox", "email", "inbox", "email inbox", "post office box", "email address", "e-mail"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "游客", "hanzi": "游客", "answers": ["tourist", "traveler", "traveller", "visitor", "sightseer"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "游戏", "hanzi": "游戏", "answers": ["game", "play", "video game", "games", "recreation"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "有关", "hanzi": "有关", "answers": ["related to", "relevant", "concerning", "about", "have to do with", "relate to", "connected with", "concern", "regarding"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "有名", "hanzi": "有名", "answers": ["famous", "well-known", "renowned", "celebrated", "popular"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "有用", "hanzi": "有用", "answers": ["useful", "helpful", "of use", "handy", "effective"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "又", "hanzi": "又", "answers": ["again", "also", "once more", "both and", "and", "yet", "moreover"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "羽毛球", "hanzi": "羽毛球", "answers": ["badminton", "shuttlecock", "birdie"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "雨衣", "hanzi": "雨衣", "answers": ["raincoat", "rain coat", "rain jacket", "poncho", "waterproof coat"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "语言", "hanzi": "语言", "answers": ["language", "languages", "speech"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "遇到", "hanzi": "遇到", "answers": ["meet", "run into", "come across", "encounter", "bump into", "experience"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "遇见", "hanzi": "遇见", "answers": ["meet", "run into", "come across", "encounter", "bump into"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "员", "hanzi": "员", "answers": ["member", "person", "employee", "staff", "worker", "personnel"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "园", "hanzi": "园", "answers": ["garden", "park", "orchard", "yard", "plantation", "kindergarten"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "愿意", "hanzi": "愿意", "answers": ["willing", "be willing", "want", "wish", "ready", "would like", "happy to", "be happy to"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "月亮", "hanzi": "月亮", "answers": ["moon"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "越", "hanzi": "越", "answers": ["more", "the more the more", "increasingly", "exceed", "surpass", "climb over", "even more", "cross"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "运动会", "hanzi": "运动会", "answers": ["sports meet", "sports competition", "sports day", "athletic meet", "sports event", "games"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "运动员", "hanzi": "运动员", "answers": ["athlete", "sportsman", "sportswoman", "player", "sports person"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "咱们", "hanzi": "咱们", "answers": ["we", "us", "we including you", "let us", "our"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "脏", "hanzi": "脏", "answers": ["dirty", "filthy", "unclean", "messy", "get dirty"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "怎么办", "hanzi": "怎么办", "answers": ["what to do", "what should I do", "what can be done", "what is to be done", "how to do", "what do we do"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "怎样", "hanzi": "怎样", "answers": ["how", "what kind", "how about", "in what way", "what", "like what"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "张", "hanzi": "张", "answers": ["measure word for flat objects", "classifier for flat objects", "measure word", "sheet", "classifier", "open", "sheet of paper", "spread"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "照", "hanzi": "照", "answers": ["shine", "illuminate", "take a photo", "photograph", "according to", "reflect", "photo", "look at reflection"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "照顾", "hanzi": "照顾", "answers": ["take care of", "look after", "care for", "attend to", "show consideration", "take care"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "照片", "hanzi": "照片", "answers": ["photo", "photograph", "picture", "snapshot"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "照相", "hanzi": "照相", "answers": ["take a photo", "take a picture", "take a photograph", "photograph", "take photos"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "着急", "hanzi": "着急", "answers": ["worried", "anxious", "worry", "in a hurry", "impatient", "feel anxious", "get anxious"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "直到", "hanzi": "直到", "answers": ["until", "up until", "till", "up to"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "只能", "hanzi": "只能", "answers": ["can only", "only can", "have to", "have no choice but to", "be forced to", "must only"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "只是", "hanzi": "只是", "answers": ["only", "just", "merely", "simply", "but", "however", "nothing but"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "只要", "hanzi": "只要", "answers": ["as long as", "so long as", "provided that", "if only", "provided"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "只有", "hanzi": "只有", "answers": ["only", "only if", "only have", "there is only", "only when", "can only"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "纸", "hanzi": "纸", "answers": ["paper", "sheet of paper", "piece of paper", "classifier for documents"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "中", "hanzi": "中", "answers": ["middle", "center", "in", "among", "within", "China", "during", "Chinese", "hit", "centre"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "中间", "hanzi": "中间", "answers": ["middle", "center", "in the middle", "between", "among", "centre", "inside"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "终于", "hanzi": "终于", "answers": ["finally", "at last", "in the end", "eventually", "at long last"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "种", "hanzi": "种", "answers": ["kind", "type", "sort", "species", "seed", "plant", "grow", "classifier for kinds", "cultivate", "variety"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "重要", "hanzi": "重要", "answers": ["important", "significant", "major", "essential", "crucial"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "周末", "hanzi": "周末", "answers": ["weekend", "weekends"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "主要", "hanzi": "主要", "answers": ["main", "major", "primary", "principal", "chief", "mainly", "primarily"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "住院", "hanzi": "住院", "answers": ["be hospitalized", "stay in hospital", "be in hospital", "hospitalized", "go into hospital", "be admitted to hospital", "in the hospital"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "注意", "hanzi": "注意", "answers": ["pay attention", "pay attention to", "take note", "notice", "be careful", "watch out", "take note of", "attention"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "字典", "hanzi": "字典", "answers": ["dictionary", "character dictionary", "Chinese character dictionary"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "自行车", "hanzi": "自行车", "answers": ["bicycle", "bike", "cycle"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "子", "hanzi": "子", "answers": ["son", "child", "noun suffix", "suffix", "seed", "small thing", "egg", "noun particle"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "总", "hanzi": "总", "answers": ["always", "overall", "general", "total", "eventually", "after all", "in any case", "anyway", "sum up", "sooner or later"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "总是", "hanzi": "总是", "answers": ["always", "all the time", "invariably", "constantly", "every time"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "嘴", "hanzi": "嘴", "answers": ["mouth", "beak", "spout", "nozzle", "lips"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "最好", "hanzi": "最好", "answers": ["best", "had better", "it would be best", "better", "should"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "最后", "hanzi": "最后", "answers": ["finally", "last", "final", "in the end", "at last", "lastly", "ultimate"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "最近", "hanzi": "最近", "answers": ["recently", "lately", "nearest", "soon", "these days", "latest", "closest", "in recent days"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "作业", "hanzi": "作业", "answers": ["homework", "assignment", "school assignment", "task", "work", "schoolwork", "exercise"], "model": "claude-sonnet-5-5", "prompt_version": "1"}
+{"id": "做客", "hanzi": "做客", "answers": ["be a guest", "visit", "be a visitor", "visit as a guest", "go visiting", "stay as a guest", "guest"], "model": "claude-sonnet-5-5", "prompt_version": "1"}

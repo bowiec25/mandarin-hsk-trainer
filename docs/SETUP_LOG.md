@@ -610,3 +610,21 @@ You now have: decision records, data shapes, hooks and permissions, the `/new-bl
 - The judge needs internet when it's asked. Without it the answer just stays wrong with "couldn't check"; the quiz never breaks.
 - Code can't check that a verdict is *right*, only that its shape is. So verdicts are shown on screen and saved for review.
 - This **refines ADR 0002** (agents = "Claude API + tools") rather than editing it: accepted ADRs aren't edited; the new one says what it changes.
+
+## M4 Step 3: answer_writer, the first agent (2026-11-02)
+
+> **In plain words:** Claude wrote the English answers a learner might type for all 978 words (爸爸 → father, dad, papa, daddy, pa), once, and they're saved in `data/generated/answers.jsonl`. It's a static file: no Claude is needed while you study.
+
+1. **"Still the right thing?"** Yes, as in ADR 0005.
+2. **`/new-block answer_writer`** (an agent, in `hsk_trainer`), SPEC written section by section with you.
+3. **Shared helper `quizkit.claude.ask_claude`:** runs `claude -p` with **no tools** (Claude can only answer, never touch files), from an empty temporary folder (so it doesn't read the project), and returns the text and token counts. Tested with a fake, so tests never call Claude. The judge reuses it.
+4. **test-writer** wrote 46 tests from the SPEC (and found 9 gaps in it, all settled); then the code; **block-reviewer** round 1 ⚠️ (7 small fixes, e.g. a broken `answers.jsonl` line now stops with a clear message), round 2 ✅ (plus 4 small extras).
+5. **Trial: 20 band-1 words in 8 seconds.** Your verdict: a bit generous ("rude" for 不客气) is fine.
+6. **Full run:** 25 calls, ~148k tokens (list-price equivalent ~$0.80, covered by the subscription). The **checker caught 9**: "from小" (Chinese mixed in), "bathroom" twice, 11+ answers for 好 / 等 / 过 / 行, and "p.m." / "mr." / "e.g.". Two changes after that: full stops are now allowed (the grader ignores punctuation anyway), and repeats in a reply are removed rather than failing the card. Re-runs only asked for the failed words.
+7. **Spot-check:** 20 random words from all bands, approved.
+
+**Good to know:**
+- **Run it:** `uv run python -m hsk_trainer.blocks.answer_writer --limit 20 --dry-run` (shows what it would send). Without `--dry-run`, it only asks for words not already in the file, so re-running is cheap.
+- **The quiz doesn't use the file yet.** That's Step 4, together with the judge.
+- A test checks the committed file covers all 978 cards, so a half-finished file can't be merged.
+- **`/code-review` found 10 things; all 10 fixed.** The big one: Claude often wrote both "love" and "to love", which the grader treats as one answer, so repeats are now spotted the way the grader compares answers; 110 words were tidied **without calling Claude**. Also: saved lines are re-checked on every run (a bad hand edit, a line listed twice, or an older `PROMPT_VERSION` means that word is asked again, so bumping the prompt version really redoes the answers); a removed card's line is deleted from the file; one card missing `answers` fails alone; `claude` exiting with an error code is always an error; the summary still prints when Claude stops the run; two small tidy-ups. Then a **3rd block-reviewer round** (the code had changed since its ✅): ✅ again, plus 3 small fixes (a line saved 3+ times, `--dry-run` never touches the file, the "log in" hint kept). 470 tests.
