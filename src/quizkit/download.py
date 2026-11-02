@@ -4,11 +4,11 @@ Reusable by any quiz: give it a URL, where to save, and the expected size + fing
 """
 
 import hashlib
-import os
-import tempfile
 import urllib.request
 from collections.abc import Callable
 from pathlib import Path
+
+from quizkit.files import write_atomically
 
 
 class DownloadError(RuntimeError):
@@ -23,18 +23,6 @@ def http_get(url: str) -> bytes:
 
 def _matches(data: bytes, size: int, sha256: str) -> bool:
     return len(data) == size and hashlib.sha256(data).hexdigest() == sha256
-
-
-def _write_atomically(dest: Path, data: bytes) -> None:
-    """Write to a temp file in the same folder, then swap it in, so there's never a half-file."""
-    fd, tmp = tempfile.mkstemp(dir=dest.parent, prefix=f".{dest.name}.", suffix=".part")
-    try:
-        with os.fdopen(fd, "wb") as f:
-            f.write(data)
-        os.replace(tmp, dest)
-    except BaseException:
-        Path(tmp).unlink(missing_ok=True)
-        raise
 
 
 def download_verified(
@@ -74,7 +62,7 @@ def download_verified(
 
     try:
         dest.parent.mkdir(parents=True, exist_ok=True)
-        _write_atomically(dest, data)
+        write_atomically(dest, data)
     except OSError as err:  # disk full, no permission…
         raise DownloadError(f"{dest.name}: could not save ({err})") from err
     return True
