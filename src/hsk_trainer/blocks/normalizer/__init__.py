@@ -88,7 +88,7 @@ def _to_card(raw: dict, band: int, file: Path) -> Card:
     forms = raw.get("forms")
     if not forms:
         raise fail("has no readings")
-    pos = raw.get("pos") or []  # may be empty: 11 real words have none
+    pos = raw.get("pos")  # must be a list; may be empty (11 real words have none)
     if not isinstance(forms, list) or not _is_str_list(pos):
         raise fail("is malformed (forms must be a list, pos a list of text)")
 

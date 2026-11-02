@@ -274,6 +274,8 @@ def test_word_missing_data_raises_error_naming_word_and_band(tmp_path, bad):
         word("坏", [form(None, ["bad"])]),  # pinyin is null
         word("坏", [form("huài", [None])]),  # a meaning is null
         word("坏", [form("huài", ["bad"])], pos="vn"),  # pos is text, not a list
+        {**word("坏", [form("huài", ["bad"])]), "pos": None},  # pos is null
+        {k: v for k, v in word("坏", [form("huài", ["bad"])]).items() if k != "pos"},
     ],
     ids=[
         "no-transcriptions",
@@ -282,6 +284,8 @@ def test_word_missing_data_raises_error_naming_word_and_band(tmp_path, bad):
         "pinyin-null",
         "meaning-null",
         "pos-text",
+        "pos-null",
+        "pos-missing",
     ],
 )
 def test_wrong_shaped_word_raises_error_naming_word_and_band(tmp_path, bad):
@@ -301,6 +305,14 @@ def test_save_failure_raises_normalize_error(tmp_path, monkeypatch):
     monkeypatch.setattr(block, "write_atomically", disk_full)
     with pytest.raises(block.NormalizeError, match="cards.jsonl"):
         normalize(tmp_path)
+
+
+def test_output_folder_cannot_be_made_raises_normalize_error(tmp_path):
+    """mkdir fails (a file sits where the folder should be) → NormalizeError."""
+    blocker = tmp_path / "out"
+    blocker.write_text("not a folder", encoding="utf-8")
+    with pytest.raises(block.NormalizeError, match="cards.jsonl"):
+        normalize(tmp_path, dest=blocker / "cards.jsonl")
 
 
 def test_non_utf8_file_raises_error_naming_file(tmp_path):
@@ -328,12 +340,12 @@ def test_empty_pos_is_allowed(tmp_path):
 
 
 def test_duplicate_word_in_one_band_raises_error(tmp_path):
-    with pytest.raises(block.NormalizeError, match="好"):
+    with pytest.raises(block.NormalizeError, match=r"1\.json.*好.*band 1"):
         normalize(tmp_path, only_band_1(HAO, HAO))
 
 
 def test_duplicate_word_across_bands_raises_error(tmp_path):
-    with pytest.raises(block.NormalizeError, match="好"):
+    with pytest.raises(block.NormalizeError, match=r"3\.json.*好.*band 3"):
         normalize(tmp_path, {1: [HAO], 2: [AI], 3: [HAO]})
 
 
