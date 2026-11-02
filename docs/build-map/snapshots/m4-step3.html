@@ -197,7 +197,7 @@ a { color: var(--info); }
   <div class="tiles">
     <div class="tile hi"><b>978</b><span>quiz cards in <code>cards.jsonl</code></span></div>
     <div class="tile"><b>294 · 197 · 487</b><span>new words in bands 1 · 2 · 3</span></div>
-    <div class="tile"><b>456</b><span>automatic tests, all passing</span></div>
+    <div class="tile"><b>467</b><span>automatic tests, all passing</span></div>
     <div class="tile"><b>6</b><span>blocks built: fetcher, normalizer, grader, cedict_cleaner, deck_builder, engine</span></div>
     <div class="tile"><b>2 · 2 · 2</b><span>hooks · skills used · subagents</span></div>
     <div class="tile"><b>4</b><span>decision records (ADRs)</span></div>
@@ -241,7 +241,7 @@ a { color: var(--info); }
     <div class="layer">
       <div class="layer-head"><b>🛡️ Checks</b><span class="mono">tests/ · .github/ · GitHub settings</span><span>Prove the code is right, on your machine and on GitHub.</span></div>
       <div class="items">
-        <div class="item guide"><b>tests/ (pytest)</b>456 tests, run before "done"<small>Claude + CI</small></div>
+        <div class="item guide"><b>tests/ (pytest)</b>467 tests, run before "done"<small>Claude + CI</small></div>
         <div class="item guide"><b>ruff</b>lint + format check<small>Claude + CI</small></div>
         <div class="item auto"><b>CI: ci.yml</b>same checks on a clean machine<small>every push and PR</small></div>
         <div class="item auto"><b>claude-code-review.yml</b>runs the Claude review on GitHub<small>every PR · renew token before 2027-10-15</small></div>
@@ -647,7 +647,7 @@ a { color: var(--info); }
 
 <section>
   <div>
-    <h2>6. What the 456 tests guard</h2>
+    <h2>6. What the 467 tests guard</h2>
     <p class="lede">Red bar = runs against the real committed data. Everything else uses small fake data, so it's fast and works offline.</p>
   </div>
   <div class="card table-wrap">
@@ -659,8 +659,8 @@ a { color: var(--info); }
         <tr><td class="mono">blocks/test_engine.py</td><td class="n">40</td><td class="bar"><span style="width:63%"></span></td><td>the quiz loop with fake typed answers: score, record, quit (incl. Ctrl-C anywhere in the loop, added after the reuse check), bad cards caught before question 1</td></tr>
         <tr><td class="mono">test_cli.py</td><td class="n">31</td><td class="bar"><span class="real" style="width:49%"></span></td><td><code>hsk quiz</code> played with scripted keystrokes on the real cards: score, "love" / "to love" for 爱, quitting (incl. Ctrl-C), short decks, every error, hanzi through a Windows pipe</td></tr>
         <tr><td class="mono">blocks/test_deck_builder.py</td><td class="n">31</td><td class="bar"><span style="width:48%"></span></td><td>levels, count, no repeats (by id), same seed = same deck, every failure mode (toy capitals)</td></tr>
-        <tr><td class="mono">blocks/test_answer_writer.py</td><td class="n">61</td><td class="bar"><span class="real" style="width:97%"></span></td><td>the answer agent with a <b>fake Claude</b>: saved after each chunk, resume, <code>--limit</code>, <code>--dry-run</code>, broken replies, one bad card fails alone, the checker's rules; plus the real <code>answers.jsonl</code> covers all 978 cards</td></tr>
-        <tr><td class="mono">test_claude_helper.py</td><td class="n">15</td><td class="bar"><span style="width:24%"></span></td><td>the <code>claude -p</code> helper with a fake runner: no tools, prompt on stdin, not installed, timeout, error replies, token counts</td></tr>
+        <tr><td class="mono">blocks/test_answer_writer.py</td><td class="n">71</td><td class="bar"><span class="real" style="width:97%"></span></td><td>the answer agent with a <b>fake Claude</b>: saved after each chunk, resume, <code>--limit</code>, <code>--dry-run</code>, broken replies, one bad card fails alone, the checker's rules; plus the real <code>answers.jsonl</code> covers all 978 cards</td></tr>
+        <tr><td class="mono">test_claude_helper.py</td><td class="n">16</td><td class="bar"><span style="width:24%"></span></td><td>the <code>claude -p</code> helper with a fake runner: no tools, prompt on stdin, not installed, timeout, error replies, token counts</td></tr>
         <tr><td class="mono">test_pr_body.py</td><td class="n">22</td><td class="bar"><span style="width:22%"></span></td><td>the "Still the right thing?" CI check: a filled section passes; missing, empty, hint-only or "n/a" fails; the unfilled PR template fails; headings inside code blocks, unclosed hints and other heading levels handled</td></tr>
         <tr><td class="mono">test_reuse.py</td><td class="n">5</td><td class="bar"><span style="width:8%"></span></td><td>the reuse check: no <code>quizkit</code> file imports (or even names) <code>hsk_trainer</code>, and the toy capitals quiz plays to the end with <code>hsk_trainer</code> blocked (both proved by a planted import)</td></tr>
         <tr><td class="mono">test_hsk_deck.py</td><td class="n">2</td><td class="bar"><span class="real" style="width:3%"></span></td><td>real data: band 1 → 10 hanzi-only questions; band 2 asked for 500 → all of band 2</td></tr>
@@ -676,7 +676,7 @@ a { color: var(--info); }
         <tr><td class="mono">test_quizkit_blocks.py</td><td class="n">1</td><td class="bar"><span style="width:2%"></span></td><td>the block ID card (<code>BlockSpec</code>)</td></tr>
         <tr><td class="mono">test_smoke.py</td><td class="n">1</td><td class="bar"><span style="width:2%"></span></td><td>both packages import</td></tr>
       </tbody>
-      <tfoot><tr><td>Total</td><td class="n">456</td><td></td><td>run locally and by CI on every PR</td></tr></tfoot>
+      <tfoot><tr><td>Total</td><td class="n">467</td><td></td><td>run locally and by CI on every PR</td></tr></tfoot>
     </table>
   </div>
 </section>

@@ -28,7 +28,7 @@ validate_answers(lines: list[AnswerLine], cards: list[Card], require_all=False) 
 - `PROMPT_VERSION` is a string (`"1"`).
 - **`ClaudeError`:** `write_answers` saves what's done, then lets the error go up; the command line prints its message. (If `claude` is missing, that happens on the first call, before anything is saved.)
 - A reply wrapped in a ```` ```json ```` code fence is fine (the fence is removed).
-- **Checker rules** (`validate_answers`): each id is a real card and appears once; 1–10 answers; each answer 1–40 characters of letters, digits, spaces, `'`, `.` and `-` only, with at least one letter or digit (so no Chinese, no brackets; "8" for 八 and "p.m." are fine); no duplicates in a card (ignoring case). With `require_all=True`, every card must be present (used on the finished file).
+- **Checker rules** (`validate_answers`): each id is a real card and appears once; 1–10 answers; each answer 1–40 characters of letters, digits, spaces, `'`, `.` and `-` only, with at least one letter or digit (so no Chinese, no brackets; "8" for 八 and "p.m." are fine); no duplicates in a card (compared the way the grader compares: case, punctuation and a leading "to" ignored). With `require_all=True`, every card must be present (used on the finished file).
 
 **How you run it:** `uv run python -m hsk_trainer.blocks.answer_writer --limit 20` (add `--dry-run` to only look).
 
@@ -58,7 +58,8 @@ validate_answers(lines: list[AnswerLine], cards: list[Card], require_all=False) 
 | Reply isn't JSON, or the wrong shape | That chunk fails and is reported; the run goes on to the next chunk |
 | Reply misses a card or adds an extra one | Missing = failed (retried next run); extra = ignored |
 | One card fails the checker (0 answers, Chinese, too long…) | Only that card is skipped; the rest of the chunk is saved |
-| Claude repeats an answer (ignoring case) | The repeat is removed before checking (it does no harm) |
+| Claude repeats an answer (as the grader sees it: "love" / "To love") | The repeat is removed before checking (it does no harm) |
+| A saved line fails the checker (e.g. a hand edit), is listed twice, or has an older `PROMPT_VERSION` | Left out, so that card is asked again; repeats in saved lines are tidied and written back |
 | `answers.jsonl` has a card no longer in `cards.jsonl` | Dropped, with a warning printed on screen (naming the id) |
 | `answers.jsonl` has a line that can't be read (e.g. a bad hand edit) | Stops before any call with `AnswerFileError` naming the line; nothing changed |
 | `--dry-run` | Never calls Claude, never writes a file |

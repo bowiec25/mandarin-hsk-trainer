@@ -565,3 +565,95 @@ def test_repeats_in_claudes_reply_are_removed_not_failed(tmp_path):
 @pytest.mark.parametrize("answers", [["."], ["..."]])
 def test_checker_full_stops_alone_are_not_an_answer(answers):
     assert block.validate_answers([line("w00", answers)], make_cards(1))
+
+
+# Extra cases from /code-review
+
+
+def saved_line(card_id, answers, version=None):
+    return json.dumps(
+        {
+            "id": card_id,
+            "hanzi": "字",
+            "answers": answers,
+            "model": FAKE_MODEL,
+            "prompt_version": version or str(block.PROMPT_VERSION),
+        },
+        ensure_ascii=False,
+    )
+
+
+def write_saved(tmp_path, *rows):
+    text = "".join(r + "\n" for r in rows)
+    (tmp_path / "answers.jsonl").write_text(text, encoding="utf-8")
+
+
+def test_to_love_and_love_count_as_a_repeat():
+    problems = block.validate_answers([line("w00", ["love", "To love"])], make_cards(1))
+    assert any("twice" in p for p in problems)
+
+
+def test_repeats_the_grader_sees_are_removed_from_reply(tmp_path):
+    cards = make_cards(1)
+    fake = FakeClaude(cards, answers={"w00": ["love", "to love", "Love!"]})
+    run(tmp_path, cards, fake)
+    assert saved(tmp_path)[0]["answers"] == ["love"]
+
+
+def test_saved_repeats_are_tidied_without_calling_claude(tmp_path):
+    cards = make_cards(1)
+    write_saved(tmp_path, saved_line("w00", ["love", "to love"]))
+    fake = FakeClaude(cards)
+    run(tmp_path, cards, fake)
+    assert fake.prompts == []
+    assert saved(tmp_path)[0]["answers"] == ["love"]
+
+
+def test_stale_line_is_removed_from_file_even_when_nothing_to_do(tmp_path):
+    cards = make_cards(1)
+    write_saved(tmp_path, saved_line("w00", ["dad"]), saved_line("gone", ["old"]))
+    run(tmp_path, cards, FakeClaude(cards))
+    assert saved_ids(tmp_path) == ["w00"]
+
+
+@pytest.mark.parametrize(
+    "rows",
+    [
+        [saved_line("w00", ["爸爸"])],
+        [saved_line("w00", ["dad"], version="0")],
+        [saved_line("w00", ["dad"]), saved_line("w00", ["father"])],
+    ],
+    ids=["fails-checker", "old-prompt-version", "listed-twice"],
+)
+def test_bad_or_old_saved_lines_are_asked_again(tmp_path, rows):
+    cards = make_cards(1)
+    write_saved(tmp_path, *rows)
+    fake = FakeClaude(cards)
+    run(tmp_path, cards, fake)
+    assert fake.asked_ids() == ["w00"]
+    assert saved(tmp_path)[0]["answers"] == ["answer 00", "word"]
+
+
+def test_card_without_answers_key_fails_alone(tmp_path):
+    cards = make_cards(3)
+    reply_cards = [
+        {"id": "w00", "answers": ["a"]},
+        {"id": "w01"},
+        {"id": "w02", "answers": ["b"]},
+    ]
+    body = json.dumps({"cards": reply_cards})
+    result = run(tmp_path, cards, FakeClaude(cards, script={0: body}))
+    assert result.failed == ["w01"]
+    assert saved_ids(tmp_path) == ["w00", "w02"]
+
+
+def test_summary_still_printed_when_claude_stops_the_run(tmp_path, capsys):
+    cards = make_cards(4)
+    fake = FakeClaude(cards, script={1: claude_error()})
+    run_allowing_stop(tmp_path, cards, fake, chunk_size=2)
+    assert "2 written" in capsys.readouterr().out
+
+
+def test_non_text_answers_are_not_reported_as_repeats():
+    problems = block.validate_answers([line("w00", [None, 5])], make_cards(1))
+    assert not any("twice" in p for p in problems)

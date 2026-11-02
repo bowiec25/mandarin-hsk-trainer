@@ -14,6 +14,7 @@ from pathlib import Path
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 from quizkit.blocks.base import BlockSpec
+from quizkit.blocks.grader import GradeSettings, clean
 from quizkit.claude import ClaudeReply, ask_claude
 from quizkit.files import write_atomically
 from quizkit.models import Card
@@ -101,8 +102,8 @@ class AnswerFileError(ValueError):
 
 
 class _ReplyCard(BaseModel):
-    id: object  # both checked per card, so one bad card fails alone
-    answers: object
+    id: object = None  # all checked per card, so one bad card fails alone
+    answers: object = None
 
 
 class _Reply(BaseModel):
@@ -127,11 +128,18 @@ def build_prompt(cards: list[Card]) -> str:
     return INSTRUCTIONS + "\n".join(rows) + "\n"
 
 
+def _same_key(answer: str) -> str:
+    """How the grader compares answers: "To Love" and "love" are the same answer."""
+    return clean(answer, GradeSettings()) or answer.strip().lower()
+
+
 def _without_repeats(answers: list[str]) -> list[str]:
-    """Trimmed, with later repeats (ignoring case) removed: a repeat does no harm."""
+    """Trimmed, with later repeats (as the grader sees them) removed: they do no harm."""
     kept: list[str] = []
+    seen: set[str] = set()
     for answer in (a.strip() for a in answers):
-        if answer.lower() not in {k.lower() for k in kept}:
+        if _same_key(answer) not in seen:
+            seen.add(_same_key(answer))
             kept.append(answer)
     return kept
 
@@ -150,7 +158,9 @@ def _line_problems(line: AnswerLine) -> list[str]:
             problems.append(
                 f"{line.id}: answer {answer!r} may only use letters, digits, spaces, ' . and -"
             )
-        key = text.strip().lower()
+        if not isinstance(answer, str):
+            continue
+        key = _same_key(text)
         if key in seen:
             problems.append(f"{line.id}: answer {answer!r} is listed twice")
         seen.add(key)
@@ -188,10 +198,17 @@ def parse_reply(text: str) -> _Reply:
         raise ValueError(f"reply is not the JSON asked for: {err}") from err
 
 
-def _load_existing(out: Path, known: set[str]) -> dict[str, AnswerLine]:
+def _load_existing(out: Path, known: set[str]) -> tuple[dict[str, AnswerLine], bool]:
+    """The good lines already saved, and whether the file needs rewriting.
+
+    Lines are tidied (repeats removed). A line for a card that's gone is dropped; a
+    line from an older PROMPT_VERSION, or one failing the checker (e.g. a bad hand
+    edit), is left out so the card is asked again.
+    """
     if not out.exists():
-        return {}
+        return {}, False
     done: dict[str, AnswerLine] = {}
+    changed = False
     for number, raw in enumerate(out.read_text(encoding="utf-8").splitlines(), 1):
         if not raw.strip():
             continue
@@ -201,17 +218,29 @@ def _load_existing(out: Path, known: set[str]) -> dict[str, AnswerLine]:
             raise AnswerFileError(
                 f"{out.name} line {number} can't be read; fix or delete it: {err}"
             ) from err
-        if line.id in known:
-            done[line.id] = line
-        else:
+        if line.id not in known:
             print(f"Warning: dropped {line.id!r} from {out.name} (no longer a card)")
-    return done
+            changed = True
+            continue
+        tidy = line.model_copy(update={"answers": _without_repeats(line.answers)})
+        problems = _line_problems(tidy)
+        if line.prompt_version != PROMPT_VERSION or problems or line.id in done:
+            why = "; ".join(problems) or (
+                "listed twice" if line.id in done else "older prompt version"
+            )
+            print(f"Will redo {line.id!r}: {why}")
+            done.pop(line.id, None)
+            changed = True
+            continue
+        changed |= tidy.answers != line.answers
+        done[line.id] = tidy
+    return done, changed
 
 
 def _save(out: Path, cards: list[Card], done: dict[str, AnswerLine]) -> None:
-    rows = [done[c.id].model_dump_json() for c in cards if c.id in done]
+    rows = [done[c.id].model_dump() for c in cards if c.id in done]
     out.parent.mkdir(parents=True, exist_ok=True)
-    data = "".join(json.dumps(json.loads(r), ensure_ascii=False) + "\n" for r in rows)
+    data = "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows)
     write_atomically(out, data.encode("utf-8"))
 
 
@@ -249,7 +278,9 @@ def write_answers(
         raise ValueError("chunk_size must be at least 1")
     if limit is not None and limit < 0:
         raise ValueError("limit can't be negative")
-    done = _load_existing(out, {c.id for c in cards})
+    done, changed = _load_existing(out, {c.id for c in cards})
+    if changed and not dry_run:
+        _save(out, cards, done)  # tidied / dropped lines are written back at once
     todo = [c for c in cards if c.id not in done]
     if limit is not None:
         todo = todo[:limit]
@@ -263,50 +294,57 @@ def write_answers(
         print(f"Dry run: {len(todo)} cards in {len(chunks)} calls; nothing sent.")
         return run
 
-    for chunk in chunks:
-        reply = ask(build_prompt(chunk))  # ClaudeError goes up: earlier chunks saved
-        _log(log, reply, len(chunk))
-        run.input_tokens += reply.input_tokens
-        run.output_tokens += reply.output_tokens
-        try:
-            parsed = {
-                c.id: c.answers
-                for c in parse_reply(reply.text).cards
-                if isinstance(c.id, str)
-            }
-        except ValueError as err:
-            print(f"Chunk failed ({len(chunk)} cards): {err}")
-            run.failed += [c.id for c in chunk]
-            continue
-        for card in chunk:
-            given = parsed.get(card.id)
-            if given is None or not (
-                isinstance(given, list) and all(isinstance(a, str) for a in given)
-            ):
-                if given is not None:
-                    print(f"Not saved: {card.id}: answers must all be text")
-                run.failed.append(card.id)
-                continue
-            line = AnswerLine(
-                id=card.id,
-                hanzi=card.fields.get("hanzi", card.id),
-                answers=_without_repeats(given),
-                model=reply.model,
-                prompt_version=PROMPT_VERSION,
-            )
-            problems = _line_problems(line)
-            if problems:
-                print("Not saved: " + "; ".join(problems))
-                run.failed.append(card.id)
-                continue
-            done[card.id] = line
-            run.written += 1
-        _save(out, cards, done)
+    try:
+        for chunk in chunks:
+            _do_chunk(chunk, ask, cards, done, run, out, log)
+    finally:  # also after a ClaudeError, so the summary is never lost
+        _print_summary(run)
+    return run
 
+
+def _do_chunk(chunk, ask, cards, done, run, out, log) -> None:
+    reply = ask(build_prompt(chunk))  # ClaudeError goes up: earlier chunks saved
+    _log(log, reply, len(chunk))
+    run.input_tokens += reply.input_tokens
+    run.output_tokens += reply.output_tokens
+    try:
+        parsed = {
+            c.id: c.answers
+            for c in parse_reply(reply.text).cards
+            if isinstance(c.id, str)
+        }
+    except ValueError as err:
+        print(f"Chunk failed ({len(chunk)} cards): {err}")
+        run.failed += [c.id for c in chunk]
+        return
+    for card in chunk:
+        given = parsed.get(card.id)
+        if not (isinstance(given, list) and all(isinstance(a, str) for a in given)):
+            if card.id in parsed:
+                print(f"Not saved: {card.id}: answers must be a list of text")
+            run.failed.append(card.id)
+            continue
+        line = AnswerLine(
+            id=card.id,
+            hanzi=card.fields.get("hanzi", card.id),
+            answers=_without_repeats(given),
+            model=reply.model,
+            prompt_version=PROMPT_VERSION,
+        )
+        problems = _line_problems(line)
+        if problems:
+            print("Not saved: " + "; ".join(problems))
+            run.failed.append(card.id)
+            continue
+        done[card.id] = line
+        run.written += 1
+    _save(out, cards, done)
+
+
+def _print_summary(run: AnswerRun) -> None:
     print(
         f"{run.written} written, {run.skipped} skipped, {len(run.failed)} failed"
         f" · {run.input_tokens + run.output_tokens:,} tokens"
     )
     if run.failed:
         print("Failed (re-run to retry): " + ", ".join(run.failed))
-    return run

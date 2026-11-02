@@ -120,7 +120,9 @@ def ask_claude(
             raise ClaudeError(f"claude took longer than {timeout:g} s") from err
         except OSError as err:
             raise ClaudeError(f"could not start claude: {err}") from err
-    if result.returncode != 0 and not result.stdout.strip():
+    if result.returncode != 0:
+        if result.stdout.strip():
+            parse_reply(result.stdout, model)  # raises with Claude's own message
         hint = (result.stderr or "").strip()[:300]
         raise ClaudeError(
             f"claude exited with code {result.returncode}: {hint or 'no message'} "
