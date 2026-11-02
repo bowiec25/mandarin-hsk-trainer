@@ -40,10 +40,7 @@
 - [ ] M5 Learning smarts
 - [ ] M6 Web UI
 
-**Future (not v1):**
-- **Sentence translation** (user wants this eventually, 2026-11-02): the learner translates whole sentences. Rules can't judge sentence meaning, so this **needs a judgment agent** for grading (cached verdicts, so the quiz stays offline-first). Builds on the M5 agent grading fallback.
-- Several bands together (e.g. bands 1+2 in one quiz). M3's `--band N` means only band N's new words (user's call, 2026-11-02); a combined option comes later.
-- Listening practice: words and sentences read aloud (text-to-speech). Setup already allows it: stable card ids (audio files named after them), modes as config (a new `listen` mode), and the `readings` field flags the multi-reading words whose pinyin may need an HSK-correct override.
+**Future (not v1):** moved to its own list, **`docs/FUTURE.md`** (smart "what's next" deck, mistake log, sentence translation, bands together, listening). Add new ideas there.
 
 **Side topics (cover when relevant):**
 - [ ] VS Code + Claude extension vs terminal: when to use which
