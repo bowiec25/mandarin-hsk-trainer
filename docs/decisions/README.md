@@ -11,6 +11,7 @@
 | [0002](0002-script-vs-agent.md) | Script if code can check it; agent if it needs judgment | Accepted |
 | [0003](0003-block-contract.md) | Every block = SPEC.md + code + tests | Accepted |
 | [0004](0004-word-list-source.md) | 2026 HSK 3.0 syllabus from `complete-hsk-vocabulary`, pinned | Accepted |
+| [0005](0005-answer-agent-and-judge.md) | Grading = answer list + Claude judge, both via `claude -p` (subscription) | Accepted |
 
 ## Template
 ```markdown

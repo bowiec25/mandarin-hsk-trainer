@@ -36,7 +36,11 @@
   - [x] 6. Play-test (works; the user's verdict: grading needs judgment, not rules → M4 answer agent) + reuse check (`examples/capitals_quiz.py` plays with `hsk_trainer` blocked; `tests/test_reuse.py` also scans that no `quizkit` file imports `hsk_trainer`). The check found a weak spot, so the **engine** now treats Ctrl-C anywhere in `run_quiz` as a quit (full block routine) and the CLI uses `run_quiz` again. Plus the M3 lessons in the playbook
 - [ ] **M4 Sentences (first agent)** ← *now* (issue #28)
   - [x] 1. Stronger "Still the right thing?" (user's ask: don't stay wedded to the original plan): required field in a GitHub **issue form**, a section in the **PR template**, and a **CI check** that fails a PR with that section empty (`.github/scripts/check_pr_body.py`, 22 tests). It runs inside the required `check` job, so protected `main` enforces it. Re-check of M4: the answer agent now comes **before** `sentence_writer` (it fixes the play-test problem and is a smaller first agent)
-  - [ ] 2. ADR for the answer agent (incl. paid API vs running the batch under the Claude subscription)
+  - [x] 2. **ADR 0005**: grading = two layers. (1) an **answer list** written once by an offline batch agent, checked by a script, spot-checked, committed; (2) a **Claude judge** asked only when the list says "wrong", verdicts cached. Both call Claude via `claude -p` (**subscription**, no API key; tested: ~8 s a call, reports tokens). Still-the-right-thing change: the user spotted that sentence translation can't use a fixed list, so the judge (planned for M5) moves into M4
+  - [ ] 3. `answer_writer` agent + validator → `data/generated/answers.jsonl`
+  - [ ] 4. Judge: a generic slot in `quizkit` + the HSK judge (`claude -p`), cache, `--no-judge`
+  - [ ] 5. `sentence_writer` + `sentence_validator` (unlocks `char_sentence`, `full`)
+  - [ ] 6. `data-auditor` subagent
   - [ ] `data-auditor` subagent (moved from M1: needs real sentences to test against)
   - [ ] **Answer agent** (user's call, 2026-11-02): an offline batch agent writes each card's clean answer list *with synonyms* ("father, dad, papa"); a script validates it; the user spot-checks; committed as a file. Replaces the M3 rule-based `cedict_cleaner` (a stopgap). Needs a new ADR
 - [ ] M5 Learning smarts
@@ -155,7 +159,7 @@ mandarin-hsk-trainer/
 
 **M4: Sentences (first agent).** The `sentence_writer` agent with a `check_vocab_level` tool, plus `sentence_validator`. Trial run on 20 band-1 words → you review → full batch (I show the estimated cost first) → commit. This unlocks modes `char_sentence` and `full`.
 
-**M5: Learning smarts.** `progress_store`, Leitner spaced repetition, `hsk stats`, the optional agent grading fallback with cached verdicts.
+**M5: Learning smarts.** `progress_store`, Leitner spaced repetition, `hsk stats`. (The agent grading fallback moved to M4, ADR 0005.)
 
 **M6: Web UI.** A Streamlit front end on the same `quizkit` engine, with no logic duplicated.
 
