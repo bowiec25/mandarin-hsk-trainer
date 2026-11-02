@@ -28,6 +28,7 @@
   - [x] 1b. Build map: new "What we've built, by kind" section (incl. subagent vs agent), "journey of one change" (every hook, skill, subagent and gate; code review shown as a gap), frozen snapshots per step in `docs/build-map/snapshots/`
   - [x] 1b+. Build map: "Flow diagrams: three views" (how a step is built, in lanes; what the app does; one Claude action up close)
   - [x] 1c. Code review (PR #18 + this step's PR): `/code-review` before every PR + Claude GitHub app (`/install-github-app`, subscription token; ⚠️ the token was made 2026-11-02 and expires after 1 year, so **renew it before 2027-10-15**)
+  - [x] 1d. Proved the GitHub review with a planted-bug test PR (#20, closed, not merged): caught ×10-instead-of-×100, missed divide-by-zero. Workflow left as installed (it works on code PRs)
   - [ ] 2. `grader` block (generic, `quizkit`): clean the raw dictionary answers (`to `, `(…)` notes, case) + typo tolerance
   - [ ] 3. `deck_builder` block (generic, `quizkit`): pick cards (band, n, shuffle), reuse `build_question()` (worktree demo, optional)
   - [ ] 4. `engine`: the quiz loop, tested with fake typed answers

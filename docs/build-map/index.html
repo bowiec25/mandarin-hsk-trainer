@@ -190,7 +190,7 @@ a { color: var(--info); }
 
 <header>
   <h1>HSK Trainer Build Map</h1>
-  <p class="lede">What exists after M0–M2 and M3 Step 1c (2026-11-02): every kind of part we built and where it lives, three flow diagrams, the data pipeline, every check a change has to pass, and how new blocks get built. Older versions: see section 9. Repo: <span class="mono">bowiec25/mandarin-hsk-trainer</span>.</p>
+  <p class="lede">What exists after M0–M2 and M3 Step 1d (2026-11-02): every kind of part we built and where it lives, three flow diagrams, the data pipeline, every check a change has to pass, and how new blocks get built. Older versions: see section 9. Repo: <span class="mono">bowiec25/mandarin-hsk-trainer</span>.</p>
 </header>
 
 <section aria-label="Summary">
@@ -234,7 +234,7 @@ a { color: var(--info); }
         <div class="item guide"><b>subagent: test-writer</b>writes tests from the SPEC only<small>after the SPEC, before code</small></div>
         <div class="item guide"><b>subagent: block-reviewer</b>fresh, read-only eyes on one block<small>before a block PR, until ✅</small></div>
         <div class="item guide"><b>skill: /code-review</b>built in; hunts for bugs in the change<small>before every PR · CLAUDE.md rule</small></div>
-        <div class="item auto"><b>Claude GitHub app</b>reviews every PR; answers <code>@claude</code><small>on GitHub · comments; may push a branch</small></div>
+        <div class="item auto"><b>Claude GitHub app</b>reviews every PR; answers <code>@claude</code><small>on GitHub · tested: caught 1 of 2 planted bugs</small></div>
       </div>
     </div>
     <div class="layer">
@@ -602,7 +602,7 @@ a { color: var(--info); }
     <div class="gate auto">
       <h3>Claude review on GitHub</h3>
       <span class="chip auto">Automatic, advice only</span>
-      <ul><li>GitHub app comments on the PR's lines</li><li>you read them before merging</li></ul>
+      <ul><li>GitHub app comments on the PR's lines</li><li>planted-bug test: caught 1 of 2</li><li>you read them before merging</li></ul>
     </div>
     <div class="gate hard">
       <h3>Protected main</h3>
@@ -734,6 +734,7 @@ a { color: var(--info); }
     <p class="lede">One line per step, newest first. Click <b>snapshot</b> to see the whole map exactly as it was after that step.</p>
   </div>
   <ol class="timeline card" reversed>
+    <li><span class="when">2026-11-02</span><span class="what">M3 Step 1d</span><span>Proved the GitHub review with a planted-bug PR (#20, closed): it caught ×10-instead-of-×100 and missed the divide-by-zero. Lesson: green ≠ reviewed, and a reviewer catches some bugs, not all · <a href="snapshots/m3-step1d.html">snapshot</a></span></li>
     <li><span class="when">2026-11-02</span><span class="what">M3 Step 1c</span><span>Code review, two layers: <code>/code-review</code> before every PR (CLAUDE.md rule + PR checkbox), and the Claude GitHub app reviewing every PR (#18, subscription token). Was planned since M1 but never wired in · <a href="snapshots/m3-step1c.html">snapshot</a></span></li>
     <li><span class="when">2026-11-02</span><span class="what">Map: flow diagrams</span><span>New section 2 with three flow views: how one step gets built (in lanes, with the fail loops), what the app does with the words, and one Claude action up close (hooks + permissions) · <a href="snapshots/m3-flows.html">snapshot</a></span></li>
     <li><span class="when">2026-11-02</span><span class="what">M3 Step 1b</span><span>New section 1 (every kind of part, where it lives, subagent vs agent) and section 3 (the journey of a change: every hook, skill, subagent and gate). Code review shown as a gap. Frozen snapshots per step · <a href="snapshots/m3-step1b.html">snapshot</a></span></li>
@@ -748,7 +749,7 @@ a { color: var(--info); }
 </section>
 
 <footer>
-  Latest map, after M3 Step 1c, 2026-11-02. There are no snapshots from before M2 done (the map started then). Known gaps, by choice: words with several readings keep all of them (197 words), "bands 1+2 together" comes later, listening practice is a "Future (not v1)" note in PLAN.md. Reminder: the Claude review token expires after 1 year (renew before 2027-10-15). Green on GitHub is not the same as reviewed.
+  Latest map, after M3 Step 1d, 2026-11-02. There are no snapshots from before M2 done (the map started then). Known gaps, by choice: words with several readings keep all of them (197 words), "bands 1+2 together" comes later, listening practice is a "Future (not v1)" note in PLAN.md. Reminder: the Claude review token expires after 1 year (renew before 2027-10-15). Green on GitHub is not the same as reviewed.
 </footer>
 
 </main>

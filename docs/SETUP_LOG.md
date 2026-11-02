@@ -491,3 +491,15 @@ You now have: decision records, data shapes, hooks and permissions, the `/new-bl
 - `/code-review` is **built into** Claude Code, so there was nothing to install, only a trigger to add.
 - **First real GitHub review run (PR #19):** it really ran this time (no skip), but Claude finished in **3 seconds, 2 turns, 0 comments**, and its output is hidden in the log. A real review of this diff would take minutes. So it's **installed but not proven**. Next (Step 1d): a test PR with a **planted bug** to see if it catches it, then fix the workflow file in its own PR.
 
+## M3 Step 1d: Proving the GitHub reviewer works (2026-11-02)
+
+> **In plain words:** we planted 2 bugs in a throwaway PR (#20) to see if the GitHub reviewer catches them. Same trick as testing the subagents in M1.
+
+- **The planted code:** `percent_correct(correct, total)` with 2 bugs: it multiplied by **10 instead of 100**, and it **crashes when total is 0**. The title and description gave no hint.
+- **Result:** the review ran for 19 seconds, 5 turns, and left **1 comment** on the exact line: "multiplies by 10, not 100 … `percent_correct(8, 10)` returns 8.0 instead of 80.0", with a one-click fix. ✅
+- **Missed:** the divide-by-zero. ❌
+- **What it means:**
+  - The reviewer **works on code**. On docs-only PR #19 it probably found nothing worth saying (3 seconds, no comments). That's likely, not certain, because its output is hidden.
+  - **A reviewer catches some bugs, not all.** Tests are what make a rule certain. That's why the test-writer stays in the routine.
+  - The workflow file stays as installed for now. The "don't run duplicate reviews" idea can wait until double runs actually cost us something.
+- **Cleanup:** PR #20 was closed with a note, not merged, and its branch deleted.

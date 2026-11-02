@@ -420,6 +420,7 @@ Also: write **`@claude`** in any PR or issue comment to ask the GitHub app a que
 ⚠️ **Watch out:**
 - **The subscription token expires after 1 year.** Put an exact renewal date **before** expiry in your plan (here: before 2027-10-15). When it expires, the review job fails, and since review is advice-only, nobody may notice.
 - **Green ≠ reviewed.** The review only runs once its workflow file on the branch matches `main`. The first run (the install PR itself) and any PR that edits the workflow show green but **skip**. Check the run log once.
+- **Prove it with a planted bug** before trusting it: a throwaway PR with 2 hidden bugs (here it caught 1 of 2). Close it unmerged.
 - **Change the workflow in its own PR.** Otherwise you lose the review on your real changes.
 - **Fork PRs get no review** (GitHub hides secrets from forks). `@claude` only works for people with write access.
 - **Never paste the token in chat.** The installer saves it as a GitHub secret.
