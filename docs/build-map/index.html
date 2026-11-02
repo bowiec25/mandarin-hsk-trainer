@@ -128,6 +128,34 @@ tfoot td { font-weight: 600; border-bottom: none; }
 .timeline .what { font-weight: 600; }
 @media (max-width: 640px) { .timeline li { grid-template-columns: 1fr; gap: 2px; } }
 
+/* Flow diagrams */
+.fl text { fill: var(--ink); font-family: var(--font-body); font-size: 11.5px; }
+.fl .t { font-weight: 600; }
+.fl .s { fill: var(--muted); font-size: 10.5px; }
+.fl .lane { fill: var(--bg); stroke: var(--line); }
+.fl .lane-t { font: 600 11px var(--font-body); letter-spacing: 0.06em; fill: var(--muted); }
+.fl .box { fill: var(--surface); stroke: var(--ink); stroke-opacity: 0.45; stroke-width: 1.2; }
+.fl .box.hard { stroke: var(--accent); stroke-opacity: 1; stroke-width: 2; }
+.fl .box.auto { stroke: var(--warn); stroke-opacity: 1; stroke-width: 2; }
+.fl .box.guide { stroke: var(--info); stroke-opacity: 1; stroke-width: 2; }
+.fl .box.you { stroke: var(--pass); stroke-opacity: 1; stroke-width: 2; }
+.fl .box.key { stroke: var(--accent); stroke-opacity: 1; stroke-width: 2; }
+.fl .box.todo { stroke-dasharray: 5 4; fill: transparent; }
+.fl .box.stop { fill: var(--accent); fill-opacity: 0.12; stroke: var(--accent); stroke-opacity: 1; }
+.fl .ar { fill: none; stroke: var(--ink); stroke-opacity: 0.7; stroke-width: 1.3; }
+.fl .ar.plan { stroke-dasharray: 5 4; stroke-opacity: 0.55; }
+.fl .ar.no { stroke: var(--accent); stroke-opacity: 1; stroke-dasharray: 4 3; }
+.fl .ar.next { stroke: var(--pass); stroke-opacity: 1; stroke-dasharray: 6 4; }
+.fl .no-t { fill: var(--accent); font-size: 10.5px; font-weight: 600; }
+.fl .next-t { fill: var(--pass); font-size: 10.5px; font-weight: 600; }
+.fl .mk { fill: var(--ink); opacity: 0.8; }
+.fl .mk-no { fill: var(--accent); }
+.fl .mk-next { fill: var(--pass); }
+.fl.wide svg { min-width: 1300px; }
+.fl .t { font-size: 11px; }
+.views { display: grid; gap: 22px; }
+.views h3 { margin: 0 0 4px; font: 600 17px/1.25 var(--font-display); }
+
 /* Parts by kind (layers) */
 .layers { display: grid; gap: 10px; }
 .layer { display: grid; grid-template-columns: 210px 1fr; gap: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
@@ -162,7 +190,7 @@ a { color: var(--info); }
 
 <header>
   <h1>HSK Trainer Build Map</h1>
-  <p class="lede">What exists after M0–M2 and M3 Step 1b (2026-11-02): every kind of part we built and where it lives, the data pipeline, every check a change has to pass, and how new blocks get built. Older versions: see section 8. Repo: <span class="mono">bowiec25/mandarin-hsk-trainer</span>.</p>
+  <p class="lede">What exists after M0–M2 and M3 Step 1b + flow diagrams (2026-11-02): every kind of part we built and where it lives, three flow diagrams, the data pipeline, every check a change has to pass, and how new blocks get built. Older versions: see section 9. Repo: <span class="mono">bowiec25/mandarin-hsk-trainer</span>.</p>
 </header>
 
 <section aria-label="Summary">
@@ -267,7 +295,160 @@ a { color: var(--info); }
 
 <section>
   <div>
-    <h2>2. How the words get in</h2>
+    <h2>2. Flow diagrams: three views</h2>
+    <p class="lede">The same project seen three ways: how we build, what the app does, and what happens on every single Claude action. Solid = built, dashed = planned. Red dashed arrows = "failed, go back and fix".</p>
+  </div>
+  <div class="views">
+    <figure class="card diagram fl wide">
+      <h3>View A · How one step gets built (who does what)</h3>
+      <svg viewBox="0 -28 1460 538" role="img" aria-label="Swimlane flow of one build step: you give the go, Claude plans, the /new-block skill scaffolds, you write the SPEC together, the test-writer subagent writes tests, Claude writes code while two hooks fire on every edit, local ruff and pytest checks loop back on failure, the block-reviewer subagent loops back on issues, /code-review comes next, docs and the build map are updated, Claude commits and pushes, GitHub runs CI and the Claude review, protected main requires green CI, and you merge, which starts the next step.">
+      <defs>
+        <marker id="fa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="fno" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk-no" d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="fnext" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk-next" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+<rect class="lane" x="0" y="10" width="1460" height="80" rx="6"/><text class="lane-t" x="10" y="34">YOU</text><text class="s" x="10" y="50">decide · approve</text>
+<rect class="lane" x="0" y="100" width="1460" height="80" rx="6"/><text class="lane-t" x="10" y="124">CLAUDE</text><text class="s" x="10" y="140">main session</text>
+<rect class="lane" x="0" y="190" width="1460" height="80" rx="6"/><text class="lane-t" x="10" y="214">HELPERS</text><text class="s" x="10" y="230">skill · subagents · hooks</text>
+<rect class="lane" x="0" y="280" width="1460" height="80" rx="6"/><text class="lane-t" x="10" y="304">YOUR COMPUTER</text><text class="s" x="10" y="320">checks · git</text>
+<rect class="lane" x="0" y="370" width="1460" height="120" rx="6"/><text class="lane-t" x="10" y="394">GITHUB</text><text class="s" x="10" y="410">PR · CI · review · main</text>
+<rect class="box you" x="140" y="25.0" width="96" height="50" rx="6"/><text class="t" x="188.0" y="47.0" text-anchor="middle">1 · Idea</text><text class="s" x="188.0" y="62.0" text-anchor="middle">you say go</text>
+<rect class="box " x="250" y="115.0" width="96" height="50" rx="6"/><text class="t" x="298.0" y="137.0" text-anchor="middle">2 · Plan</text><text class="s" x="298.0" y="152.0" text-anchor="middle">right thing?</text>
+<rect class="box guide" x="360" y="205.0" width="96" height="50" rx="6"/><text class="t" x="408.0" y="227.0" text-anchor="middle">3 · /new-block</text><text class="s" x="408.0" y="242.0" text-anchor="middle">skill → scaffold</text>
+<rect class="box you" x="470" y="25.0" width="96" height="50" rx="6"/><text class="t" x="518.0" y="47.0" text-anchor="middle">4 · SPEC</text><text class="s" x="518.0" y="62.0" text-anchor="middle">written together</text>
+<rect class="box guide" x="580" y="205.0" width="96" height="50" rx="6"/><text class="t" x="628.0" y="227.0" text-anchor="middle">5 · Tests first</text><text class="s" x="628.0" y="242.0" text-anchor="middle">test-writer</text>
+<rect class="box " x="690" y="115.0" width="96" height="50" rx="6"/><text class="t" x="738.0" y="137.0" text-anchor="middle">6 · Write code</text><text class="s" x="738.0" y="152.0" text-anchor="middle">until tests pass</text>
+<rect class="box hard" x="690" y="203" width="96" height="22" rx="6"/><text class="t" x="738.0" y="218.0" text-anchor="middle">block_env</text>
+<rect class="box auto" x="690" y="231" width="96" height="22" rx="6"/><text class="t" x="738.0" y="246.0" text-anchor="middle">format</text>
+<rect class="box guide" x="800" y="295.0" width="96" height="50" rx="6"/><text class="t" x="848.0" y="317.0" text-anchor="middle">7 · Checks</text><text class="s" x="848.0" y="332.0" text-anchor="middle">ruff + pytest</text>
+<rect class="box guide" x="910" y="205.0" width="96" height="50" rx="6"/><text class="t" x="958.0" y="227.0" text-anchor="middle">8 · Review</text><text class="s" x="958.0" y="242.0" text-anchor="middle">block-reviewer</text>
+<rect class="box guide todo" x="1020" y="205.0" width="96" height="50" rx="6"/><text class="t" x="1068.0" y="227.0" text-anchor="middle">9 · Code review</text><text class="s" x="1068.0" y="242.0" text-anchor="middle">/code-review · 1c</text>
+<rect class="box guide" x="1130" y="115.0" width="96" height="50" rx="6"/><text class="t" x="1178.0" y="137.0" text-anchor="middle">10 · Docs + map</text><text class="s" x="1178.0" y="152.0" text-anchor="middle">log · snapshot</text>
+<rect class="box " x="1130" y="295.0" width="96" height="50" rx="6"/><text class="t" x="1178.0" y="317.0" text-anchor="middle">11 · Commit, push</text><text class="s" x="1178.0" y="332.0" text-anchor="middle">branch → GitHub</text>
+<rect class="box auto" x="1240" y="380" width="96" height="40" rx="6"/><text class="t" x="1288.0" y="397.0" text-anchor="middle">12 · CI</text><text class="s" x="1288.0" y="412.0" text-anchor="middle">ruff + pytest</text>
+<rect class="box auto todo" x="1240" y="440" width="96" height="40" rx="6"/><text class="t" x="1288.0" y="457.0" text-anchor="middle">Claude review</text><text class="s" x="1288.0" y="472.0" text-anchor="middle">app · Step 1c</text>
+<rect class="box hard" x="1350" y="405" width="96" height="50" rx="6"/><text class="t" x="1398.0" y="427.0" text-anchor="middle">Protected main</text><text class="s" x="1398.0" y="442.0" text-anchor="middle">green CI needed</text>
+<rect class="box you" x="1350" y="25.0" width="96" height="50" rx="6"/><text class="t" x="1398.0" y="47.0" text-anchor="middle">13 · You merge</text><text class="s" x="1398.0" y="62.0" text-anchor="middle">your call</text>
+<path class="ar " d="M236,50 H243 V140 H250" marker-end="url(#fa)"/>
+<path class="ar " d="M346,140 H353 V230 H360" marker-end="url(#fa)"/>
+<path class="ar " d="M456,230 H463 V50 H470" marker-end="url(#fa)"/>
+<path class="ar " d="M566,50 H573 V230 H580" marker-end="url(#fa)"/>
+<path class="ar " d="M676,230 H683 V140 H690" marker-end="url(#fa)"/>
+<path class="ar plan" d="M738,165 V203"/>
+<text class="s" x="742" y="190">hooks, every edit</text>
+<path class="ar " d="M786,140 H793 V320 H800" marker-end="url(#fa)"/>
+<path class="ar " d="M896,320 H903 V230 H910" marker-end="url(#fa)"/>
+<path class="ar " d="M1006,230 H1020" marker-end="url(#fa)"/>
+<path class="ar " d="M1116,230 H1123 V140 H1130" marker-end="url(#fa)"/>
+<path class="ar " d="M1178,165 V295" marker-end="url(#fa)"/>
+<path class="ar " d="M1226,320 H1233 V400 H1240" marker-end="url(#fa)"/>
+<path class="ar " d="M1288,420 V440" marker-end="url(#fa)"/>
+<path class="ar " d="M1336,400 H1343 V430 H1350" marker-end="url(#fa)"/>
+<path class="ar" d="M1336,460 H1343 V430"/>
+<path class="ar " d="M1398,405 V75" marker-end="url(#fa)"/>
+<path class="ar no" d="M830,295 V158 H786" marker-end="url(#fno)"/>
+<text class="no-t" x="836" y="275">fail → fix</text>
+<path class="ar no" d="M970,205 V122 H786" marker-end="url(#fno)"/>
+<text class="no-t" x="976" y="185">issues → fix</text>
+<text class="no-t" x="1238" y="500">red → fix, push again</text>
+<path class="ar next" d="M1398,25 V-10 H188 V25" marker-end="url(#fnext)"/>
+<text class="next-t" x="700" y="-15" text-anchor="middle">merged → the next step starts at 1</text>
+    </svg>
+      <figcaption>Read left to right. Each lane is one "who". The two red loops are where problems get caught early: failing checks, and the reviewer's issues. Both send the work back to 6. Box 9 and the Claude review on GitHub are being added in Step 1c. Not every step uses every box: a docs-only step skips 3–5 and 8.</figcaption>
+    </figure>
+    <figure class="card diagram fl">
+      <h3>View B · What the app does with the words (the product)</h3>
+      <svg viewBox="0 0 1120 315" role="img" aria-label="Product flow: the pinned source is fetched into data/raw, the normalizer writes 978 cards to cards.jsonl. Planned: the deck_builder deals cards using the mode config, the engine asks you and gets your answer, the grader marks it, progress_store remembers in M5. In M4 an offline sentence_writer agent calls the Claude API, its sentences go through a validator into sentences.jsonl, which the deck_builder adds.">
+      <defs>
+        <marker id="fb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+<text class="lane-t" x="20" y="20">BUILT NOW (solid)  ·  PLANNED (dashed)</text>
+<rect class="box " x="20" y="35" width="110" height="50" rx="6"/><text class="t" x="75.0" y="57.0" text-anchor="middle">Pinned source</text><text class="s" x="75.0" y="72.0" text-anchor="middle">GitHub @ 7ac65bf</text>
+<rect class="box " x="150" y="35" width="110" height="50" rx="6"/><text class="t" x="205.0" y="57.0" text-anchor="middle">fetcher</text><text class="s" x="205.0" y="72.0" text-anchor="middle">hsk · script</text>
+<rect class="box " x="280" y="35" width="110" height="50" rx="6"/><text class="t" x="335.0" y="57.0" text-anchor="middle">data/raw</text><text class="s" x="335.0" y="72.0" text-anchor="middle">3 JSON files</text>
+<rect class="box " x="410" y="35" width="110" height="50" rx="6"/><text class="t" x="465.0" y="57.0" text-anchor="middle">normalizer</text><text class="s" x="465.0" y="72.0" text-anchor="middle">hsk · script</text>
+<rect class="box key" x="540" y="35" width="110" height="50" rx="6"/><text class="t" x="595.0" y="57.0" text-anchor="middle">cards.jsonl</text><text class="s" x="595.0" y="72.0" text-anchor="middle">978 cards</text>
+<rect class="box todo" x="690" y="35" width="110" height="50" rx="6"/><text class="t" x="745.0" y="57.0" text-anchor="middle">deck_builder</text><text class="s" x="745.0" y="72.0" text-anchor="middle">M3 · deals cards</text>
+<rect class="box todo" x="840" y="35" width="110" height="50" rx="6"/><text class="t" x="895.0" y="57.0" text-anchor="middle">engine</text><text class="s" x="895.0" y="72.0" text-anchor="middle">M3 · asks, scores</text>
+<rect class="box you" x="990" y="35" width="110" height="50" rx="6"/><text class="t" x="1045.0" y="57.0" text-anchor="middle">You</text><text class="s" x="1045.0" y="72.0" text-anchor="middle">type the answer</text>
+<rect class="box " x="410" y="145" width="110" height="50" rx="6"/><text class="t" x="465.0" y="167.0" text-anchor="middle">modes (config)</text><text class="s" x="465.0" y="182.0" text-anchor="middle">char · char_pinyin</text>
+<rect class="box todo" x="840" y="145" width="110" height="50" rx="6"/><text class="t" x="895.0" y="167.0" text-anchor="middle">grader</text><text class="s" x="895.0" y="182.0" text-anchor="middle">M3 · right/wrong?</text>
+<rect class="box todo" x="990" y="145" width="110" height="50" rx="6"/><text class="t" x="1045.0" y="167.0" text-anchor="middle">progress_store</text><text class="s" x="1045.0" y="182.0" text-anchor="middle">M5 · remembers</text>
+<text class="lane-t" x="20" y="232">M4 · OFFLINE BATCH, RUN RARELY</text>
+<rect class="box todo" x="20" y="245" width="110" height="50" rx="6"/><text class="t" x="75.0" y="267.0" text-anchor="middle">Claude API</text><text class="s" x="75.0" y="282.0" text-anchor="middle">tokens logged</text>
+<rect class="box todo" x="280" y="245" width="110" height="50" rx="6"/><text class="t" x="335.0" y="267.0" text-anchor="middle">sentence_writer</text><text class="s" x="335.0" y="282.0" text-anchor="middle">AGENT · M4</text>
+<rect class="box todo" x="410" y="245" width="110" height="50" rx="6"/><text class="t" x="465.0" y="267.0" text-anchor="middle">validator</text><text class="s" x="465.0" y="282.0" text-anchor="middle">script · M4</text>
+<rect class="box todo" x="540" y="245" width="110" height="50" rx="6"/><text class="t" x="595.0" y="267.0" text-anchor="middle">sentences.jsonl</text><text class="s" x="595.0" y="282.0" text-anchor="middle">you review</text>
+<path class="ar " d="M130,60 H150" marker-end="url(#fa)"/>
+<path class="ar " d="M260,60 H280" marker-end="url(#fa)"/>
+<path class="ar " d="M390,60 H410" marker-end="url(#fa)"/>
+<path class="ar " d="M520,60 H540" marker-end="url(#fa)"/>
+<path class="ar plan" d="M650,60 H690" marker-end="url(#fa)"/>
+<path class="ar plan" d="M800,60 H840" marker-end="url(#fa)"/>
+<path class="ar plan" d="M950,52 H990" marker-end="url(#fb)"/>
+<path class="ar plan" d="M990,68 H950" marker-end="url(#fb)"/>
+<text class="s" x="970" y="46" text-anchor="middle">ask</text>
+<text class="s" x="970" y="88" text-anchor="middle">answer</text>
+<path class="ar plan" d="M885,85 V145" marker-end="url(#fa)"/>
+<path class="ar plan" d="M905,145 V85" marker-end="url(#fa)"/>
+<text class="s" x="912" y="120">mark</text>
+<path class="ar plan" d="M940,85 V115 H1045 V145" marker-end="url(#fa)"/>
+<path class="ar " d="M520,170 H730 V85" marker-end="url(#fa)"/>
+<text class="s" x="580" y="164">which fields to show</text>
+<path class="ar plan" d="M595,85 V120 H335 V245" marker-end="url(#fa)"/>
+<text class="s" x="342" y="114">reads the words</text>
+<path class="ar plan" d="M130,262 H280" marker-end="url(#fb)"/>
+<path class="ar plan" d="M280,278 H130" marker-end="url(#fb)"/>
+<text class="s" x="200" y="300" text-anchor="middle">check_vocab_level tool</text>
+<path class="ar plan" d="M390,270 H410" marker-end="url(#fa)"/>
+<path class="ar plan" d="M520,270 H540" marker-end="url(#fa)"/>
+<path class="ar plan" d="M650,270 H760 V85" marker-end="url(#fa)"/>
+<text class="s" x="766" y="250">adds sentences</text>
+    </svg>
+      <figcaption>Top row: from the word list to you. M3 adds the dashed middle part (dealer, game host, marker). The M4 agent is the only part that calls Claude, and it runs offline, as a batch, before you study. At quiz time nothing needs the internet or the API.</figcaption>
+    </figure>
+    <figure class="card diagram fl">
+      <h3>View C · One Claude action, up close (the safety nets)</h3>
+      <svg viewBox="0 0 1070 250" role="img" aria-label="One Claude action up close: Claude picks a tool; the block_env hook runs before it and blocks anything touching the secrets file; then the permission rules in settings.json either block it with a deny rule, allow it, or ask you; the tool runs; for Python edits the format hook runs ruff format afterwards; the result goes back to Claude.">
+      <defs>
+        <marker id="fc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+<rect class="box " x="20" y="50" width="150" height="54" rx="6"/><text class="t" x="95.0" y="74.0" text-anchor="middle">Claude picks a tool</text><text class="s" x="95.0" y="89.0" text-anchor="middle">Read · Edit · Bash …</text>
+<rect class="box hard" x="195" y="50" width="150" height="54" rx="6"/><text class="t" x="270.0" y="74.0" text-anchor="middle">block_env.py hook</text><text class="s" x="270.0" y="89.0" text-anchor="middle">BEFORE · touches .env?</text>
+<rect class="box hard" x="370" y="50" width="150" height="54" rx="6"/><text class="t" x="445.0" y="74.0" text-anchor="middle">Permission rules</text><text class="s" x="445.0" y="89.0" text-anchor="middle">settings.json</text>
+<rect class="box " x="545" y="50" width="150" height="54" rx="6"/><text class="t" x="620.0" y="74.0" text-anchor="middle">Tool runs</text><text class="s" x="620.0" y="89.0" text-anchor="middle">read · edit · command</text>
+<rect class="box auto" x="720" y="50" width="150" height="54" rx="6"/><text class="t" x="795.0" y="74.0" text-anchor="middle">format_python.py hook</text><text class="s" x="795.0" y="89.0" text-anchor="middle">AFTER · .py edited?</text>
+<rect class="box " x="895" y="50" width="150" height="54" rx="6"/><text class="t" x="970.0" y="74.0" text-anchor="middle">Back to Claude</text><text class="s" x="970.0" y="89.0" text-anchor="middle">sees the result</text>
+<rect class="box stop" x="195" y="160" width="150" height="46" rx="6"/><text class="t" x="270.0" y="180.0" text-anchor="middle">⛔ Blocked</text><text class="s" x="270.0" y="195.0" text-anchor="middle">Claude is told why</text>
+<rect class="box you" x="370" y="160" width="150" height="46" rx="6"/><text class="t" x="445.0" y="180.0" text-anchor="middle">🙋 Asks you</text><text class="s" x="445.0" y="195.0" text-anchor="middle">not on the allow-list</text>
+<rect class="box auto" x="720" y="160" width="150" height="46" rx="6"/><text class="t" x="795.0" y="180.0" text-anchor="middle">ruff format</text><text class="s" x="795.0" y="195.0" text-anchor="middle">tidies the file</text>
+<path class="ar " d="M170,77 H195" marker-end="url(#fa)"/>
+<path class="ar " d="M345,77 H370" marker-end="url(#fa)"/>
+<path class="ar " d="M520,77 H545" marker-end="url(#fa)"/>
+<path class="ar " d="M695,77 H720" marker-end="url(#fa)"/>
+<path class="ar " d="M870,77 H895" marker-end="url(#fa)"/>
+<text class="s" x="362" y="44" text-anchor="middle">ok</text>
+<text class="s" x="537" y="44" text-anchor="middle">ok</text>
+<path class="ar no" d="M270,104 V160" marker-end="url(#fno)"/>
+<text class="no-t" x="277" y="136">yes</text>
+<path class="ar no" d="M400,104 V118 H315 V160" marker-end="url(#fno)"/>
+<text class="no-t" x="406" y="128">deny rule</text>
+<path class="ar " d="M480,104 V160" marker-end="url(#fa)"/>
+<text class="s" x="486" y="136">unsure</text>
+<path class="ar " d="M520,183 H620 V104" marker-end="url(#fa)"/>
+<text class="s" x="565" y="176">you say yes</text>
+<path class="ar " d="M795,104 V160" marker-end="url(#fa)"/>
+<text class="s" x="802" y="136">yes</text>
+<text class="s" x="20" y="240">This happens on EVERY action Claude takes, dozens of times per step. Red = hard stop, orange = automatic, green = you decide.</text>
+    </svg>
+      <figcaption>Two guards stand before every action: the <code>block_env.py</code> hook and the permission rules in <code>.claude/settings.json</code>. One tidy-up runs after. This is why secrets stay safe even if Claude makes a mistake.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section>
+  <div>
+    <h2>3. How the words get in</h2>
     <p class="lede">Two Mandarin-specific workers on top, built from generic <code>quizkit</code> parts underneath. Dashed boxes are still to come.</p>
   </div>
   <figure class="card diagram">
@@ -367,8 +548,8 @@ a { color: var(--info); }
 
 <section>
   <div>
-    <h2>3. The journey of one change: what kicks in, and when</h2>
-    <p class="lede">From an idea to a merge on GitHub, in order. Each box names the tool that does the job, and the colour on top says how strict it is (see section 6). Dashed = not set up yet.</p>
+    <h2>4. The journey of one change: what kicks in, and when</h2>
+    <p class="lede">From an idea to a merge on GitHub, in order. Each box names the tool that does the job, and the colour on top says how strict it is (see section 7). Dashed = not set up yet.</p>
   </div>
   <div class="gates">
     <div class="gate">
@@ -431,7 +612,7 @@ a { color: var(--info); }
 
 <section>
   <div>
-    <h2>4. How a new block gets built</h2>
+    <h2>5. How a new block gets built</h2>
     <p class="lede">The routine used for the fetcher and the normalizer. The highlighted step repeats until the reviewer says ready.</p>
   </div>
   <div class="routine">
@@ -448,7 +629,7 @@ a { color: var(--info); }
 
 <section>
   <div>
-    <h2>5. What the 123 tests guard</h2>
+    <h2>6. What the 123 tests guard</h2>
     <p class="lede">Red bar = runs against the real committed data. Everything else uses small fake data, so it's fast and works offline.</p>
   </div>
   <div class="card table-wrap">
@@ -474,7 +655,7 @@ a { color: var(--info); }
 
 <section>
   <div>
-    <h2>6. How strict is each safety net?</h2>
+    <h2>7. How strict is each safety net?</h2>
     <p class="lede">The M1 lesson: if it really matters, make it a hard stop. Only GitHub settings stop everyone, you included.</p>
   </div>
   <div class="strict">
@@ -523,7 +704,7 @@ a { color: var(--info); }
 
 <section>
   <div>
-    <h2>7. Where the decisions and notes live</h2>
+    <h2>8. Where the decisions and notes live</h2>
   </div>
   <div class="docs">
     <div class="card doc"><b>ADR 0001</b><span>HSK 3.0 is the standard</span></div>
@@ -540,10 +721,11 @@ a { color: var(--info); }
 
 <section>
   <div>
-    <h2>8. How it grew</h2>
+    <h2>9. How it grew</h2>
     <p class="lede">One line per step, newest first. Click <b>snapshot</b> to see the whole map exactly as it was after that step.</p>
   </div>
   <ol class="timeline card" reversed>
+    <li><span class="when">2026-11-02</span><span class="what">Map: flow diagrams</span><span>New section 2 with three flow views: how one step gets built (in lanes, with the fail loops), what the app does with the words, and one Claude action up close (hooks + permissions) · <a href="snapshots/m3-flows.html">snapshot</a></span></li>
     <li><span class="when">2026-11-02</span><span class="what">M3 Step 1b</span><span>New section 1 (every kind of part, where it lives, subagent vs agent) and section 3 (the journey of a change: every hook, skill, subagent and gate). Code review shown as a gap. Frozen snapshots per step · <a href="snapshots/m3-step1b.html">snapshot</a></span></li>
     <li><span class="when">2026-11-02</span><span class="what">M3 Step 1</span><span>Issue #16 opened; "Still the right thing?" check; decisions: <code>--band 2</code> = only band-2 words, grader forgives typos. Build map saved in git, and updating it is now a CLAUDE.md rule · <a href="snapshots/m3-step1.html">snapshot</a></span></li>
     <li><span class="when">2026-11-02</span><span class="what">M2 done (#15)</span><span>Word-count test on the real data. First version of this map · <a href="snapshots/m2-done.html">snapshot</a></span></li>
@@ -556,7 +738,7 @@ a { color: var(--info); }
 </section>
 
 <footer>
-  Latest map, after M3 Step 1b, 2026-11-02. There are no snapshots from before M2 done (the map started then). Known gaps, by choice: words with several readings keep all of them (197 words), "bands 1+2 together" comes later, listening practice is a "Future (not v1)" note in PLAN.md. Not by choice: no code review step yet.
+  Latest map, after M3 Step 1b + flow diagrams, 2026-11-02. There are no snapshots from before M2 done (the map started then). Known gaps, by choice: words with several readings keep all of them (197 words), "bands 1+2 together" comes later, listening practice is a "Future (not v1)" note in PLAN.md. Not by choice: no code review step yet (Step 1c, in progress).
 </footer>
 
 </main>

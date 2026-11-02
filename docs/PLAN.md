@@ -26,6 +26,8 @@
 - [ ] **M3 First playable quiz** (issue #16) ← *in progress*
   - [x] 1. Issue #16 + "Still the right thing?" check + housekeeping (build map saved as `docs/build-map/index.html`; CLAUDE.md rule to update it after each step). Decisions: `--band 2` = only the band-2 words; the grader forgives small typos, not wrong words
   - [x] 1b. Build map: new "What we've built, by kind" section (incl. subagent vs agent), "journey of one change" (every hook, skill, subagent and gate; code review shown as a gap), frozen snapshots per step in `docs/build-map/snapshots/`
+  - [x] 1b+. Build map: "Flow diagrams: three views" (how a step is built, in lanes; what the app does; one Claude action up close)
+  - [ ] 1c. Code review: `/code-review` before every PR + Claude GitHub app (`/install-github-app`, subscription token; ⚠️ the token expires after 1 year, so renew it by 2027-11)
   - [ ] 2. `grader` block (generic, `quizkit`): clean the raw dictionary answers (`to `, `(…)` notes, case) + typo tolerance
   - [ ] 3. `deck_builder` block (generic, `quizkit`): pick cards (band, n, shuffle), reuse `build_question()` (worktree demo, optional)
   - [ ] 4. `engine`: the quiz loop, tested with fake typed answers
