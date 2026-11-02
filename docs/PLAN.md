@@ -29,6 +29,9 @@
 - [ ] M5 Learning smarts
 - [ ] M6 Web UI
 
+**Future (not v1):**
+- Listening practice: words and sentences read aloud (text-to-speech). Setup already allows it: stable card ids (audio files named after them), modes as config (a new `listen` mode), and the `readings` field flags the multi-reading words whose pinyin may need an HSK-correct override.
+
 **Side topics (cover when relevant):**
 - [ ] VS Code + Claude extension vs terminal: when to use which
 - [ ] Managing Claude sessions (`/clear`, `/compact`, `--continue`/`--resume`, one session per task)
