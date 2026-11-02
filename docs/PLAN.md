@@ -16,12 +16,12 @@
   - [x] 4. `.claude/settings.json` allowlist + hooks: `ruff format` after edits + a **PreToolUse hook that blocks any tool/command touching `.env`** (19 hook tests; live-tested)
   - [x] 5. `/new-block` skill (+ tested `quizkit.scaffold` script + `missing_spec_sections` checker)
   - [x] 6. Subagents: `block-reviewer` + `test-writer`, wired into `/new-block`, CLAUDE.md and the PR template (demo: both caught 2 planted mistakes; re-review ✅). `data-auditor` moved to M4
-- [ ] **M2 Data in** (issue #10) ← *next: Step 5, `normalizer` block*
+- [ ] **M2 Data in** (issue #10) ← *next: Step 6, word-count test*
   - [x] 1. GitHub issue #10
   - [x] 2. Source chosen + pinned → ADR 0004 (**2026 revised syllabus**: 294 / 491 / 978 words; MIT; SHA `7ac65bf`)
   - [x] 3. Scaffold: contract test also checks `BLOCK_SPEC` inputs/outputs (block-reviewer suggestion; drift test caught a planted mismatch)
   - [x] 4. `fetcher` block + generic `quizkit.download` helper (3 review rounds → ✅; raw data in `data/raw/hsk3_2026/`)
-  - [ ] 5. `normalizer` block → `cards.jsonl`
+  - [x] 5. `normalizer` block → `cards.jsonl` (978 cards: 294 / 197 / 487; 3 review rounds → ✅; shared `quizkit.files.write_atomically`)
   - [ ] 6. Word-count test (exact counts + within 5% of 300 / 500 / 1,000)
 - [ ] M3 First playable quiz
 - [ ] M4 Sentences (first agent)
@@ -34,7 +34,7 @@
 
 **Side topics (cover when relevant):**
 - [ ] VS Code + Claude extension vs terminal: when to use which
-- [ ] Managing Claude sessions (`/clear`, `/compact`, `--continue`/`--resume`, one session per task)
+- [x] Managing Claude sessions (`/clear`, `/compact`, `--continue`/`--resume`, one session per task) (covered at the 2026-11-02 break)
 - [ ] Git worktrees for parallel Claude sessions (intro at M3, when two features can run side by side)
 
 ---

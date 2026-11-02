@@ -381,3 +381,5 @@ issue → plan mode → branch → small commits → PR → CI ✅ → squash-me
 - **Plan the triggers, not just the helper.** A helper nobody calls is useless.
 - **Test it on a planted mistake** before trusting it
 - A read-only reviewer can't run tests, so it reviews by reading. Claude still runs pytest.
+- **Fresh reviewer each round.** Round 2 found a gap round 1 missed. A new subagent has no memory of "what I already approved".
+- **A subagent flags, reality decides.** The test-writer only sees the SPEC, so it can ask "may `pos` be empty?" but not answer it. Check questions like that against the real data (here: 11 words had no `pos`, which would have crashed the real run).

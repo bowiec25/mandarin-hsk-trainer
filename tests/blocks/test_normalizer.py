@@ -274,6 +274,7 @@ def test_word_missing_data_raises_error_naming_word_and_band(tmp_path, bad):
         word("坏", [form(None, ["bad"])]),  # pinyin is null
         word("坏", [form("huài", [None])]),  # a meaning is null
         word("坏", [form("huài", ["bad"])], pos="vn"),  # pos is text, not a list
+        word("坏", [form("huài", ["bad"])], pos=""),  # pos is "", not a list
         {**word("坏", [form("huài", ["bad"])]), "pos": None},  # pos is null
         {k: v for k, v in word("坏", [form("huài", ["bad"])]).items() if k != "pos"},
     ],
@@ -284,6 +285,7 @@ def test_word_missing_data_raises_error_naming_word_and_band(tmp_path, bad):
         "pinyin-null",
         "meaning-null",
         "pos-text",
+        "pos-empty-string",
         "pos-null",
         "pos-missing",
     ],

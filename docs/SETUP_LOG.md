@@ -401,3 +401,28 @@ You now have: decision records, data shapes, hooks and permissions, the `/new-bl
 - **Prove a test is real:** we broke the clean-up code on purpose, and the new test caught it.
 - **Line endings can break fingerprints:** `.gitattributes` now stores `data/raw/` byte-for-byte.
 - Also fixed: the scaffold wrote Windows line endings, and a `sed` command mangled a line (fixed with the editor tool).
+
+## M2 Step 5: The `normalizer` block (2026-11-02)
+
+> **In plain words:** the second worker. It turns the 3 raw word lists into **one tidy file of quiz cards**, `data/processed/cards.jsonl`: one card per word, **978 cards** (band 1: 294, band 2: 197, band 3: 487). Every later step reads only this file.
+
+**What a card looks like** (爱): `id` "爱", `level` 1, `fields` hanzi / pinyin / pos / readings, `answers` = every meaning split at `;` ("to love", "to be fond of", …).
+
+**Decisions we made:**
+- **Words with several readings** (197 of them, e.g. 吧 bā / ba / biā): keep them all for now. The source doesn't say which reading HSK means. A `readings` count marks these words in case we add listening practice later (noted under "Future (not v1)" in PLAN.md).
+- **HSK exam check:** the quiz trains reading recognition. Listening, writing and grammar are out of scope for v1.
+- **Shared helper:** "write to a temp file, then swap it in" moved from the downloader to `quizkit/files.py`, so both blocks use one copy.
+
+**The routine:**
+1. `/new-block normalizer` → script, `hsk_trainer`; SPEC written with you, section by section
+2. 🧪 test-writer → 21 tests (all failing, as expected) + **7 SPEC gaps**. The big one: may `pos` be empty? Checking the real data showed **11 words have no part of speech**, so the real run would have crashed.
+3. Built the code → all green → real run: 978 cards, byte-identical on a second run
+4. 🔍 reviewer, **3 rounds, a fresh one each time**:
+   - Round 1 ✅ (+3 suggestions, done): disk errors, test gaps, wrong data types slipping through
+   - Round 2 ⚠️: a missing or `null` `pos` was quietly accepted, against the SPEC
+   - Round 3 ✅ ready
+
+**Lessons:**
+- **Look at the real data before writing the SPEC.** My notes had the wrong key names, and the multi-reading problem only showed up by looking.
+- **A subagent flags questions, you check them against reality.**
+- **Fresh eyes each round** found a gap the first reviewer missed.
