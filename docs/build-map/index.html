@@ -197,7 +197,7 @@ a { color: var(--info); }
   <div class="tiles">
     <div class="tile hi"><b>978</b><span>quiz cards in <code>cards.jsonl</code></span></div>
     <div class="tile"><b>294 · 197 · 487</b><span>new words in bands 1 · 2 · 3</span></div>
-    <div class="tile"><b>380</b><span>automatic tests, all passing</span></div>
+    <div class="tile"><b>456</b><span>automatic tests, all passing</span></div>
     <div class="tile"><b>6</b><span>blocks built: fetcher, normalizer, grader, cedict_cleaner, deck_builder, engine</span></div>
     <div class="tile"><b>2 · 2 · 2</b><span>hooks · skills used · subagents</span></div>
     <div class="tile"><b>4</b><span>decision records (ADRs)</span></div>
@@ -241,7 +241,7 @@ a { color: var(--info); }
     <div class="layer">
       <div class="layer-head"><b>🛡️ Checks</b><span class="mono">tests/ · .github/ · GitHub settings</span><span>Prove the code is right, on your machine and on GitHub.</span></div>
       <div class="items">
-        <div class="item guide"><b>tests/ (pytest)</b>380 tests, run before "done"<small>Claude + CI</small></div>
+        <div class="item guide"><b>tests/ (pytest)</b>456 tests, run before "done"<small>Claude + CI</small></div>
         <div class="item guide"><b>ruff</b>lint + format check<small>Claude + CI</small></div>
         <div class="item auto"><b>CI: ci.yml</b>same checks on a clean machine<small>every push and PR</small></div>
         <div class="item auto"><b>claude-code-review.yml</b>runs the Claude review on GitHub<small>every PR · renew token before 2027-10-15</small></div>
@@ -274,7 +274,8 @@ a { color: var(--info); }
         <div class="item"><b>data/</b><code>raw/</code> → <code>processed/cards.jsonl</code></div>
         <div class="item"><b>cli.py → hsk quiz</b>the front door: band, mode, how many<small>not a block: wires the blocks to your keyboard · Ctrl-C keeps the score</small></div>
         <div class="item todo"><b>AGENT: sentence_writer</b>calls Claude by itself to write sentences<small>M4, the first real agent</small></div>
-        <div class="item todo"><b>AGENT: answer writer</b>clean answer lists with synonyms, once, offline<small>M4 · ADR 0005 · adds to cedict_cleaner</small></div>
+        <div class="item"><b>AGENT: answer_writer</b>wrote answer lists with synonyms for all 978 words, once, offline (25 calls)<small>M4 Step 3 · ADR 0005 · checked by validate_answers · quiz plugs it in at Step 4</small></div>
+        <div class="item"><b>quizkit.claude</b>shared helper: runs <code>claude -p</code> with no tools, logs tokens<small>generic · reused by the judge</small></div>
         <div class="item todo"><b>AGENT: judge</b>asked only when the list says "wrong"; verdicts cached<small>M4 · ADR 0005 · via claude -p (subscription)</small></div>
       </div>
     </div>
@@ -291,12 +292,12 @@ a { color: var(--info); }
       </ul>
     </div>
     <div class="card">
-      <h3>Agent (M4, not built yet)</h3>
+      <h3>Agent (first one built in M4 Step 3)</h3>
       <ul>
-        <li>Part of <b>the app</b>: Python that calls the Claude API itself</li>
+        <li>Part of <b>the app</b>: Python that calls Claude itself (here via <code>claude -p</code>)</li>
         <li>Lives in <code>src/</code> as a block, with a SPEC and tests</li>
         <li>Uses our script functions as tools (e.g. <code>check_vocab_level</code>)</li>
-        <li>Runs without Claude Code; costs API tokens, so it's logged</li>
+        <li>Runs as a batch job you start; tokens are logged on every call</li>
         <li>Examples: sentence_writer, answer writer, judge (M4, all via <code>claude -p</code> under the subscription, ADR 0005); later, sentence-translation grading</li>
       </ul>
     </div>
@@ -646,7 +647,7 @@ a { color: var(--info); }
 
 <section>
   <div>
-    <h2>6. What the 380 tests guard</h2>
+    <h2>6. What the 456 tests guard</h2>
     <p class="lede">Red bar = runs against the real committed data. Everything else uses small fake data, so it's fast and works offline.</p>
   </div>
   <div class="card table-wrap">
@@ -658,6 +659,8 @@ a { color: var(--info); }
         <tr><td class="mono">blocks/test_engine.py</td><td class="n">40</td><td class="bar"><span style="width:63%"></span></td><td>the quiz loop with fake typed answers: score, record, quit (incl. Ctrl-C anywhere in the loop, added after the reuse check), bad cards caught before question 1</td></tr>
         <tr><td class="mono">test_cli.py</td><td class="n">31</td><td class="bar"><span class="real" style="width:49%"></span></td><td><code>hsk quiz</code> played with scripted keystrokes on the real cards: score, "love" / "to love" for 爱, quitting (incl. Ctrl-C), short decks, every error, hanzi through a Windows pipe</td></tr>
         <tr><td class="mono">blocks/test_deck_builder.py</td><td class="n">31</td><td class="bar"><span style="width:48%"></span></td><td>levels, count, no repeats (by id), same seed = same deck, every failure mode (toy capitals)</td></tr>
+        <tr><td class="mono">blocks/test_answer_writer.py</td><td class="n">61</td><td class="bar"><span class="real" style="width:97%"></span></td><td>the answer agent with a <b>fake Claude</b>: saved after each chunk, resume, <code>--limit</code>, <code>--dry-run</code>, broken replies, one bad card fails alone, the checker's rules; plus the real <code>answers.jsonl</code> covers all 978 cards</td></tr>
+        <tr><td class="mono">test_claude_helper.py</td><td class="n">15</td><td class="bar"><span style="width:24%"></span></td><td>the <code>claude -p</code> helper with a fake runner: no tools, prompt on stdin, not installed, timeout, error replies, token counts</td></tr>
         <tr><td class="mono">test_pr_body.py</td><td class="n">22</td><td class="bar"><span style="width:22%"></span></td><td>the "Still the right thing?" CI check: a filled section passes; missing, empty, hint-only or "n/a" fails; the unfilled PR template fails; headings inside code blocks, unclosed hints and other heading levels handled</td></tr>
         <tr><td class="mono">test_reuse.py</td><td class="n">5</td><td class="bar"><span style="width:8%"></span></td><td>the reuse check: no <code>quizkit</code> file imports (or even names) <code>hsk_trainer</code>, and the toy capitals quiz plays to the end with <code>hsk_trainer</code> blocked (both proved by a planted import)</td></tr>
         <tr><td class="mono">test_hsk_deck.py</td><td class="n">2</td><td class="bar"><span class="real" style="width:3%"></span></td><td>real data: band 1 → 10 hanzi-only questions; band 2 asked for 500 → all of band 2</td></tr>
@@ -673,7 +676,7 @@ a { color: var(--info); }
         <tr><td class="mono">test_quizkit_blocks.py</td><td class="n">1</td><td class="bar"><span style="width:2%"></span></td><td>the block ID card (<code>BlockSpec</code>)</td></tr>
         <tr><td class="mono">test_smoke.py</td><td class="n">1</td><td class="bar"><span style="width:2%"></span></td><td>both packages import</td></tr>
       </tbody>
-      <tfoot><tr><td>Total</td><td class="n">380</td><td></td><td>run locally and by CI on every PR</td></tr></tfoot>
+      <tfoot><tr><td>Total</td><td class="n">456</td><td></td><td>run locally and by CI on every PR</td></tr></tfoot>
     </table>
   </div>
 </section>
@@ -753,6 +756,7 @@ a { color: var(--info); }
     <p class="lede">One line per step, newest first. Click <b>snapshot</b> to see the whole map exactly as it was after that step.</p>
   </div>
   <ol class="timeline card" reversed>
+    <li><span class="when">2026-11-02</span><span class="what">M4 Step 3: answer_writer</span><span><b>The first agent.</b> Claude wrote the answers for all 978 words in 25 calls (~148k tokens, under the subscription); the checker caught 9 (e.g. "from小", 11 answers), re-runs fixed them. You checked a 20-word trial and a random 20. Static: the quiz reads the file, no Claude at quiz time · <a href="snapshots/m4-step3.html">snapshot</a></span></li>
     <li><span class="when">2026-11-02</span><span class="what">M4 Step 2 (ADR 0005)</span><span>Grading becomes <b>two layers</b>: an answer list Claude writes once (checked by a script, committed) + a <b>Claude judge</b> asked only when the list says "wrong" (verdicts saved). Both run under the subscription via <code>claude -p</code>. Your catch: sentence translation can't use a fixed list, so the judge moves from M5 into M4 · <a href="snapshots/m4-step2.html">snapshot</a></span></li>
     <li><span class="when">2026-11-02</span><span class="what">M4 Step 1 (#28)</span><span><b>"Still the right thing?" moves from a habit to a gate</b>: a required box in the issue form, a section in the PR template, and a CI check that fails a PR when it's empty. Re-check of M4: the answer agent now comes before sentence_writer · <a href="snapshots/m4-step1.html">snapshot</a></span></li>
     <li><span class="when">2026-11-02</span><span class="what">M3 done: Step 6 (#27)</span><span><b>reuse check</b>: a toy capitals quiz built only from <code>quizkit</code> plays with <code>hsk_trainer</code> blocked; a scan test keeps <code>quizkit</code> free of Mandarin code. It also found a weak spot: Ctrl-C could lose the score in the shared quiz loop, so the <b>engine</b> now handles it for every quiz (full block routine) and the CLI dropped its workaround. Play-test: works, but grading needs judgment, not rules (→ M4 answer agent) · <a href="snapshots/m3-done.html">snapshot</a></span></li>
@@ -775,7 +779,7 @@ a { color: var(--info); }
 </section>
 
 <footer>
-  Latest map, after M4 Step 2, 2026-11-02. There are no snapshots from before M2 done (the map started then). Known gaps, by choice: words with several readings keep all of them (197 words), "bands 1+2 together" comes later, listening practice, sentence translation (needs a judgment agent) and other later ideas are listed in docs/FUTURE.md; synonyms not in the dictionary wait for the M4 answer agent. Reminder: the Claude review token expires after 1 year (renew before 2027-10-15). Green on GitHub is not the same as reviewed.
+  Latest map, after M4 Step 3, 2026-11-02. There are no snapshots from before M2 done (the map started then). Known gaps, by choice: words with several readings keep all of them (197 words), "bands 1+2 together" comes later, listening practice, sentence translation (needs a judgment agent) and other later ideas are listed in docs/FUTURE.md; synonyms not in the dictionary wait for the M4 answer agent. Reminder: the Claude review token expires after 1 year (renew before 2027-10-15). Green on GitHub is not the same as reviewed.
 </footer>
 
 </main>
