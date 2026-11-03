@@ -1,9 +1,9 @@
 """Measure the judge on hand-labelled cases (ADR 0007 rule 4). Needs the real `claude`.
 
-    uv run python -m quizkit.blocks.judge.eval tests/data/judge_eval_hsk.jsonl
+    uv run python -m quizkit.blocks.judge.eval <cases.jsonl>
         [--model haiku] [--limit N] [--timeout 15]
 
-Each line of the cases file is one `EvalCase`. It reports how many verdicts were right,
+Each line of the cases file is one `EvalCase` (the HSK set: tests/data/judge_eval_hsk.jsonl). It reports how many verdicts were right,
 the wrong "yes"es and "no"s, the cases Claude couldn't check, and seconds per call.
 Bar to ship: at least 90% right and no wrong "yes" (exit code 0 = bar met, 1 = not).
 Run by hand, not in CI; re-run whenever the prompt or the model changes.
@@ -143,7 +143,10 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    for stream in (sys.stdout, sys.stderr):  # Windows pipes can't print 爱 otherwise
+    for stream in (
+        sys.stdout,
+        sys.stderr,
+    ):  # Windows pipes can't print non-ASCII otherwise
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8")
     raise SystemExit(main())

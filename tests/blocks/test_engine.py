@@ -532,3 +532,21 @@ def test_session_takes_a_judge_too():
     assert second.verdict is None
     assert len(calls) == 1
     assert session.result().correct == 2
+
+
+def test_ctrl_c_while_the_judge_is_asked_is_a_quit():
+    def judge(question, typed):
+        raise KeyboardInterrupt
+
+    result, _, told = play([FRANCE, ITALY], ["Rome", "Rome"], judge=judge)
+    assert result.answered == 0  # the answer being judged doesn't count
+    assert result.finished is False
+    assert told == []
+
+
+def test_other_judge_errors_are_passed_through():
+    def judge(question, typed):
+        raise ValueError("broken judge")
+
+    with pytest.raises(ValueError, match="broken judge"):
+        play([FRANCE], ["Rome"], judge=judge)

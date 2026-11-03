@@ -56,7 +56,7 @@ Any callable `(Question, str) -> Verdict` is a judge (`Judge` type), so a quiz c
 **Engine changes:** `Attempt` gains `verdict: Verdict | None` (None = judge not asked) and a computed `correct` (grade right, or judge said yes). `QuizResult.correct` counts `Attempt.correct`.
 
 **Cache file** (JSON Lines, appended): one line per real Claude verdict:
-`{"card_id", "answer" (clean, via the grader's clean), "model", "prompt_version", "correct", "reason", "input_tokens", "output_tokens", "judged_at"}`.
+`{"card_id", "answer" (clean, via the grader's clean), "model", "prompt_version", "correct", "reason", "input_tokens", "output_tokens", "judged_at", "claude_model" (the full name that answered), "cost_usd"}`.
 Looked up by `(card_id, answer, model, prompt_version)`, so a new model or prompt version asks again. `model` is the alias asked for (`"haiku"`), so the lookup works before any call. A repeat inside the same run is also `source="cache"`, with or without a file.
 
 ## Tools
@@ -67,7 +67,7 @@ Looked up by `(card_id, answer, model, prompt_version)`, so a new model or promp
 ## Failure modes
 All of these give `Verdict(correct=False, source="not_checked")` with a short reason; none crash the quiz and none are cached:
 - `claude` missing, not logged in, an error, or slower than `timeout` → "couldn't check: <why>"
-- Reply has the wrong shape (fails the pydantic check) → "couldn't check: bad reply"
+- Reply has the wrong shape (fails the pydantic check, incl. a blank reason) → "couldn't check: bad reply"
 - Typed answer longer than `max_chars` → not sent: "too long to check"
 
 Blank (or only spaces) typed answer → not sent; `not_checked`, "no answer". Any `<` or `>` in the typed answer is escaped (`&lt;` `&gt;`), so it can't close the `<answer>` tag. Cache file: a bad line is skipped with a warning (`warnings.warn`); a file that can't be written gives a warning and the verdict is still returned. An empty (or only spaces) `subject`, or `max_chars` < 1 → `ValueError` when the judge is made.

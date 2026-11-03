@@ -109,7 +109,7 @@ Judge = Callable[[Question, str], Verdict]  # any quiz can plug in its own
 class _Reply(BaseModel):
     """What Claude must send back (forced by REPLY_SCHEMA, checked again here)."""
 
-    reason: str = Field(min_length=1)
+    reason: str = Field(pattern=r"\S")  # at least one non-space character
     correct: StrictBool  # "maybe" or "yes" is a bad reply, not a True
 
 
@@ -125,6 +125,8 @@ class _CacheLine(BaseModel):
     input_tokens: int
     output_tokens: int
     judged_at: str
+    claude_model: str = ""  # the full model name that answered (the key uses the alias)
+    cost_usd: float = 0.0  # list-price equivalent; not a charge on a subscription
 
 
 _Key = tuple[str, str, str, str]  # card_id, clean answer, model, prompt version
@@ -253,6 +255,8 @@ class ClaudeJudge:
             reason=reason,
             input_tokens=getattr(reply, "input_tokens", 0),
             output_tokens=getattr(reply, "output_tokens", 0),
+            claude_model=getattr(reply, "model", ""),
+            cost_usd=getattr(reply, "cost_usd", 0.0),
             judged_at=datetime.now(UTC).isoformat(timespec="seconds"),
         )
         try:

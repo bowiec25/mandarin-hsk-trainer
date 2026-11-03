@@ -14,7 +14,7 @@ It comes in two layers, so the same quizmaster works in a terminal now and on a 
 **Not in scope (yet):** picking or shuffling questions (`deck_builder`), saving progress between quizzes (M5 `progress_store`), retrying wrong answers (M5 spaced repetition).
 
 ## Kind
-**script.** Code can check the output: given these questions and these typed answers, the score and the record must be exactly what we expect. Marking is the `grader`'s job (also a script), so no language judgment is needed here. It runs on every quiz turn, so it must be free and instant (ADR 0002).
+**script.** Code can check the output: given these questions and these typed answers, the score and the record must be exactly what we expect. Marking is the `grader`'s job (also a script), so no language judgment is needed here. An optional judge (an agent, ADR 0007) can be plugged in; the engine only calls it, never Claude directly, so the engine itself stays a script. It runs on every quiz turn, so it must be free and instant (ADR 0002).
 
 ## Inputs
 | Input | Type | Plain meaning |
@@ -70,7 +70,8 @@ Example: quit after 3 of 10 with 2 right → `correct=2, answered=3, total=10, f
 - **`quizkit.blocks.grader.grade`**: does all the marking. The engine never compares answers itself.
 - **`quizkit.models.Question`**: the input shape.
 - **pydantic**: `Attempt`, `QuizResult`.
-- No files, no network, no agent. It doesn't import `deck_builder` or anything from `hsk_trainer`.
+- **`quizkit.blocks.judge`**: only the `Judge` type and `Verdict` model (the optional hook). Importing it also imports `quizkit.claude`, but nothing runs at import.
+- No files, no network of its own. It never calls Claude itself; a plugged-in judge may. It doesn't import `deck_builder` or anything from `hsk_trainer`.
 
 ## Failure modes
 | Situation | What it does |
@@ -81,6 +82,8 @@ Example: quit after 3 of 10 with 2 right → `correct=2, answered=3, total=10, f
 | `session.answer()` called after the last question | **Raises `RuntimeError`** (a bug in whatever is calling the engine) |
 | `KeyboardInterrupt` (Ctrl-C) raised anywhere in `run_quiz`'s loop: in `ask`, while grading, or in `tell` | **A quit:** `run_quiz` stops and returns the result so far (`finished=False`). An answer already marked counts (even if `tell` was interrupted while showing it); an answer interrupted while being marked doesn't. `ask`/`tell` are not called again |
 | `KeyboardInterrupt` while the session is being **created** (before the loop, e.g. during the up-front check) | Passed through: the quiz hasn't started, so there is no score to keep |
+| `KeyboardInterrupt` (Ctrl-C) while the **judge** is being asked (e.g. waiting on "asking the judge…") | **A quit**, like Ctrl-C while marking: the result so far is returned and the answer being judged doesn't count |
+| The judge raises anything else (e.g. `ValueError`) | Passed through, not swallowed (a bug must be loud). `ClaudeJudge` itself turns Claude problems into a "couldn't check" verdict, so this means a broken judge |
 | The grader raises mid-quiz (anything but Ctrl-C) | Passed through, not swallowed (a bug must be loud), and `run_quiz` returns nothing |
 | `ask` or `tell` raises anything else (e.g. `ValueError`) | Passed through, not swallowed (a bug must be loud), and `run_quiz` returns nothing |
 | `QuizSession` (the brain) and Ctrl-C | Not its job: the brain has no loop, so whoever drives it step by step handles Ctrl-C |
@@ -99,6 +102,7 @@ Automatic tests in `tests/blocks/test_engine.py`. They use toy English questions
 - **Settings are passed through** (`allow_typos=False` makes `"Pariss"` wrong)
 - **Step by step:** `current` moves forward, `done` flips, `answer()` after the end → `RuntimeError`, `result()` partway works
 - **Ctrl-C is a quit, anywhere in the loop:** `KeyboardInterrupt` from `ask` after 1 answer → `answered=1`; before question 1 → `answered=0`; from `tell` on answer 2 → that answer still counts (`answered=2`), `ask` not called again; while answer 2 is being marked → it doesn't count (`answered=1`); the result is returned, nothing raised. But Ctrl-C while the session is being **created** → passed through, `ask` never called
+- **Judge hook:** not called when the grader says right (exact or typo-forgiven) or for a blank / spaces-only answer; called with the question and the raw typed text when the grader says wrong; a "yes" makes `Attempt.correct` and the score count it (`grade.correct` stays False); a "no" stays wrong; no judge = old behaviour (`verdict` is None); works through `QuizSession` too; Ctrl-C inside the judge → a quit, that answer not counted; any other judge error passed through
 - **Errors:** empty list → `ValueError`; any other error from `ask`, `tell` or the grader is passed through
 - **Own copy:** changing the list, or a question's answers, after starting has no effect
 - **Bad card found early:** an unanswerable question 2 raises before `ask` is ever called

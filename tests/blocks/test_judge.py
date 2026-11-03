@@ -308,6 +308,8 @@ def test_cache_line_has_every_field(tmp_path):
     assert (line["correct"], line["reason"]) == (True, "Fine.")
     assert (line["input_tokens"], line["output_tokens"]) == (120, 15)
     assert line["judged_at"]
+    assert line["claude_model"] == "claude-haiku-test"  # the full name, for the log
+    assert line["cost_usd"] == 0.0005
 
 
 def test_cache_is_appended_not_overwritten(tmp_path):
@@ -457,6 +459,7 @@ def test_couldnt_check_reason_says_why():
         '{"reason": "no verdict given"}',
         '{"correct": true}',
         '{"reason": "x", "correct": "maybe"}',
+        '{"reason": "   ", "correct": true}',
     ],
 )
 def test_bad_reply_shape_gives_couldnt_check_bad_reply(text):
