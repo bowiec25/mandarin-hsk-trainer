@@ -283,13 +283,12 @@ def test_harder_word_with_no_easy_reading_fails():
     assert any("电视" in r and "2" in r for r in check.reasons), check.reasons
 
 
-def test_word_must_stand_on_its_own():
-    """我 inside 我们: the word is read on its own, so 们 has to be readable too."""
+def test_word_only_inside_a_longer_word_says_so():
+    """我 inside 我们: the reason names the longer word, not the leftover 们."""
     vocab = _vocab({"我": 1, "我们": 1, "是": 1, "医生": 1})
     check = check_sentence("我们是医生。", "我", vocab)
     assert check.passed is False
-    assert check.words[0] == "我"
-    assert any("们" in r for r in check.reasons), check.reasons
+    assert check.reasons == ("has 我 only inside 我们, not on its own",)
 
 
 def test_reading_with_fewest_problems_wins():
@@ -312,3 +311,47 @@ def test_more_chinese_punctuation_and_zero_are_allowed(real_cards):
     for sentence, word in [("我们去吧……", "去"), ("二〇二六年。", "年")]:
         reasons = check_sentence(sentence, word, vocab).reasons
         assert not any("aren't Chinese" in r for r in reasons), (sentence, reasons)
+
+
+# -- /code-review round 2 + block-review round 3 ---------------------------------------
+
+
+def test_missing_word_still_reports_other_problems(vocab):
+    check = check_sentence("我们一起吃饭。", "爸爸", vocab)
+    assert any("爸爸" in r for r in check.reasons)
+    assert any("一起" in r for r in check.reasons), check.reasons
+
+
+def test_empty_sentence_has_only_that_reason(vocab):
+    assert check_sentence("  ", "爸爸", vocab).reasons == ("empty sentence",)
+
+
+def test_exactly_three_characters_is_long_enough(vocab):
+    check = check_sentence("我吃饭。", "我", vocab)
+    assert not any("short" in r for r in check.reasons), check.reasons
+
+
+def test_zero_counts_toward_length(real_cards):
+    settings = SentenceSettings(max_chars=4)
+    check = check_sentence("二〇二六年。", "年", Vocab(real_cards), settings)
+    assert any("too long: 5" in r for r in check.reasons), check.reasons
+
+
+@pytest.mark.parametrize(
+    "sentence", ["他说：『我吃饭。』", "我吃饭【吧】。", "我吃饭．"]
+)
+def test_more_chinese_punctuation_passes_rule_one(vocab, sentence):
+    reasons = check_sentence(sentence, "我", vocab).reasons
+    assert not any("aren't Chinese" in r for r in reasons), reasons
+
+
+@pytest.mark.parametrize("sentence", ["我吃饭Ｏ。", "我吃饭.", "我吃饭!"])
+def test_full_width_letters_and_ascii_punctuation_fail(vocab, sentence):
+    reasons = check_sentence(sentence, "我", vocab).reasons
+    assert any("aren't Chinese" in r for r in reasons), reasons
+
+
+def test_word_with_a_non_chinese_character_does_not_crash():
+    vocab = _vocab({"T恤": 1, "我": 1, "买": 1})
+    check = check_sentence("我买T恤。", "T恤", vocab)
+    assert "T恤" in check.words
