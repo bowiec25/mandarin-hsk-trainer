@@ -1,0 +1,962 @@
+"""Tests for the sentence_writer block: contract (ID card + SPEC) and behaviour (from SPEC.md)."""
+
+import inspect
+import json
+import re
+from pathlib import Path
+
+import pytest
+
+import hsk_trainer.blocks.sentence_writer as block
+from hsk_trainer.blocks.sentence_validator import Vocab, check_sentence
+from quizkit.blocks.base import missing_spec_sections, spec_section
+from quizkit.models import Card
+
+SPEC_MD = Path(block.__file__).parent / "SPEC.md"
+
+
+def test_block_spec_matches():
+    assert block.BLOCK_SPEC.name == "sentence_writer"
+    assert block.BLOCK_SPEC.kind == "agent"
+
+
+def test_spec_md_has_every_section():
+    assert missing_spec_sections(SPEC_MD) == []
+
+
+def test_inputs_and_outputs_match_spec():
+    """The code's ID card (BLOCK_SPEC) and the job description (SPEC.md) agree."""
+    for field, section in [("inputs", "Inputs"), ("outputs", "Outputs")]:
+        listed = getattr(block.BLOCK_SPEC, field)
+        text = spec_section(SPEC_MD, section)
+        for item in listed:
+            assert item in text, (
+                f"BLOCK_SPEC.{field} has {item!r}, not in SPEC.md {section}"
+            )
+        if "TODO" not in text:  # once the SPEC section is filled in...
+            assert listed, (
+                f"SPEC.md {section} is filled in: copy it into BLOCK_SPEC.{field}"
+            )
+
+
+# ---- Behaviour (from SPEC.md), with a fake Claude --------------------------------
+# The block's public names are reached through `block.` (not imported at the top), so
+# the contract tests above still run while the block is only a stub. The checker is
+# the real sentence_validator, so the toy sentences below genuinely pass or fail it.
+
+SENTENCES_JSONL = Path(__file__).parents[2] / "data" / "generated" / "sentences.jsonl"
+FAKE_MODEL = "fake-sonnet"
+
+
+def card(hanzi, pinyin, level, meanings, readings="1") -> Card:
+    return Card(
+        id=hanzi,
+        fields={"hanzi": hanzi, "pinyin": pinyin, "readings": readings},
+        answers=meanings,
+        level=level,
+    )
+
+
+# Cards order (like cards.jsonl): bands mixed, 一起 (band 2) in the middle.
+DECK = [
+    card("爸爸", "bà ba", 1, ["father", "dad"]),
+    card("吃", "chī", 1, ["to eat"]),
+    card("饭", "fàn", 1, ["meal"]),
+    card("我", "wǒ", 1, ["I", "me"]),
+    card("一起", "yī qǐ", 2, ["together"]),
+    card("我们", "wǒ men", 1, ["we", "us"]),
+    card("是", "shì", 1, ["to be"]),
+    card("医生", "yī shēng", 1, ["doctor"]),
+]
+BAND1 = [c for c in DECK if c.level == 1]
+IDS = [c.id for c in DECK]
+BAND1_IDS = [c.id for c in BAND1]
+
+GOOD = {
+    "爸爸": [("我爸爸是医生。", "My dad is a doctor."), ("爸爸吃饭。", "Dad eats.")],
+    "吃": [("我吃饭。", "I eat."), ("爸爸吃饭。", "Dad eats.")],
+    "饭": [("我吃饭。", "I eat."), ("我们吃饭。", "We eat.")],
+    "我": [("我是医生。", "I am a doctor."), ("我吃饭。", "I eat.")],
+    "一起": [("我们一起吃饭。", "We eat together.")],
+    "我们": [("我们吃饭。", "We eat."), ("我们是医生。", "We are doctors.")],
+    "是": [("我是医生。", "I am a doctor."), ("爸爸是医生。", "Dad is a doctor.")],
+    "医生": [
+        ("我爸爸是医生。", "My dad is a doctor."),
+        ("我是医生。", "I am a doctor."),
+    ],
+}
+# Fails the checker for 吃 or 饭 (band 1): it uses 一起 (band 2).
+BAD = ("我们一起吃饭。", "We eat together.")
+
+
+def reply(text: str):
+    from quizkit.claude import ClaudeReply
+
+    return ClaudeReply(
+        text=text, model=FAKE_MODEL, input_tokens=100, output_tokens=50, cost_usd=0.01
+    )
+
+
+def claude_error(msg: str = "usage limit reached"):
+    from quizkit.claude import ClaudeError
+
+    return ClaudeError(msg)
+
+
+class FakeClaude:
+    """Replies with sentences for every deck word (the block ignores extras); records
+    each prompt.
+
+    The prompt lists every allowed word, so the fake can't tell which words were asked;
+    it always answers for all of them. `sentences` overrides a word's sentences for
+    every call (None = leave the word out); `script` maps call number (0-based) to a raw
+    reply text, an exception to raise, or a dict of per-word overrides for that call.
+    """
+
+    def __init__(self, deck=DECK, sentences=None, script=None, extra=()):
+        self.deck = deck
+        self.sentences = {**GOOD, **(sentences or {})}
+        self.script = script or {}
+        self.extra = list(extra)
+        self.prompts: list[str] = []
+
+    def __call__(self, prompt: str, **kwargs):
+        call = len(self.prompts)
+        self.prompts.append(prompt)
+        scripted = self.script.get(call)
+        if isinstance(scripted, BaseException):
+            raise scripted
+        if isinstance(scripted, str):
+            return reply(scripted)
+        table = {**self.sentences, **(scripted or {})}
+        ids = [c.id for c in self.deck if table.get(c.id) is not None] + self.extra
+        body = {
+            "cards": [
+                {
+                    "id": i,
+                    "sentences": [{"hanzi": h, "english": e} for h, e in table[i]],
+                }
+                for i in ids
+            ]
+        }
+        return reply(json.dumps(body, ensure_ascii=False))
+
+
+def run(tmp_path, cards, ask, **kwargs):
+    """SPEC: `cards` is the whole deck (it's also the checker's word list); a trial
+    uses `limit`, not a smaller deck."""
+    return block.write_sentences(
+        cards,
+        ask=ask,
+        out=tmp_path / "sentences.jsonl",
+        log=tmp_path / "log.jsonl",
+        **kwargs,
+    )
+
+
+def run_allowing_stop(tmp_path, cards, ask, **kwargs):
+    """SPEC: on a Claude error, work so far is saved, then the ClaudeError goes up."""
+    from quizkit.claude import ClaudeError
+
+    with pytest.raises(ClaudeError):
+        run(tmp_path, cards, ask, **kwargs)
+
+
+def saved(tmp_path) -> list[dict]:
+    path = tmp_path / "sentences.jsonl"
+    if not path.exists():
+        return []
+    text = path.read_text(encoding="utf-8")
+    return [json.loads(t) for t in text.splitlines() if t.strip()]
+
+
+def saved_ids(tmp_path) -> list[str]:
+    return [row["id"] for row in saved(tmp_path)]
+
+
+def saved_by_id(tmp_path) -> dict[str, dict]:
+    return {row["id"]: row for row in saved(tmp_path)}
+
+
+def kept(tmp_path, word) -> list[str]:
+    return [s["hanzi"] for s in saved_by_id(tmp_path)[word]["sentences"]]
+
+
+def log_entries(tmp_path) -> list[dict]:
+    text = (tmp_path / "log.jsonl").read_text(encoding="utf-8")
+    return [json.loads(t) for t in text.splitlines() if t.strip()]
+
+
+def saved_line(word, sentences, version=None) -> str:
+    return json.dumps(
+        {
+            "id": word,
+            "hanzi": word,
+            "sentences": [
+                {"hanzi": h, "pinyin": "x", "english": e} for h, e in sentences
+            ],
+            "model": FAKE_MODEL,
+            "prompt_version": version or str(block.PROMPT_VERSION),
+        },
+        ensure_ascii=False,
+    )
+
+
+def write_saved(tmp_path, *rows):
+    text = "".join(r + "\n" for r in rows)
+    (tmp_path / "sentences.jsonl").write_text(text, encoding="utf-8")
+
+
+def tidy(pinyin: str) -> str:
+    """Ignore spaces around punctuation (only the syllables matter here)."""
+    return re.sub(r"\s*([，。！？])\s*", r"\1", pinyin).strip()
+
+
+def test_toy_sentences_really_pass_or_fail_the_checker():
+    """Guard for the test data itself: GOOD passes the real checker, BAD fails."""
+    vocab = Vocab(DECK)
+    for word, pairs in GOOD.items():
+        for hanzi, _ in pairs:
+            assert check_sentence(hanzi, word, vocab).passed, (word, hanzi)
+    assert not check_sentence(BAD[0], "吃", vocab).passed
+    assert not check_sentence(BAD[0], "饭", vocab).passed
+
+
+# Public names and defaults (SPEC "How it's called")
+
+
+def test_public_constants_match_spec():
+    assert block.PROMPT_VERSION == "1"
+    assert block.SENTENCES_FILE.name == "sentences.jsonl"
+    assert block.SENTENCES_FILE.parent.name == "generated"
+    assert block.LOG_FILE.name == "sentence_writer_log.jsonl"
+
+
+def test_write_sentences_defaults_match_spec():
+    from quizkit.claude import ask_claude
+
+    params = inspect.signature(block.write_sentences).parameters
+    assert params["limit"].default is None
+    assert params["dry_run"].default is False
+    assert params["chunk_size"].default == 20
+    assert params["retries"].default == 2
+    assert params["ask"].default is ask_claude
+    assert params["out"].default == block.SENTENCES_FILE
+    assert params["log"].default == block.LOG_FILE
+
+
+# Output 1: sentences.jsonl
+
+
+def test_good_reply_writes_one_line_per_word_with_spec_fields(tmp_path):
+    run(tmp_path, DECK, FakeClaude())
+    first = saved_by_id(tmp_path)["爸爸"]
+    assert set(first) >= {"id", "hanzi", "sentences", "model", "prompt_version"}
+    assert first["hanzi"] == "爸爸"
+    assert first["model"] == FAKE_MODEL
+    assert str(first["prompt_version"]) == block.PROMPT_VERSION
+    assert [s["hanzi"] for s in first["sentences"]] == ["我爸爸是医生。", "爸爸吃饭。"]
+    assert first["sentences"][0]["english"] == "My dad is a doctor."
+
+
+def test_saved_sentence_has_script_pinyin(tmp_path):
+    """SPEC example: 我爸爸是医生。 → wǒ bà ba shì yī shēng。"""
+    run(tmp_path, DECK, FakeClaude())
+    pinyin = saved_by_id(tmp_path)["爸爸"]["sentences"][0]["pinyin"]
+    assert tidy(pinyin) == "wǒ bà ba shì yī shēng。"
+
+
+def test_lines_saved_in_cards_order(tmp_path):
+    run(tmp_path, DECK, FakeClaude())
+    assert saved_ids(tmp_path) == IDS
+
+
+def test_every_saved_sentence_passes_the_checker(tmp_path):
+    run(tmp_path, DECK, FakeClaude(sentences={"吃": [BAD, GOOD["吃"][0]]}))
+    vocab = Vocab(DECK)
+    for row in saved(tmp_path):
+        assert 1 <= len(row["sentences"]) <= 2
+        for s in row["sentences"]:
+            assert check_sentence(s["hanzi"], row["hanzi"], vocab).passed
+
+
+def test_saved_after_every_claude_call(tmp_path):
+    """If Claude stops on call 3, the words from calls 1 and 2 are already on disk."""
+    fake = FakeClaude(BAND1, script={2: claude_error()})
+    run_allowing_stop(tmp_path, BAND1, fake, chunk_size=2)
+    assert saved_ids(tmp_path) == BAND1_IDS[:4]
+
+
+def test_chunk_size_sets_words_per_call(tmp_path):
+    run(tmp_path, BAND1, FakeClaude(BAND1), chunk_size=3)
+    assert [e["cards"] for e in log_entries(tmp_path)] == [3, 3, 1]
+
+
+# Output 2: the log
+
+
+def test_log_has_one_line_per_call_with_spec_fields(tmp_path):
+    run(tmp_path, BAND1, FakeClaude(BAND1), chunk_size=4)
+    entries = log_entries(tmp_path)
+    assert len(entries) == 2
+    for entry, n in zip(entries, [4, 3], strict=True):
+        assert entry["time"]
+        assert entry["model"] == FAKE_MODEL
+        assert entry["prompt_version"] == block.PROMPT_VERSION
+        assert entry["cards"] == n
+        assert entry["retry"] == 0
+        assert (entry["input_tokens"], entry["output_tokens"]) == (100, 50)
+        assert entry["cost_usd"] == pytest.approx(0.01)
+
+
+def test_log_records_retry_round(tmp_path):
+    fake = FakeClaude(BAND1, sentences={"吃": [BAD]}, script={1: {"吃": GOOD["吃"]}})
+    run(tmp_path, BAND1, fake)
+    entries = log_entries(tmp_path)
+    assert [e["retry"] for e in entries] == [0, 1]
+    assert [e["cards"] for e in entries] == [7, 1]
+
+
+def test_log_grows_across_runs(tmp_path):
+    run(tmp_path, BAND1, FakeClaude(BAND1), limit=2)
+    run(tmp_path, BAND1, FakeClaude(BAND1))
+    assert len(log_entries(tmp_path)) == 2
+
+
+# Output 3: the summary
+
+
+def test_summary_counts_written_skipped_failed_and_tokens(tmp_path):
+    result = run(tmp_path, BAND1, FakeClaude(BAND1), chunk_size=4)
+    assert result.written == 7
+    assert result.skipped == 0
+    assert list(result.failed) == []
+    assert result.input_tokens == 200  # 2 calls x 100
+    assert result.output_tokens == 100
+    assert isinstance(result, block.SentenceRun)
+
+
+def test_summary_printed_on_screen(tmp_path, capsys):
+    run(tmp_path, BAND1[:2], FakeClaude(BAND1))
+    assert "written" in capsys.readouterr().out
+
+
+# The prompt: one band per call, with that band's allowed words
+
+
+def test_one_band_per_call(tmp_path):
+    fake = FakeClaude()
+    run(tmp_path, DECK, fake)
+    assert sorted(e["cards"] for e in log_entries(tmp_path)) == [1, 7]
+    assert len(fake.prompts) == 2
+    assert sum("一起" in p for p in fake.prompts) == 1  # never in the band-1 prompt
+
+
+def test_band1_prompt_lists_all_band1_words_but_no_harder_ones(tmp_path):
+    fake = FakeClaude()
+    run(tmp_path, DECK, fake, limit=1)  # only 爸爸 is asked about
+    (prompt,) = fake.prompts
+    for word in BAND1_IDS:
+        assert word in prompt
+    assert "一起" not in prompt
+
+
+def test_band2_prompt_lists_band1_and_band2_words(tmp_path):
+    write_saved(tmp_path, *[saved_line(w, GOOD[w]) for w in BAND1_IDS])
+    fake = FakeClaude()
+    run(tmp_path, DECK, fake)
+    (prompt,) = fake.prompts  # only 一起 still needs sentences
+    for word in IDS:
+        assert word in prompt
+
+
+def test_prompt_shows_the_words_pinyin_and_meanings(tmp_path):
+    fake = FakeClaude()
+    run(tmp_path, DECK, fake, limit=1)
+    assert "bà ba" in fake.prompts[0]
+    assert "father" in fake.prompts[0]
+
+
+# Retries
+
+
+def test_failing_sentence_is_retried_with_its_reasons(tmp_path):
+    fake = FakeClaude(BAND1, sentences={"吃": [BAD]}, script={1: {"吃": GOOD["吃"]}})
+    result = run(tmp_path, BAND1, fake)
+    assert len(fake.prompts) == 2
+    retry = fake.prompts[1]
+    assert BAD[0] in retry
+    for reason in check_sentence(BAD[0], "吃", Vocab(BAND1)).reasons:
+        assert reason in retry
+    assert result.written == 7
+    assert kept(tmp_path, "吃") == ["我吃饭。", "爸爸吃饭。"]
+
+
+def test_retry_is_one_call_per_band_per_round(tmp_path):
+    fake = FakeClaude(
+        BAND1,
+        sentences={"吃": [BAD], "饭": [BAD]},
+        script={1: {"吃": GOOD["吃"], "饭": GOOD["饭"]}},
+    )
+    run(tmp_path, BAND1, fake)
+    assert len(fake.prompts) == 2
+    assert [e["cards"] for e in log_entries(tmp_path)] == [7, 2]
+
+
+def test_still_failing_after_retries_is_failed_and_not_written(tmp_path):
+    fake = FakeClaude(BAND1, sentences={"吃": [BAD]})
+    result = run(tmp_path, BAND1, fake)
+    assert len(fake.prompts) == 3  # first try + 2 retries (default)
+    assert list(result.failed) == ["吃"]
+    assert result.written == 6
+    assert "吃" not in saved_ids(tmp_path)
+
+
+@pytest.mark.parametrize("retries", [0, 1])
+def test_retries_sets_extra_tries(tmp_path, retries):
+    fake = FakeClaude(BAND1, sentences={"吃": [BAD]})
+    result = run(tmp_path, BAND1, fake, retries=retries)
+    assert len(fake.prompts) == 1 + retries
+    assert list(result.failed) == ["吃"]
+
+
+def test_partly_good_word_keeps_the_passing_sentence_without_retry(tmp_path):
+    fake = FakeClaude(BAND1, sentences={"吃": [BAD, ("我吃饭。", "I eat.")]})
+    result = run(tmp_path, BAND1, fake)
+    assert len(fake.prompts) == 1
+    assert list(result.failed) == []
+    assert kept(tmp_path, "吃") == ["我吃饭。"]
+
+
+def test_more_than_two_sentences_keeps_the_first_two_that_pass(tmp_path):
+    many = [
+        BAD,
+        ("我吃饭。", "I eat."),
+        ("爸爸吃饭。", "Dad eats."),
+        ("我们吃饭。", "We eat."),
+    ]
+    run(tmp_path, BAND1, FakeClaude(BAND1, sentences={"吃": many}))
+    assert kept(tmp_path, "吃") == ["我吃饭。", "爸爸吃饭。"]
+
+
+# English translation check
+
+
+@pytest.mark.parametrize(
+    "english",
+    ["", "我吃饭", "x" * 121, "...", "Café"],
+    ids=["empty", "chinese", "too-long", "no-letter", "non-ascii"],
+)
+def test_sentence_with_bad_english_is_dropped(tmp_path, english):
+    fake = FakeClaude(BAND1, sentences={"吃": [("我吃饭。", english)]})
+    result = run(tmp_path, BAND1, fake, retries=0)
+    assert list(result.failed) == ["吃"]
+    assert "吃" not in saved_ids(tmp_path)
+
+
+@pytest.mark.parametrize(
+    "english",
+    ["I eat at 2 o'clock, right?", "x" * 120, "A"],
+    ids=["punctuation-digits", "120-chars", "one-letter"],
+)
+def test_sentence_with_good_english_is_kept(tmp_path, english):
+    fake = FakeClaude(BAND1, sentences={"吃": [("我吃饭。", english)]})
+    result = run(tmp_path, BAND1, fake, retries=0)
+    assert list(result.failed) == []
+    assert saved_by_id(tmp_path)["吃"]["sentences"][0]["english"] == english
+
+
+def test_bad_english_on_one_sentence_keeps_the_other(tmp_path):
+    pairs = [("我吃饭。", "我吃饭"), ("爸爸吃饭。", "Dad eats.")]
+    run(tmp_path, BAND1, FakeClaude(BAND1, sentences={"吃": pairs}), retries=0)
+    assert kept(tmp_path, "吃") == ["爸爸吃饭。"]
+
+
+# Resume, never shrinks, dropped words
+
+
+def test_second_run_skips_current_passing_lines(tmp_path):
+    run(tmp_path, DECK, FakeClaude())
+    again = FakeClaude()
+    result = run(tmp_path, DECK, again)
+    assert again.prompts == []
+    assert result.written == 0
+    assert result.skipped == len(DECK)
+    assert saved_ids(tmp_path) == IDS
+
+
+def test_resume_asks_only_for_missing_words_and_keeps_order(tmp_path):
+    write_saved(tmp_path, saved_line("吃", GOOD["吃"]), saved_line("是", GOOD["是"]))
+    result = run(tmp_path, BAND1, FakeClaude(BAND1))
+    assert [e["cards"] for e in log_entries(tmp_path)] == [5]
+    assert result.written == 5
+    assert result.skipped == 2
+    assert saved_ids(tmp_path) == BAND1_IDS
+
+
+def test_old_prompt_version_is_redone(tmp_path):
+    others = [saved_line(w, GOOD[w]) for w in BAND1_IDS if w != "吃"]
+    write_saved(
+        tmp_path, saved_line("吃", [("我吃饭。", "I eat.")], version="0"), *others
+    )
+    result = run(tmp_path, BAND1, FakeClaude(BAND1))
+    assert result.written == 1
+    assert result.skipped == 6
+    row = saved_by_id(tmp_path)["吃"]
+    assert str(row["prompt_version"]) == block.PROMPT_VERSION
+    assert kept(tmp_path, "吃") == ["我吃饭。", "爸爸吃饭。"]
+
+
+def test_saved_line_that_now_fails_the_checker_is_redone(tmp_path):
+    others = [saved_line(w, GOOD[w]) for w in BAND1_IDS if w != "吃"]
+    write_saved(tmp_path, saved_line("吃", [BAD]), *others)
+    fake = FakeClaude(BAND1)
+    result = run(tmp_path, BAND1, fake)
+    assert len(fake.prompts) == 1
+    assert result.skipped == 6
+    assert kept(tmp_path, "吃") == ["我吃饭。", "爸爸吃饭。"]
+
+
+def test_old_lines_stay_when_claude_errors_before_replacing_them(tmp_path, monkeypatch):
+    write_saved(tmp_path, *[saved_line(w, GOOD[w]) for w in BAND1_IDS])
+    before = (tmp_path / "sentences.jsonl").read_text(encoding="utf-8")
+    monkeypatch.setattr(block, "PROMPT_VERSION", "2")
+    run_allowing_stop(tmp_path, BAND1, FakeClaude(BAND1, script={0: claude_error()}))
+    assert saved(tmp_path) == [json.loads(t) for t in before.splitlines()]
+
+
+def test_old_line_stays_when_its_word_fails_all_retries(tmp_path, monkeypatch):
+    write_saved(tmp_path, *[saved_line(w, GOOD[w]) for w in BAND1_IDS])
+    monkeypatch.setattr(block, "PROMPT_VERSION", "2")
+    result = run(tmp_path, BAND1, FakeClaude(BAND1, sentences={"吃": [BAD]}))
+    assert list(result.failed) == ["吃"]
+    assert saved_ids(tmp_path) == BAND1_IDS
+    versions = {r["id"]: str(r["prompt_version"]) for r in saved(tmp_path)}
+    assert versions["吃"] == "1"
+    assert {v for w, v in versions.items() if w != "吃"} == {"2"}
+
+
+def test_version_bump_with_limit_keeps_old_lines_for_the_rest(tmp_path, monkeypatch):
+    write_saved(tmp_path, *[saved_line(w, GOOD[w]) for w in BAND1_IDS])
+    monkeypatch.setattr(block, "PROMPT_VERSION", "2")
+    run(tmp_path, BAND1, FakeClaude(BAND1), limit=2)
+    assert saved_ids(tmp_path) == BAND1_IDS
+    versions = [str(r["prompt_version"]) for r in saved(tmp_path)]
+    assert versions == ["2", "2", "1", "1", "1", "1", "1"]
+
+
+def test_line_for_word_no_longer_in_cards_is_dropped_with_warning(
+    tmp_path, capsys, caplog, recwarn
+):
+    write_saved(tmp_path, saved_line("gone", [("我吃饭。", "I eat.")]))
+    run(tmp_path, BAND1, FakeClaude(BAND1), limit=2)
+    assert saved_ids(tmp_path) == BAND1_IDS[:2]
+    captured = capsys.readouterr()
+    warned = " ".join(str(w.message) for w in recwarn)
+    assert "gone" in captured.out + captured.err + caplog.text + warned
+
+
+# --limit and --dry-run
+
+
+def test_limit_writes_only_the_first_n_words_needing_sentences(tmp_path):
+    result = run(tmp_path, BAND1, FakeClaude(BAND1), limit=3)
+    assert result.written == 3
+    assert saved_ids(tmp_path) == BAND1_IDS[:3]
+
+
+def test_limit_counts_only_words_still_needing_sentences(tmp_path):
+    run(tmp_path, BAND1, FakeClaude(BAND1), limit=3)
+    run(tmp_path, BAND1, FakeClaude(BAND1), limit=3)
+    assert saved_ids(tmp_path) == BAND1_IDS[:6]
+
+
+def test_limit_zero_calls_nothing(tmp_path):
+    fake = FakeClaude(BAND1)
+    result = run(tmp_path, BAND1, fake, limit=0)
+    assert fake.prompts == []
+    assert result.written == 0
+
+
+def test_dry_run_never_calls_claude_and_writes_nothing(tmp_path, capsys):
+    fake = FakeClaude()
+    run(tmp_path, DECK, fake, dry_run=True)
+    assert fake.prompts == []
+    assert list(tmp_path.iterdir()) == []
+    assert "爸爸" in capsys.readouterr().out  # shows the first prompt
+
+
+def test_dry_run_leaves_existing_file_unchanged(tmp_path):
+    write_saved(tmp_path, saved_line("吃", [BAD]), saved_line("gone", GOOD["吃"]))
+    before = (tmp_path / "sentences.jsonl").read_bytes()
+    fake = FakeClaude()
+    run(tmp_path, DECK, fake, dry_run=True)
+    assert fake.prompts == []
+    assert (tmp_path / "sentences.jsonl").read_bytes() == before
+
+
+# Failure modes
+
+
+def test_claude_unavailable_raises_and_writes_nothing(tmp_path):
+    fake = FakeClaude(BAND1, script={0: claude_error("run `claude` and log in")})
+    run_allowing_stop(tmp_path, BAND1, fake, chunk_size=2)
+    assert len(fake.prompts) == 1
+    assert saved(tmp_path) == []
+
+
+def test_claude_error_keeps_work_so_far_and_makes_no_more_calls(tmp_path):
+    fake = FakeClaude(BAND1, script={1: claude_error()})
+    run_allowing_stop(tmp_path, BAND1, fake, chunk_size=2)
+    assert len(fake.prompts) == 2
+    assert saved_ids(tmp_path) == BAND1_IDS[:2]
+
+
+def test_claude_error_during_a_retry_keeps_work_so_far(tmp_path):
+    fake = FakeClaude(BAND1, sentences={"吃": [BAD]}, script={1: claude_error()})
+    run_allowing_stop(tmp_path, BAND1, fake)
+    assert saved_ids(tmp_path) == [w for w in BAND1_IDS if w != "吃"]
+
+
+def test_rerun_after_claude_error_continues(tmp_path):
+    stopped = FakeClaude(BAND1, script={1: claude_error()})
+    run_allowing_stop(tmp_path, BAND1, stopped, chunk_size=2)
+    result = run(tmp_path, BAND1, FakeClaude(BAND1), chunk_size=2)
+    assert result.skipped == 2
+    assert result.written == 5
+    assert saved_ids(tmp_path) == BAND1_IDS
+
+
+@pytest.mark.parametrize(
+    "bad_text",
+    [
+        "Sure! Here are your sentences.",
+        json.dumps({"sentences": ["我吃饭。"]}, ensure_ascii=False),
+        json.dumps({"cards": "none"}),
+    ],
+    ids=["not-json", "wrong-shape", "cards-not-a-list"],
+)
+def test_broken_reply_fails_that_calls_words_and_run_goes_on(tmp_path, bad_text):
+    fake = FakeClaude(BAND1, script={0: bad_text})
+    result = run(tmp_path, BAND1, fake, chunk_size=4, retries=0)
+    assert len(fake.prompts) == 2
+    assert sorted(result.failed) == sorted(BAND1_IDS[:4])
+    assert result.written == 3
+    assert saved_ids(tmp_path) == BAND1_IDS[4:]
+
+
+def test_reply_in_a_json_code_fence_is_fine(tmp_path):
+    body = json.dumps(
+        {
+            "cards": [
+                {"id": "吃", "sentences": [{"hanzi": "我吃饭。", "english": "I eat."}]}
+            ]
+        },
+        ensure_ascii=False,
+    )
+    write_saved(tmp_path, *[saved_line(w, GOOD[w]) for w in BAND1_IDS if w != "吃"])
+    fake = FakeClaude(BAND1, script={0: "```json\n" + body + "\n```"})
+    result = run(tmp_path, BAND1, fake)
+    assert result.written == 1
+    assert kept(tmp_path, "吃") == ["我吃饭。"]
+
+
+def test_word_missing_from_reply_is_retried(tmp_path):
+    fake = FakeClaude(BAND1, script={0: {"吃": None}})
+    result = run(tmp_path, BAND1, fake)
+    assert len(fake.prompts) == 2
+    assert result.written == 7
+    assert list(result.failed) == []
+    assert saved_ids(tmp_path) == BAND1_IDS
+
+
+def test_word_missing_from_reply_with_no_retries_is_failed(tmp_path):
+    fake = FakeClaude(BAND1, sentences={"吃": None})
+    result = run(tmp_path, BAND1, fake, retries=0)
+    assert list(result.failed) == ["吃"]
+    assert "吃" not in saved_ids(tmp_path)
+
+
+def test_word_without_sentences_key_fails_alone(tmp_path):
+    reply_cards = [
+        {"id": w, "sentences": [{"hanzi": h, "english": e} for h, e in GOOD[w]]}
+        for w in BAND1_IDS
+        if w != "吃"
+    ] + [{"id": "吃"}]
+    body = json.dumps({"cards": reply_cards}, ensure_ascii=False)
+    result = run(tmp_path, BAND1, FakeClaude(BAND1, script={0: body}), retries=0)
+    assert list(result.failed) == ["吃"]
+    assert saved_ids(tmp_path) == [w for w in BAND1_IDS if w != "吃"]
+
+
+def test_extra_word_in_reply_is_ignored(tmp_path):
+    fake = FakeClaude(BAND1, sentences={"zz": GOOD["吃"]}, extra=["zz"])
+    result = run(tmp_path, BAND1, fake)
+    assert saved_ids(tmp_path) == BAND1_IDS
+    assert list(result.failed) == []
+
+
+def test_unreadable_saved_line_stops_before_any_call(tmp_path):
+    broken = saved_line("爸爸", GOOD["爸爸"]) + "\n" + '{"id": "吃"' + "\n"
+    (tmp_path / "sentences.jsonl").write_text(broken, encoding="utf-8")
+    fake = FakeClaude(BAND1)
+    with pytest.raises(Exception, match="line 2"):
+        run(tmp_path, BAND1, fake)
+    assert fake.prompts == []
+    assert (tmp_path / "sentences.jsonl").read_text(encoding="utf-8") == broken
+
+
+@pytest.mark.parametrize(
+    "setting",
+    [{"limit": -1}, {"chunk_size": 0}, {"retries": -1}],
+    ids=["limit", "chunk_size", "retries"],
+)
+def test_bad_settings_raise_value_error(tmp_path, setting):
+    fake = FakeClaude(BAND1)
+    with pytest.raises(ValueError):
+        run(tmp_path, BAND1, fake, **setting)
+    assert fake.prompts == []
+
+
+# sentence_pinyin (by script, ADR 0008)
+
+
+def test_pinyin_uses_dictionary_for_hsk_words_keeping_neutral_tones():
+    assert block.sentence_pinyin("爸爸", DECK) == "bà ba"  # pypinyin says bà bà
+
+
+def test_pinyin_dictionary_beats_pypinyin_tone_change():
+    """一起 is yī qǐ in our dictionary (pypinyin would say yì qǐ)."""
+    pinyin = block.sentence_pinyin("我们一起吃饭。", DECK)
+    assert tidy(pinyin) == "wǒ men yī qǐ chī fàn。"
+
+
+def test_pinyin_uses_pypinyin_for_words_not_in_the_deck():
+    assert tidy(block.sentence_pinyin("我喝水。", DECK)) == "wǒ hē shuǐ。"
+
+
+def test_pinyin_uses_pypinyin_for_hsk_words_with_several_readings():
+    cheap = card("便宜", "biàn yí / pián yi", 1, ["cheap"], readings="2")
+    assert block.sentence_pinyin("便宜", [*DECK, cheap]) == "pián yi"
+
+
+def test_pinyin_keeps_punctuation_as_written():
+    pinyin = block.sentence_pinyin("我吃饭，爸爸吃饭！", DECK)
+    assert tidy(pinyin) == "wǒ chī fàn，bà ba chī fàn！"
+
+
+# Real file
+
+
+@pytest.mark.skipif(not SENTENCES_JSONL.exists(), reason="sentences.jsonl not made yet")
+def test_real_sentences_file_lines_all_pass_the_checker(real_cards):
+    vocab = Vocab(real_cards)
+    ids = {c.id for c in real_cards}
+    text = SENTENCES_JSONL.read_text(encoding="utf-8")
+    for row in (json.loads(t) for t in text.splitlines() if t.strip()):
+        assert row["id"] in ids
+        assert 1 <= len(row["sentences"]) <= 2
+        for s in row["sentences"]:
+            check = check_sentence(s["hanzi"], row["hanzi"], vocab)
+            assert check.passed, s
+            assert s["pinyin"] == block.sentence_pinyin(
+                s["hanzi"], real_cards, check.words
+            ), s
+
+
+# -- Settled while building (SPEC "Failure modes", the 7 test-writer assumptions) ----
+
+
+def test_unreadable_saved_line_raises_sentence_file_error(tmp_path):
+    (tmp_path / "sentences.jsonl").write_text('{"id": "吃"\n', encoding="utf-8")
+    with pytest.raises(block.SentenceFileError, match="line 1"):
+        run(tmp_path, BAND1, FakeClaude(BAND1))
+
+
+def test_words_from_a_broken_reply_are_retried(tmp_path):
+    fake = FakeClaude(BAND1, script={0: "not json"})
+    result = run(tmp_path, BAND1, fake)
+    assert len(fake.prompts) == 2
+    assert [e["retry"] for e in log_entries(tmp_path)] == [0, 1]
+    assert result.written == 7
+    assert "no usable sentences came back" in fake.prompts[1]
+
+
+def test_empty_deck_is_refused(tmp_path):
+    with pytest.raises(ValueError):
+        run(tmp_path, [], FakeClaude())
+
+
+def test_ask_gets_model_system_and_schema(tmp_path):
+    seen = {}
+
+    def ask(prompt, **kwargs):
+        seen.update(kwargs)
+        return FakeClaude(BAND1)(prompt)
+
+    run(tmp_path, BAND1, ask, limit=1)
+    assert seen["model"] == "sonnet"
+    assert seen["json_schema"]["required"] == ["cards"]
+    assert seen["system"]
+
+
+def test_pinyin_without_a_reading_prefers_longer_dictionary_words():
+    """With no reading given, 一起 is read as one word (yī qǐ), not 一 + 起."""
+    assert (
+        tidy(block.sentence_pinyin("我们一起吃饭。", DECK)) == "wǒ men yī qǐ chī fàn。"
+    )
+
+
+def test_pinyin_has_no_space_before_punctuation():
+    assert block.sentence_pinyin("我吃饭。", DECK) == "wǒ chī fàn。"
+
+
+def test_command_line_prints_stopped_on_claude_error(monkeypatch, capsys):
+    from hsk_trainer.blocks.sentence_writer import __main__ as cli
+
+    def boom(*args, **kwargs):
+        raise claude_error("usage limit reached")
+
+    monkeypatch.setattr(cli, "write_sentences", boom)
+    monkeypatch.setattr(cli, "load_cards", lambda path: DECK)
+    assert cli.main(["--limit", "1"]) == 1
+    out = capsys.readouterr().out
+    assert "Stopped:" in out and "usage limit reached" in out
+
+
+def test_command_line_prints_stopped_on_a_bad_setting(monkeypatch, capsys):
+    from hsk_trainer.blocks.sentence_writer import __main__ as cli
+
+    monkeypatch.setattr(cli, "load_cards", lambda path: DECK)
+    assert cli.main(["--retries", "-1"]) == 1
+    assert "Stopped:" in capsys.readouterr().out
+
+
+# -- block-reviewer round 1 ------------------------------------------------------------
+
+
+def test_word_listed_twice_keeps_the_first_passing_copy(tmp_path, capsys):
+    others = [saved_line(w, GOOD[w]) for w in BAND1_IDS if w != "吃"]
+    write_saved(
+        tmp_path,
+        saved_line("吃", [BAD]),
+        saved_line("吃", [("我吃饭。", "I eat.")]),
+        saved_line("吃", [("爸爸吃饭。", "Dad eats.")]),
+        *others,
+    )
+    fake = FakeClaude(BAND1)
+    result = run(tmp_path, BAND1, fake)
+    assert fake.prompts == []  # a passing copy is enough: no call
+    assert result.skipped == 7
+    assert saved_ids(tmp_path) == BAND1_IDS  # one copy each, in cards order
+    assert kept(tmp_path, "吃") == ["我吃饭。"]
+    assert "listed twice" in capsys.readouterr().out
+
+
+def test_saved_pinyin_is_made_again_on_resume(tmp_path):
+    write_saved(tmp_path, *[saved_line(w, GOOD[w]) for w in BAND1_IDS])  # pinyin "x"
+    run(tmp_path, BAND1, FakeClaude(BAND1))
+    pinyin = saved_by_id(tmp_path)["吃"]["sentences"][0]["pinyin"]
+    assert pinyin == "wǒ chī fàn。"
+
+
+def test_same_sentence_twice_is_kept_once(tmp_path):
+    twice = [
+        ("我吃饭。", "I eat."),
+        ("我吃饭。", "I eat."),
+        ("爸爸吃饭。", "Dad eats."),
+    ]
+    run(tmp_path, BAND1, FakeClaude(BAND1, sentences={"吃": twice}))
+    assert kept(tmp_path, "吃") == ["我吃饭。", "爸爸吃饭。"]
+
+
+def test_command_line_prints_stopped_when_cards_file_is_missing(monkeypatch, capsys):
+    from hsk_trainer.blocks.sentence_writer import __main__ as cli
+
+    def missing(path):
+        raise FileNotFoundError(path)
+
+    monkeypatch.setattr(cli, "load_cards", missing)
+    assert cli.main([]) == 1
+    assert "Stopped:" in capsys.readouterr().out
+
+
+def test_saved_line_with_the_same_sentence_twice_is_redone(tmp_path):
+    same = [("我吃饭。", "I eat."), ("我吃饭。", "I eat.")]
+    others = [saved_line(w, GOOD[w]) for w in BAND1_IDS if w != "吃"]
+    write_saved(tmp_path, saved_line("吃", same), *others)
+    fake = FakeClaude(BAND1)
+    run(tmp_path, BAND1, fake)
+    assert len(fake.prompts) == 1
+    assert kept(tmp_path, "吃") == ["我吃饭。", "爸爸吃饭。"]
+
+
+# -- /code-review round 1 --------------------------------------------------------------
+
+
+def test_pinyin_for_other_words_sees_the_whole_sentence():
+    """个 after 这 is light (ge) in context; read alone, pypinyin would say gè."""
+    zhe = card("这", "zhè", 1, ["this"])
+    pinyin = block.sentence_pinyin("这个", [*DECK, zhe], ("这", "个"))
+    assert pinyin == "zhè ge"
+
+
+def test_curly_quotes_and_dashes_in_english_are_made_plain(tmp_path):
+    fake = FakeClaude(
+        BAND1, sentences={"吃": [("我吃饭。", "I\u2019m eating \u2014 now.")]}
+    )
+    run(tmp_path, BAND1, fake, retries=0)
+    assert saved_by_id(tmp_path)["吃"]["sentences"][0]["english"] == "I'm eating - now."
+
+
+def test_slash_percent_and_ampersand_are_fine_in_english(tmp_path):
+    fake = FakeClaude(
+        BAND1, sentences={"吃": [("我吃饭。", "He/she eats 100% & more.")]}
+    )
+    result = run(tmp_path, BAND1, fake, retries=0)
+    assert list(result.failed) == []
+
+
+def test_failed_words_reach_the_summary_after_a_claude_error(tmp_path, capsys):
+    fake = FakeClaude(BAND1, sentences={"吃": [BAD]}, script={1: claude_error()})
+    run_allowing_stop(tmp_path, BAND1, fake)
+    assert "Failed (re-run to retry): 吃" in capsys.readouterr().out
+
+
+def test_word_listed_twice_prefers_a_current_copy_over_an_older_one(tmp_path):
+    others = [saved_line(w, GOOD[w]) for w in BAND1_IDS if w != "吃"]
+    write_saved(
+        tmp_path,
+        saved_line("吃", [("我吃饭。", "I eat.")], version="0"),
+        saved_line("吃", [("爸爸吃饭。", "Dad eats.")]),
+        *others,
+    )
+    fake = FakeClaude(BAND1)
+    run(tmp_path, BAND1, fake)
+    assert fake.prompts == []
+    assert kept(tmp_path, "吃") == ["爸爸吃饭。"]
+
+
+def test_first_entry_wins_when_reply_repeats_a_word(tmp_path):
+    good = [{"hanzi": h, "english": e} for h, e in GOOD["吃"]]
+    body = json.dumps(
+        {"cards": [{"id": "吃", "sentences": good}, {"id": "吃", "sentences": []}]},
+        ensure_ascii=False,
+    )
+    others = [saved_line(w, GOOD[w]) for w in BAND1_IDS if w != "吃"]
+    write_saved(tmp_path, *others)
+    fake = FakeClaude(BAND1, script={0: body})
+    result = run(tmp_path, BAND1, fake)
+    assert len(fake.prompts) == 1
+    assert result.written == 1
+
+
+def test_a_stray_item_in_the_reply_fails_alone(tmp_path):
+    good = [{"hanzi": h, "english": e} for h, e in GOOD["吃"]]
+    body = json.dumps(
+        {"cards": ["oops", {"id": "吃", "sentences": good}]}, ensure_ascii=False
+    )
+    others = [saved_line(w, GOOD[w]) for w in BAND1_IDS if w != "吃"]
+    write_saved(tmp_path, *others)
+    result = run(tmp_path, BAND1, FakeClaude(BAND1, script={0: body}))
+    assert result.written == 1
