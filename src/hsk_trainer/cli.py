@@ -1,7 +1,8 @@
 """Command-line entry point: `uv run hsk quiz --band 1 --mode char --n 10`.
 
 Not a block: it is the thin shell that wires the blocks to the keyboard and screen
-(cards.jsonl -> deck_builder -> engine's run_quiz, graded with the cedict_cleaner).
+(cards.jsonl + answers.jsonl -> deck_builder -> engine's run_quiz). One answer list
+decides what counts (ADR 0006): the answers in data/generated/answers.jsonl.
 """
 
 import sys
@@ -11,13 +12,13 @@ from typing import Annotated, NoReturn
 import typer
 from pydantic import ValidationError
 
-from hsk_trainer.blocks.cedict_cleaner import clean_answer
+from hsk_trainer.blocks.answer_writer import ANSWERS_FILE, AnswerFileError, load_answers
 from hsk_trainer.modes import HSK_MODES
 from quizkit.blocks.deck_builder import build_deck
 from quizkit.blocks.engine import Attempt, QuizSession, run_quiz
 from quizkit.blocks.grader import GradeSettings, clean
 from quizkit.files import load_cards
-from quizkit.models import Question
+from quizkit.models import Card, Question
 
 # Found from this file, so `hsk` works from any folder (src/hsk_trainer/cli.py -> root).
 # Assumes it runs from the repo (`uv run hsk`), not from an installed wheel.
@@ -67,18 +68,29 @@ def _ask(question: Question) -> str | None:
 
 
 def _readable(question: Question) -> dict[str, str]:
-    """Each answer the grader accepts, in its normalised form -> as written for people.
+    """Each accepted answer, in the grader's normalised form -> as written for people.
 
     The grader compares normalised text ("haven't" -> "havent", "to love" -> "love");
     showing that would teach misspellings. Same order and de-duplication as the grader.
     """
     readable: dict[str, str] = {}
-    for raw in question.accepted_answers:
-        for variant in clean_answer(raw):
-            key = clean(variant, SETTINGS)
-            if key and key not in readable:
-                readable[key] = variant
+    for answer in question.accepted_answers:
+        key = clean(answer, SETTINGS)
+        if key and key not in readable:
+            readable[key] = answer
     return readable
+
+
+def _with_answers(cards: list[Card], answers_file: Path) -> list[Card]:
+    """Each card with its answers from answers.jsonl (the one answer list, ADR 0006).
+
+    load_answers checks the file with the writer's own checker; Card re-checks each
+    card. Raises ValueError (AnswerFileError is one) for a bad or incomplete file.
+    """
+    answers = load_answers(answers_file, cards)
+    return [
+        Card.model_validate({**c.model_dump(), "answers": answers[c.id]}) for c in cards
+    ]
 
 
 def _tell(attempt: Attempt) -> None:
@@ -116,6 +128,7 @@ def quiz(
         int | None, typer.Option(help="Same seed, same words (for replays).")
     ] = None,
     cards: Annotated[Path | None, typer.Option(hidden=True)] = None,
+    answers: Annotated[Path | None, typer.Option(hidden=True)] = None,
 ) -> None:
     """Quiz yourself: see a word, type its English meaning. Ctrl-C stops (score kept)."""
     if cards is None:  # looked up now, not at import, so tests can point it elsewhere
@@ -127,16 +140,24 @@ def quiz(
             )
     elif not cards.exists():
         _fail(f"No cards file at {cards}.")
+    answers = answers or ANSWERS_FILE
 
     try:
-        questions = build_deck(
-            load_cards(cards), HSK_MODES[mode], n, levels=[band], seed=seed
-        )
+        # Only this band's cards: a bad line in another band doesn't block this quiz.
+        in_band = [c for c in load_cards(cards) if c.level == band]
+        playable = _with_answers(in_band, answers)
+        questions = build_deck(playable, HSK_MODES[mode], n, levels=[band], seed=seed)
         # Up-front data check (a card nobody can answer), kept apart from run_quiz so a
         # ValueError mid-quiz is never mislabelled as a bad file.
-        QuizSession(questions, cleaner=clean_answer, settings=SETTINGS)
+        QuizSession(questions, settings=SETTINGS)
     except (ValidationError, ValueError) as err:  # bad or partial data file
-        _fail(f"Can't build a quiz from {cards}:", str(err))
+        hint = []
+        if answers == ANSWERS_FILE and isinstance(err, AnswerFileError):
+            hint = [  # the real file is committed, so this is a broken checkout
+                "Restore it with git checkout, or fix it with:",
+                "uv run python -m hsk_trainer.blocks.answer_writer",
+            ]
+        _fail(f"Can't build a quiz from {cards} and {answers.name}:", str(err), *hint)
 
     if len(questions) < n:
         print(
@@ -147,9 +168,7 @@ def quiz(
     )
 
     # run_quiz treats Ctrl-C anywhere in its loop as a quit, so the score is kept.
-    result = run_quiz(
-        questions, ask=_ask, tell=_tell, cleaner=clean_answer, settings=SETTINGS
-    )
+    result = run_quiz(questions, ask=_ask, tell=_tell, settings=SETTINGS)
 
     print()
     if not result.finished:

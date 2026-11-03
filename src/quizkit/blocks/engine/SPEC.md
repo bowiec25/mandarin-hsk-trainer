@@ -20,7 +20,6 @@ It comes in two layers, so the same quizmaster works in a terminal now and on a 
 | Input | Type | Plain meaning |
 |---|---|---|
 | `questions` | `list[Question]` | The quiz, in order (e.g. from `deck_builder`) |
-| `cleaner` | `Callable[[str], list[str]] \| None` | Passed straight to the grader (the HSK one is `cedict_cleaner.clean_answer`). `None` = no cleaner |
 | `settings` | `GradeSettings \| None` | Passed straight to the grader. `None` (default) = the grader's default `GradeSettings()` |
 | `ask` *(run_quiz only)* | `Callable[[Question], str \| None]` | Shows one question and returns what was typed. Returns **`None` to quit** |
 | `tell` *(run_quiz only)* | `Callable[[Attempt], None]` | Shows feedback after each answer |
@@ -28,14 +27,14 @@ It comes in two layers, so the same quizmaster works in a terminal now and on a 
 **How it's called** (all importable from `quizkit.blocks.engine`):
 ```python
 # the brain, step by step (web page later)
-session = QuizSession(questions, cleaner=None, settings=None)
+session = QuizSession(questions, settings=None)
 session.current         # the Question being asked now (None when finished)
 session.answer("love")  # marks it, moves to the next question, returns the Attempt
 session.done            # True when every question has been answered
 session.result()        # the QuizResult so far
 
 # the voice: the whole loop in one call (CLI)
-run_quiz(questions, ask, tell, cleaner=None, settings=None) -> QuizResult
+run_quiz(questions, ask, tell, settings=None) -> QuizResult
 ```
 
 These choices keep screen code out of the engine:
@@ -78,10 +77,11 @@ Example: quit after 3 of 10 with 2 right → `correct=2, answered=3, total=10, f
 | Blank answer `""` | **Not** a quit: the grader marks it wrong and it counts as answered |
 | `session.answer()` called after the last question | **Raises `RuntimeError`** (a bug in whatever is calling the engine) |
 | `KeyboardInterrupt` (Ctrl-C) raised anywhere in `run_quiz`'s loop: in `ask`, while grading, or in `tell` | **A quit:** `run_quiz` stops and returns the result so far (`finished=False`). An answer already marked counts (even if `tell` was interrupted while showing it); an answer interrupted while being marked doesn't. `ask`/`tell` are not called again |
-| `KeyboardInterrupt` while the session is being **created** (before the loop, e.g. inside a cleaner during the up-front check) | Passed through: the quiz hasn't started, so there is no score to keep |
+| `KeyboardInterrupt` while the session is being **created** (before the loop, e.g. during the up-front check) | Passed through: the quiz hasn't started, so there is no score to keep |
+| The grader raises mid-quiz (anything but Ctrl-C) | Passed through, not swallowed (a bug must be loud), and `run_quiz` returns nothing |
 | `ask` or `tell` raises anything else (e.g. `ValueError`) | Passed through, not swallowed (a bug must be loud), and `run_quiz` returns nothing |
 | `QuizSession` (the brain) and Ctrl-C | Not its job: the brain has no loop, so whoever drives it step by step handles Ctrl-C |
-| A card nobody can answer, or a broken cleaner | Found **when the session is created**, before question 1 (each question is graded once with a blank answer), so the grader's error is raised before `ask` is called and no answers are lost mid-quiz. A data bug must be loud, as in the grader's SPEC |
+| A card nobody can answer | Found **when the session is created**, before question 1 (each question is graded once with a blank answer), so the grader's error is raised before `ask` is called and no answers are lost mid-quiz. A data bug must be loud, as in the grader's SPEC |
 | The same question appears twice | Asked twice, both recorded (removing repeats is `deck_builder`'s job) |
 | A `QuizResult` built by hand with `total` < 1 or more attempts than `total` | pydantic **rejects** it (`ValidationError`), so a result is trustworthy outside `QuizSession` too (e.g. M5's progress store) |
 | The caller changes its `questions` list, or a question's answers, after starting | No effect: the session keeps its own deep copy |
@@ -93,7 +93,7 @@ Automatic tests in `tests/blocks/test_engine.py`. They use toy English questions
 - **Quit:** `None` after 1 answer → `answered=1, finished=False`, and `ask` isn't called again; `None` straight away → 0 answered
 - **Blank answer** is wrong, not a quit
 - **`tell`** is called once per answer, with that answer's `Attempt`, and not after a quit
-- **Cleaner and settings are passed through** (a toy cleaner changes the outcome; `allow_typos=False` makes `"Pariss"` wrong)
+- **Settings are passed through** (`allow_typos=False` makes `"Pariss"` wrong)
 - **Step by step:** `current` moves forward, `done` flips, `answer()` after the end → `RuntimeError`, `result()` partway works
 - **Ctrl-C is a quit, anywhere in the loop:** `KeyboardInterrupt` from `ask` after 1 answer → `answered=1`; before question 1 → `answered=0`; from `tell` on answer 2 → that answer still counts (`answered=2`), `ask` not called again; while answer 2 is being marked → it doesn't count (`answered=1`); the result is returned, nothing raised. But Ctrl-C while the session is being **created** → passed through, `ask` never called
 - **Errors:** empty list → `ValueError`; any other error from `ask`, `tell` or the grader is passed through

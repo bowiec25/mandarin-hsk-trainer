@@ -139,44 +139,25 @@ def test_empty_accepted_raises_value_error():
         grade("love", [])
 
 
-def test_cleaner_can_turn_one_answer_into_several():
-    def cleaner(s):
-        return ["cooked rice", "rice"] if s == "(cooked) rice" else [s]
-
-    assert grade("rice", ["(cooked) rice"], cleaner=cleaner).correct is True
-    assert grade("cooked rice", ["(cooked) rice"], cleaner=cleaner).correct is True
-
-
-def test_cleaner_can_drop_an_answer():
-    def cleaner(s):
-        return [] if s.startswith("surname") else [s]
-
-    result = grade("surname bob", ["surname Bob", "white"], cleaner=cleaner)
-    assert result.correct is False
-    assert result.expected == ["white"]
-    assert grade("white", ["surname Bob", "white"], cleaner=cleaner).correct is True
-
-
-def test_cleaner_dropping_every_answer_raises_value_error():
+def test_single_answer_empty_once_clean_raises_value_error():
     with pytest.raises(ValueError):
-        grade("anything", ["surname Bob"], cleaner=lambda s: [])
+        grade("anything", ["!!!"])
 
 
-def test_cleaner_error_is_passed_through():
-    class CleanerBug(Exception):
-        pass
-
-    def cleaner(s):
-        raise CleanerBug("oops")
-
-    with pytest.raises(CleanerBug):
-        grade("love", ["love"], cleaner=cleaner)
+def test_settings_can_be_passed_positionally():
+    settings = block.GradeSettings(allow_typos=False)
+    assert block.grade("loev", ["love"], settings).correct is False
+    assert block.grade("love", ["love"], settings).correct is True
 
 
-def test_cleaner_returning_a_plain_string_raises_type_error():
-    """A bare "rice" would otherwise be split into letters r, i, c, e."""
-    with pytest.raises(TypeError):
-        grade("rice", ["(cooked) rice"], cleaner=lambda s: "rice")
+def test_settings_can_be_passed_by_keyword():
+    settings = block.GradeSettings(allow_typos=False)
+    assert block.grade("loev", ["love"], settings=settings).correct is False
+
+
+def test_settings_none_uses_defaults():
+    assert block.grade("loev", ["love"], None).typo is True
+    assert block.grade("loev", ["love"], settings=None).typo is True
 
 
 def test_exact_match_beats_typo_match():
@@ -289,6 +270,14 @@ def test_lone_ignored_word_is_kept_as_a_real_answer():
     assert result.correct is True
     assert result.matched == "to"
     assert result.expected == ["to", "give"]
+
+
+def test_lone_ignored_word_can_be_a_typo_of_an_answer():
+    """SPEC example: "the" is a normal answer, one typo from "then" (4 letters)."""
+    result = grade("the", ["then"])
+    assert result.correct is True
+    assert result.typo is True
+    assert result.matched == "then"
 
 
 def test_multi_word_length_counts_spaces():

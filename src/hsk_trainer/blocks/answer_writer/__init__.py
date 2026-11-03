@@ -1,7 +1,7 @@
 """answer_writer: Write, for each card, the English answers a learner might type,
 saved to data/generated/answers.jsonl
 
-See SPEC.md in this folder (ADR 0003, ADR 0005).
+See SPEC.md in this folder (ADR 0003, ADR 0005, ADR 0006: the quiz's one answer list).
 Run by hand: uv run python -m hsk_trainer.blocks.answer_writer --limit 20 [--dry-run]
 """
 
@@ -34,6 +34,7 @@ BLOCK_SPEC = BlockSpec(
         "data/generated/answers.jsonl",
         "data/generated/answer_writer_log.jsonl",
         "validate_answers(lines, cards) -> list[str]",
+        "load_answers(path, cards) -> dict[str, list[str]]",
         "A summary on screen",
     ],
 )
@@ -98,7 +99,8 @@ class AnswerRun(BaseModel):
 
 
 class AnswerFileError(ValueError):
-    """answers.jsonl has a line that can't be read (e.g. after a hand edit)."""
+    """answers.jsonl can't be opened or read, or (load_answers) isn't a good answer
+    list for the cards asked about (e.g. after a hand edit)."""
 
 
 class _ReplyCard(BaseModel):
@@ -198,51 +200,105 @@ def parse_reply(text: str) -> _Reply:
         raise ValueError(f"reply is not the JSON asked for: {err}") from err
 
 
-def _load_existing(out: Path, known: set[str]) -> tuple[dict[str, AnswerLine], bool]:
-    """The good lines already saved, and whether the file needs rewriting.
+def _read_lines(path: Path) -> list[tuple[int, AnswerLine]]:
+    """Every line of an answers file with its line number (blank lines skipped).
 
-    Lines are tidied (repeats removed). A line for a card that's gone is dropped; a
-    line from an older PROMPT_VERSION, or one failing the checker (e.g. a bad hand
-    edit), is left out so the card is asked again.
+    Raises AnswerFileError if the file can't be opened or a line can't be read.
     """
-    if not out.exists():
-        return {}, False
-    done: dict[str, AnswerLine] = {}
-    repeated: set[str] = set()  # ids saved more than once: always asked again
-    changed = False
-    for number, raw in enumerate(out.read_text(encoding="utf-8").splitlines(), 1):
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as err:  # missing, a folder, not UTF-8...
+        raise AnswerFileError(f"can't open {path}: {err}") from err
+    lines = []
+    for number, raw in enumerate(text.splitlines(), 1):
         if not raw.strip():
             continue
         try:
-            line = AnswerLine.model_validate_json(raw)
+            lines.append((number, AnswerLine.model_validate_json(raw)))
         except ValidationError as err:
             raise AnswerFileError(
-                f"{out.name} line {number} can't be read; fix or delete it: {err}"
+                f"{path.name} line {number} can't be read; fix or delete it: {err}"
             ) from err
+    return lines
+
+
+def load_answers(path: Path, cards: list[Card]) -> dict[str, list[str]]:
+    """Each card's answers by id, only if the file is good for these cards (see SPEC).
+
+    Same rules as the writer, so the two always agree on a good file: repeated answers
+    are tidied away (they do no harm), then the checker runs. Lines for other ids are
+    ignored. Raises AnswerFileError listing the problems.
+    """
+    known = {c.id for c in cards}
+    lines = [
+        line.model_copy(update={"answers": _without_repeats(line.answers)})
+        for _, line in _read_lines(path)
+        if line.id in known
+    ]
+    problems = validate_answers(lines, cards, require_all=True)
+    if problems:
+        more = f"; and {len(problems) - 5} more" if len(problems) > 5 else ""
+        raise AnswerFileError(
+            f"{path.name} isn't a good answer list: " + "; ".join(problems[:5]) + more
+        )
+    return {line.id: line.answers for line in lines}
+
+
+def _load_existing(
+    out: Path, known: set[str]
+) -> tuple[dict[str, AnswerLine], dict[str, AnswerLine], bool]:
+    """(done, saved, changed): the current good lines; every card's saved line to keep
+    until it's replaced; whether the file needs rewriting.
+
+    The file never shrinks (the quiz needs every card): only a line for a card that's
+    gone is dropped. A line from an older PROMPT_VERSION, failing the checker, or
+    listed twice is asked again but stays saved meanwhile (if twice: the first copy
+    that passes the checker, else the first copy). Lines that pass are tidied.
+    """
+    if not out.exists():
+        return {}, {}, False
+    done: dict[str, AnswerLine] = {}
+    saved: dict[str, AnswerLine] = {}
+    usable: set[str] = set()  # ids whose saved line passes the checker
+    changed = False
+    for _, line in _read_lines(out):
         if line.id not in known:
             print(f"Warning: dropped {line.id!r} from {out.name} (no longer a card)")
             changed = True
             continue
         tidy = line.model_copy(update={"answers": _without_repeats(line.answers)})
         problems = _line_problems(tidy)
-        twice = line.id in done or line.id in repeated
-        if twice:
-            repeated.add(line.id)
+        twice = line.id in saved
+        changed |= twice  # only one copy is written back
+        if not problems and line.id not in usable:  # the first copy that passes wins
+            changed |= twice or tidy.answers != line.answers
+            saved[line.id] = tidy
+            usable.add(line.id)
+        elif not twice:
+            saved[line.id] = line  # kept as it is until it's replaced
         if line.prompt_version != PROMPT_VERSION or problems or twice:
             why = "; ".join(problems) or (
                 "listed more than once" if twice else "older prompt version"
             )
             print(f"Will redo {line.id!r}: {why}")
             done.pop(line.id, None)
-            changed = True
             continue
-        changed |= tidy.answers != line.answers
-        done[line.id] = tidy
-    return done, changed
+        done[line.id] = tidy  # first copy, current version, passes the checker
+    return done, saved, changed
 
 
-def _save(out: Path, cards: list[Card], done: dict[str, AnswerLine]) -> None:
-    rows = [done[c.id].model_dump() for c in cards if c.id in done]
+def _save(
+    out: Path,
+    cards: list[Card],
+    done: dict[str, AnswerLine],
+    saved: dict[str, AnswerLine],
+) -> None:
+    """Write every card's newest line: done this run or good, else the old saved one."""
+    rows = [
+        (done.get(c.id) or saved[c.id]).model_dump()
+        for c in cards
+        if c.id in done or c.id in saved
+    ]
     out.parent.mkdir(parents=True, exist_ok=True)
     data = "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows)
     write_atomically(out, data.encode("utf-8"))
@@ -282,9 +338,9 @@ def write_answers(
         raise ValueError("chunk_size must be at least 1")
     if limit is not None and limit < 0:
         raise ValueError("limit can't be negative")
-    done, changed = _load_existing(out, {c.id for c in cards})
-    if changed and not dry_run:
-        _save(out, cards, done)  # tidied / dropped lines are written back at once
+    done, saved, changed = _load_existing(out, {c.id for c in cards})
+    if changed and not dry_run:  # tidied / dropped lines are written back at once
+        _save(out, cards, done, saved)
     todo = [c for c in cards if c.id not in done]
     if limit is not None:
         todo = todo[:limit]
@@ -300,13 +356,13 @@ def write_answers(
 
     try:
         for chunk in chunks:
-            _do_chunk(chunk, ask, cards, done, run, out, log)
+            _do_chunk(chunk, ask, cards, done, saved, run, out, log)
     finally:  # also after a ClaudeError, so the summary is never lost
         _print_summary(run)
     return run
 
 
-def _do_chunk(chunk, ask, cards, done, run, out, log) -> None:
+def _do_chunk(chunk, ask, cards, done, saved, run, out, log) -> None:
     reply = ask(build_prompt(chunk))  # ClaudeError goes up: earlier chunks saved
     _log(log, reply, len(chunk))
     run.input_tokens += reply.input_tokens
@@ -342,7 +398,7 @@ def _do_chunk(chunk, ask, cards, done, run, out, log) -> None:
             continue
         done[card.id] = line
         run.written += 1
-    _save(out, cards, done)
+    _save(out, cards, done, saved)
 
 
 def _print_summary(run: AnswerRun) -> None:

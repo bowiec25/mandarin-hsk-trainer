@@ -2,7 +2,7 @@
 
 Run it:  uv run python examples/capitals_quiz.py
 If this works without touching hsk_trainer, the generic blocks really are generic.
-Its own cards, its own mode, no cleaner: everything else is quizkit as-is.
+Its own cards and its own mode: everything else is quizkit as-is.
 """
 
 import sys

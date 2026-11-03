@@ -28,7 +28,7 @@ build_deck(cards, mode, n, levels=None, seed=None) -> list[Question]
 `list[Question]`, in memory (nothing saved):
 - Shuffled, **no card twice**, only cards at `levels`.
 - `min(n, available)` questions. Asking for more than exist gives all of them; the caller can tell by the length (e.g. the CLI says "only 197 band-2 words").
-- Each made with the existing `quizkit.modes.build_question(card, mode)`, so `accepted_answers` are the card's raw answers (the engine cleans them when grading).
+- Each made with the existing `quizkit.modes.build_question(card, mode)`, so `accepted_answers` are the card's answers as they are (the grader normalises case, spaces and punctuation when it compares).
 - The input `cards` list is not changed.
 
 ## Tools

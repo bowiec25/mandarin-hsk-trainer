@@ -2,12 +2,11 @@
 spacing and small typos.
 
 See SPEC.md in this folder (ADR 0003). Generic: no quiz-specific (e.g. Chinese) rules
-live here; a quiz passes its own `cleaner` for those.
+live here; a quiz passes answers that are already typeable (ADR 0006).
 """
 
 import re
 import unicodedata
-from collections.abc import Callable
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from rapidfuzz.distance import OSA
@@ -18,11 +17,9 @@ BLOCK_SPEC = BlockSpec(
     name="grader",
     kind="script",
     goal="Mark a typed answer right or wrong against a card's answers, forgiving case, spacing and small typos.",
-    inputs=["answer", "accepted", "cleaner", "GradeSettings"],
+    inputs=["answer", "accepted", "settings"],
     outputs=["Grade"],
 )
-
-Cleaner = Callable[[str], list[str]]
 
 _APOSTROPHES = re.compile(r"['’‘ʼ`]")  # "one's" -> "ones" (not "one s")
 _INNER_DOTS = re.compile(r"(?<=\w)\.(?=\w)")  # "p.m." -> "pm." (not "p m")
@@ -81,22 +78,13 @@ def typos_allowed(accepted: str, settings: GradeSettings) -> int:
     return 0
 
 
-def _expected(
-    accepted: list[str], cleaner: Cleaner | None, settings: GradeSettings
-) -> list[str]:
+def _expected(accepted: list[str], settings: GradeSettings) -> list[str]:
     """All clean accepted answers, first-seen order, no blanks or duplicates."""
     expected: list[str] = []
     for raw in accepted:
-        variants = cleaner(raw) if cleaner else [raw]
-        if not isinstance(variants, (list, tuple)):
-            raise TypeError(
-                f"cleaner must return a list of strings, got {type(variants).__name__} "
-                f"for {raw!r}"
-            )
-        for variant in variants:
-            text = clean(variant, settings)
-            if text and text not in expected:
-                expected.append(text)
+        text = clean(raw, settings)
+        if text and text not in expected:
+            expected.append(text)
     if not expected:
         raise ValueError(
             f"no usable answers to grade against (accepted={accepted!r}): "
@@ -108,12 +96,11 @@ def _expected(
 def grade(
     answer: str,
     accepted: list[str],
-    cleaner: Cleaner | None = None,
     settings: GradeSettings | None = None,
 ) -> Grade:
     """Mark `answer` against `accepted` (see SPEC.md). Exact matches beat typo matches."""
     settings = settings or GradeSettings()
-    expected = _expected(accepted, cleaner, settings)
+    expected = _expected(accepted, settings)
     typed = clean(answer, settings)
 
     # Exact match ignores spaces, so "email" = "e-mail" (-> "e mail") = "e mail".

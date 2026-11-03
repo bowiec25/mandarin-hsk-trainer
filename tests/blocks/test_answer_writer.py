@@ -678,3 +678,245 @@ def test_dry_run_leaves_an_untidy_file_unchanged(tmp_path):
     run(tmp_path, cards, fake, dry_run=True)
     assert fake.prompts == []
     assert (tmp_path / "answers.jsonl").read_bytes() == before
+
+
+# Contract: the reader is one of the Outputs (SPEC.md "The reader")
+
+
+def test_block_spec_lists_load_answers_as_an_output():
+    assert "load_answers(path, cards) -> dict[str, list[str]]" in (
+        block.BLOCK_SPEC.outputs
+    )
+
+
+# Never shrinks the file: a line is only removed when its card is gone
+
+
+def old_file(tmp_path, cards, version="1"):
+    """Pre-write a line for every card, made by an older prompt."""
+    write_saved(tmp_path, *[saved_line(c.id, ["old"], version=version) for c in cards])
+
+
+def versions(tmp_path) -> dict[str, str]:
+    return {row["id"]: str(row["prompt_version"]) for row in saved(tmp_path)}
+
+
+def test_version_bump_with_limit_keeps_old_lines_for_the_rest(tmp_path, monkeypatch):
+    cards = make_cards(4)
+    old_file(tmp_path, cards)
+    monkeypatch.setattr(block, "PROMPT_VERSION", "2")
+    run(tmp_path, cards, FakeClaude(cards), limit=2)
+    assert saved_ids(tmp_path) == ["w00", "w01", "w02", "w03"]
+    assert versions(tmp_path) == {"w00": "2", "w01": "2", "w02": "1", "w03": "1"}
+
+
+def test_version_bump_with_failed_chunk_keeps_old_lines(tmp_path, monkeypatch):
+    cards = make_cards(4)
+    old_file(tmp_path, cards)
+    monkeypatch.setattr(block, "PROMPT_VERSION", "2")
+    fake = FakeClaude(cards, script={0: "not json at all"})
+    run(tmp_path, cards, fake, chunk_size=2)
+    assert saved_ids(tmp_path) == ["w00", "w01", "w02", "w03"]
+    assert versions(tmp_path) == {"w00": "1", "w01": "1", "w02": "2", "w03": "2"}
+    assert saved(tmp_path)[0]["answers"] == ["old"]
+
+
+def test_version_bump_with_claude_error_keeps_old_lines(tmp_path, monkeypatch):
+    cards = make_cards(4)
+    old_file(tmp_path, cards)
+    monkeypatch.setattr(block, "PROMPT_VERSION", "2")
+    fake = FakeClaude(cards, script={1: claude_error()})
+    run_allowing_stop(tmp_path, cards, fake, chunk_size=2)
+    assert saved_ids(tmp_path) == ["w00", "w01", "w02", "w03"]
+    assert versions(tmp_path) == {"w00": "2", "w01": "2", "w02": "1", "w03": "1"}
+
+
+def test_claude_error_on_first_call_after_bump_leaves_file_whole(tmp_path, monkeypatch):
+    cards = make_cards(3)
+    old_file(tmp_path, cards)
+    monkeypatch.setattr(block, "PROMPT_VERSION", "2")
+    run_allowing_stop(tmp_path, cards, FakeClaude(cards, script={0: claude_error()}))
+    assert saved_ids(tmp_path) == ["w00", "w01", "w02"]
+    assert set(versions(tmp_path).values()) == {"1"}
+
+
+def test_version_bump_card_failing_checker_keeps_its_old_line(tmp_path, monkeypatch):
+    cards = make_cards(3)
+    old_file(tmp_path, cards)
+    monkeypatch.setattr(block, "PROMPT_VERSION", "2")
+    result = run(tmp_path, cards, FakeClaude(cards, answers={"w01": ["爸爸"]}))
+    assert "w01" in result.failed
+    assert saved_ids(tmp_path) == ["w00", "w01", "w02"]
+    assert versions(tmp_path) == {"w00": "2", "w01": "1", "w02": "2"}
+
+
+def test_saved_line_failing_checker_stays_until_replaced(tmp_path):
+    cards = make_cards(1)
+    write_saved(tmp_path, saved_line("w00", ["爸爸"]))
+    run_allowing_stop(tmp_path, cards, FakeClaude(cards, script={0: claude_error()}))
+    assert saved(tmp_path) == [json.loads(saved_line("w00", ["爸爸"]))]
+
+
+def test_line_listed_twice_keeps_the_first_until_replaced(tmp_path):
+    cards = make_cards(1)
+    write_saved(tmp_path, saved_line("w00", ["dad"]), saved_line("w00", ["father"]))
+    run_allowing_stop(tmp_path, cards, FakeClaude(cards, script={0: claude_error()}))
+    assert saved_ids(tmp_path) == ["w00"]
+    assert saved(tmp_path)[0]["answers"] == ["dad"]
+
+
+def test_old_line_is_replaced_once_redone(tmp_path, monkeypatch):
+    cards = make_cards(2)
+    old_file(tmp_path, cards)
+    monkeypatch.setattr(block, "PROMPT_VERSION", "2")
+    run(tmp_path, cards, FakeClaude(cards))
+    assert saved_ids(tmp_path) == ["w00", "w01"]
+    assert set(versions(tmp_path).values()) == {"2"}
+
+
+# The reader: load_answers(path, cards)
+
+
+def answers_file(tmp_path, *rows) -> Path:
+    write_saved(tmp_path, *rows)
+    return tmp_path / "answers.jsonl"
+
+
+def test_load_answers_gives_every_cards_answers_by_id(tmp_path):
+    cards = make_cards(2)
+    path = answers_file(
+        tmp_path, saved_line("w00", ["dad", "father"]), saved_line("w01", ["mum"])
+    )
+    assert block.load_answers(path, cards) == {
+        "w00": ["dad", "father"],
+        "w01": ["mum"],
+    }
+
+
+def test_load_answers_ignores_lines_for_other_ids(tmp_path):
+    cards = make_cards(1)
+    path = answers_file(
+        tmp_path,
+        saved_line("other", ["爸爸"]),  # would fail the checker, but isn't ours
+        saved_line("w00", ["dad"]),
+        saved_line("w05", ["five"]),
+    )
+    assert block.load_answers(path, cards) == {"w00": ["dad"]}
+
+
+def test_load_answers_missing_file_raises_clear_error(tmp_path):
+    with pytest.raises(block.AnswerFileError):
+        block.load_answers(tmp_path / "nope.jsonl", make_cards(1))
+
+
+def test_load_answers_directory_raises_answer_file_error_not_oserror(tmp_path):
+    folder = tmp_path / "answers.jsonl"
+    folder.mkdir()
+    with pytest.raises(block.AnswerFileError):
+        block.load_answers(folder, make_cards(1))
+
+
+def test_load_answers_unreadable_line_names_its_line_number(tmp_path):
+    cards = make_cards(2)
+    path = answers_file(tmp_path, saved_line("w00", ["dad"]), '{"id": "w01"')
+    with pytest.raises(block.AnswerFileError, match="line 2"):
+        block.load_answers(path, cards)
+
+
+def test_load_answers_card_with_no_line_raises(tmp_path):
+    cards = make_cards(2)
+    path = answers_file(tmp_path, saved_line("w00", ["dad"]))
+    with pytest.raises(block.AnswerFileError, match="w01"):
+        block.load_answers(path, cards)
+
+
+def test_load_answers_line_listed_twice_raises(tmp_path):
+    cards = make_cards(1)
+    path = answers_file(tmp_path, saved_line("w00", ["dad"]), saved_line("w00", ["pa"]))
+    with pytest.raises(block.AnswerFileError, match="w00"):
+        block.load_answers(path, cards)
+
+
+@pytest.mark.parametrize(
+    "answers",
+    [[], ["爸爸"], ["x" * 41], ["dad (coll.)"]],
+    ids=["none", "chinese", "too-long", "brackets"],
+)
+def test_load_answers_line_failing_checker_raises(tmp_path, answers):
+    cards = make_cards(1)
+    path = answers_file(tmp_path, saved_line("w00", answers))
+    with pytest.raises(block.AnswerFileError, match="w00"):
+        block.load_answers(path, cards)
+
+
+def test_load_answers_tidies_repeated_answers_like_the_writer(tmp_path):
+    """SPEC: repeats ("love" / "To love") are tidied away, not an error."""
+    cards = make_cards(1)
+    path = answers_file(tmp_path, saved_line("w00", ["love", "To love", "like"]))
+    assert block.load_answers(path, cards) == {"w00": ["love", "like"]}
+
+
+def test_load_answers_lists_first_5_problems_then_how_many_more(tmp_path):
+    cards = make_cards(9)
+    path = answers_file(tmp_path, saved_line("w00", ["dad"]))  # 8 cards have no line
+    with pytest.raises(block.AnswerFileError, match="and 3 more"):
+        block.load_answers(path, cards)
+
+
+@pytest.mark.skipif(not ANSWERS_JSONL.exists(), reason="answers.jsonl not made yet")
+def test_load_answers_reads_real_file_for_all_real_cards(real_cards):
+    answers = block.load_answers(ANSWERS_JSONL, real_cards)
+    assert len(answers) == 978
+    assert set(answers) == {c.id for c in real_cards}
+
+
+# Follow-up from the block-reviewer
+
+
+def test_load_answers_skips_blank_lines(tmp_path):
+    cards = make_cards(2)
+    path = tmp_path / "answers.jsonl"
+    text = "\n" + saved_line("w00", ["dad"]) + "\n\n   \n" + saved_line("w01", ["mum"])
+    path.write_text(text + "\n\n", encoding="utf-8")
+    assert block.load_answers(path, cards) == {"w00": ["dad"], "w01": ["mum"]}
+
+
+def test_writer_skips_blank_lines_and_keeps_every_line(tmp_path):
+    cards = make_cards(2)
+    path = tmp_path / "answers.jsonl"
+    text = "\n" + saved_line("w00", ["dad"]) + "\n\n" + saved_line("w01", ["mum"])
+    path.write_text(text + "\n\n", encoding="utf-8")
+    fake = FakeClaude(cards)
+    run(tmp_path, cards, fake)
+    assert fake.prompts == []
+    assert saved_ids(tmp_path) == ["w00", "w01"]
+
+
+@pytest.mark.parametrize("how", ["claude-down", "limit-0"])
+def test_listed_twice_bad_then_good_keeps_the_good_copy_once(tmp_path, how):
+    cards = make_cards(1)
+    write_saved(tmp_path, saved_line("w00", ["爸爸"]), saved_line("w00", ["dad"]))
+    if how == "claude-down":
+        fake = FakeClaude(cards, script={0: claude_error()})
+        run_allowing_stop(tmp_path, cards, fake)
+    else:
+        run(tmp_path, cards, FakeClaude(cards), limit=0)
+    assert saved_ids(tmp_path) == ["w00"]
+    assert saved(tmp_path)[0]["answers"] == ["dad"]
+    assert block.load_answers(tmp_path / "answers.jsonl", cards) == {"w00": ["dad"]}
+
+
+def test_load_answers_non_utf8_file_raises_answer_file_error(tmp_path):
+    path = tmp_path / "answers.jsonl"
+    path.write_bytes(b"\xff\xfe\x00")
+    with pytest.raises(block.AnswerFileError):
+        block.load_answers(path, make_cards(1))
+
+
+def test_old_line_kept_for_redo_is_not_counted_as_skipped(tmp_path, monkeypatch):
+    cards = make_cards(3)
+    old_file(tmp_path, cards)
+    monkeypatch.setattr(block, "PROMPT_VERSION", "2")
+    result = run(tmp_path, cards, FakeClaude(cards), limit=1)
+    assert result.written == 1
+    assert result.skipped == 0

@@ -11,14 +11,14 @@ from collections.abc import Callable
 from pydantic import BaseModel, ConfigDict, Field, computed_field, model_validator
 
 from quizkit.blocks.base import BlockSpec
-from quizkit.blocks.grader import Cleaner, Grade, GradeSettings, grade
+from quizkit.blocks.grader import Grade, GradeSettings, grade
 from quizkit.models import Question
 
 BLOCK_SPEC = BlockSpec(
     name="engine",
     kind="script",
     goal="Run a quiz: show each question, mark the typed answer with the grader, and keep score.",
-    inputs=["questions", "cleaner", "settings", "ask", "tell"],
+    inputs=["questions", "settings", "ask", "tell"],
     outputs=["Attempt", "QuizResult"],
 )
 
@@ -71,20 +71,18 @@ class QuizSession:
     def __init__(
         self,
         questions: list[Question],
-        cleaner: Cleaner | None = None,
         settings: GradeSettings | None = None,
     ) -> None:
         if not questions:
             raise ValueError("a quiz needs at least one question")
         # Own deep copy: later changes to the caller's list *or its questions* don't leak in.
         self._questions = [q.model_copy(deep=True) for q in questions]
-        self._cleaner = cleaner
         self._settings = settings or GradeSettings()
         self._attempts: list[Attempt] = []
-        # Fail before question 1, not mid-quiz: a card nobody can answer (or a broken
-        # cleaner) makes the grader raise, so grade a blank answer for each one now.
+        # Fail before question 1, not mid-quiz: a card nobody can answer makes the
+        # grader raise, so grade a blank answer for each one now.
         for question in self._questions:
-            grade("", question.accepted_answers, self._cleaner, self._settings)
+            grade("", question.accepted_answers, settings=self._settings)
 
     @property
     def current(self) -> Question | None:
@@ -102,12 +100,7 @@ class QuizSession:
         question = self.current
         if question is None:
             raise RuntimeError("the quiz is finished: there is no question to answer")
-        verdict = grade(
-            typed,
-            question.accepted_answers,
-            cleaner=self._cleaner,
-            settings=self._settings,
-        )
+        verdict = grade(typed, question.accepted_answers, settings=self._settings)
         attempt = Attempt(question=question, typed=typed, grade=verdict)
         self._attempts.append(attempt)
         return attempt
@@ -120,7 +113,6 @@ def run_quiz(
     questions: list[Question],
     ask: Callable[[Question], str | None],
     tell: Callable[[Attempt], None],
-    cleaner: Cleaner | None = None,
     settings: GradeSettings | None = None,
 ) -> QuizResult:
     """The voice: ask every question in turn; `ask` returning None means quit.
@@ -128,7 +120,7 @@ def run_quiz(
     Ctrl-C (KeyboardInterrupt) anywhere in the loop is a quit too: on Windows it can
     land just after input() returns, while grading or in `tell`, not only in `ask`.
     """
-    session = QuizSession(questions, cleaner=cleaner, settings=settings)
+    session = QuizSession(questions, settings=settings)
     try:
         while (question := session.current) is not None:
             typed = ask(question)
