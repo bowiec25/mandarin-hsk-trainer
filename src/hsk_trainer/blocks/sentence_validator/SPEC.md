@@ -66,7 +66,7 @@ Reasons name the word and its band (or "not an HSK word"), so the writer can pas
 | Empty or blank sentence | `passed=False`, with the single reason "empty sentence" (the other rules are skipped) |
 | `word` isn't one of the cards | **Raises `ValueError`** (a bug in the caller, not a bad sentence) |
 | `cards` is empty, or two cards share a `hanzi` | **Raises `ValueError`** when `Vocab` is made |
-| A card's word has a non-Chinese character (e.g. a future `T恤`) | Works: the word is matched as written |
+| A card's word has a non-Chinese character (e.g. a future `T恤`) | Works: the word is matched as written, and rule 1 ignores characters that are part of the word itself |
 | `min_chars` < 1 or `max_chars` < `min_chars` | `SentenceSettings` **rejects** it (`ValidationError`) |
 | The same word appears twice in a sentence | Fine; checked once each time it appears |
 

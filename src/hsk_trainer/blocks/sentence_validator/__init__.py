@@ -180,8 +180,9 @@ def check_sentence(
 
     reasons: list[str] = []
     # 1. Only Chinese characters and Chinese punctuation.
+    outside_word = text.replace(word, "")  # a card word like T恤 may have a letter
     others = sorted(
-        {c for c in text if not _is_hanzi(c) and not _is_chinese_punctuation(c)}
+        {c for c in outside_word if not _is_hanzi(c) and not _is_chinese_punctuation(c)}
     )
     if others:
         shown = " ".join(repr(c) for c in others)

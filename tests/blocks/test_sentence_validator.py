@@ -355,3 +355,10 @@ def test_word_with_a_non_chinese_character_does_not_crash():
     vocab = _vocab({"T恤": 1, "我": 1, "买": 1})
     check = check_sentence("我买T恤。", "T恤", vocab)
     assert "T恤" in check.words
+    assert check.passed is True, check.reasons  # the T belongs to the word
+
+
+def test_middle_dot_and_wave_dash_pass_rule_one(vocab):
+    for sentence in ["我吃饭～", "我·吃饭。"]:
+        reasons = check_sentence(sentence, "我", vocab).reasons
+        assert not any("aren't Chinese" in r for r in reasons), (sentence, reasons)
