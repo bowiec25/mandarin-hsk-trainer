@@ -252,3 +252,38 @@ def test_real_sentence_with_band2_word_fails_for_band1_word(real_vocab):
     check = check_sentence("明天下午我们一起喝茶吧。", "喝", real_vocab)
     assert check.passed is False
     assert any("一起" in r for r in check.reasons)
+
+
+# -- Block-review fixes ---------------------------------------------------------------
+
+
+def _vocab(words: dict[str, int]):
+    cards = [
+        Card(id=w, fields={"hanzi": w}, answers=["x"], level=band)
+        for w, band in words.items()
+    ]
+    return Vocab(cards)
+
+
+def test_harder_word_cannot_hide_in_a_glued_piece():
+    """电视 (band 2) is made of two band-1 characters; glued, it must still be caught."""
+    vocab = _vocab({"我": 1, "看": 1, "电": 1, "视": 1, "电视": 2})
+    vocab.pieces = lambda text: ["我看电视"]  # as if jieba glued it all together
+    check = check_sentence("我看电视。", "我", vocab)
+    assert check.passed is False
+    assert any("电视" in r and "2" in r for r in check.reasons), check.reasons
+
+
+def test_word_only_inside_a_longer_word_does_not_count():
+    vocab = _vocab({"我": 1, "我们": 1, "是": 1, "医生": 1})
+    check = check_sentence("我们是医生。", "我", vocab)
+    assert check.passed is False
+    assert any("我" in r and "我们" in r for r in check.reasons), check.reasons
+
+
+def test_global_jieba_is_left_alone():
+    import jieba
+
+    before = jieba.lcut("我们去学校吃饭")
+    _vocab({"去学校吃": 1, "我们": 1})
+    assert jieba.lcut("我们去学校吃饭") == before

@@ -123,9 +123,6 @@ def check_sentence(
     if others:
         shown = " ".join(repr(c) for c in others)
         reasons.append(f"has characters that aren't Chinese: {shown}")
-    # 2. The word is in it.
-    if word not in text:
-        reasons.append(f"doesn't contain {word}")
     # 3. Length, in Chinese characters.
     count = sum(_is_hanzi(c) for c in text)
     if count < settings.min_chars:
@@ -138,23 +135,34 @@ def check_sentence(
         )
     # 4. Every other word is allowed for this band.
     extras = set(settings.extra_words)
-    allowed = {w for w, b in vocab.levels.items() if b <= band} | extras
+    known = set(vocab.levels) | extras  # ALL HSK words, so a hard word can't hide
     words: list[str] = []
     for piece in vocab.pieces(text):
-        if piece in vocab.levels:
-            words.append(piece)
-            if vocab.levels[piece] > band:
-                reasons.append(
-                    f"uses {piece} (band {vocab.levels[piece]}); a sentence for a "
-                    f"band-{band} word may only use {_bands(band)}"
-                )
-        elif piece in extras:
-            words.append(piece)
-        elif (parts := vocab.split_into(piece, allowed)) is not None:
-            words.extend(parts)  # glued words, e.g. 吃饭 -> 吃 + 饭
+        if piece in known:
+            parts = [piece]
+        elif (split := vocab.split_into(piece, known)) is not None:
+            parts = split  # glued words, e.g. 吃饭 -> 吃 + 饭
         else:
             words.append(piece)
             reasons.append(f"uses {piece}, not an HSK word in {_bands(band)}")
+            continue
+        words.extend(parts)
+        for part in parts:
+            level = vocab.levels.get(part, 0)  # extra words have no band: always fine
+            if part not in extras and level > band:
+                reasons.append(
+                    f"uses {part} (band {level}); a sentence for a "
+                    f"band-{band} word may only use {_bands(band)}"
+                )
+    # 2. The word is in it, as a word of its own (我 inside 我们 doesn't count).
+    if word not in words:
+        inside = [w for w in words if word in w and w != word]
+        if inside:
+            reasons.insert(0, f"has {word} only inside {inside[0]}, not on its own")
+        elif word in text:
+            reasons.insert(0, f"has {word} only as part of other words, not on its own")
+        else:
+            reasons.insert(0, f"doesn't contain {word}")
 
     unique = tuple(dict.fromkeys(reasons))  # a word used twice is reported once
     return SentenceCheck(passed=not unique, reasons=unique, words=tuple(words))

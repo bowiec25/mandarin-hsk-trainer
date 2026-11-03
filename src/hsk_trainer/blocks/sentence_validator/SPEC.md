@@ -33,12 +33,12 @@ The band comes from the word's own card: a sentence for a band-1 word may only u
 
 Spaces at the start and end are trimmed first. **The rules, in order** (all failures are reported, not just the first):
 1. **Only Chinese characters and Chinese punctuation** (`，。？！、：；“”‘’`). No Latin letters, digits or spaces.
-2. **The word is in it** (as written: `"爸爸" in sentence`).
+2. **The word is in it, as a word of its own**: it must be one of the checked pieces (rule 4). 我 only inside 我们 doesn't count (block-review fix).
 3. **Length** between `min_chars` and `max_chars`.
 4. **Every other word is allowed.** The sentence (minus punctuation) is split with `jieba`, which has been told every HSK word. For each piece:
    - an **HSK word** → its band must be ≤ the card's band;
    - an **extra word** → allowed;
-   - **anything else** (jieba glued words together, e.g. 吃饭, 这个, 看电视) → allowed only if it can be split completely into allowed words (吃 + 饭). Otherwise it's an unknown word.
+   - **anything else** (jieba glued words together, e.g. 吃饭, 这个, 看电视) → split into **any** HSK words or extra words (fewest pieces: 吃 + 饭), then each part's band is checked as above. Splitting with *all* HSK words, not just the allowed ones, stops a harder word hiding in a glued piece (block-review fix). If it can't be split at all, it's an unknown word.
 
 ## Outputs
 **`SentenceCheck`** (pydantic, frozen), returned in memory:
