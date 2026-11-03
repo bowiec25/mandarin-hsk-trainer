@@ -6,6 +6,7 @@ import pytest
 from pydantic import ValidationError
 
 import quizkit.blocks.engine as block
+from quizkit.blocks import grader
 from quizkit.blocks.base import missing_spec_sections, spec_section
 from quizkit.blocks.grader import Grade, GradeSettings
 from quizkit.models import Question
@@ -157,19 +158,7 @@ def test_tell_not_called_after_quit():
     assert told == list(result.attempts)
 
 
-# -- cleaner and settings are passed straight to the grader ------------------------
-
-
-def toy_cleaner(answer: str) -> list[str]:
-    """'Paris' also accepts its old name 'Lutetia'."""
-    return [answer, "Lutetia"] if answer == "Paris" else [answer]
-
-
-def test_cleaner_is_passed_to_grader():
-    without, _, _ = play([FRANCE], ["Lutetia"])
-    with_cleaner, _, _ = play([FRANCE], ["Lutetia"], cleaner=toy_cleaner)
-    assert without.correct == 0
-    assert with_cleaner.correct == 1
+# -- settings are passed straight to the grader ---------------------------------
 
 
 def test_settings_are_passed_to_grader():
@@ -177,13 +166,8 @@ def test_settings_are_passed_to_grader():
     assert result.correct == 0
 
 
-def test_session_passes_cleaner_and_settings():
-    session = block.QuizSession(
-        [FRANCE, FRANCE],
-        cleaner=toy_cleaner,
-        settings=GradeSettings(allow_typos=False),
-    )
-    assert session.answer("Lutetia").grade.correct is True
+def test_session_passes_settings():
+    session = block.QuizSession([FRANCE], settings=GradeSettings(allow_typos=False))
     assert session.answer("Pariss").grade.correct is False
 
 
@@ -204,7 +188,7 @@ def test_session_steps_through_questions():
     assert session.current is None
 
 
-def test_session_defaults_work_without_cleaner_or_settings():
+def test_session_defaults_work_without_settings():
     session = block.QuizSession([FRANCE])
     assert session.answer("Pariss").grade.typo is True  # default GradeSettings()
 
@@ -335,11 +319,27 @@ def test_ctrl_c_from_tell_still_counts_the_marked_answer():
     assert told == list(result.attempts)  # tell saw both, and wasn't called again
 
 
-def test_ctrl_c_while_grading_does_not_count_that_answer():
+def grade_that_raises(monkeypatch, error, when=lambda: True):
+    """Swap the engine's `grade` for one that raises `error` whenever `when()` is true.
+
+    Otherwise it calls the real grader. The engine imports `grade` by name, so this
+    patches `quizkit.blocks.engine.grade`.
+    """
+    real_grade = grader.grade
+
+    def fake_grade(*args, **kwargs):
+        if when():
+            raise error
+        return real_grade(*args, **kwargs)
+
+    monkeypatch.setattr(block, "grade", fake_grade)
+
+
+def test_ctrl_c_while_grading_does_not_count_that_answer(monkeypatch):
     """Interrupted while *marking* answer 2: it isn't counted.
 
-    QuizSession grades a blank answer per question at creation, so the cleaner is only
-    armed once question 2 has been asked (after creation), then interrupts the marking.
+    QuizSession grades a blank answer per question at creation, so the fake grader is
+    only armed once question 2 has been asked (after creation), then interrupts it.
     """
     armed = False
     typed = iter(["Paris", "Lisbon", "Madrid"])
@@ -351,13 +351,9 @@ def test_ctrl_c_while_grading_does_not_count_that_answer():
         armed = len(asked) == 2
         return next(typed)
 
-    def interrupting_cleaner(answer: str) -> list[str]:
-        if armed:
-            raise KeyboardInterrupt
-        return [answer]
-
+    grade_that_raises(monkeypatch, KeyboardInterrupt, when=lambda: armed)
     tell, told = collector()
-    result = run_expecting_no_ctrl_c(CAPITALS, ask, tell, cleaner=interrupting_cleaner)
+    result = run_expecting_no_ctrl_c(CAPITALS, ask, tell)
     assert (result.correct, result.answered, result.total) == (1, 1, 3)
     assert result.finished is False
     assert [a.typed for a in result.attempts] == ["Paris"]
@@ -365,22 +361,19 @@ def test_ctrl_c_while_grading_does_not_count_that_answer():
     assert told == list(result.attempts)  # tell not called for the unmarked answer
 
 
-def test_grader_error_is_passed_through():
-    """A card nobody can answer is a data bug: the grader's error must surface."""
-    unanswerable = q("Nowhere", "   ")
-    with pytest.raises(ValueError):
-        play([unanswerable], ["anything"])
+def test_grader_error_mid_quiz_is_passed_through(monkeypatch):
+    """Any error from the grader other than Ctrl-C is a bug and must be loud."""
+    asked: list[Question] = []
 
+    def ask(question: Question) -> str | None:
+        asked.append(question)
+        return "Paris"
 
-def test_broken_cleaner_error_is_passed_through():
-    def broken(answer: str) -> list[str]:
-        return "not a list"  # type: ignore[return-value]
-
-    ask, asked = fake_ask(["Paris"])
-    tell, _ = collector()
-    with pytest.raises(TypeError):
-        block.run_quiz([FRANCE], ask, tell, cleaner=broken)
-    assert asked == []  # found before question 1
+    grade_that_raises(monkeypatch, RuntimeError("broken grader"), when=lambda: asked)
+    tell, told = collector()
+    with pytest.raises(RuntimeError, match="broken grader"):
+        block.run_quiz([FRANCE], ask, tell)
+    assert told == []
 
 
 def test_same_question_twice_is_asked_twice():
@@ -436,16 +429,17 @@ def test_unanswerable_card_is_found_before_the_first_question():
     assert asked == []  # failed before anything was asked, so no answers were lost
 
 
-def test_ctrl_c_while_creating_the_session_is_passed_through():
-    """SPEC: before the loop there is no score to keep, so Ctrl-C is not swallowed."""
+def test_ctrl_c_while_creating_the_session_is_passed_through(monkeypatch):
+    """SPEC: before the loop there is no score to keep, so Ctrl-C is not swallowed.
 
-    def interrupting_cleaner(text):
-        raise KeyboardInterrupt
-
+    The up-front check grades each question once, so a grader that always raises
+    Ctrl-C interrupts the session while it is being created.
+    """
+    grade_that_raises(monkeypatch, KeyboardInterrupt)
     ask, asked = fake_ask(["Paris"])
     tell, _ = collector()
     with pytest.raises(KeyboardInterrupt):
-        block.run_quiz([FRANCE], ask, tell, cleaner=interrupting_cleaner)
+        block.run_quiz([FRANCE], ask, tell)
     assert asked == []
 
 

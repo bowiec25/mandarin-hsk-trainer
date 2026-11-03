@@ -13,8 +13,8 @@ import sys
 import pytest
 from typer.testing import CliRunner
 
-from hsk_trainer.blocks.cedict_cleaner import clean_answer
-from hsk_trainer.cli import CARDS_FILE, app
+from hsk_trainer.blocks.answer_writer import load_answers
+from hsk_trainer.cli import ANSWERS_FILE, CARDS_FILE, app
 from quizkit.files import load_cards
 
 runner = CliRunner()
@@ -57,22 +57,26 @@ def seed_for(word: str, band: str = "1") -> str:
     )
 
 
-def cleaned(card) -> list[str]:
-    """The answers the quiz really accepts (after the cedict_cleaner), in order."""
-    return [kept for a in card.answers for kept in clean_answer(a)]
+@functools.cache
+def _answers() -> dict[str, list[str]]:
+    return load_answers(ANSWERS_FILE, _cards())
 
 
-def right_answers(words: list[str], real_cards) -> list[str]:
-    by_id = {c.id: c for c in real_cards}
-    return [cleaned(by_id[w])[0] for w in words]
+def accepted(word: str) -> list[str]:
+    """The answers the quiz accepts for `word`: its line in answers.jsonl (ADR 0006)."""
+    return _answers()[word]
+
+
+def right_answers(words: list[str]) -> list[str]:
+    return [accepted(w)[0] for w in words]
 
 
 # --- playing a whole quiz ---------------------------------------------------------
 
 
-def test_all_right_scores_full_marks(real_cards):
+def test_all_right_scores_full_marks():
     args = ("--band", "1", "--n", "5", "--seed", "1")
-    typed = "\n".join(right_answers(deck_words(*args), real_cards)) + "\n"
+    typed = "\n".join(right_answers(deck_words(*args))) + "\n"
     code, out = play(*args, typed=typed)
     assert code == 0
     assert out.count("✅") == 5
@@ -86,13 +90,13 @@ def test_shows_the_hanzi_being_asked():
         assert word in out
 
 
-def test_wrong_answer_shows_the_right_ones(real_cards):
+def test_wrong_answer_shows_the_right_ones():
     args = ("--band", "1", "--n", "1", "--seed", "3")
     [word] = deck_words(*args)
     code, out = play(*args, typed="zzzzzzzz\n")
     assert code == 0
     assert "❌" in out
-    assert cleaned({c.id: c for c in real_cards}[word])[0] in out
+    assert accepted(word)[0] in out
     assert "Score: 0/1" in out
 
 
@@ -102,6 +106,20 @@ def test_love_and_to_love_both_count_for_ai():
         _, out = play("--n", "1", "--seed", seed_for("爱"), typed=typed + "\n")
         assert "✅" in out, typed
         assert "Score: 1/1" in out
+
+
+def test_synonym_from_the_answer_list_counts():
+    """M4 Step 4a checkpoint: "dad" for 爸爸 (only the answer list has it)."""
+    _, out = play("--n", "1", "--seed", seed_for("爸爸"), typed="dad\n")
+    assert "✅" in out
+    assert "Score: 1/1" in out
+
+
+def test_old_dictionary_sense_no_longer_counts():
+    """ADR 0006: the old dictionary list accepted "modem" for 猫; the answer list doesn't."""
+    _, out = play("--n", "1", "--seed", seed_for("猫"), typed="modem\n")
+    assert "❌" in out
+    assert "Score: 0/1" in out
 
 
 def test_typo_is_forgiven_and_noted():
@@ -120,8 +138,8 @@ def test_typo_message_shows_the_answer_as_written():
 
 def test_wrong_answer_keeps_apostrophes():
     _, out = play("--n", "1", "--seed", seed_for("没有"), typed="zzzzzzzz\n")
-    assert "haven't" in out
-    assert "havent" not in out
+    assert "don't have" in out
+    assert "dont have" not in out
 
 
 def test_char_pinyin_mode_shows_pinyin(real_cards):
@@ -155,9 +173,9 @@ def test_same_seed_same_deck():
 # --- quitting keeps the score so far (carry-over from Step 4) -----------------------
 
 
-def test_end_of_input_quits_and_keeps_score(real_cards):
+def test_end_of_input_quits_and_keeps_score():
     args = ("--band", "1", "--n", "5", "--seed", "6")
-    first_two = right_answers(deck_words(*args)[:2], real_cards)
+    first_two = right_answers(deck_words(*args)[:2])
     code, out = play(*args, typed="\n".join(first_two) + "\n")  # then input runs out
     assert code == 0
     assert "Stopped after 2 of 5" in out
@@ -171,9 +189,9 @@ def test_quit_before_any_answer():
     assert "Traceback" not in out
 
 
-def test_ctrl_c_quits_and_keeps_score(monkeypatch, real_cards):
+def test_ctrl_c_quits_and_keeps_score(monkeypatch):
     args = ("--band", "1", "--n", "3", "--seed", "7")
-    first = right_answers(deck_words(*args)[:1], real_cards)[0]
+    first = right_answers(deck_words(*args)[:1])[0]
     answers = iter([first])
 
     def fake_input(prompt: str = "") -> str:
@@ -189,12 +207,12 @@ def test_ctrl_c_quits_and_keeps_score(monkeypatch, real_cards):
     assert "Score: 1/1" in out
 
 
-def test_ctrl_c_after_typing_still_keeps_score(monkeypatch, real_cards):
+def test_ctrl_c_after_typing_still_keeps_score(monkeypatch):
     """Windows quirk: Ctrl-C can arrive just *after* input() returns, mid-feedback."""
     from hsk_trainer import cli
 
     args = ("--band", "1", "--n", "3", "--seed", "7")
-    typed = "\n".join(right_answers(deck_words(*args), real_cards)) + "\n"
+    typed = "\n".join(right_answers(deck_words(*args))) + "\n"
     real_tell, calls = cli._tell, []
 
     def tell_then_interrupt(attempt):
@@ -292,6 +310,78 @@ def test_no_cards_in_that_band_is_a_friendly_error(tmp_path, real_cards):
     code, out = play("--band", "3", "--cards", str(band1_only))
     assert code == 1
     assert "Can't build a quiz" in out
+
+
+def test_missing_answers_file_says_how_to_fix(tmp_path, monkeypatch):
+    from hsk_trainer import cli
+
+    monkeypatch.setattr(cli, "ANSWERS_FILE", tmp_path / "answers.jsonl")
+    code, out = play()
+    assert code == 1
+    assert "answers.jsonl" in out
+    assert "git checkout" in out
+    assert "answer_writer" in out
+    assert "Traceback" not in out
+
+
+def test_custom_missing_answers_file_gives_no_writer_hint(tmp_path):
+    """The writer only makes the real file, so the hint would mislead for --answers."""
+    code, out = play("--answers", str(tmp_path / "mine.jsonl"))
+    assert code == 1
+    assert "mine.jsonl" in out
+    assert "answer_writer" not in out
+    assert "Traceback" not in out
+
+
+def test_bad_line_in_another_band_does_not_block_this_band(tmp_path):
+    """A broken band-3 line only stops band-3 quizzes."""
+    from hsk_trainer.blocks.answer_writer import AnswerLine
+
+    lines = ANSWERS_FILE.read_text(encoding="utf-8").splitlines()
+    band3 = {c.id for c in _cards() if c.level == 3}
+    first3 = next(
+        i
+        for i, raw in enumerate(lines)
+        if AnswerLine.model_validate_json(raw).id in band3
+    )
+    bad = AnswerLine.model_validate_json(lines[first3]).model_copy(
+        update={"answers": ["爸爸"]}
+    )
+    lines[first3] = bad.model_dump_json()
+    path = tmp_path / "answers.jsonl"
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    assert play("--band", "1", "--answers", str(path), typed="")[0] == 0
+    code, out = play("--band", "3", "--answers", str(path), typed="")
+    assert code == 1
+    assert "Can't build a quiz" in out
+
+
+def test_answers_file_missing_a_card_is_a_friendly_error(tmp_path):
+    lines = ANSWERS_FILE.read_text(encoding="utf-8").splitlines()
+    short = tmp_path / "answers.jsonl"
+    short.write_text("\n".join(lines[1:]) + "\n", encoding="utf-8")  # first card gone
+    code, out = play("--answers", str(short))
+    assert code == 1
+    assert "Can't build a quiz" in out
+    assert "missing" in out
+    assert "Traceback" not in out
+
+
+def test_answers_path_that_is_a_folder_is_a_friendly_error(tmp_path):
+    code, out = play("--answers", str(tmp_path))  # exists, but can't be read
+    assert code == 1
+    assert "Can't build a quiz" in out
+    assert "Traceback" not in out
+
+
+def test_broken_answers_line_is_a_friendly_error(tmp_path):
+    broken = tmp_path / "answers.jsonl"
+    broken.write_text('{"id": "爱", "answers": ["love"\n', encoding="utf-8")  # cut off
+    code, out = play("--answers", str(broken))
+    assert code == 1
+    assert "Can't build a quiz" in out
+    assert "line 1" in out
+    assert "Traceback" not in out
 
 
 def test_help_lists_the_options():
