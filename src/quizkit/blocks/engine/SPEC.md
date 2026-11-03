@@ -23,18 +23,19 @@ It comes in two layers, so the same quizmaster works in a terminal now and on a 
 | `settings` | `GradeSettings \| None` | Passed straight to the grader. `None` (default) = the grader's default `GradeSettings()` |
 | `ask` *(run_quiz only)* | `Callable[[Question], str \| None]` | Shows one question and returns what was typed. Returns **`None` to quit** |
 | `tell` *(run_quiz only)* | `Callable[[Attempt], None]` | Shows feedback after each answer |
+| `judge` | `Judge \| None` | Optional (M4 Step 4b, ADR 0007): asked only when the grader says wrong and the answer isn't blank. Any `(Question, str) -> Verdict`, e.g. `quizkit.blocks.judge.ClaudeJudge`. `None` (default) = grader only |
 
 **How it's called** (all importable from `quizkit.blocks.engine`):
 ```python
 # the brain, step by step (web page later)
-session = QuizSession(questions, settings=None)
+session = QuizSession(questions, settings=None, judge=None)
 session.current         # the Question being asked now (None when finished)
 session.answer("love")  # marks it, moves to the next question, returns the Attempt
 session.done            # True when every question has been answered
 session.result()        # the QuizResult so far
 
 # the voice: the whole loop in one call (CLI)
-run_quiz(questions, ask, tell, settings=None) -> QuizResult
+run_quiz(questions, ask, tell, settings=None, judge=None) -> QuizResult
 ```
 
 These choices keep screen code out of the engine:
@@ -51,13 +52,15 @@ Everything is returned in memory as pydantic models (frozen). Nothing is saved t
 | `question` | `Question` | What was asked |
 | `typed` | `str` | Exactly what the learner typed (not cleaned) |
 | `grade` | `Grade` | The grader's verdict (correct, matched, typo, expected) |
+| `verdict` | `Verdict \| None` | The judge's verdict (correct, reason, source); `None` if the judge wasn't asked |
+| `correct` | `bool` (computed) | Right by the grader, **or** the judge said yes |
 
 **`QuizResult`**: the whole quiz
 | Field | Type | Plain meaning |
 |---|---|---|
 | `attempts` | `tuple[Attempt, ...]` | Every answer, in the order asked (a tuple, so answers can't be added or removed afterwards) |
 | `total` | `int` | How many questions the quiz had (at least 1, and never fewer than `answered`) |
-| `correct` | `int` (computed) | How many were right. A typo-forgiven answer **counts as right** |
+| `correct` | `int` (computed) | How many attempts are `correct`. A typo-forgiven or judge-accepted answer **counts as right** |
 | `answered` | `int` (computed) | `len(attempts)`, less than `total` if the learner quit early |
 | `finished` | `bool` (computed) | `answered == total` |
 

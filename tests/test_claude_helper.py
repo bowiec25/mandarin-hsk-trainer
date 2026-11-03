@@ -136,3 +136,48 @@ def test_nonzero_exit_with_success_json_is_still_an_error():
 def test_nonzero_exit_with_non_json_keeps_the_login_hint():
     with pytest.raises(ClaudeError, match="log in"):
         ask_claude("hi", run=fake_run("Error: not logged in", returncode=1))
+
+
+# -- json_schema option (judge SPEC, Tools) -----------------------------------------
+
+SCHEMA = {
+    "type": "object",
+    "properties": {"reason": {"type": "string"}, "correct": {"type": "boolean"}},
+    "required": ["reason", "correct"],
+}
+STRUCTURED = {
+    **GOOD,
+    "result": "Here is my verdict.",
+    "structured_output": {"correct": True, "reason": "Papa means dad."},
+}
+
+
+def test_json_schema_is_passed_on_the_command_line():
+    seen = []
+    ask_claude(
+        "hi", json_schema=SCHEMA, run=fake_run(json.dumps(STRUCTURED), seen=seen)
+    )
+    cmd, _ = seen[0]
+    assert "--json-schema" in cmd
+    assert json.loads(cmd[cmd.index("--json-schema") + 1]) == SCHEMA
+
+
+def test_json_schema_reply_text_comes_from_structured_output():
+    reply = ask_claude("hi", json_schema=SCHEMA, run=fake_run(json.dumps(STRUCTURED)))
+    assert json.loads(reply.text) == {"correct": True, "reason": "Papa means dad."}
+    assert reply.model == "claude-sonnet-5-5"  # usage is still read as before
+    assert reply.input_tokens == 152
+    assert reply.output_tokens == 9
+
+
+def test_no_json_schema_is_unchanged():
+    seen = []
+    reply = ask_claude("hi", run=fake_run(json.dumps(STRUCTURED), seen=seen))
+    cmd, _ = seen[0]
+    assert "--json-schema" not in cmd
+    assert reply.text == "Here is my verdict."  # `result`, not structured_output
+
+
+def test_json_schema_reply_without_structured_output_is_an_error():
+    with pytest.raises(ClaudeError, match="structured_output"):
+        ask_claude("hi", json_schema=SCHEMA, run=fake_run(json.dumps(GOOD)))

@@ -2,7 +2,8 @@
 
 Not a block: it is the thin shell that wires the blocks to the keyboard and screen
 (cards.jsonl + answers.jsonl -> deck_builder -> engine's run_quiz). One answer list
-decides what counts (ADR 0006): the answers in data/generated/answers.jsonl.
+decides what counts (ADR 0006): the answers in data/generated/answers.jsonl. An answer
+the list misses goes to the Claude judge (ADR 0007), unless --no-judge.
 """
 
 import sys
@@ -17,6 +18,7 @@ from hsk_trainer.modes import HSK_MODES
 from quizkit.blocks.deck_builder import build_deck
 from quizkit.blocks.engine import Attempt, QuizSession, run_quiz
 from quizkit.blocks.grader import GradeSettings, clean
+from quizkit.blocks.judge import ClaudeJudge
 from quizkit.files import load_cards
 from quizkit.models import Card, Question
 
@@ -24,7 +26,13 @@ from quizkit.models import Card, Question
 # Assumes it runs from the repo (`uv run hsk`), not from an installed wheel.
 ROOT = Path(__file__).resolve().parents[2]
 CARDS_FILE = ROOT / "data" / "processed" / "cards.jsonl"
+JUDGE_CACHE = ROOT / "data" / "judge_cache.jsonl"  # gitignored: verdicts, not source
 SETTINGS = GradeSettings()
+# The only HSK part of the judge: what the quiz is about (ADR 0007).
+JUDGE_SUBJECT = (
+    "Chinese vocabulary for learners of HSK 3.0, bands 1-3. The learner sees a "
+    "Chinese word and types its English meaning."
+)
 
 PLAYABLE_MODES = ("char", "char_pinyin")  # the sentence modes need M4's sentences
 SHOW_ANSWERS = 4  # how many accepted answers to show after a wrong one
@@ -94,16 +102,26 @@ def _with_answers(cards: list[Card], answers_file: Path) -> list[Card]:
 
 
 def _tell(attempt: Attempt) -> None:
-    g = attempt.grade
+    g, verdict = attempt.grade, attempt.verdict
     readable = _readable(attempt.question)
     if g.correct and g.typo:
         print(f"✅ close enough (typo): {readable.get(g.matched, g.matched)}")
     elif g.correct:
         print("✅")
+    elif verdict is not None and verdict.correct:
+        print(f"✅ accepted by the Claude judge: {verdict.reason}")
     else:
         answers = list(readable.values())
         more = " …" if len(answers) > SHOW_ANSWERS else ""
         print(f"❌ {'; '.join(answers[:SHOW_ANSWERS])}{more}")
+        if verdict is not None and verdict.source == "not_checked":
+            print(f"   (judge {verdict.reason})")
+        elif verdict is not None:
+            print(f"   judge: {verdict.reason}")
+
+
+def _asking() -> None:
+    print("   asking the judge…", flush=True)
 
 
 def _fail(*lines: str) -> NoReturn:
@@ -129,6 +147,13 @@ def quiz(
     ] = None,
     cards: Annotated[Path | None, typer.Option(hidden=True)] = None,
     answers: Annotated[Path | None, typer.Option(hidden=True)] = None,
+    judge: Annotated[
+        bool,
+        typer.Option(
+            "--judge/--no-judge",
+            help="Ask Claude about answers the list misses (needs `claude`, online).",
+        ),
+    ] = True,
 ) -> None:
     """Quiz yourself: see a word, type its English meaning. Ctrl-C stops (score kept)."""
     if cards is None:  # looked up now, not at import, so tests can point it elsewhere
@@ -168,7 +193,14 @@ def quiz(
     )
 
     # run_quiz treats Ctrl-C anywhere in its loop as a quit, so the score is kept.
-    result = run_quiz(questions, ask=_ask, tell=_tell, settings=SETTINGS)
+    judge_fn = (
+        ClaudeJudge(JUDGE_SUBJECT, cache_file=JUDGE_CACHE, before_asking=_asking)
+        if judge
+        else None
+    )
+    result = run_quiz(
+        questions, ask=_ask, tell=_tell, settings=SETTINGS, judge=judge_fn
+    )
 
     print()
     if not result.finished:
