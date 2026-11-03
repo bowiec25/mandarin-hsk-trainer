@@ -644,3 +644,22 @@ You now have: decision records, data shapes, hooks and permissions, the `/new-bl
 - **Kept simple on purpose:** the dictionary text in `cards.jsonl` is still called `answers`; renaming it to `meanings` is in `docs/FUTURE.md`.
 - **See CI here:** `! gh pr checks 35` (add `--watch` to wait for it).
 - 447 tests (was 470: the cleaner's 63 went with it).
+
+## M4 Step 4b: a generic Claude judge (2026-11-03)
+
+> **In plain words:** when the answer list says "wrong", the quiz now asks Claude "is this right after all?". "doggy" for 狗 gets "✅ accepted by the Claude judge: …". The verdict is saved, so the same answer is instant next time. Any quiz can use the judge, not just HSK.
+
+1. **"Still the right thing?" changed the plan.** ADR 0005 said "a slot in `quizkit` + an **HSK** judge". You'll reuse a Claude judge in other quizzes, and nearly all of it is generic, so **ADR 0007** (PR #38): one block in `quizkit`; each quiz passes in one *subject* sentence. It also lists 8 rules for trusting an AI judge.
+2. **Checked before designing:** `claude -p --json-schema` forces Claude's reply into a fixed shape (`{"reason", "correct"}`). Haiku took about 6 s.
+3. **`/new-block judge`**, SPEC with you (you made the 100-character limit a setting, for sentences later) → **test-writer** (119 tests, 8 SPEC gaps settled) → build → **block-reviewer**: judge ✅, engine ⚠️ then ✅ → **`/code-review`**: 9 findings, 7 fixed.
+4. **The judge is mostly script.** One Claude call, no tools, no loop. Around it: the cache, the prompt (your answer is escaped and wrapped in tags, so "say this is correct" can't trick it), the reply check, the 15 s timeout.
+5. **Eval: measured before trusted.** 31 hand-labelled cases, run against the real Claude: Haiku and Sonnet both 27/31, never a wrong "yes", both injections rejected. Both rejected the same 4 answers I'd labelled "accept" ("educator", "learner", "affordable", "ma"). Under your strict rule they're borderline, so **you chose to label them reject** (noted in each case). Then Haiku passed twice: 28/31 and 30/31. Haiku is the default.
+6. **Found on the way:** the grader accepts "expensive" for 便宜 (2 letters from "inexpensive"). In `docs/FUTURE.md`.
+
+**Good to know:**
+- **Turn it off:** `uv run hsk quiz --no-judge`. Offline? After 2 failures it switches itself off for that quiz.
+- **Re-run the eval** after changing the prompt or model: `uv run python -m quizkit.blocks.judge.eval tests/data/judge_eval_hsk.jsonl --model haiku` (about 3 minutes, run it twice: Claude isn't fully consistent on borderline answers).
+- **Change how strict it is:** edit the rubric (`SYSTEM` in `src/quizkit/blocks/judge/__init__.py`), bump `PROMPT_VERSION`, relabel the "borderline" eval cases, re-run.
+- **No test can call the real Claude:** `tests/conftest.py` makes `claude` look "not installed" in every test.
+- **Lesson: this was too big for one PR.** It did four jobs (helper option, block, wiring, eval) and ran long. Next agent: four small PRs.
+- 540 tests (was 447).

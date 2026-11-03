@@ -138,7 +138,9 @@ Some of these **physically stop** a mistake. Others are just **instructions or h
 | Running ruff/pytest locally | 🔵 / ⚪ | Claude (per CLAUDE.md) or you | When someone runs them | Whoever runs them | Nothing forces it locally. CI is the real gate |
 | ADRs, PR template | ⚪ | People | When writing PRs / decisions | Everyone | Just a form to fill in |
 | "Still the right thing?" in issues + PRs | ⚪ → 🔴 | GitHub (issue form + CI check) | Each issue and PR | Everyone | Proves an answer was written, not that it's good. `gh issue create` skips the form, so the PR check is the real gate |
-| Small steps | ⚪ | You + Claude | Each plan | Everyone | A habit |
+| Small steps | ⚪ | You + Claude | Each plan | Everyone | A habit. Agent work: plan the 4-PR split before building (M4 Step 4b lesson) |
+| No real Claude in tests | 🟠 | pytest (`tests/conftest.py` autouse fixture) | Every test | Everyone running tests | Only covers `quizkit.claude`; a test can still start another program on purpose |
+| Judge eval bar (≥ 90%, no wrong "yes") | ⚪ | You + Claude, by hand | Prompt or model change | The judge | Not in CI (needs Claude); a small set catches big problems, not rare ones |
 
 ### The big lesson
 - **If it really matters, make it 🔴.** E.g. "Don't read `.env`" in CLAUDE.md is only 🔵, but the deny rule plus the hook makes it 🔴.
@@ -218,6 +220,10 @@ Some of these **physically stop** a mistake. Others are just **instructions or h
 - **Retire old designs completely, then guard it.** Search for every mention, sort into delete / change / keep-as-history, delete outright (git keeps the old version), and add a test that fails if the old names come back (`tests/test_retired.py`).
 - **When one part depends on another's file, both read it the same way.** The quiz and the answer writer share one reader + checker (`load_answers`), so they can't disagree on what a good file is.
 - **Review the whole change, not only each block.** Per-block reviews said ✅; the branch-wide `/code-review` found the risk between blocks.
+- **An AI judge needs an eval, not just tests.** Tests (with a fake Claude) prove the plumbing; only a hand-labelled set run against the real model shows how often it's *right*. Set the bar first (here: ≥ 90% and **no** wrong "yes"), run it twice (models aren't fully consistent), and pick the model by the numbers (M4 Step 4b: Haiku = Sonnet, so Haiku).
+- **When two models disagree with your label the same way, look at the label.** Decide on purpose, write *why* next to it, and never relabel just to pass.
+- **Make it impossible for tests to call the real AI.** One autouse fixture (`tests/conftest.py`) makes `claude` look "not installed"; a test that needs it fakes it.
+- **Force the AI's reply shape, then check it anyway.** `claude -p --json-schema` + a pydantic model; a bad reply counts as "couldn't check", never as right. Treat user text inside the prompt as data (escape it, wrap it in tags) and test an injection attempt.
 
 ---
 
@@ -336,6 +342,7 @@ issue → plan mode → branch → small commits → PR → CI ✅ → squash-me
 - Every plan starts with **"Still the right thing?"**, and you can ask Claude to *"challenge this step"*. Make it hard to skip: a **required field in an issue form** (`.github/ISSUE_TEMPLATE/*.yml`, `required: true`) plus a **PR-description CI check** inside the required job (copy `.github/scripts/check_pr_body.py` + its test). Add `edited` to the `pull_request` trigger types so fixing the description re-runs CI
 - Ask Claude to **verify** things rather than assume (e.g. look up versions, run the checks)
 - One small step at a time, then stop and check
+- **Split agent work into small PRs, and plan the split up front:** (1) helper changes, (2) the block with fake-AI tests, (3) wiring it into the app, (4) the eval + live runs. M4 Step 4b did all four in one PR and it ran long and got hard to follow
 
 ---
 
