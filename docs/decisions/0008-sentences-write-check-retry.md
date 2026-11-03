@@ -1,6 +1,6 @@
 # 0008: Example sentences: Claude writes, a script checks, Claude retries; pinyin by script
 
-- **Status:** Accepted (2026-11-03)
+- **Status:** Accepted (2026-11-03); partly superseded by [0009](0009-validator-reads-without-jieba.md) (no `jieba`: the checker reads sentences with our own word list)
 - **In plain words:** for each word, Claude writes 1–2 short Chinese sentences (with an English translation). A script checks each one: is the word in it, and are all the other words easy enough? Sentences that fail go back to Claude with the reason. The pinyin under each sentence is made by a script, not by Claude. This replaces the original plan's "Claude calls a `check_vocab_level` tool" (`docs/PLAN.md`), which assumed the paid API.
 
 ## Context
