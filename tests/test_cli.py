@@ -20,6 +20,12 @@ from quizkit.files import load_cards
 runner = CliRunner()
 
 
+@pytest.fixture(autouse=True)
+def own_judge_cache(tmp_path, monkeypatch):
+    """Never read or write the developer's real data/judge_cache.jsonl."""
+    monkeypatch.setattr("hsk_trainer.cli.JUDGE_CACHE", tmp_path / "judge_cache.jsonl")
+
+
 @functools.cache
 def _cards():
     return load_cards(CARDS_FILE)
@@ -389,8 +395,74 @@ def test_help_lists_the_options():
     assert result.exit_code == 0
     # On GitHub Actions, rich colours the help, splitting "--band" with colour codes.
     plain = re.sub(r"\x1b\[[0-9;]*m", "", result.output)
-    for opt in ("--band", "--mode", "--n", "--seed"):
+    for opt in ("--band", "--mode", "--n", "--seed", "--no-judge"):
         assert opt in plain
+
+
+# --- the Claude judge (M4 Step 4b, ADR 0007) -----------------------------------
+# A fake ClaudeJudge stands in; the real one is tested in tests/blocks/test_judge.py.
+
+
+def fake_judge_class(monkeypatch, correct: bool, reason: str = "Judged."):
+    """Swap the CLI's ClaudeJudge for a fake; returns what it was asked."""
+    from quizkit.blocks.judge import Verdict
+
+    asked: list[str] = []
+
+    class FakeJudge:
+        def __init__(self, subject, cache_file=None, before_asking=None, **kw):
+            assert subject and cache_file is not None
+            self.before_asking = before_asking
+
+        def __call__(self, question, typed):
+            if self.before_asking:
+                self.before_asking()
+            asked.append(typed)
+            return Verdict(correct=correct, reason=reason, source="claude")
+
+    monkeypatch.setattr("hsk_trainer.cli.ClaudeJudge", FakeJudge)
+    return asked
+
+
+def test_judge_yes_counts_and_says_why(monkeypatch):
+    asked = fake_judge_class(monkeypatch, True, "Old man is slang for father.")
+    _, out = play("--n", "1", "--seed", seed_for("爸爸"), typed="old man\n")
+    assert asked == ["old man"]
+    assert "asking the judge" in out
+    assert "✅ accepted by the Claude judge: Old man is slang for father." in out
+    assert "Score: 1/1" in out
+
+
+def test_judge_no_stays_wrong_and_says_why(monkeypatch):
+    fake_judge_class(monkeypatch, False, "Mother is a different word.")
+    _, out = play("--n", "1", "--seed", seed_for("爸爸"), typed="mother\n")
+    assert "❌" in out
+    assert "judge: Mother is a different word." in out
+    assert "Score: 0/1" in out
+
+
+def test_judge_not_asked_when_the_list_says_right(monkeypatch):
+    asked = fake_judge_class(monkeypatch, False)
+    _, out = play("--n", "1", "--seed", seed_for("爸爸"), typed="dad\n")
+    assert asked == []
+    assert "asking the judge" not in out
+
+
+def test_no_judge_never_asks(monkeypatch):
+    asked = fake_judge_class(monkeypatch, True)
+    _, out = play(
+        "--n", "1", "--seed", seed_for("爸爸"), "--no-judge", typed="old man\n"
+    )
+    assert asked == []
+    assert "Score: 0/1" in out
+
+
+def test_judge_unreachable_keeps_the_quiz_going():
+    """No fake: the real ClaudeJudge, with `claude` "not installed" (conftest)."""
+    _, out = play("--n", "1", "--seed", seed_for("爸爸"), typed="old man\n")
+    assert "❌" in out
+    assert "(judge couldn't check:" in out
+    assert "Score: 0/1" in out
 
 
 # --- the real program, through a pipe -------------------------------------------
@@ -405,7 +477,7 @@ def test_hanzi_print_through_a_pipe_on_any_os():
     }
     proc = subprocess.run(
         [sys.executable, "-c", "from hsk_trainer.cli import main; main()", "quiz"]
-        + ["--mode", "char_pinyin", "--n", "2", "--seed", "1"],
+        + ["--mode", "char_pinyin", "--n", "2", "--seed", "1", "--no-judge"],
         check=False,  # we check returncode ourselves, to show stderr on failure
         input=b"x\nx\n",
         capture_output=True,

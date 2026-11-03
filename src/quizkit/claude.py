@@ -35,8 +35,10 @@ class ClaudeReply(BaseModel):
 Runner = Callable[..., subprocess.CompletedProcess]
 
 
-def build_command(exe: str, model: str, system: str) -> list[str]:
-    return [
+def build_command(
+    exe: str, model: str, system: str, json_schema: dict | None = None
+) -> list[str]:
+    command = [
         exe,
         "-p",
         "--output-format",
@@ -50,10 +52,17 @@ def build_command(exe: str, model: str, system: str) -> list[str]:
         "--system-prompt",
         system,
     ]
+    if json_schema is not None:  # force the reply into this shape (ADR 0007)
+        command += ["--json-schema", json.dumps(json_schema)]
+    return command
 
 
-def parse_reply(stdout: str, model: str) -> ClaudeReply:
-    """Turn `claude -p --output-format json` output into a ClaudeReply."""
+def parse_reply(stdout: str, model: str, structured: bool = False) -> ClaudeReply:
+    """Turn `claude -p --output-format json` output into a ClaudeReply.
+
+    `structured=True` (a `--json-schema` call): the text is the reply's
+    `structured_output`, as a JSON string.
+    """
     try:
         data = json.loads(stdout)
     except json.JSONDecodeError as err:
@@ -62,6 +71,10 @@ def parse_reply(stdout: str, model: str) -> ClaudeReply:
         raise ClaudeError(f"unexpected reply from claude: {stdout[:200]!r}")
     if data.get("is_error") or data.get("subtype", "success") != "success":
         raise ClaudeError(f"claude reported an error: {data.get('result', data)!r}")
+    if structured:
+        if "structured_output" not in data:
+            raise ClaudeError("claude's reply has no structured_output")
+        data = {**data, "result": json.dumps(data["structured_output"])}
     try:
         return _reply_from(data, model)
     except (TypeError, ValueError, AttributeError) as err:
@@ -93,8 +106,12 @@ def ask_claude(
     system: str = "You are a careful assistant. Follow the instructions exactly.",
     timeout: float = DEFAULT_TIMEOUT,
     run: Runner = subprocess.run,
+    json_schema: dict | None = None,
 ) -> ClaudeReply:
     """Send `prompt` to Claude and return its reply. Raises ClaudeError on failure.
+
+    With `json_schema`, Claude must reply in that shape; the reply's text is then
+    that JSON (still check it: the caller can't trust it blindly).
 
     `run` is swappable so tests never start the real `claude`.
     """
@@ -107,7 +124,7 @@ def ask_claude(
     with tempfile.TemporaryDirectory() as empty_dir:
         try:
             result = run(
-                build_command(exe, model, system),
+                build_command(exe, model, system, json_schema),
                 input=prompt,
                 capture_output=True,
                 text=True,
@@ -133,4 +150,4 @@ def ask_claude(
             f"claude exited with code {result.returncode}: {hint or 'no message'} "
             "(if you're not logged in, run `claude` and log in)"
         )
-    return parse_reply(result.stdout, model)
+    return parse_reply(result.stdout, model, structured=json_schema is not None)

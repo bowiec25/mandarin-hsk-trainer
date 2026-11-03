@@ -448,3 +448,111 @@ def test_changing_a_question_after_starting_has_no_effect():
     session = block.QuizSession([france])
     france.accepted_answers.append("Lyon")  # the list inside a frozen model can change
     assert session.answer("Lyon").grade.correct is False
+
+
+# -- The judge hook (judge SPEC "The engine hook" + "Engine changes") --------------
+
+
+def fake_judge(correct: bool, reason: str = "Judged."):
+    """A judge (any `(Question, str) -> Verdict`) that records what it was asked."""
+    from quizkit.blocks.judge import Verdict
+
+    calls: list[tuple[Question, str]] = []
+
+    def judge(question: Question, typed: str):
+        calls.append((question, typed))
+        return Verdict(correct=correct, reason=reason, source="claude")
+
+    return judge, calls
+
+
+def test_judge_not_called_when_the_grader_says_right():
+    judge, calls = fake_judge(correct=False)
+    result, _, _ = play([FRANCE, SPAIN], ["Pariss", "Madrid"], judge=judge)
+    assert calls == []  # exact match and typo-forgiven both skip the judge
+    assert result.correct == 2
+    assert [a.verdict for a in result.attempts] == [None, None]
+
+
+@pytest.mark.parametrize("typed", ["", "   "])
+def test_judge_not_called_for_a_blank_answer(typed):
+    judge, calls = fake_judge(correct=True)
+    result, _, _ = play([FRANCE], [typed], judge=judge)
+    assert calls == []
+    assert result.correct == 0
+    assert result.attempts[0].verdict is None
+    assert result.attempts[0].correct is False
+
+
+def test_judge_called_with_question_and_typed_text_when_grader_says_wrong():
+    judge, calls = fake_judge(correct=False)
+    play([FRANCE], ["  Lutetia "], judge=judge)
+    assert calls == [(FRANCE, "  Lutetia ")]
+
+
+def test_judge_yes_counts_in_the_score():
+    judge, _ = fake_judge(correct=True, reason="Old name for Paris.")
+    result, _, told = play([FRANCE, ITALY], ["Lutetia", "Rome"], judge=judge)
+    attempt = result.attempts[0]
+    assert attempt.grade.correct is False  # the grader itself is unchanged
+    assert attempt.verdict.correct is True
+    assert attempt.verdict.reason == "Old name for Paris."
+    assert attempt.correct is True
+    assert result.correct == 2
+    assert told[0].verdict == attempt.verdict  # tell sees the verdict
+
+
+def test_judge_no_stays_wrong():
+    judge, _ = fake_judge(correct=False, reason="Different city.")
+    result, _, _ = play([FRANCE], ["Lyon"], judge=judge)
+    attempt = result.attempts[0]
+    assert attempt.verdict.correct is False
+    assert attempt.correct is False
+    assert result.correct == 0
+
+
+def test_no_judge_is_the_old_behaviour():
+    result, _, _ = play(CAPITALS, ["Paris", "Lisbon", "Madrid"])
+    assert [a.verdict for a in result.attempts] == [None, None, None]
+    assert [a.correct for a in result.attempts] == [True, False, True]
+    assert result.correct == 2
+
+
+def test_attempt_correct_follows_the_grade_without_a_verdict():
+    result, _, _ = play([FRANCE, ITALY], ["Pariss", "Lisbon"], judge=None)
+    assert [a.correct for a in result.attempts] == [True, False]
+
+
+def test_session_takes_a_judge_too():
+    judge, calls = fake_judge(correct=True)
+    session = block.QuizSession([FRANCE, ITALY], judge=judge)
+    first = session.answer("Lutetia")
+    assert first.correct is True and first.verdict is not None
+    second = session.answer("Rome")
+    assert second.verdict is None
+    assert len(calls) == 1
+    assert session.result().correct == 2
+
+
+def test_ctrl_c_while_the_judge_is_asked_is_a_quit():
+    def judge(question, typed):
+        raise KeyboardInterrupt
+
+    ask, asked = fake_ask(["Paris", "Lyon", "Madrid"])
+    tell, told = collector()
+    result = run_expecting_no_ctrl_c(CAPITALS, ask, tell, judge=judge)
+    assert result.answered == 1  # answer 1 kept; answer 2 (being judged) doesn't count
+    assert result.finished is False
+    assert asked == [FRANCE, ITALY]  # ask not called again
+    assert told == list(result.attempts)
+
+
+def test_other_judge_errors_are_passed_through():
+    def judge(question, typed):
+        raise ValueError("broken judge")
+
+    ask, _ = fake_ask(["Rome"])
+    tell, told = collector()
+    with pytest.raises(ValueError, match="broken judge"):
+        block.run_quiz([FRANCE], ask, tell, judge=judge)
+    assert told == []
