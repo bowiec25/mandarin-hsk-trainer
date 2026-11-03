@@ -171,7 +171,7 @@ def test_extra_words_are_allowed(vocab):
 
 def test_settings_defaults():
     s = SentenceSettings()
-    assert (s.min_chars, s.max_chars, s.extra_words) == (4, 20, ())
+    assert (s.min_chars, s.max_chars, s.extra_words) == (3, 20, ())
 
 
 def test_settings_is_frozen():
@@ -265,25 +265,50 @@ def _vocab(words: dict[str, int]):
     return Vocab(cards)
 
 
-def test_harder_word_cannot_hide_in_a_glued_piece():
-    """电视 (band 2) is made of two band-1 characters; glued, it must still be caught."""
+# -- Option B: "a learner at this band could read it" (user's choice, 2026-11-03) ----
+
+
+def test_word_built_from_easy_words_passes():
+    """电视 (band 2) is made of two band-1 words: readable at band 1 (option B)."""
     vocab = _vocab({"我": 1, "看": 1, "电": 1, "视": 1, "电视": 2})
-    vocab.pieces = lambda text: ["我看电视"]  # as if jieba glued it all together
+    check = check_sentence("我看电视。", "我", vocab)
+    assert check.passed is True, check.reasons
+    assert check.words == ("我", "看", "电", "视")
+
+
+def test_harder_word_with_no_easy_reading_fails():
+    vocab = _vocab({"我": 1, "看": 1, "电视": 2})
     check = check_sentence("我看电视。", "我", vocab)
     assert check.passed is False
     assert any("电视" in r and "2" in r for r in check.reasons), check.reasons
 
 
-def test_word_only_inside_a_longer_word_does_not_count():
+def test_word_must_stand_on_its_own():
+    """我 inside 我们: the word is read on its own, so 们 has to be readable too."""
     vocab = _vocab({"我": 1, "我们": 1, "是": 1, "医生": 1})
     check = check_sentence("我们是医生。", "我", vocab)
     assert check.passed is False
-    assert any("我" in r and "我们" in r for r in check.reasons), check.reasons
+    assert check.words[0] == "我"
+    assert any("们" in r for r in check.reasons), check.reasons
 
 
-def test_global_jieba_is_left_alone():
-    import jieba
+def test_reading_with_fewest_problems_wins():
+    """jieba read 他一起来了 as 他/一/起来/了; any reading works if one is easy."""
+    vocab = _vocab({"他": 1, "一": 1, "起来": 2, "一起": 1, "来": 1, "了": 1})
+    check = check_sentence("他一起来了。", "来", vocab)
+    assert check.passed is True, check.reasons
+    assert check.words == ("他", "一起", "来", "了")
 
-    before = jieba.lcut("我们去学校吃饭")
-    _vocab({"去学校吃": 1, "我们": 1})
-    assert jieba.lcut("我们去学校吃饭") == before
+
+def test_real_sentences_jieba_used_to_reject_now_pass(real_cards):
+    vocab = Vocab(real_cards)
+    for sentence, word in [("我看见他了。", "看"), ("你好吗？", "好")]:
+        check = check_sentence(sentence, word, vocab)
+        assert check.passed, (sentence, check.reasons)
+
+
+def test_more_chinese_punctuation_and_zero_are_allowed(real_cards):
+    vocab = Vocab(real_cards)
+    for sentence, word in [("我们去吧……", "去"), ("二〇二六年。", "年")]:
+        reasons = check_sentence(sentence, word, vocab).reasons
+        assert not any("aren't Chinese" in r for r in reasons), (sentence, reasons)

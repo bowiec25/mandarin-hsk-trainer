@@ -4,10 +4,8 @@ See SPEC.md in this folder (ADR 0003) and ADR 0008. A script: every rule is chec
 by code. Its reasons are plain English, so sentence_writer can send them back to Claude.
 """
 
-import logging
 import re
 
-import jieba
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from quizkit.blocks.base import BlockSpec
@@ -21,10 +19,11 @@ BLOCK_SPEC = BlockSpec(
     outputs=["SentenceCheck"],
 )
 
-PUNCTUATION = "，。？！、：；“”‘’"
-_HANZI = re.compile(r"[㐀-䶿一-鿿豈-﫿]")  # Chinese characters
-
-jieba.setLogLevel(logging.WARNING)  # no "Building prefix dict..." chatter
+PUNCTUATION = set("，。？！、：；“”‘’…—《》（）·～「」")
+# Chinese characters: 〇, Ext-A, the main block, compatibility, and Ext-B onwards.
+_HANZI = re.compile(
+    "[\u3007\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\U00020000-\U000323af]"
+)
 
 
 def _is_hanzi(ch: str) -> bool:
@@ -37,7 +36,7 @@ class SentenceSettings(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     min_chars: int = Field(
-        default=4, ge=1
+        default=3, ge=1
     )  # Chinese characters; punctuation not counted
     max_chars: int = 20
     extra_words: tuple[str, ...] = ()
@@ -52,7 +51,7 @@ class SentenceSettings(BaseModel):
 
 
 class SentenceCheck(BaseModel):
-    """The verdict on one sentence: passed, why not, and the words it checked."""
+    """The verdict on one sentence: passed, why not, and the reading it chose."""
 
     model_config = ConfigDict(frozen=True)
 
@@ -62,7 +61,7 @@ class SentenceCheck(BaseModel):
 
 
 class Vocab:
-    """Every HSK word and its band, plus a jieba splitter that knows all of them."""
+    """Every HSK word and its band."""
 
     def __init__(self, cards: list[Card]) -> None:
         if not cards:
@@ -73,33 +72,67 @@ class Vocab:
             if hanzi in self.levels:
                 raise ValueError(f"two cards share the hanzi {hanzi!r}")
             self.levels[hanzi] = card.level
-        self._longest = max(len(w) for w in self.levels)
-        # Its own Tokenizer, so the global jieba (and any other user of it) is untouched.
-        self._jieba = jieba.Tokenizer()
-        for word in self.levels:
-            self._jieba.add_word(word)
-
-    def pieces(self, text: str) -> list[str]:
-        """jieba's split of `text`, keeping only pieces with Chinese characters."""
-        return [p for p in self._jieba.lcut(text) if any(_is_hanzi(c) for c in p)]
-
-    def split_into(self, piece: str, allowed: set[str]) -> list[str] | None:
-        """Split `piece` completely into `allowed` words (fewest pieces), or None."""
-        longest = max(self._longest, *(len(w) for w in allowed)) if allowed else 0
-        best: list[list[str] | None] = [[]] + [None] * len(piece)
-        for end in range(1, len(piece) + 1):
-            for start in range(max(0, end - longest), end):
-                head = best[start]
-                if head is not None and piece[start:end] in allowed:
-                    candidate = [*head, piece[start:end]]
-                    current = best[end]
-                    if current is None or len(candidate) < len(current):
-                        best[end] = candidate
-        return best[len(piece)]
+        self.longest = max(len(w) for w in self.levels)
 
 
 def _bands(band: int) -> str:
     return "band 1" if band == 1 else f"bands 1–{band}"
+
+
+def _best_reading(
+    run: str, word: str, band: int, vocab: Vocab, extras: frozenset[str]
+) -> list[tuple[int, int, list[str], list[str], bool]]:
+    """Best readings of one run of Chinese characters, for both "word used" states.
+
+    Returns, for start state used=False and used=True, the best (problems, pieces,
+    words, reasons, used_at_end). A reading is a row of pieces: HSK words, extra words,
+    or single unknown characters. Fewest problems wins, then fewest pieces.
+    """
+    longest = (
+        max(vocab.longest, len(word), *(len(e) for e in extras))
+        if extras
+        else max(vocab.longest, len(word))
+    )
+    results = []
+    for start_used in (False, True):
+        # best[i][u] = (problems, pieces, words, reasons) for run[:i], word used = u
+        best: list[list[tuple | None]] = [[None, None] for _ in range(len(run) + 1)]
+        best[0][int(start_used)] = (0, 0, [], [])
+        for i in range(len(run)):
+            for used in (0, 1):
+                here = best[i][used]
+                if here is None:
+                    continue
+                for end in range(i + 1, min(len(run), i + longest) + 1):
+                    piece = run[i:end]
+                    now_used = used
+                    if piece == word:
+                        problem, now_used = None, 1
+                    elif piece in extras:
+                        problem = None
+                    elif piece in vocab.levels:
+                        level = vocab.levels[piece]
+                        problem = (
+                            None
+                            if level <= band
+                            else f"uses {piece} (band {level}); a sentence for a "
+                            f"band-{band} word may only use {_bands(band)}"
+                        )
+                    elif end == i + 1:
+                        problem = f"uses {piece}, not an HSK word in {_bands(band)}"
+                    else:
+                        continue  # not a word: only single characters may be unknown
+                    candidate = (
+                        here[0] + (problem is not None),
+                        here[1] + 1,
+                        [*here[2], piece],
+                        [*here[3], problem] if problem else here[3],
+                    )
+                    current = best[end][now_used]
+                    if current is None or candidate[:2] < current[:2]:
+                        best[end][now_used] = candidate
+        results.append(best[len(run)])
+    return results
 
 
 def check_sentence(
@@ -123,6 +156,10 @@ def check_sentence(
     if others:
         shown = " ".join(repr(c) for c in others)
         reasons.append(f"has characters that aren't Chinese: {shown}")
+    # 2. The word is in it.
+    present = word in text
+    if not present:
+        reasons.append(f"doesn't contain {word}")
     # 3. Length, in Chinese characters.
     count = sum(_is_hanzi(c) for c in text)
     if count < settings.min_chars:
@@ -133,36 +170,29 @@ def check_sentence(
         reasons.append(
             f"too long: {count} Chinese characters (max {settings.max_chars})"
         )
-    # 4. Every other word is allowed for this band.
-    extras = set(settings.extra_words)
-    known = set(vocab.levels) | extras  # ALL HSK words, so a hard word can't hide
+    # 4. Readable at this band: the reading with the fewest problems, word on its own.
     words: list[str] = []
-    for piece in vocab.pieces(text):
-        if piece in known:
-            parts = [piece]
-        elif (split := vocab.split_into(piece, known)) is not None:
-            parts = split  # glued words, e.g. 吃饭 -> 吃 + 饭
-        else:
-            words.append(piece)
-            reasons.append(f"uses {piece}, not an HSK word in {_bands(band)}")
-            continue
-        words.extend(parts)
-        for part in parts:
-            level = vocab.levels.get(part, 0)  # extra words have no band: always fine
-            if part not in extras and level > band:
-                reasons.append(
-                    f"uses {part} (band {level}); a sentence for a "
-                    f"band-{band} word may only use {_bands(band)}"
-                )
-    # 2. The word is in it, as a word of its own (我 inside 我们 doesn't count).
-    if word not in words:
-        inside = [w for w in words if word in w and w != word]
-        if inside:
-            reasons.insert(0, f"has {word} only inside {inside[0]}, not on its own")
-        elif word in text:
-            reasons.insert(0, f"has {word} only as part of other words, not on its own")
-        else:
-            reasons.insert(0, f"doesn't contain {word}")
+    if present:
+        extras = frozenset(settings.extra_words)
+        runs = [r for r in re.split(f"[^{_HANZI.pattern[1:-1]}]+", text) if r]
+        # Chain the runs, carrying "word used yet?" from one run to the next.
+        state: dict[bool, tuple[int, int, list[str], list[str]]] = {
+            False: (0, 0, [], [])
+        }
+        for run in runs:
+            per_start = _best_reading(run, word, band, vocab, extras)
+            nxt: dict[bool, tuple[int, int, list[str], list[str]]] = {}
+            for used_before, (p, n, ws, rs) in state.items():
+                for used_after, found in enumerate(per_start[int(used_before)]):
+                    if found is None:
+                        continue
+                    total = (p + found[0], n + found[1], ws + found[2], rs + found[3])
+                    old = nxt.get(bool(used_after))
+                    if old is None or total[:2] < old[:2]:
+                        nxt[bool(used_after)] = total
+            state = nxt
+        _, _, words, problems = state[True]  # the word is present, so this exists
+        reasons.extend(problems)
 
     unique = tuple(dict.fromkeys(reasons))  # a word used twice is reported once
     return SentenceCheck(passed=not unique, reasons=unique, words=tuple(words))
