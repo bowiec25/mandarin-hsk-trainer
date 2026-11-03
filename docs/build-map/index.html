@@ -197,10 +197,10 @@ a { color: var(--info); }
   <div class="tiles">
     <div class="tile hi"><b>978</b><span>quiz cards in <code>cards.jsonl</code></span></div>
     <div class="tile"><b>294 · 197 · 487</b><span>new words in bands 1 · 2 · 3</span></div>
-    <div class="tile"><b>470</b><span>automatic tests, all passing</span></div>
-    <div class="tile"><b>6</b><span>blocks built: fetcher, normalizer, grader, cedict_cleaner, deck_builder, engine</span></div>
+    <div class="tile"><b>447</b><span>automatic tests, all passing</span></div>
+    <div class="tile"><b>6</b><span>blocks built: fetcher, normalizer, grader, deck_builder, engine, answer_writer (agent)</span></div>
     <div class="tile"><b>2 · 2 · 2</b><span>hooks · skills used · subagents</span></div>
-    <div class="tile"><b>4</b><span>decision records (ADRs)</span></div>
+    <div class="tile"><b>6</b><span>decision records (ADRs)</span></div>
     <div class="tile"><b>4 / 7</b><span>milestones done</span></div>
   </div>
   <div class="milestones" aria-label="Milestones">
@@ -241,7 +241,7 @@ a { color: var(--info); }
     <div class="layer">
       <div class="layer-head"><b>🛡️ Checks</b><span class="mono">tests/ · .github/ · GitHub settings</span><span>Prove the code is right, on your machine and on GitHub.</span></div>
       <div class="items">
-        <div class="item guide"><b>tests/ (pytest)</b>470 tests, run before "done"<small>Claude + CI</small></div>
+        <div class="item guide"><b>tests/ (pytest)</b>447 tests, run before "done"<small>Claude + CI</small></div>
         <div class="item guide"><b>ruff</b>lint + format check<small>Claude + CI</small></div>
         <div class="item auto"><b>CI: ci.yml</b>same checks on a clean machine<small>every push and PR</small></div>
         <div class="item auto"><b>claude-code-review.yml</b>runs the Claude review on GitHub<small>every PR · renew token before 2027-10-15</small></div>
@@ -259,7 +259,7 @@ a { color: var(--info); }
         <div class="item"><b>download.py · files.py</b>verified download, safe file writes, <code>load_cards</code></div>
         <div class="item"><b>scaffold.py</b>makes new block folders<small>called by /new-block</small></div>
         <div class="item"><b>examples/capitals_quiz.py</b>a toy quiz using only quizkit<small>the M3 reuse check · guarded by tests/test_reuse.py</small></div>
-        <div class="item"><b>block: grader</b>right or wrong? case, "to", typos (0/1/2)<small>script · takes a quiz's own cleaner</small></div>
+        <div class="item"><b>block: grader</b>right or wrong? case, "to", typos (0/1/2)<small>script · gets answers that are already typeable (ADR 0006)</small></div>
         <div class="item"><b>block: deck_builder</b>the dealer: level(s), how many, shuffle<small>script · smart "what's next" in M5</small></div>
         <div class="item"><b>block: engine</b>the quizmaster: ask, mark, score<small>script · QuizSession (brain) + run_quiz (loop, Ctrl-C = quit) · built in a 2nd worktree</small></div>
       </div>
@@ -269,12 +269,11 @@ a { color: var(--info); }
       <div class="items">
         <div class="item"><b>block: fetcher</b>download + verify the word list<small>script</small></div>
         <div class="item"><b>block: normalizer</b>raw list → 978 cards<small>script</small></div>
-        <div class="item"><b>block: cedict_cleaner</b>dictionary meaning → typeable answers<small>script · stopgap until the M4 answer agent</small></div>
         <div class="item"><b>modes.py</b>the 4 HSK modes</div>
         <div class="item"><b>data/</b><code>raw/</code> → <code>processed/cards.jsonl</code></div>
         <div class="item"><b>cli.py → hsk quiz</b>the front door: band, mode, how many<small>not a block: wires the blocks to your keyboard · Ctrl-C keeps the score</small></div>
         <div class="item todo"><b>AGENT: sentence_writer</b>calls Claude by itself to write sentences<small>M4, the first real agent</small></div>
-        <div class="item"><b>AGENT: answer_writer</b>wrote answer lists with synonyms for all 978 words, once, offline (25 calls)<small>M4 Step 3 · ADR 0005 · checked by validate_answers · quiz plugs it in at Step 4</small></div>
+        <div class="item"><b>AGENT: answer_writer</b>wrote answer lists with synonyms for all 978 words, once, offline (25 calls)<small>M4 Step 3 · since Step 4a the quiz's <b>only</b> answer list (ADR 0006), read through the same checker (<code>load_answers</code>)</small></div>
         <div class="item"><b>quizkit.claude</b>shared helper: runs <code>claude -p</code> with no tools, logs tokens<small>generic · reused by the judge</small></div>
         <div class="item todo"><b>AGENT: judge</b>asked only when the list says "wrong"; verdicts cached<small>M4 · ADR 0005 · via claude -p (subscription)</small></div>
       </div>
@@ -369,7 +368,7 @@ a { color: var(--info); }
     </figure>
     <figure class="card diagram fl">
       <h3>View B · What the app does with the words (the product)</h3>
-      <svg viewBox="0 0 1120 315" role="img" aria-label="Product flow: the pinned source is fetched into data/raw, the normalizer writes 978 cards to cards.jsonl. Planned: the deck_builder deals cards using the mode config, the engine asks you through the hsk quiz CLI and gets your answer, the grader marks it using the cedict_cleaner (all built), progress_store remembers in M5. In M4 an offline sentence_writer agent calls the Claude API, its sentences go through a validator into sentences.jsonl, which the deck_builder adds.">
+      <svg viewBox="0 0 1120 315" role="img" aria-label="Product flow: the pinned source is fetched into data/raw, the normalizer writes 978 cards to cards.jsonl. Planned: the deck_builder deals cards using the mode config, the engine asks you through the hsk quiz CLI and gets your answer, the grader marks it against answers.jsonl, the one answer list written by the answer_writer agent (all built), progress_store remembers in M5. In M4 an offline sentence_writer agent calls the Claude API, its sentences go through a validator into sentences.jsonl, which the deck_builder adds.">
       <defs>
         <marker id="fb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker>
       </defs>
@@ -384,7 +383,7 @@ a { color: var(--info); }
 <rect class="box you" x="990" y="35" width="110" height="50" rx="6"/><text class="t" x="1045.0" y="57.0" text-anchor="middle">You</text><text class="s" x="1045.0" y="72.0" text-anchor="middle">type the answer</text>
 <rect class="box " x="410" y="145" width="110" height="50" rx="6"/><text class="t" x="465.0" y="167.0" text-anchor="middle">modes (config)</text><text class="s" x="465.0" y="182.0" text-anchor="middle">char · char_pinyin</text>
 <rect class="box " x="840" y="145" width="110" height="50" rx="6"/><text class="t" x="895.0" y="167.0" text-anchor="middle">grader</text><text class="s" x="895.0" y="182.0" text-anchor="middle">quizkit · right/wrong?</text>
-<rect class="box " x="690" y="145" width="110" height="50" rx="6"/><text class="t" x="745.0" y="167.0" text-anchor="middle">cedict_cleaner</text><text class="s" x="745.0" y="182.0" text-anchor="middle">hsk · tidies answers</text>
+<rect class="box key" x="690" y="145" width="110" height="50" rx="6"/><text class="t" x="745.0" y="167.0" text-anchor="middle">answers.jsonl</text><text class="s" x="745.0" y="182.0" text-anchor="middle">one answer list</text>
 <path class="ar " d="M800,170 H840" marker-end="url(#fa)"/>
 <rect class="box todo" x="990" y="145" width="110" height="50" rx="6"/><text class="t" x="1045.0" y="167.0" text-anchor="middle">progress_store</text><text class="s" x="1045.0" y="182.0" text-anchor="middle">M5 · remembers</text>
 <text class="lane-t" x="20" y="232">M4 · OFFLINE BATCH, RUN RARELY</text>
@@ -418,7 +417,7 @@ a { color: var(--info); }
 <path class="ar plan" d="M650,270 H760 V85" marker-end="url(#fa)"/>
 <text class="s" x="766" y="250">adds sentences</text>
     </svg>
-      <figcaption>Top row: from the word list to you. M3 adds the middle part: the marker (grader) and its HSK answer tidier (cedict_cleaner) are built; the dealer (deck_builder) and the game host (engine) are built too, and since Step 5 the CLI (<code>hsk quiz</code>) links them to you. Still dashed: progress_store (M5) and the whole M4 sentence row. The M4 agent is the only part that calls Claude, and it runs offline, as a batch, before you study. At quiz time nothing needs the internet or the API.</figcaption>
+      <figcaption>Top row: from the word list to you. M3 adds the middle part: the marker (grader) is built, and since M4 Step 4a it marks against <b>one</b> answer list, <code>answers.jsonl</code> (Claude wrote it once, offline; the rule-based cleaner is gone); the dealer (deck_builder) and the game host (engine) are built too, and since Step 5 the CLI (<code>hsk quiz</code>) links them to you. Still dashed: progress_store (M5) and the whole M4 sentence row. The M4 agent is the only part that calls Claude, and it runs offline, as a batch, before you study. At quiz time nothing needs the internet or the API.</figcaption>
     </figure>
     <figure class="card diagram fl">
       <h3>View C · One Claude action, up close (the safety nets)</h3>
@@ -647,36 +646,36 @@ a { color: var(--info); }
 
 <section>
   <div>
-    <h2>6. What the 470 tests guard</h2>
+    <h2>6. What the 447 tests guard</h2>
     <p class="lede">Red bar = runs against the real committed data. Everything else uses small fake data, so it's fast and works offline.</p>
   </div>
   <div class="card table-wrap">
     <table>
       <thead><tr><th>Test file</th><th class="n">Tests</th><th></th><th>What it protects</th></tr></thead>
       <tbody>
-        <tr><td class="mono">blocks/test_cedict_cleaner.py</td><td class="n">63</td><td class="bar"><span class="real" style="width:100%"></span></td><td>the 8 cleaning rules + real data: all 978 cards keep an answer, and the grader accepts each one</td></tr>
-        <tr><td class="mono">blocks/test_grader.py</td><td class="n">63</td><td class="bar"><span style="width:100%"></span></td><td>case, punctuation, "to", typo limits 0/1/2, cleaner hand-off (toy data, no Chinese)</td></tr>
-        <tr><td class="mono">blocks/test_engine.py</td><td class="n">40</td><td class="bar"><span style="width:63%"></span></td><td>the quiz loop with fake typed answers: score, record, quit (incl. Ctrl-C anywhere in the loop, added after the reuse check), bad cards caught before question 1</td></tr>
-        <tr><td class="mono">test_cli.py</td><td class="n">31</td><td class="bar"><span class="real" style="width:49%"></span></td><td><code>hsk quiz</code> played with scripted keystrokes on the real cards: score, "love" / "to love" for 爱, quitting (incl. Ctrl-C), short decks, every error, hanzi through a Windows pipe</td></tr>
-        <tr><td class="mono">blocks/test_deck_builder.py</td><td class="n">31</td><td class="bar"><span style="width:48%"></span></td><td>levels, count, no repeats (by id), same seed = same deck, every failure mode (toy capitals)</td></tr>
-        <tr><td class="mono">blocks/test_answer_writer.py</td><td class="n">73</td><td class="bar"><span class="real" style="width:97%"></span></td><td>the answer agent with a <b>fake Claude</b>: saved after each chunk, resume, <code>--limit</code>, <code>--dry-run</code>, broken replies, one bad card fails alone, the checker's rules; plus the real <code>answers.jsonl</code> covers all 978 cards</td></tr>
-        <tr><td class="mono">test_claude_helper.py</td><td class="n">17</td><td class="bar"><span style="width:24%"></span></td><td>the <code>claude -p</code> helper with a fake runner: no tools, prompt on stdin, not installed, timeout, error replies, token counts</td></tr>
+        <tr><td class="mono">blocks/test_grader.py</td><td class="n">63</td><td class="bar"><span style="width:62%"></span></td><td>case, punctuation, "to", typo limits 0/1/2 (toy data, no Chinese)</td></tr>
+        <tr><td class="mono">blocks/test_engine.py</td><td class="n">38</td><td class="bar"><span style="width:37%"></span></td><td>the quiz loop with fake typed answers: score, record, quit (incl. Ctrl-C anywhere in the loop, added after the reuse check), bad cards caught before question 1</td></tr>
+        <tr><td class="mono">test_cli.py</td><td class="n">39</td><td class="bar"><span class="real" style="width:38%"></span></td><td><code>hsk quiz</code> played with scripted keystrokes on the real cards and answer list: score, "love" / "to love" for 爱, "dad" for 爸爸 ✅ and "modem" for 猫 ❌, a bad answer file (only its band stops), quitting (incl. Ctrl-C), short decks, every error, hanzi through a Windows pipe</td></tr>
+        <tr><td class="mono">blocks/test_deck_builder.py</td><td class="n">31</td><td class="bar"><span style="width:30%"></span></td><td>levels, count, no repeats (by id), same seed = same deck, every failure mode (toy capitals)</td></tr>
+        <tr><td class="mono">blocks/test_answer_writer.py</td><td class="n">102</td><td class="bar"><span class="real" style="width:100%"></span></td><td>the answer agent with a <b>fake Claude</b>: saved after each chunk, resume, <code>--limit</code>, <code>--dry-run</code>, broken replies, one bad card fails alone, the checker's rules, <b>the file never shrinks</b> (old lines stay until replaced), <code>load_answers</code> for the quiz; plus the real <code>answers.jsonl</code> passes for all 978 cards</td></tr>
+        <tr><td class="mono">test_claude_helper.py</td><td class="n">17</td><td class="bar"><span style="width:17%"></span></td><td>the <code>claude -p</code> helper with a fake runner: no tools, prompt on stdin, not installed, timeout, error replies, token counts</td></tr>
         <tr><td class="mono">test_pr_body.py</td><td class="n">22</td><td class="bar"><span style="width:22%"></span></td><td>the "Still the right thing?" CI check: a filled section passes; missing, empty, hint-only or "n/a" fails; the unfilled PR template fails; headings inside code blocks, unclosed hints and other heading levels handled</td></tr>
-        <tr><td class="mono">test_reuse.py</td><td class="n">5</td><td class="bar"><span style="width:8%"></span></td><td>the reuse check: no <code>quizkit</code> file imports (or even names) <code>hsk_trainer</code>, and the toy capitals quiz plays to the end with <code>hsk_trainer</code> blocked (both proved by a planted import)</td></tr>
-        <tr><td class="mono">test_hsk_deck.py</td><td class="n">2</td><td class="bar"><span class="real" style="width:3%"></span></td><td>real data: band 1 → 10 hanzi-only questions; band 2 asked for 500 → all of band 2</td></tr>
-        <tr><td class="mono">blocks/test_normalizer.py</td><td class="n">39</td><td class="bar"><span style="width:65%"></span></td><td>every card's shape and every failure mode of the normalizer</td></tr>
-        <tr><td class="mono">test_hooks.py</td><td class="n">19</td><td class="bar"><span style="width:32%"></span></td><td>the <code>.env</code> blocker and the auto-format hook</td></tr>
-        <tr><td class="mono">blocks/test_fetcher.py</td><td class="n">16</td><td class="bar"><span style="width:27%"></span></td><td>downloads, fingerprints, no half-written files (fake downloader)</td></tr>
-        <tr><td class="mono">test_scaffold.py</td><td class="n">15</td><td class="bar"><span style="width:25%"></span></td><td><code>/new-block</code>'s file maker and SPEC checker</td></tr>
-        <tr><td class="mono">test_quizkit_download.py</td><td class="n">11</td><td class="bar"><span style="width:18%"></span></td><td>the generic verified download helper</td></tr>
-        <tr><td class="mono">test_word_counts.py</td><td class="n">7</td><td class="bar"><span class="real" style="width:12%"></span></td><td>real data: 294 / 197 / 487, within 5% of 300 / 500 / 1,000, file up to date</td></tr>
-        <tr><td class="mono">test_quizkit_models.py</td><td class="n">7</td><td class="bar"><span style="width:12%"></span></td><td>Card and Question rules (no blank answers, level ≥ 1)</td></tr>
-        <tr><td class="mono">test_hsk_modes.py</td><td class="n">4</td><td class="bar"><span style="width:7%"></span></td><td>the 4 HSK quiz modes</td></tr>
-        <tr><td class="mono">test_quizkit_modes.py</td><td class="n">3</td><td class="bar"><span style="width:5%"></span></td><td>modes as config</td></tr>
-        <tr><td class="mono">test_quizkit_blocks.py</td><td class="n">1</td><td class="bar"><span style="width:2%"></span></td><td>the block ID card (<code>BlockSpec</code>)</td></tr>
-        <tr><td class="mono">test_smoke.py</td><td class="n">1</td><td class="bar"><span style="width:2%"></span></td><td>both packages import</td></tr>
+        <tr><td class="mono">test_retired.py</td><td class="n">5</td><td class="bar"><span style="width:5%"></span></td><td>retired stays retired: <code>cedict_cleaner</code> / <code>clean_answer</code> never come back in code, tests or SPECs, and the <code>cleaner</code> slot is gone from the grader and engine (ADR 0006)</td></tr>
+        <tr><td class="mono">test_reuse.py</td><td class="n">5</td><td class="bar"><span style="width:5%"></span></td><td>the reuse check: no <code>quizkit</code> file imports (or even names) <code>hsk_trainer</code>, and the toy capitals quiz plays to the end with <code>hsk_trainer</code> blocked (both proved by a planted import)</td></tr>
+        <tr><td class="mono">test_hsk_deck.py</td><td class="n">2</td><td class="bar"><span class="real" style="width:2%"></span></td><td>real data: band 1 → 10 hanzi-only questions; band 2 asked for 500 → all of band 2</td></tr>
+        <tr><td class="mono">blocks/test_normalizer.py</td><td class="n">39</td><td class="bar"><span style="width:38%"></span></td><td>every card's shape and every failure mode of the normalizer</td></tr>
+        <tr><td class="mono">test_hooks.py</td><td class="n">19</td><td class="bar"><span style="width:19%"></span></td><td>the <code>.env</code> blocker and the auto-format hook</td></tr>
+        <tr><td class="mono">blocks/test_fetcher.py</td><td class="n">16</td><td class="bar"><span style="width:16%"></span></td><td>downloads, fingerprints, no half-written files (fake downloader)</td></tr>
+        <tr><td class="mono">test_scaffold.py</td><td class="n">15</td><td class="bar"><span style="width:15%"></span></td><td><code>/new-block</code>'s file maker and SPEC checker</td></tr>
+        <tr><td class="mono">test_quizkit_download.py</td><td class="n">11</td><td class="bar"><span style="width:11%"></span></td><td>the generic verified download helper</td></tr>
+        <tr><td class="mono">test_word_counts.py</td><td class="n">7</td><td class="bar"><span class="real" style="width:7%"></span></td><td>real data: 294 / 197 / 487, within 5% of 300 / 500 / 1,000, file up to date</td></tr>
+        <tr><td class="mono">test_quizkit_models.py</td><td class="n">7</td><td class="bar"><span style="width:7%"></span></td><td>Card and Question rules (no blank answers, level ≥ 1)</td></tr>
+        <tr><td class="mono">test_hsk_modes.py</td><td class="n">4</td><td class="bar"><span style="width:4%"></span></td><td>the 4 HSK quiz modes</td></tr>
+        <tr><td class="mono">test_quizkit_modes.py</td><td class="n">3</td><td class="bar"><span style="width:3%"></span></td><td>modes as config</td></tr>
+        <tr><td class="mono">test_quizkit_blocks.py</td><td class="n">1</td><td class="bar"><span style="width:1%"></span></td><td>the block ID card (<code>BlockSpec</code>)</td></tr>
+        <tr><td class="mono">test_smoke.py</td><td class="n">1</td><td class="bar"><span style="width:1%"></span></td><td>both packages import</td></tr>
       </tbody>
-      <tfoot><tr><td>Total</td><td class="n">470</td><td></td><td>run locally and by CI on every PR</td></tr></tfoot>
+      <tfoot><tr><td>Total</td><td class="n">447</td><td></td><td>run locally and by CI on every PR</td></tr></tfoot>
     </table>
   </div>
 </section>
@@ -756,6 +755,7 @@ a { color: var(--info); }
     <p class="lede">One line per step, newest first. Click <b>snapshot</b> to see the whole map exactly as it was after that step.</p>
   </div>
   <ol class="timeline card" reversed>
+    <li><span class="when">2026-11-03</span><span class="what">M4 Step 4a: one answer list (#34, #35)</span><span><b>Measured before building:</b> keeping the old cleaner list too would add 1,434 mostly-wrong answers (猫 "modem"), so <b>ADR 0006</b>: the quiz marks against <code>answers.jsonl</code> only. <code>cedict_cleaner</code> and the <code>cleaner</code> slot deleted, a guard test keeps them gone, and the writer never shrinks the file. Block reviews said ✅; the whole-branch <code>/code-review</code> found the risk between blocks · <a href="snapshots/m4-step4a.html">snapshot</a></span></li>
     <li><span class="when">2026-11-02</span><span class="what">M4 Step 3: answer_writer</span><span><b>The first agent.</b> Claude wrote the answers for all 978 words in 25 calls (~148k tokens, under the subscription); the checker caught 9 (e.g. "from小", 11 answers), re-runs fixed them. You checked a 20-word trial and a random 20. Static: the quiz reads the file, no Claude at quiz time · <a href="snapshots/m4-step3.html">snapshot</a></span></li>
     <li><span class="when">2026-11-02</span><span class="what">M4 Step 2 (ADR 0005)</span><span>Grading becomes <b>two layers</b>: an answer list Claude writes once (checked by a script, committed) + a <b>Claude judge</b> asked only when the list says "wrong" (verdicts saved). Both run under the subscription via <code>claude -p</code>. Your catch: sentence translation can't use a fixed list, so the judge moves from M5 into M4 · <a href="snapshots/m4-step2.html">snapshot</a></span></li>
     <li><span class="when">2026-11-02</span><span class="what">M4 Step 1 (#28)</span><span><b>"Still the right thing?" moves from a habit to a gate</b>: a required box in the issue form, a section in the PR template, and a CI check that fails a PR when it's empty. Re-check of M4: the answer agent now comes before sentence_writer · <a href="snapshots/m4-step1.html">snapshot</a></span></li>
@@ -779,7 +779,7 @@ a { color: var(--info); }
 </section>
 
 <footer>
-  Latest map, after M4 Step 3, 2026-11-02. There are no snapshots from before M2 done (the map started then). Known gaps, by choice: words with several readings keep all of them (197 words), "bands 1+2 together" comes later, listening practice, sentence translation (needs a judgment agent) and other later ideas are listed in docs/FUTURE.md; synonyms not in the dictionary wait for the M4 answer agent. Reminder: the Claude review token expires after 1 year (renew before 2027-10-15). Green on GitHub is not the same as reviewed.
+  Latest map, after M4 Step 4a, 2026-11-03. There are no snapshots from before M2 done (the map started then). Known gaps, by choice: words with several readings keep all of them (197 words), "bands 1+2 together" comes later, listening practice, sentence translation (needs a judgment agent) and other later ideas are listed in docs/FUTURE.md; answers not on the list wait for the judge (M4 Step 4b); the dictionary text in cards.jsonl is still called <code>answers</code> (rename in docs/FUTURE.md). Reminder: the Claude review token expires after 1 year (renew before 2027-10-15). Green on GitHub is not the same as reviewed.
 </footer>
 
 </main>

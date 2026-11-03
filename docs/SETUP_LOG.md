@@ -628,3 +628,19 @@ You now have: decision records, data shapes, hooks and permissions, the `/new-bl
 - **The quiz doesn't use the file yet.** That's Step 4, together with the judge.
 - A test checks the committed file covers all 978 cards, so a half-finished file can't be merged.
 - **`/code-review` found 10 things; all 10 fixed.** The big one: Claude often wrote both "love" and "to love", which the grader treats as one answer, so repeats are now spotted the way the grader compares answers; 110 words were tidied **without calling Claude**. Also: saved lines are re-checked on every run (a bad hand edit, a line listed twice, or an older `PROMPT_VERSION` means that word is asked again, so bumping the prompt version really redoes the answers); a removed card's line is deleted from the file; one card missing `answers` fails alone; `claude` exiting with an error code is always an error; the summary still prints when Claude stops the run; two small tidy-ups. Then a **3rd block-reviewer round** (the code had changed since its ✅): ✅ again, plus 3 small fixes (a line saved 3+ times, `--dry-run` never touches the file, the "log in" hint kept). 470 tests.
+
+## M4 Step 4a: one answer list (2026-11-03)
+
+> **In plain words:** the quiz now marks your answer against **one** list: the answers Claude wrote (`answers.jsonl`). The old rule-based cleaner is deleted. "dad" for 爸爸 counts; "modem" for 猫 no longer does.
+
+1. **"Still the right thing?" changed the plan.** ADR 0005 said: accept Claude's answers **plus** the old cleaner's, "so nothing is lost". Before building it we measured: the old list added 1,434 answers on 456 words, mostly senses a learner isn't taught (猫 "modem", 二 "stupid", 块 "soap"). You asked for one simple, traceable list → **ADR 0006** (PR #34). ADR 0005 is marked "partly superseded"; accepted ADRs aren't rewritten.
+2. **Find every trace first.** A search for every mention of the old design, sorted into delete / change / keep as history (ADRs, this log and snapshots stay as they were).
+3. **The code (PR #35):** the quiz reads answers through `answer_writer.load_answers()`, which checks the file with the writer's own checker; `cedict_cleaner` (63 tests) and the grader's and engine's `cleaner` slot are deleted; a **guard test** (`tests/test_retired.py`) fails if the old names or the slot come back.
+4. **The safety fix the review found:** the quiz now needs a line for every word, but the answer writer could shrink the file (after a prompt-version change, a `--limit` run kept only the words it redid). Now an old line stays until a new one replaces it. A bad line only blocks its own band.
+5. **Reviews:** test-writer → build → block-reviewer for grader ✅, engine ✅, answer_writer ✅ (3 rounds). `/code-review` twice on the whole branch: 18 findings, 13 fixed, the rest explained in the PR. The GitHub review: "No issues found."
+
+**Good to know:**
+- **Block reviews vs whole-change review.** Each block-reviewer looked at one block and said ✅. Only `/code-review`, looking at the whole change, saw the risk *between* blocks (the CLI needs a full file that the writer could shrink). Both layers matter.
+- **Kept simple on purpose:** the dictionary text in `cards.jsonl` is still called `answers`; renaming it to `meanings` is in `docs/FUTURE.md`.
+- **See CI here:** `! gh pr checks 35` (add `--watch` to wait for it).
+- 447 tests (was 470: the cleaner's 63 went with it).

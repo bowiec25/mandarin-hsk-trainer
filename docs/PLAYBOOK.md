@@ -214,6 +214,10 @@ Some of these **physically stop** a mistake. Others are just **instructions or h
 - **CI can differ from your machine** (colours, OS, paths). When a test fails only on CI, copy CI's environment locally (here `GITHUB_ACTIONS=true`) to reproduce it before fixing. Tests that read terminal output should strip colour codes.
 - **Show people the original words, not the computer's matching form.** The grader compares "havent"; the screen must say "haven't".
 - **Rules vs judgment:** if hand-written rules keep growing to cover messy language, that's a sign the job wants an agent (offline, validated by a script). Rules can be a stopgap to ship sooner.
+- **Measure what a fallback adds before keeping it.** "Keep the old list too, so nothing is lost" sounded safe; counting showed it added 1,434 mostly-wrong answers (M4 Step 4a, ADR 0006). A 20-line script beats a guess.
+- **Retire old designs completely, then guard it.** Search for every mention, sort into delete / change / keep-as-history, delete outright (git keeps the old version), and add a test that fails if the old names come back (`tests/test_retired.py`).
+- **When one part depends on another's file, both read it the same way.** The quiz and the answer writer share one reader + checker (`load_answers`), so they can't disagree on what a good file is.
+- **Review the whole change, not only each block.** Per-block reviews said ✅; the branch-wide `/code-review` found the risk between blocks.
 
 ---
 
