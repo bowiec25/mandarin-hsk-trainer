@@ -98,7 +98,7 @@ Every block follows one **contract**: a folder holding `SPEC.md` (Goal, Kind, In
 | 1 | `fetcher` | script | Download the HSK 3.0 word list from a pinned source URL, verify the checksum, store the raw file | `data/raw/` |
 | 2 | `normalizer` | script | Convert the raw list to `Card` records (id, hanzi, pinyin, meanings[], band, part of speech) | `data/processed/cards.jsonl` |
 | 3 | `sentence_writer` | **agent** | For each word, write 1–2 short, natural sentences that use only words at or below its band, with pinyin and English | `data/generated/sentences.jsonl` |
-| 4 | `sentence_validator` | script | Independently check the sentences: target word present, vocab within band (segmented with jieba), pinyin matches pypinyin, length limits | pass/reject report |
+| 4 | `sentence_validator` | script | Independently check the sentences: target word present, vocab readable at the band (our own word list, ADR 0009), pinyin matches pypinyin, length limits | pass/reject report |
 | 5 | `deck_builder` | script | Combine cards, sentences and a mode into a list of questions | in memory |
 | 6 | `grader` | script, with optional **agent** fallback | Normalize the answer and match it against meanings, synonyms and fuzzy matches (rapidfuzz). On a miss, it can optionally ask Claude "is this acceptable?" and cache the verdict to `accepted_answers.json` | correct / incorrect + feedback |
 | 7 | `progress_store` | script | Log attempts in SQLite, then add spaced repetition (Leitner boxes) later | `data/progress.db` (gitignored) |
