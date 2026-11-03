@@ -4,7 +4,10 @@ Nothing here knows about Chinese. A Card's `fields` are named by the specific qu
 (e.g. {"country": ...} for a capitals quiz; each quiz picks its own field names).
 """
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from collections.abc import Callable
+from typing import Literal
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class Card(BaseModel):
@@ -35,3 +38,22 @@ class Question(BaseModel):
     mode: str
     shown: dict[str, str]
     accepted_answers: list[str]
+
+
+class Verdict(BaseModel):
+    """A judge's answer: right or wrong, why, and who decided (ADR 0007)."""
+
+    model_config = ConfigDict(frozen=True)
+
+    correct: bool
+    reason: str
+    source: Literal["claude", "cache", "not_checked"]
+
+    @model_validator(mode="after")
+    def not_checked_is_wrong(self) -> "Verdict":
+        if self.source == "not_checked" and self.correct:
+            raise ValueError("a verdict that wasn't checked can't be correct")
+        return self
+
+
+Judge = Callable[[Question, str], Verdict]  # any quiz can plug in its own judge

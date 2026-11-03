@@ -5,27 +5,26 @@ See SPEC.md in this folder (ADR 0003) and ADR 0007. Generic: the quiz passes in 
 everything around it (cache, prompt, reply check, timeout) is plain script.
 """
 
-import html
+import hashlib
 import json
 import warnings
 from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Literal
 
 from pydantic import (
     BaseModel,
-    ConfigDict,
     Field,
     StrictBool,
     ValidationError,
-    model_validator,
 )
 
 from quizkit.blocks.base import BlockSpec
 from quizkit.blocks.grader import GradeSettings, clean
 from quizkit.claude import ClaudeError, ask_claude
-from quizkit.models import Question
+from quizkit.models import Judge, Question, Verdict
+
+__all__ = ["PROMPT_VERSION", "ClaudeJudge", "Judge", "Verdict", "context_hash"]
 
 BLOCK_SPEC = BlockSpec(
     name="judge",
@@ -87,25 +86,6 @@ REPLY_SCHEMA = {
 _CLEAN_SETTINGS = GradeSettings()
 
 
-class Verdict(BaseModel):
-    """The judge's answer: right or wrong, why, and who decided."""
-
-    model_config = ConfigDict(frozen=True)
-
-    correct: bool
-    reason: str
-    source: Literal["claude", "cache", "not_checked"]
-
-    @model_validator(mode="after")
-    def not_checked_is_wrong(self) -> "Verdict":
-        if self.source == "not_checked" and self.correct:
-            raise ValueError("a verdict that wasn't checked can't be correct")
-        return self
-
-
-Judge = Callable[[Question, str], Verdict]  # any quiz can plug in its own
-
-
 class _Reply(BaseModel):
     """What Claude must send back (forced by REPLY_SCHEMA, checked again here)."""
 
@@ -118,6 +98,7 @@ class _CacheLine(BaseModel):
 
     card_id: str
     answer: str
+    context: str  # context_hash: changes when the subject, shown fields or answers do
     model: str
     prompt_version: str
     correct: StrictBool
@@ -129,7 +110,18 @@ class _CacheLine(BaseModel):
     cost_usd: float = 0.0  # list-price equivalent; not a charge on a subscription
 
 
-_Key = tuple[str, str, str, str]  # card_id, clean answer, model, prompt version
+_Key = tuple[str, str, str, str, str]  # card, clean answer, context, model, prompt
+MAX_FAILURES = 2  # Claude failing this many times in a row switches the judge off
+
+
+def context_hash(subject: str, question: Question) -> str:
+    """A short fingerprint of what Claude is shown besides the typed answer.
+
+    In the cache key, so a changed answer list (or another quiz sharing the file)
+    asks again instead of reusing a verdict made for different facts."""
+    facts = [subject.strip(), sorted(question.shown.items()), question.accepted_answers]
+    blob = json.dumps(facts, ensure_ascii=False)
+    return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:16]
 
 
 class ClaudeJudge:
@@ -158,6 +150,8 @@ class ClaudeJudge:
         self.max_chars = max_chars
         self.before_asking = before_asking
         self._ask = ask
+        self._failures = 0  # Claude errors in a row
+        self._last_error = ""
         self._cache: dict[_Key, tuple[bool, str]] = self._load_cache()
 
     def __call__(self, question: Question, typed: str) -> Verdict:
@@ -170,11 +164,18 @@ class ClaudeJudge:
                 reason=f"too long to check (over {self.max_chars} characters)",
                 source="not_checked",
             )
-        key = (question.card_id, clean(text, _CLEAN_SETTINGS) or text.casefold(),
-               self.model, PROMPT_VERSION)  # fmt: skip
+        answer = clean(text, _CLEAN_SETTINGS) or text.casefold()
+        context = context_hash(self.subject, question)
+        key = (question.card_id, answer, context, self.model, PROMPT_VERSION)
         if key in self._cache:
             correct, reason = self._cache[key]
             return Verdict(correct=correct, reason=reason, source="cache")
+        if self._failures >= MAX_FAILURES:  # offline / logged out: stop waiting
+            return Verdict(
+                correct=False,
+                reason=f"couldn't check: judge off for this run ({self._last_error})",
+                source="not_checked",
+            )
 
         if self.before_asking is not None:
             self.before_asking()
@@ -187,12 +188,16 @@ class ClaudeJudge:
                 json_schema=REPLY_SCHEMA,
             )
         except ClaudeError as err:
+            self._failures += 1
+            self._last_error = str(err)
             return Verdict(
                 correct=False, reason=f"couldn't check: {err}", source="not_checked"
             )
+        self._failures = 0
+        text_reply = getattr(reply, "text", None)  # a custom `ask` may return anything
         try:
-            checked = _Reply.model_validate_json(reply.text)
-        except ValidationError:
+            checked = _Reply.model_validate_json(text_reply)
+        except (ValidationError, TypeError):
             return Verdict(
                 correct=False, reason="couldn't check: bad reply", source="not_checked"
             )
@@ -208,7 +213,7 @@ class ClaudeJudge:
             f"- {name}: {value}" for name, value in question.shown.items()
         )
         accepted = "; ".join(question.accepted_answers)
-        answer = html.escape(typed, quote=False)  # < > & -> &lt; &gt; &amp;
+        answer = typed.replace("<", "&lt;").replace(">", "&gt;")  # can't close the tag
         return (
             f"Subject: {self.subject}\n\n"
             f"Shown to the learner:\n{shown}\n\n"
@@ -238,17 +243,19 @@ class ClaudeJudge:
                     stacklevel=2,
                 )
                 continue
-            key = (line.card_id, line.answer, line.model, line.prompt_version)
+            key = (line.card_id, line.answer, line.context, line.model,
+                   line.prompt_version)  # fmt: skip
             cache[key] = (line.correct, line.reason)
         return cache
 
     def _save(self, key: _Key, correct: bool, reason: str, reply: object) -> None:
         if self.cache_file is None:
             return
-        card_id, answer, model, prompt_version = key
+        card_id, answer, context, model, prompt_version = key
         line = _CacheLine(
             card_id=card_id,
             answer=answer,
+            context=context,
             model=model,
             prompt_version=prompt_version,
             correct=correct,

@@ -23,6 +23,13 @@ from quizkit.models import Question
 PASS_RATE = 0.9
 
 
+def _positive(text: str) -> int:
+    number = int(text)
+    if number < 1:
+        raise argparse.ArgumentTypeError(f"must be 1 or more, not {number}")
+    return number
+
+
 class EvalCase(BaseModel):
     """One hand-labelled case: the question, what was typed, and the right verdict."""
 
@@ -123,7 +130,9 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Measure the judge on labelled cases.")
     parser.add_argument("cases", type=Path, help="a JSON Lines file of EvalCase")
     parser.add_argument("--model", default="haiku")
-    parser.add_argument("--limit", type=int, default=None, help="only the first N")
+    parser.add_argument(
+        "--limit", type=_positive, default=None, help="only the first N"
+    )
     parser.add_argument("--timeout", type=float, default=15)
     args = parser.parse_args(argv)
 

@@ -538,15 +538,21 @@ def test_ctrl_c_while_the_judge_is_asked_is_a_quit():
     def judge(question, typed):
         raise KeyboardInterrupt
 
-    result, _, told = play([FRANCE, ITALY], ["Rome", "Rome"], judge=judge)
-    assert result.answered == 0  # the answer being judged doesn't count
+    ask, asked = fake_ask(["Paris", "Lyon", "Madrid"])
+    tell, told = collector()
+    result = run_expecting_no_ctrl_c(CAPITALS, ask, tell, judge=judge)
+    assert result.answered == 1  # answer 1 kept; answer 2 (being judged) doesn't count
     assert result.finished is False
-    assert told == []
+    assert asked == [FRANCE, ITALY]  # ask not called again
+    assert told == list(result.attempts)
 
 
 def test_other_judge_errors_are_passed_through():
     def judge(question, typed):
         raise ValueError("broken judge")
 
+    ask, _ = fake_ask(["Rome"])
+    tell, told = collector()
     with pytest.raises(ValueError, match="broken judge"):
-        play([FRANCE], ["Rome"], judge=judge)
+        block.run_quiz([FRANCE], ask, tell, judge=judge)
+    assert told == []

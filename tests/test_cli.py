@@ -20,6 +20,12 @@ from quizkit.files import load_cards
 runner = CliRunner()
 
 
+@pytest.fixture(autouse=True)
+def own_judge_cache(tmp_path, monkeypatch):
+    """Never read or write the developer's real data/judge_cache.jsonl."""
+    monkeypatch.setattr("hsk_trainer.cli.JUDGE_CACHE", tmp_path / "judge_cache.jsonl")
+
+
 @functools.cache
 def _cards():
     return load_cards(CARDS_FILE)

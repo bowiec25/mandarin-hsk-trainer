@@ -12,8 +12,7 @@ from pydantic import BaseModel, ConfigDict, Field, computed_field, model_validat
 
 from quizkit.blocks.base import BlockSpec
 from quizkit.blocks.grader import Grade, GradeSettings, grade
-from quizkit.blocks.judge import Judge, Verdict
-from quizkit.models import Question
+from quizkit.models import Judge, Question, Verdict
 
 BLOCK_SPEC = BlockSpec(
     name="engine",

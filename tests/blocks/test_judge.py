@@ -325,6 +325,7 @@ def cached_line(**changes) -> str:
     line = {
         "card_id": "hsk1-0001",
         "answer": "papa",
+        "context": block.context_hash(HSK_SUBJECT, DAD),
         "model": "haiku",
         "prompt_version": block.PROMPT_VERSION,
         "correct": True,
@@ -532,3 +533,73 @@ def test_max_chars_below_one_raises_value_error(max_chars):
     ask, _ = fake_ask()
     with pytest.raises(ValueError):
         block.ClaudeJudge(HSK_SUBJECT, ask=ask, max_chars=max_chars)
+
+
+# -- Code-review fixes (context in the key, switch-off, odd replies, escaping) -------
+
+
+def test_changed_answer_list_asks_again(tmp_path):
+    cache = tmp_path / "cache.jsonl"
+    ask, calls = fake_ask()
+    make(ask, cache_file=cache)(DAD, "papa")
+    fixed = DAD.model_copy(update={"accepted_answers": ["father"]})
+    assert make(ask, cache_file=cache)(fixed, "papa").source == "claude"
+    assert len(calls) == 2
+
+
+def test_another_quiz_sharing_the_file_asks_again(tmp_path):
+    cache = tmp_path / "cache.jsonl"
+    ask, calls = fake_ask()
+    make(ask, cache_file=cache)(DAD, "papa")
+    assert make(ask, subject="Another quiz.", cache_file=cache)(DAD, "papa").source == (
+        "claude"
+    )
+    assert len(calls) == 2
+
+
+def test_cache_line_has_the_context():
+    assert block.context_hash(HSK_SUBJECT, DAD) == block.context_hash(HSK_SUBJECT, DAD)
+    assert block.context_hash(HSK_SUBJECT, DAD) != block.context_hash("Other.", DAD)
+
+
+def test_two_failures_in_a_row_switch_the_judge_off():
+    seen: list[int] = []
+    ask, calls = fake_ask(raises=ClaudeError("The `claude` command was not found."))
+    judge = make(ask, before_asking=lambda: seen.append(1))
+    judge(DAD, "papa")
+    judge(DAD, "daddy-o")
+    third = judge(DAD, "old man")
+    assert len(calls) == 2  # not asked a third time
+    assert len(seen) == 2  # no "asking the judge…" either
+    assert third.source == "not_checked"
+    assert "judge off" in third.reason
+
+
+def test_a_success_resets_the_failure_count():
+    replies = iter([ClaudeError("slow"), None, ClaudeError("slow"), None])
+
+    def flaky(prompt, **kwargs):
+        item = next(replies)
+        if item is not None:
+            raise item
+        return reply('{"reason": "ok", "correct": true}')
+
+    judge = make(flaky)
+    assert [judge(DAD, w).source for w in ("a1", "a2", "a3", "a4")] == [
+        "not_checked",
+        "claude",
+        "not_checked",
+        "claude",
+    ]
+
+
+@pytest.mark.parametrize("odd", [None, {"text": "x"}, 42])
+def test_ask_returning_something_odd_is_a_bad_reply(odd):
+    judge = make(lambda prompt, **kwargs: odd)
+    assert_not_checked(judge(DAD, "papa"), r"couldn.t check.*bad reply")
+
+
+def test_ampersand_is_sent_as_typed():
+    ask, calls = fake_ask()
+    make(ask)(DAD, "R&D")
+    assert "<answer>R&D</answer>" in calls[0]["prompt"]

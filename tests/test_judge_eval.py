@@ -139,3 +139,11 @@ def test_every_hsk_case_is_one_the_list_misses():
     """The judge is only asked when the list says wrong, so that's all worth testing."""
     for c in load_cases(HSK_CASES):
         assert not grade(c.typed, c.accepted).correct, (c.card_id, c.typed)
+
+
+def test_limit_must_be_positive():
+    import pytest
+
+    for bad in ("0", "-5"):
+        with pytest.raises(SystemExit):
+            main([str(HSK_CASES), "--limit", bad])

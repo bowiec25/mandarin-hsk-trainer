@@ -14,7 +14,7 @@ It comes in two layers, so the same quizmaster works in a terminal now and on a 
 **Not in scope (yet):** picking or shuffling questions (`deck_builder`), saving progress between quizzes (M5 `progress_store`), retrying wrong answers (M5 spaced repetition).
 
 ## Kind
-**script.** Code can check the output: given these questions and these typed answers, the score and the record must be exactly what we expect. Marking is the `grader`'s job (also a script), so no language judgment is needed here. An optional judge (an agent, ADR 0007) can be plugged in; the engine only calls it, never Claude directly, so the engine itself stays a script. It runs on every quiz turn, so it must be free and instant (ADR 0002).
+**script.** Code can check the output: given these questions and these typed answers, the score and the record must be exactly what we expect. Marking is the `grader`'s job (also a script), so no language judgment is needed here. An optional judge (an agent, ADR 0007) can be plugged in; the engine only calls it, never Claude directly, so the engine itself stays a script. It runs on every quiz turn, so its own work must be free and instant (ADR 0002); a plugged-in judge may add a wait on a wrong answer (the CLI shows "asking the judge…").
 
 ## Inputs
 | Input | Type | Plain meaning |
@@ -70,7 +70,7 @@ Example: quit after 3 of 10 with 2 right → `correct=2, answered=3, total=10, f
 - **`quizkit.blocks.grader.grade`**: does all the marking. The engine never compares answers itself.
 - **`quizkit.models.Question`**: the input shape.
 - **pydantic**: `Attempt`, `QuizResult`.
-- **`quizkit.blocks.judge`**: only the `Judge` type and `Verdict` model (the optional hook). Importing it also imports `quizkit.claude`, but nothing runs at import.
+- **`quizkit.models.Judge` / `Verdict`**: the optional hook's type and result. The engine doesn't import the judge block or any Claude code.
 - No files, no network of its own. It never calls Claude itself; a plugged-in judge may. It doesn't import `deck_builder` or anything from `hsk_trainer`.
 
 ## Failure modes
