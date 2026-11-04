@@ -14,8 +14,9 @@
 | [0005](0005-answer-agent-and-judge.md) | Grading = answer list + Claude judge, both via `claude -p` (subscription) | Accepted (one list → 0006; judge → 0007) |
 | [0006](0006-one-answer-list.md) | One answer list (`answers.jsonl`); `cedict_cleaner` retired | Accepted |
 | [0007](0007-generic-claude-judge.md) | Generic Claude judge in `quizkit`, with rules for trusting it (forced shape, eval set, cache, safe failure) | Accepted |
-| [0008](0008-sentences-write-check-retry.md) | Sentences: Claude writes, a script checks, Claude retries; pinyin by script | Accepted (word splitting → 0009) |
+| [0008](0008-sentences-write-check-retry.md) | Sentences: Claude writes, a script checks, Claude retries; pinyin by script | Accepted (word splitting → 0009, pinyin → 0010) |
 | [0009](0009-validator-reads-without-jieba.md) | The sentence checker reads with our own word list, not `jieba` ("readable at the band") | Accepted |
+| [0010](0010-claude-writes-pinyin-script-checks.md) | Sentence pinyin: Claude writes it, a script checks every syllable is a real reading | Accepted |
 
 ## Template
 ```markdown
