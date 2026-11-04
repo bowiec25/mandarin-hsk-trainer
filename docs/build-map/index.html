@@ -190,17 +190,17 @@ a { color: var(--info); }
 
 <header>
   <h1>HSK Trainer Build Map</h1>
-  <p class="lede">What exists after M0–M3 (2026-11-02): you can now play a real quiz with <code>uv run hsk quiz</code>, and a toy capitals quiz proved the generic parts are reusable: every kind of part we built and where it lives, three flow diagrams, the data pipeline, every check a change has to pass, and how new blocks get built. Older versions: see section 9. Repo: <span class="mono">bowiec25/mandarin-hsk-trainer</span>.</p>
+  <p class="lede">What exists after M4 Step 5 (2026-11-04): you can play a real quiz with <code>uv run hsk quiz</code>, in all 4 modes, with Claude writing example sentences live as you play, and a toy capitals quiz proved the generic parts are reusable: every kind of part we built and where it lives, three flow diagrams, the data pipeline, every check a change has to pass, and how new blocks get built. Older versions: see section 9. Repo: <span class="mono">bowiec25/mandarin-hsk-trainer</span>.</p>
 </header>
 
 <section aria-label="Summary">
   <div class="tiles">
     <div class="tile hi"><b>978</b><span>quiz cards in <code>cards.jsonl</code></span></div>
     <div class="tile"><b>294 · 197 · 487</b><span>new words in bands 1 · 2 · 3</span></div>
-    <div class="tile"><b>540</b><span>automatic tests, all passing</span></div>
-    <div class="tile"><b>7</b><span>blocks built: fetcher, normalizer, grader, deck_builder, engine, answer_writer (agent), judge (agent)</span></div>
+    <div class="tile"><b>881</b><span>automatic tests, all passing</span></div>
+    <div class="tile"><b>11</b><span>blocks built: fetcher, normalizer, grader, deck_builder, engine, answer_writer (agent), judge (agent), sentence_validator, sentence_writer (agent), sentence_bank, live_sentences</span></div>
     <div class="tile"><b>2 · 2 · 2</b><span>hooks · skills used · subagents</span></div>
-    <div class="tile"><b>7</b><span>decision records (ADRs)</span></div>
+    <div class="tile"><b>11</b><span>decision records (ADRs)</span></div>
     <div class="tile"><b>4 / 7</b><span>milestones done</span></div>
   </div>
   <div class="milestones" aria-label="Milestones">
@@ -241,7 +241,7 @@ a { color: var(--info); }
     <div class="layer">
       <div class="layer-head"><b>🛡️ Checks</b><span class="mono">tests/ · .github/ · GitHub settings</span><span>Prove the code is right, on your machine and on GitHub.</span></div>
       <div class="items">
-        <div class="item guide"><b>tests/ (pytest)</b>447 tests, run before "done"<small>Claude + CI</small></div>
+        <div class="item guide"><b>tests/ (pytest)</b>881 tests, run before "done"<small>Claude + CI</small></div>
         <div class="item guide"><b>ruff</b>lint + format check<small>Claude + CI</small></div>
         <div class="item auto"><b>CI: ci.yml</b>same checks on a clean machine<small>every push and PR</small></div>
         <div class="item auto"><b>claude-code-review.yml</b>runs the Claude review on GitHub<small>every PR · renew token before 2027-10-15</small></div>
@@ -272,10 +272,13 @@ a { color: var(--info); }
         <div class="item"><b>modes.py</b>the 4 HSK modes</div>
         <div class="item"><b>data/</b><code>raw/</code> → <code>processed/cards.jsonl</code></div>
         <div class="item"><b>cli.py → hsk quiz</b>the front door: band, mode, how many<small>not a block: wires the blocks to your keyboard · Ctrl-C keeps the score</small></div>
-        <div class="item todo"><b>AGENT: sentence_writer</b>calls Claude by itself to write sentences<small>M4, the first real agent</small></div>
         <div class="item"><b>AGENT: answer_writer</b>wrote answer lists with synonyms for all 978 words, once, offline (25 calls)<small>M4 Step 3 · since Step 4a the quiz's <b>only</b> answer list (ADR 0006), read through the same checker (<code>load_answers</code>)</small></div>
-        <div class="item"><b>quizkit.claude</b>shared helper: runs <code>claude -p</code> with no tools, logs tokens; <code>json_schema</code> forces the reply's shape<small>generic · used by answer_writer and the judge</small></div>
+        <div class="item"><b>quizkit.claude</b>shared helper: runs <code>claude -p</code> with no tools, logs tokens; <code>json_schema</code> forces the reply's shape<small>generic · used by answer_writer, the judge and sentence_writer</small></div>
         <div class="item"><b>AGENT: judge</b>asked only when the list says "wrong"; one Claude call, reply checked, verdicts cached, <code>--no-judge</code><small>M4 Step 4b · ADR 0007 · <b>generic</b> (quizkit): any quiz passes one subject sentence · eval: Haiku passes, no wrong "yes"</small></div>
+        <div class="item"><b>block: sentence_validator</b>checks one sentence: the word stands on its own, every other word at or below the band, 3–20 characters; reasons in plain English<small>script · M4 Step 5 · reads with our own HSK word list, not jieba (ADR 0009)</small></div>
+        <div class="item"><b>AGENT: sentence_writer</b>Claude writes sentences with pinyin + English; scripts check them, failures retried with the reasons<small>M4 Step 5 · batch (optional top-up) + <code>write_one</code>: one word, one call, during play · pinyin checked by script (ADR 0010)</small></div>
+        <div class="item"><b>block: sentence_bank</b>the bank of checked sentences: new or banked by the rule max(0.2, 1/(1+n)), least recently seen first, up to 10 a word<small>script · M4 Step 5 · ADR 0011 · <code>sentences.jsonl</code> (committed) + <code>sentence_seen.json</code> (gitignored)</small></div>
+        <div class="item"><b>block: live_sentences</b>asks for the <b>next</b> word's sentence while you answer, waits at most 15 s, falls back to the bank<small>script · M4 Step 5 · ADR 0011 · off after 2 failures in a row · <code>--no-live</code></small></div>
       </div>
     </div>
   </div>
@@ -295,9 +298,9 @@ a { color: var(--info); }
       <ul>
         <li>Part of <b>the app</b>: Python that calls Claude itself (here via <code>claude -p</code>)</li>
         <li>Lives in <code>src/</code> as a block, with a SPEC and tests</li>
-        <li>Uses our script functions as tools (e.g. <code>check_vocab_level</code>)</li>
-        <li>Runs as a batch job you start; tokens are logged on every call</li>
-        <li>Examples: answer_writer (built, batch), judge (built, live, one call per unknown answer), sentence_writer (next); all via <code>claude -p</code> under the subscription (ADR 0005, 0007); later, sentence-translation grading</li>
+        <li>Our scripts check what it writes (e.g. <code>sentence_validator</code>), and failures go back with the reasons</li>
+        <li>Runs as a batch job you start, or live during the quiz with a fallback and an off switch; tokens are logged on every call</li>
+        <li>Examples: answer_writer (built, batch), judge (built, live, one call per unknown answer), sentence_writer (built, batch + live, one word at a time during play); all via <code>claude -p</code> under the subscription (ADR 0005, 0007); later, sentence-translation grading</li>
       </ul>
     </div>
   </div>
@@ -368,7 +371,7 @@ a { color: var(--info); }
     </figure>
     <figure class="card diagram fl">
       <h3>View B · What the app does with the words (the product)</h3>
-      <svg viewBox="0 0 1120 315" role="img" aria-label="Product flow: the pinned source is fetched into data/raw, the normalizer writes 978 cards to cards.jsonl. Planned: the deck_builder deals cards using the mode config, the engine asks you through the hsk quiz CLI and gets your answer, the grader marks it against answers.jsonl, the one answer list written by the answer_writer agent (all built); if the list says wrong, the generic Claude judge is asked live and its verdict saved (built, M4 Step 4b); progress_store remembers in M5. In M4 an offline sentence_writer agent calls the Claude API, its sentences go through a validator into sentences.jsonl, which the deck_builder adds.">
+      <svg viewBox="0 0 1120 340" role="img" aria-label="Product flow: the pinned source is fetched into data/raw, the normalizer writes 978 cards to cards.jsonl. The deck_builder deals cards using the mode config, the engine asks you through the hsk quiz CLI and gets your answer, the grader marks it against answers.jsonl, the one answer list written by the answer_writer agent; if the list says wrong, the generic Claude judge is asked live and its verdict saved (M4 Step 4b). Built in M4 Step 5: in the sentence modes, while you answer, live_sentences asks the sentence_writer agent for the next word's sentence; Claude writes it, the validator script checks it, it is saved to the bank, sentences.jsonl (committed), and shown under the word. The bank is the fallback, and --no-live uses only the bank. Still planned: progress_store remembers in M5.">
       <defs>
         <marker id="fb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker>
       </defs>
@@ -389,11 +392,12 @@ a { color: var(--info); }
 <path class="ar " d="M895,195 V245" marker-end="url(#fa)"/>
 <text class="s" x="902" y="225">only if wrong</text>
 <rect class="box todo" x="990" y="145" width="110" height="50" rx="6"/><text class="t" x="1045.0" y="167.0" text-anchor="middle">progress_store</text><text class="s" x="1045.0" y="182.0" text-anchor="middle">M5 · remembers</text>
-<text class="lane-t" x="20" y="232">M4 · OFFLINE BATCH, RUN RARELY</text>
-<rect class="box todo" x="20" y="245" width="110" height="50" rx="6"/><text class="t" x="75.0" y="267.0" text-anchor="middle">Claude API</text><text class="s" x="75.0" y="282.0" text-anchor="middle">tokens logged</text>
-<rect class="box todo" x="280" y="245" width="110" height="50" rx="6"/><text class="t" x="335.0" y="267.0" text-anchor="middle">sentence_writer</text><text class="s" x="335.0" y="282.0" text-anchor="middle">AGENT · M4</text>
-<rect class="box todo" x="410" y="245" width="110" height="50" rx="6"/><text class="t" x="465.0" y="267.0" text-anchor="middle">validator</text><text class="s" x="465.0" y="282.0" text-anchor="middle">script · M4</text>
-<rect class="box todo" x="540" y="245" width="110" height="50" rx="6"/><text class="t" x="595.0" y="267.0" text-anchor="middle">sentences.jsonl</text><text class="s" x="595.0" y="282.0" text-anchor="middle">you review</text>
+<text class="lane-t" x="20" y="232">M4 STEP 5 · SENTENCES, LIVE WHILE YOU PLAY</text>
+<rect class="box " x="20" y="245" width="110" height="50" rx="6"/><text class="t" x="75.0" y="267.0" text-anchor="middle">Claude</text><text class="s" x="75.0" y="282.0" text-anchor="middle">claude -p · tokens logged</text>
+<rect class="box " x="280" y="245" width="110" height="50" rx="6"/><text class="t" x="335.0" y="267.0" text-anchor="middle">sentence_writer</text><text class="s" x="335.0" y="282.0" text-anchor="middle">AGENT · write_one</text>
+<rect class="box " x="410" y="245" width="110" height="50" rx="6"/><text class="t" x="465.0" y="267.0" text-anchor="middle">validator</text><text class="s" x="465.0" y="282.0" text-anchor="middle">script · words + pinyin</text>
+<rect class="box key" x="540" y="245" width="110" height="50" rx="6"/><text class="t" x="595.0" y="267.0" text-anchor="middle">sentences.jsonl</text><text class="s" x="595.0" y="282.0" text-anchor="middle">the bank · committed</text>
+<rect class="box " x="690" y="245" width="110" height="50" rx="6"/><text class="t" x="745.0" y="267.0" text-anchor="middle">live_sentences</text><text class="s" x="745.0" y="282.0" text-anchor="middle">script · --no-live</text>
 <path class="ar " d="M130,60 H150" marker-end="url(#fa)"/>
 <path class="ar " d="M260,60 H280" marker-end="url(#fa)"/>
 <path class="ar " d="M390,60 H410" marker-end="url(#fa)"/>
@@ -410,17 +414,23 @@ a { color: var(--info); }
 <path class="ar plan" d="M940,85 V115 H1045 V145" marker-end="url(#fa)"/>
 <path class="ar " d="M520,170 H730 V85" marker-end="url(#fa)"/>
 <text class="s" x="580" y="164">which fields to show</text>
-<path class="ar plan" d="M595,85 V120 H335 V245" marker-end="url(#fa)"/>
+<path class="ar " d="M595,85 V120 H335 V245" marker-end="url(#fa)"/>
 <text class="s" x="342" y="114">reads the words</text>
-<path class="ar plan" d="M130,262 H280" marker-end="url(#fb)"/>
-<path class="ar plan" d="M280,278 H130" marker-end="url(#fb)"/>
-<text class="s" x="200" y="300" text-anchor="middle">check_vocab_level tool</text>
-<path class="ar plan" d="M390,270 H410" marker-end="url(#fa)"/>
-<path class="ar plan" d="M520,270 H540" marker-end="url(#fa)"/>
-<path class="ar plan" d="M650,270 H760 V85" marker-end="url(#fa)"/>
-<text class="s" x="766" y="250">adds sentences</text>
+<path class="ar " d="M280,262 H130" marker-end="url(#fb)"/>
+<path class="ar " d="M130,278 H280" marker-end="url(#fb)"/>
+<text class="s" x="205" y="256" text-anchor="middle">1 word</text>
+<text class="s" x="205" y="300" text-anchor="middle">sentence + pinyin + English</text>
+<path class="ar " d="M390,270 H410" marker-end="url(#fa)"/>
+<path class="ar " d="M520,270 H540" marker-end="url(#fa)"/>
+<text class="s" x="530" y="306" text-anchor="middle">passes → saved</text>
+<path class="ar " d="M650,270 H690" marker-end="url(#fa)"/>
+<text class="s" x="670" y="306" text-anchor="middle">banked = fallback</text>
+<path class="ar " d="M745,295 V320 H335 V295" marker-end="url(#fa)"/>
+<text class="s" x="540" y="331" text-anchor="middle">asks for the next word's sentence while you answer</text>
+<path class="ar " d="M800,262 H822 V100 H860 V85" marker-end="url(#fa)"/>
+<text class="s" x="818" y="225" text-anchor="end">shown under the word</text>
     </svg>
-      <figcaption>Top row: from the word list to you. M3 adds the middle part: the marker (grader) is built, and since M4 Step 4a it marks against <b>one</b> answer list, <code>answers.jsonl</code> (Claude wrote it once, offline; the rule-based cleaner is gone); the dealer (deck_builder) and the game host (engine) are built too, and since Step 5 the CLI (<code>hsk quiz</code>) links them to you. New in M4 Step 4b: the <b>judge</b> under the grader, asked only when the list says wrong (and saved, so a repeat is instant). Still dashed: progress_store (M5) and the whole M4 sentence row. The judge is the only part that calls Claude while you study; switch it off with <code>--no-judge</code> and the quiz needs no internet at all.</figcaption>
+      <figcaption>Top row: from the word list to you. M3 adds the middle part: the marker (grader) is built, and since M4 Step 4a it marks against <b>one</b> answer list, <code>answers.jsonl</code> (Claude wrote it once, offline; the rule-based cleaner is gone); the dealer (deck_builder) and the game host (engine) are built too, and since Step 5 the CLI (<code>hsk quiz</code>) links them to you. New in M4 Step 4b: the <b>judge</b> under the grader, asked only when the list says wrong (and saved, so a repeat is instant). New in M4 Step 5: the <b>sentence row</b>, built. In <code>char_sentence</code> and <code>full</code>, while you answer one word, <code>live_sentences</code> asks Claude for the next word's sentence; the script checks it, it's saved to the bank (<code>sentences.jsonl</code>, committed) and shown under the word. If Claude is slow or failing, a banked sentence is used instead; <code>--no-live</code> uses only the bank. Still dashed: progress_store (M5). The judge and live sentences are the two parts that call Claude while you study; with <code>--no-judge --no-live</code> the quiz needs no internet at all.</figcaption>
     </figure>
     <figure class="card diagram fl">
       <h3>View C · One Claude action, up close (the safety nets)</h3>
@@ -467,7 +477,7 @@ a { color: var(--info); }
     <p class="lede">Two Mandarin-specific workers on top, built from generic <code>quizkit</code> parts underneath. Dashed boxes are still to come.</p>
   </div>
   <figure class="card diagram">
-    <svg viewBox="0 0 960 380" role="img" aria-label="Data pipeline: the pinned GitHub source is downloaded and verified by the fetcher into data/raw, the normalizer turns it into 978 cards in cards.jsonl, using generic quizkit helpers; the quiz in M3 and the sentence agent in M4 come next.">
+    <svg viewBox="0 0 960 380" role="img" aria-label="Data pipeline: the pinned GitHub source is downloaded and verified by the fetcher into data/raw, the normalizer turns it into 978 cards in cards.jsonl, using generic quizkit helpers; the quiz in M3 and the sentence agent in M4 build on the cards (the M4 sentence row is built: written live, checked, saved to sentences.jsonl).">
       <defs>
         <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
           <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
@@ -540,15 +550,13 @@ a { color: var(--info); }
         <text x="714" y="140" text-anchor="middle" font-size="10" opacity="0.7">uses</text>
 
         <!-- Row 3: future -->
-        <text x="10" y="300" font-size="11" opacity="0.65" letter-spacing="0.06em">COMING NEXT</text>
-        <g fill="none" stroke="currentColor" stroke-opacity="0.55" stroke-width="1.2" stroke-dasharray="6 4">
-          <rect x="190" y="290" width="380" height="62" rx="6"/>
-          <rect x="610" y="290" width="340" height="62" rx="6"/>
-        </g>
-        <text x="380" y="315" text-anchor="middle" font-weight="600" opacity="0.8">M4  sentence_writer (agent) → validator</text>
-        <text x="380" y="334" text-anchor="middle" font-size="11" opacity="0.65">example sentences, checked by a script</text>
+        <text x="10" y="300" font-size="11" opacity="0.65" letter-spacing="0.06em">LATER STEPS</text>
+        <rect x="190" y="290" width="380" height="62" rx="6" fill="none" stroke="currentColor" stroke-width="1.2"/>
+        <rect x="610" y="290" width="340" height="62" rx="6" fill="none" stroke="currentColor" stroke-width="1.2"/>
+        <text x="380" y="315" text-anchor="middle" font-weight="600" opacity="0.8">M4  sentence_writer (agent) → validator → bank</text>
+        <text x="380" y="334" text-anchor="middle" font-size="11" opacity="0.65">built: written live in the quiz, checked, saved to sentences.jsonl</text>
         <text x="780" y="315" text-anchor="middle" font-weight="600" opacity="0.8">M3  deck_builder → grader → hsk quiz</text>
-        <text x="780" y="334" text-anchor="middle" font-size="11" opacity="0.65">modes char, char_pinyin · issue #16</text>
+        <text x="780" y="334" text-anchor="middle" font-size="11" opacity="0.65">built: all 4 modes play (sentence modes since M4 Step 5)</text>
         <g stroke="currentColor" stroke-width="1.2" opacity="0.6" stroke-dasharray="6 4" marker-end="url(#arr)">
           <polyline points="880,98 880,270 880,287" fill="none"/>
           <line x1="570" y1="321" x2="607" y2="321"/>
@@ -595,7 +603,7 @@ a { color: var(--info); }
     <div class="gate guide">
       <h3>Local checks</h3>
       <span class="chip guide">Rule in CLAUDE.md</span>
-      <ul><li><code>ruff check</code> + <code>ruff format --check</code></li><li><code>pytest</code> (123 tests)</li></ul>
+      <ul><li><code>ruff check</code> + <code>ruff format --check</code></li><li><code>pytest</code> (881 tests)</li></ul>
     </div>
     <div class="gate guide">
       <h3>Block review</h3>
@@ -649,38 +657,42 @@ a { color: var(--info); }
 
 <section>
   <div>
-    <h2>6. What the 540 tests guard</h2>
+    <h2>6. What the 881 tests guard</h2>
     <p class="lede">Red bar = runs against the real committed data. Everything else uses small fake data, so it's fast and works offline.</p>
   </div>
   <div class="card table-wrap">
     <table>
       <thead><tr><th>Test file</th><th class="n">Tests</th><th></th><th>What it protects</th></tr></thead>
       <tbody>
-        <tr><td class="mono">blocks/test_grader.py</td><td class="n">63</td><td class="bar"><span style="width:62%"></span></td><td>case, punctuation, "to", typo limits 0/1/2 (toy data, no Chinese)</td></tr>
-        <tr><td class="mono">blocks/test_engine.py</td><td class="n">49</td><td class="bar"><span style="width:48%"></span></td><td>the quiz loop with fake typed answers: score, record, quit (incl. Ctrl-C anywhere in the loop, added after the reuse check), bad cards caught before question 1; the <b>judge hook</b>: asked only when the grader says wrong, a "yes" counts, Ctrl-C while judging is a quit</td></tr>
-        <tr><td class="mono">blocks/test_judge.py</td><td class="n">62</td><td class="bar"><span style="width:61%"></span></td><td>the judge with a <b>fake Claude</b>: verdicts, the prompt (subject, shown, answers, your text escaped in tags, an injection attempt), no HSK words in its own text, the capitals quiz uses it, the cache (per card, per answer list, per model and prompt version), every "couldn't check" case, switch-off after 2 failures</td></tr>
-        <tr><td class="mono">test_judge_eval.py</td><td class="n">11</td><td class="bar"><span class="real" style="width:11%"></span></td><td>the eval script's counting and pass bar (fake judge); the 31 HSK cases match today's answer list and each is one the list really misses</td></tr>
-        <tr><td class="mono">test_cli.py</td><td class="n">44</td><td class="bar"><span class="real" style="width:43%"></span></td><td><code>hsk quiz</code> played with scripted keystrokes on the real cards and answer list: the judge's "✅ accepted" / reason / <code>--no-judge</code> / "couldn't check" (fake judge, own cache file), score, "love" / "to love" for 爱, "dad" for 爸爸 ✅ and "modem" for 猫 ❌, a bad answer file (only its band stops), quitting (incl. Ctrl-C), short decks, every error, hanzi through a Windows pipe</td></tr>
-        <tr><td class="mono">blocks/test_deck_builder.py</td><td class="n">31</td><td class="bar"><span style="width:30%"></span></td><td>levels, count, no repeats (by id), same seed = same deck, every failure mode (toy capitals)</td></tr>
-        <tr><td class="mono">blocks/test_answer_writer.py</td><td class="n">102</td><td class="bar"><span class="real" style="width:100%"></span></td><td>the answer agent with a <b>fake Claude</b>: saved after each chunk, resume, <code>--limit</code>, <code>--dry-run</code>, broken replies, one bad card fails alone, the checker's rules, <b>the file never shrinks</b> (old lines stay until replaced), <code>load_answers</code> for the quiz; plus the real <code>answers.jsonl</code> passes for all 978 cards</td></tr>
-        <tr><td class="mono">test_claude_helper.py</td><td class="n">21</td><td class="bar"><span style="width:21%"></span></td><td>the <code>claude -p</code> helper with a fake runner: no tools, prompt on stdin, not installed, timeout, error replies, token counts, <code>--json-schema</code> and its <code>structured_output</code></td></tr>
-        <tr><td class="mono">test_pr_body.py</td><td class="n">22</td><td class="bar"><span style="width:22%"></span></td><td>the "Still the right thing?" CI check: a filled section passes; missing, empty, hint-only or "n/a" fails; the unfilled PR template fails; headings inside code blocks, unclosed hints and other heading levels handled</td></tr>
-        <tr><td class="mono">test_retired.py</td><td class="n">5</td><td class="bar"><span style="width:5%"></span></td><td>retired stays retired: <code>cedict_cleaner</code> / <code>clean_answer</code> never come back in code, tests or SPECs, and the <code>cleaner</code> slot is gone from the grader and engine (ADR 0006)</td></tr>
-        <tr><td class="mono">test_reuse.py</td><td class="n">5</td><td class="bar"><span style="width:5%"></span></td><td>the reuse check: no <code>quizkit</code> file imports (or even names) <code>hsk_trainer</code>, and the toy capitals quiz plays to the end with <code>hsk_trainer</code> blocked (both proved by a planted import)</td></tr>
-        <tr><td class="mono">test_hsk_deck.py</td><td class="n">2</td><td class="bar"><span class="real" style="width:2%"></span></td><td>real data: band 1 → 10 hanzi-only questions; band 2 asked for 500 → all of band 2</td></tr>
-        <tr><td class="mono">blocks/test_normalizer.py</td><td class="n">39</td><td class="bar"><span style="width:38%"></span></td><td>every card's shape and every failure mode of the normalizer</td></tr>
-        <tr><td class="mono">test_hooks.py</td><td class="n">19</td><td class="bar"><span style="width:19%"></span></td><td>the <code>.env</code> blocker and the auto-format hook</td></tr>
-        <tr><td class="mono">blocks/test_fetcher.py</td><td class="n">16</td><td class="bar"><span style="width:16%"></span></td><td>downloads, fingerprints, no half-written files (fake downloader)</td></tr>
-        <tr><td class="mono">test_scaffold.py</td><td class="n">15</td><td class="bar"><span style="width:15%"></span></td><td><code>/new-block</code>'s file maker and SPEC checker</td></tr>
-        <tr><td class="mono">test_quizkit_download.py</td><td class="n">11</td><td class="bar"><span style="width:11%"></span></td><td>the generic verified download helper</td></tr>
-        <tr><td class="mono">test_word_counts.py</td><td class="n">7</td><td class="bar"><span class="real" style="width:7%"></span></td><td>real data: 294 / 197 / 487, within 5% of 300 / 500 / 1,000, file up to date</td></tr>
-        <tr><td class="mono">test_quizkit_models.py</td><td class="n">7</td><td class="bar"><span style="width:7%"></span></td><td>Card and Question rules (no blank answers, level ≥ 1)</td></tr>
-        <tr><td class="mono">test_hsk_modes.py</td><td class="n">4</td><td class="bar"><span style="width:4%"></span></td><td>the 4 HSK quiz modes</td></tr>
-        <tr><td class="mono">test_quizkit_modes.py</td><td class="n">3</td><td class="bar"><span style="width:3%"></span></td><td>modes as config</td></tr>
-        <tr><td class="mono">test_quizkit_blocks.py</td><td class="n">1</td><td class="bar"><span style="width:1%"></span></td><td>the block ID card (<code>BlockSpec</code>)</td></tr>
+        <tr><td class="mono">blocks/test_sentence_writer.py</td><td class="n">152</td><td class="bar"><span class="real" style="width:100%"></span></td><td>the sentence agent with a <b>fake Claude</b>: one band per call with only that band's words, retries with the checker's reasons, the <b>pinyin check</b> (ADR 0010: dictionary readings, neutral tones, made-up readings and tone changes fail), the English check, resume, <b>the file never shrinks</b>, <code>--limit</code>, <code>--dry-run</code>; <code>write_one</code>: one word, one call, no retry, logs to the gitignored live log, writes nothing to the bank; plus the real <code>sentences.jsonl</code> passes the checker</td></tr>
+        <tr><td class="mono">blocks/test_answer_writer.py</td><td class="n">102</td><td class="bar"><span class="real" style="width:67%"></span></td><td>the answer agent with a <b>fake Claude</b>: saved after each chunk, resume, <code>--limit</code>, <code>--dry-run</code>, broken replies, one bad card fails alone, the checker's rules, <b>the file never shrinks</b> (old lines stay until replaced), <code>load_answers</code> for the quiz; plus the real <code>answers.jsonl</code> passes for all 978 cards</td></tr>
+        <tr><td class="mono">test_cli.py</td><td class="n">68</td><td class="bar"><span class="real" style="width:45%"></span></td><td><code>hsk quiz</code> played with scripted keystrokes on the real cards and answer list: the judge's "✅ accepted" / reason / <code>--no-judge</code> / "couldn't check" (fake judge, own cache file), score, "love" / "to love" for 爱, "dad" for 爸爸 ✅ and "modem" for 猫 ❌, a bad answer file (only its band stops), quitting (incl. Ctrl-C), short decks, every error, hanzi through a Windows pipe; the <b>sentence modes</b> (own tmp bank): the banked sentence under the word, its pinyin only in <code>full</code>, the English only after you answer, "no example sentence yet" and the quiz goes on, <code>--no-live</code> never asks, a live sentence shown and banked (fake writer), Claude unreachable falls back to the bank</td></tr>
+        <tr><td class="mono">blocks/test_sentence_bank.py</td><td class="n">68</td><td class="bar"><span style="width:45%"></span></td><td>the ADR 0011 rule (0 banked → always new, 1 → 50%, 4 or more → 20%), least recently seen first (never seen first), the seen file (written safely, two quizzes at once keep both histories), <code>add</code>: no repeats, up to 10 a word, never shrinks, cards order; broken or missing files</td></tr>
+        <tr><td class="mono">blocks/test_grader.py</td><td class="n">63</td><td class="bar"><span style="width:41%"></span></td><td>case, punctuation, "to", typo limits 0/1/2 (toy data, no Chinese)</td></tr>
+        <tr><td class="mono">blocks/test_judge.py</td><td class="n">62</td><td class="bar"><span style="width:41%"></span></td><td>the judge with a <b>fake Claude</b>: verdicts, the prompt (subject, shown, answers, your text escaped in tags, an injection attempt), no HSK words in its own text, the capitals quiz uses it, the cache (per card, per answer list, per model and prompt version), every "couldn't check" case, switch-off after 2 failures</td></tr>
+        <tr><td class="mono">blocks/test_sentence_validator.py</td><td class="n">53</td><td class="bar"><span class="real" style="width:35%"></span></td><td>the checker: Chinese only, the word is there <b>on its own</b>, 3–20 characters, every word at or below the band, every reason names the word and its band; real data: good band-1 sentences pass, a band-2 word fails, sentences jieba used to reject now pass (ADR 0009)</td></tr>
+        <tr><td class="mono">blocks/test_engine.py</td><td class="n">49</td><td class="bar"><span style="width:32%"></span></td><td>the quiz loop with fake typed answers: score, record, quit (incl. Ctrl-C anywhere in the loop, added after the reuse check), bad cards caught before question 1; the <b>judge hook</b>: asked only when the grader says wrong, a "yes" counts, Ctrl-C while judging is a quit</td></tr>
+        <tr><td class="mono">blocks/test_live_sentences.py</td><td class="n">44</td><td class="bar"><span style="width:29%"></span></td><td>live sentences with a <b>fake writer</b>: asked ahead, shown and banked, the 15 s wait then the bank, late sentences banked later, switch-off after 2 failures in a row, <code>--no-live</code> never asks, the end of the quiz banks sentences still being written</td></tr>
+        <tr><td class="mono">blocks/test_normalizer.py</td><td class="n">39</td><td class="bar"><span style="width:26%"></span></td><td>every card's shape and every failure mode of the normalizer</td></tr>
+        <tr><td class="mono">blocks/test_deck_builder.py</td><td class="n">31</td><td class="bar"><span style="width:20%"></span></td><td>levels, count, no repeats (by id), same seed = same deck, every failure mode (toy capitals)</td></tr>
+        <tr><td class="mono">test_pr_body.py</td><td class="n">22</td><td class="bar"><span style="width:14%"></span></td><td>the "Still the right thing?" CI check: a filled section passes; missing, empty, hint-only or "n/a" fails; the unfilled PR template fails; headings inside code blocks, unclosed hints and other heading levels handled</td></tr>
+        <tr><td class="mono">test_claude_helper.py</td><td class="n">21</td><td class="bar"><span style="width:14%"></span></td><td>the <code>claude -p</code> helper with a fake runner: no tools, prompt on stdin, not installed, timeout, error replies, token counts, <code>--json-schema</code> and its <code>structured_output</code></td></tr>
+        <tr><td class="mono">test_hooks.py</td><td class="n">19</td><td class="bar"><span style="width:13%"></span></td><td>the <code>.env</code> blocker and the auto-format hook</td></tr>
+        <tr><td class="mono">blocks/test_fetcher.py</td><td class="n">16</td><td class="bar"><span style="width:11%"></span></td><td>downloads, fingerprints, no half-written files (fake downloader)</td></tr>
+        <tr><td class="mono">test_scaffold.py</td><td class="n">15</td><td class="bar"><span style="width:10%"></span></td><td><code>/new-block</code>'s file maker and SPEC checker</td></tr>
+        <tr><td class="mono">test_quizkit_download.py</td><td class="n">11</td><td class="bar"><span style="width:7%"></span></td><td>the generic verified download helper</td></tr>
+        <tr><td class="mono">test_judge_eval.py</td><td class="n">11</td><td class="bar"><span class="real" style="width:7%"></span></td><td>the eval script's counting and pass bar (fake judge); the 31 HSK cases match today's answer list and each is one the list really misses</td></tr>
+        <tr><td class="mono">test_word_counts.py</td><td class="n">7</td><td class="bar"><span class="real" style="width:5%"></span></td><td>real data: 294 / 197 / 487, within 5% of 300 / 500 / 1,000, file up to date</td></tr>
+        <tr><td class="mono">test_quizkit_models.py</td><td class="n">7</td><td class="bar"><span style="width:5%"></span></td><td>Card and Question rules (no blank answers, level ≥ 1)</td></tr>
+        <tr><td class="mono">test_reuse.py</td><td class="n">5</td><td class="bar"><span style="width:3%"></span></td><td>the reuse check: no <code>quizkit</code> file imports (or even names) <code>hsk_trainer</code>, and the toy capitals quiz plays to the end with <code>hsk_trainer</code> blocked (both proved by a planted import)</td></tr>
+        <tr><td class="mono">test_retired.py</td><td class="n">5</td><td class="bar"><span style="width:3%"></span></td><td>retired stays retired: <code>cedict_cleaner</code> / <code>clean_answer</code> never come back in code, tests or SPECs, and the <code>cleaner</code> slot is gone from the grader and engine (ADR 0006)</td></tr>
+        <tr><td class="mono">test_hsk_modes.py</td><td class="n">4</td><td class="bar"><span style="width:3%"></span></td><td>the 4 HSK quiz modes</td></tr>
+        <tr><td class="mono">test_quizkit_modes.py</td><td class="n">3</td><td class="bar"><span style="width:2%"></span></td><td>modes as config</td></tr>
+        <tr><td class="mono">test_hsk_deck.py</td><td class="n">2</td><td class="bar"><span class="real" style="width:1%"></span></td><td>real data: band 1 → 10 hanzi-only questions; band 2 asked for 500 → all of band 2</td></tr>
         <tr><td class="mono">test_smoke.py</td><td class="n">1</td><td class="bar"><span style="width:1%"></span></td><td>both packages import</td></tr>
+        <tr><td class="mono">test_quizkit_blocks.py</td><td class="n">1</td><td class="bar"><span style="width:1%"></span></td><td>the block ID card (<code>BlockSpec</code>)</td></tr>
       </tbody>
-      <tfoot><tr><td>Total</td><td class="n">540</td><td></td><td>run locally and by CI on every PR</td></tr></tfoot>
+      <tfoot><tr><td>Total</td><td class="n">881</td><td></td><td>run locally and by CI on every PR</td></tr></tfoot>
     </table>
   </div>
 </section>
@@ -712,6 +724,7 @@ a { color: var(--info); }
         <li><code>.gitignore</code> keeps <code>.env</code> out of git</li>
         <li>Claude review comments on every PR</li>
         <li>no test can call the real Claude (conftest)</li>
+        <li>live sentence checks: every sentence Claude writes during play goes through the script checks before it's shown or saved</li>
       </ul>
       <p>Happens without anyone remembering.</p>
     </div>
@@ -748,6 +761,8 @@ a { color: var(--info); }
     <div class="card doc"><b>ADR 0002</b><span>script vs agent: if code can check it, write a script</span></div>
     <div class="card doc"><b>ADR 0003</b><span>block contract: SPEC.md + code + tests, pydantic in and out</span></div>
     <div class="card doc"><b>ADR 0004</b><span>word list = 2026 syllabus, pinned to one version</span></div>
+    <div class="card doc"><b>ADR 0005–0007</b><span>grading: one answer list Claude writes once (0006), plus a generic Claude judge for answers the list misses (0007)</span></div>
+    <div class="card doc"><b>ADR 0008–0011</b><span>sentences: Claude writes, a script checks (0008, 0009), Claude writes the pinyin and a script checks it (0010), live in the quiz + a growing bank (0011)</span></div>
     <div class="card doc"><b>docs/PLAN.md</b><span>the plan and the "Where we are" checklist</span></div>
     <div class="card doc"><b>docs/SETUP_LOG.md</b><span>why each step was done, in plain English</span></div>
     <div class="card doc"><b>docs/COURSE_MAP.md</b><span>course topics vs where we used them</span></div>
@@ -762,6 +777,7 @@ a { color: var(--info); }
     <p class="lede">One line per step, newest first. Click <b>snapshot</b> to see the whole map exactly as it was after that step.</p>
   </div>
   <ol class="timeline card" reversed>
+    <li><span class="when">2026-11-04</span><span class="what">M4 Step 5: sentences, live and banked (#42–#48)</span><span><code>char_sentence</code> and <code>full</code> now play: while you answer one word, Claude writes the next word's sentence, and scripts check its words, band and pinyin (<b>ADRs 0008–0010</b>; Claude writes the pinyin after the trial found 不便宜 as biàn yí). Your change of direction (<b>ADR 0011</b>): no fixed batch, every good sentence is saved to a bank that grows as you play; <code>--no-live</code> = bank only. Lesson: 7 small PRs, each one reviewable · <a href="snapshots/m4-step5.html">snapshot</a></span></li>
     <li><span class="when">2026-11-03</span><span class="what">M4 Step 4b: generic Claude judge (#38, #39)</span><span>Answers the list misses go to a <b>Claude judge</b>, generic (<code>quizkit</code>) so any quiz can use it (<b>ADR 0007</b>). Reply shape forced and checked, your text can't trick it, verdicts saved, <code>--no-judge</code>. <b>Eval:</b> 31 hand-labelled cases; Haiku passes with no wrong "yes" (4 borderline answers labelled reject by your choice). Lesson: one PR did four jobs, so split agent work next time · <a href="snapshots/m4-step4b.html">snapshot</a></span></li>
     <li><span class="when">2026-11-03</span><span class="what">M4 Step 4a: one answer list (#34, #35)</span><span><b>Measured before building:</b> keeping the old cleaner list too would add 1,434 mostly-wrong answers (猫 "modem"), so <b>ADR 0006</b>: the quiz marks against <code>answers.jsonl</code> only. <code>cedict_cleaner</code> and the <code>cleaner</code> slot deleted, a guard test keeps them gone, and the writer never shrinks the file. Block reviews said ✅; the whole-branch <code>/code-review</code> found the risk between blocks · <a href="snapshots/m4-step4a.html">snapshot</a></span></li>
     <li><span class="when">2026-11-02</span><span class="what">M4 Step 3: answer_writer</span><span><b>The first agent.</b> Claude wrote the answers for all 978 words in 25 calls (~148k tokens, under the subscription); the checker caught 9 (e.g. "from小", 11 answers), re-runs fixed them. You checked a 20-word trial and a random 20. Static: the quiz reads the file, no Claude at quiz time · <a href="snapshots/m4-step3.html">snapshot</a></span></li>
@@ -787,7 +803,7 @@ a { color: var(--info); }
 </section>
 
 <footer>
-  Latest map, after M4 Step 4b, 2026-11-03. There are no snapshots from before M2 done (the map started then). Known gaps, by choice: words with several readings keep all of them (197 words), "bands 1+2 together" comes later, listening practice, sentence translation (needs a judgment agent) and other later ideas are listed in docs/FUTURE.md; the grader can accept an opposite with a prefix ("expensive" for 便宜, in docs/FUTURE.md); the dictionary text in cards.jsonl is still called <code>answers</code> (rename in docs/FUTURE.md). Reminder: the Claude review token expires after 1 year (renew before 2027-10-15). Green on GitHub is not the same as reviewed.
+  Latest map, after M4 Step 5, 2026-11-04. There are no snapshots from before M2 done (the map started then). Known gaps, by choice: words with several readings keep all of them (197 words), "bands 1+2 together" comes later, listening practice, sentence translation (needs a judgment agent) and other later ideas are listed in docs/FUTURE.md; the grader can accept an opposite with a prefix ("expensive" for 便宜, in docs/FUTURE.md); the dictionary text in cards.jsonl is still called <code>answers</code> (rename in docs/FUTURE.md); a live sentence the checker rejects isn't retried, so some words show "no example sentence yet" (a retry with the reasons is in docs/FUTURE.md). Reminder: the Claude review token expires after 1 year (renew before 2027-10-15). Green on GitHub is not the same as reviewed.
 </footer>
 
 </main>
