@@ -84,7 +84,7 @@ The app is half the goal. The other half is learning to build it properly: a Git
 | Example: download a file, parse it, run the quiz | Example: write a sentence using only HSK-1 words |
 
 Guardrails for every agent:
-- Agents run **offline as batch jobs**. They write files to `data/generated/` that get reviewed and committed, so the quiz never needs the API at runtime (except an optional grading fallback).
+- Agents run **offline as batch jobs**. They write files to `data/generated/` that get reviewed and committed, so the quiz never needs the API at runtime, except two optional uses with a fallback: the judge (ADR 0007) and live sentences saved to a growing bank (ADR 0011).
 - Every agent output goes through a **script validator** before it is accepted.
 - Agent tools are **script functions**: the agent calls deterministic code (e.g. `check_vocab_level`) instead of guessing.
 - Every agent has `--limit N` and `--dry-run` flags, and logs the model, prompt version and token cost.
