@@ -527,6 +527,26 @@ def test_second_run_skips_current_passing_lines(tmp_path):
     assert saved_ids(tmp_path) == IDS
 
 
+def test_saved_line_with_more_than_two_passing_sentences_is_still_done(tmp_path):
+    """ADR 0011: the bank grows past 2 per word (up to its cap, 10); the writer must
+    skip such a line, not replace or trim it, and not call Claude for it."""
+    four = [
+        s("我是医生。", "I am a doctor."),
+        s("爸爸是医生。", "Dad is a doctor."),
+        s("我们是医生。", "We are doctors."),
+        s("我爸爸是医生。", "My dad is a doctor."),
+    ]
+    write_saved(tmp_path, *[saved_line(w, four if w == "是" else GOOD[w]) for w in IDS])
+    before = saved(tmp_path)
+    fake = FakeClaude()
+    result = run(tmp_path, DECK, fake)
+    assert fake.prompts == []
+    assert result.skipped == len(DECK)
+    assert result.written == 0
+    assert saved(tmp_path) == before
+    assert len(kept(tmp_path, "是")) == 4
+
+
 def test_resume_asks_only_for_missing_words_and_keeps_order(tmp_path):
     write_saved(tmp_path, saved_line("吃", GOOD["吃"]), saved_line("是", GOOD["是"]))
     result = run(tmp_path, BAND1, FakeClaude(BAND1))
@@ -1040,7 +1060,7 @@ def test_real_sentences_file_lines_all_pass_the_checker(real_cards):
     text = SENTENCES_JSONL.read_text(encoding="utf-8")
     for row in (json.loads(t) for t in text.splitlines() if t.strip()):
         assert row["id"] in ids
-        assert 1 <= len(row["sentences"]) <= 2
+        assert 1 <= len(row["sentences"]) <= 10  # the bank's cap (ADR 0011)
         for one in row["sentences"]:
             check = check_sentence(one["hanzi"], row["hanzi"], vocab)
             assert check.passed, one
