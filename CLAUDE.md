@@ -25,7 +25,7 @@ Before saying work is done, run `ruff check`, `ruff format --check` and `pytest`
 
 ## Script vs agent rule
 If code can check that the output is correct, write a **script**. If the task needs language judgment, use an **agent**, and a script must validate its output.
-Agents run offline as batch jobs that write to `data/generated/` for review. They call deterministic script functions as tools, take `--limit N` / `--dry-run`, and log model, prompt version and token cost. The quiz must not need the API at runtime (except the optional grading fallback).
+Agents run offline as batch jobs that write to `data/generated/` for review. They call deterministic script functions as tools, take `--limit N` / `--dry-run`, and log model, prompt version and token cost. The quiz must not need the API at runtime, except two optional uses that always have a fallback and an off switch: the judge (ADR 0007, `--no-judge`) and live sentences (ADR 0011, `--no-live`; every live sentence is checked by the same scripts before it is shown).
 
 ## Workflow
 - The user is learning. Work in small steps: explain What / Why / Claude feature / Checkpoint, then stop for a go-ahead.
