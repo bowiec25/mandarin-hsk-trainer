@@ -8,6 +8,7 @@ Run by hand: uv run python -m hsk_trainer.blocks.sentence_writer --limit 20 [--d
 
 import json
 import re
+import threading
 import unicodedata
 from collections.abc import Callable
 from datetime import UTC, datetime
@@ -38,6 +39,9 @@ BLOCK_SPEC = BlockSpec(
 ROOT = Path(__file__).resolve().parents[4]
 SENTENCES_FILE = ROOT / "data" / "generated" / "sentences.jsonl"
 LOG_FILE = ROOT / "data" / "generated" / "sentence_writer_log.jsonl"
+# Calls made during play (write_one): gitignored, so playing never changes the repo.
+LIVE_LOG_FILE = ROOT / "data" / "live_sentence_log.jsonl"
+_LOG_LOCK = threading.Lock()  # write_one runs on quiz background threads
 MODEL = "sonnet"
 MAX_SENTENCES = 2  # asked for, and kept, per word per call
 MAX_SAVED = 10  # most sentences one word may have saved (the bank's cap, ADR 0011)
@@ -496,9 +500,93 @@ def _log(log: Path, reply: ClaudeReply, n_cards: int, retry: int) -> None:
         "output_tokens": reply.output_tokens,
         "cost_usd": reply.cost_usd,
     }
-    log.parent.mkdir(parents=True, exist_ok=True)
-    with log.open("a", encoding="utf-8") as f:
-        f.write(json.dumps(entry) + "\n")
+    with _LOG_LOCK:  # two background calls never interleave a line
+        log.parent.mkdir(parents=True, exist_ok=True)
+        with log.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(entry) + "\n")
+
+
+# -- checking one word's reply ---------------------------------------------------------
+
+
+def _by_id(items: list[object]) -> dict[str, object]:
+    """Each word's sentences in a reply; the first entry for an id wins."""
+    parsed: dict[str, object] = {}
+    for item in items:
+        if isinstance(item, dict) and isinstance(item.get("id"), str):
+            parsed.setdefault(item["id"], item.get("sentences"))
+    return parsed
+
+
+def _check_triples(
+    triples: list[tuple[str, str, str]], word: str, vocab: Vocab, cards: list[Card]
+) -> tuple[list[Sentence], list[tuple[str, list[str]]]]:
+    """(good, bad): up to MAX_SENTENCES passing sentences, pinyin laid out; and the
+    failing ones as "hanzi (pinyin: ...)" with their reasons. Repeats count once."""
+    good: list[Sentence] = []
+    bad: list[tuple[str, list[str]]] = []
+    for hanzi, pinyin, english in triples:
+        if len(good) == MAX_SENTENCES:
+            break
+        shown = f"{hanzi} (pinyin: {pinyin})"  # what a retry shows Claude
+        if any(g.hanzi == hanzi for g in good) or any(b[0] == shown for b in bad):
+            continue
+        problems = _sentence_problems(hanzi, pinyin, english, word, vocab, cards)
+        if problems:
+            bad.append((shown, problems))
+            continue
+        good.append(
+            Sentence(hanzi=hanzi, pinyin=layout_pinyin(hanzi, pinyin), english=english)
+        )
+    return good, bad
+
+
+# -- one word, during the quiz (ADR 0011) -----------------------------------------------
+
+
+class WrittenSentences(BaseModel):
+    """What write_one gives back: the sentences that passed every check."""
+
+    model_config = ConfigDict(frozen=True)
+
+    sentences: list[Sentence]
+    model: str
+
+
+# Seconds; one word takes about 4 s (measured 2026-11-04). Kept near the quiz's
+# 15 s wait, so a call the quiz gave up on doesn't run on for long.
+LIVE_TIMEOUT = 30
+
+
+def write_one(
+    card: Card,
+    cards: list[Card],
+    vocab: Vocab | None = None,
+    ask: Callable[..., ClaudeReply] = ask_claude,
+    timeout: float = LIVE_TIMEOUT,
+    log: Path = LIVE_LOG_FILE,
+) -> WrittenSentences:
+    """One Claude call for one word, no retries: the sentences that pass every check
+    (at most 2). [] if none pass or the reply is broken; a ClaudeError goes up.
+    Writes only the log line (a failed log write is skipped: the sentences matter
+    more); banking is sentence_bank's job."""
+    if vocab is None:
+        vocab = Vocab(cards)
+    prompt = build_prompt([card], cards, card.level)
+    reply = ask(
+        prompt, model=MODEL, system=SYSTEM, json_schema=REPLY_SCHEMA, timeout=timeout
+    )
+    try:
+        _log(log, reply, 1, 0)
+    except OSError:
+        pass  # e.g. the log is locked: not worth losing a good reply over
+    try:
+        items = parse_reply(reply.text).cards
+    except ValueError:
+        return WrittenSentences(sentences=[], model=reply.model)
+    word = card.fields["hanzi"]
+    good, _ = _check_triples(_triples(_by_id(items).get(card.id)), word, vocab, cards)
+    return WrittenSentences(sentences=good, model=reply.model)
 
 
 # -- the run -------------------------------------------------------------------------
@@ -536,32 +624,13 @@ class _Job:
         except ValueError as err:
             print(f"Call failed ({len(chunk)} words): {err}")
             return {c.id: [] for c in chunk}
-        parsed: dict[str, object] = {}
-        for item in items:
-            if isinstance(item, dict) and isinstance(item.get("id"), str):
-                parsed.setdefault(item["id"], item.get("sentences"))  # first one wins
+        parsed = _by_id(items)
         failed: dict[str, list[tuple[str, list[str]]]] = {}
         for card in chunk:
             word = card.fields["hanzi"]
-            triples = _triples(parsed.get(card.id))
-            good: list[Sentence] = []
-            bad: list[tuple[str, list[str]]] = []
-            for hanzi, pinyin, english in triples:
-                if len(good) == MAX_SENTENCES:
-                    break
-                shown = f"{hanzi} (pinyin: {pinyin})"  # what the retry shows
-                if any(g.hanzi == hanzi for g in good) or any(
-                    b[0] == shown for b in bad
-                ):
-                    continue  # the same sentence twice counts once
-                problems = _sentence_problems(
-                    hanzi, pinyin, english, word, self.vocab, self.cards
-                )
-                if problems:
-                    bad.append((shown, problems))
-                    continue
-                laid_out = layout_pinyin(hanzi, pinyin)
-                good.append(Sentence(hanzi=hanzi, pinyin=laid_out, english=english))
+            good, bad = _check_triples(
+                _triples(parsed.get(card.id)), word, self.vocab, self.cards
+            )
             if not good:
                 failed[card.id] = bad
                 continue
