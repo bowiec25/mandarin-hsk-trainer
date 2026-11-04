@@ -483,7 +483,8 @@ def test_hanzi_print_through_a_pipe_on_any_os():
 
 # --- the sentence modes (M4 Step 5, ADR 0011: banked sentences) -------------------
 # Hidden --sentences / --seen point the quiz at a tmp bank and seen file; --no-judge
-# keeps Claude out. A 1-word deck's word depends only on the seed, not the mode.
+# and --no-live (ADR 0011: bank only) keep Claude out. A 1-word deck's word depends
+# only on the seed, not the mode.
 
 SENTENCE = ("我爸爸是医生。", "wǒ bà ba shì yī shēng。", "My dad is a doctor.")
 
@@ -504,10 +505,11 @@ def bank_file(tmp_path, word="爸爸", sentence=SENTENCE):
     return path
 
 
-def play_sentences(tmp_path, mode, sentences, typed, word="爸爸"):
+def play_sentences(tmp_path, mode, sentences, typed, word="爸爸", live=False):
     return play(
         "--mode", mode, "--n", "1", "--seed", seed_for(word), "--no-judge",
         "--sentences", str(sentences), "--seen", str(tmp_path / "seen.json"),
+        *([] if live else ["--no-live"]),
         typed=typed,
     )  # fmt: skip
 
@@ -614,3 +616,110 @@ def test_seen_file_that_cannot_be_saved_does_not_stop_the_quiz(tmp_path, monkeyp
     assert code == 0, out
     assert "Score: 1/1" in out
     assert "couldn't save" in out
+
+
+# --- live sentences in the sentence modes (M4 Step 5, ADR 0011, live_sentences) -----
+# A fake writer stands in for sentence_writer.write_one (as used by the
+# live_sentences block's default writer); the real one would only raise ClaudeError here (conftest).
+
+LIVE = ("爸爸是医生。", "bà ba shì yī shēng。", "Dad is a doctor.")
+
+
+class FakeWriteOne:
+    """Records which cards it was asked about; answers with one sentence at once."""
+
+    def __init__(self, triple=LIVE):
+        self.triple = triple
+        self.calls: list[str] = []
+        self.asked = {}  # card id -> threading.Event, set once asked
+
+    def event(self, word):
+        import threading
+
+        return self.asked.setdefault(word, threading.Event())
+
+    def __call__(self, card, *args, **kwargs):
+        from hsk_trainer.blocks import sentence_writer
+
+        self.calls.append(card.id)
+        self.event(card.id).set()
+        hanzi, pinyin, english = self.triple
+        one = sentence_writer.Sentence(hanzi=hanzi, pinyin=pinyin, english=english)
+        return sentence_writer.WrittenSentences(sentences=[one], model="fake-sonnet")
+
+
+@pytest.fixture
+def fake_writer(monkeypatch):
+    fake = FakeWriteOne()
+    # The live block's default writer calls write_one from its own module.
+    monkeypatch.setattr("hsk_trainer.blocks.live_sentences.write_one", fake)
+    return fake
+
+
+def test_help_lists_no_live():
+    result = runner.invoke(app, ["quiz", "--help"])
+    assert "--no-live" in re.sub(r"\x1b\[[0-9;]*m", "", result.output)
+
+
+@pytest.mark.parametrize("mode", ["char_sentence", "full"])
+def test_no_live_never_calls_the_writer(tmp_path, mode, fake_writer):
+    code, out = play_sentences(
+        tmp_path, mode, tmp_path / "none.jsonl", accepted("爸爸")[0] + "\n"
+    )
+    assert code == 0, out
+    assert fake_writer.calls == []
+    assert "no example sentence" in out.lower()
+
+
+@pytest.mark.parametrize("mode", ["char_sentence", "full"])
+def test_live_sentence_is_shown_and_banked(tmp_path, mode, fake_writer):
+    import json
+
+    bank = tmp_path / "sentences.jsonl"  # missing: an empty bank, so the rule says new
+    code, out = play_sentences(tmp_path, mode, bank, "x\n", live=True)
+    assert code == 0, out
+    assert "Traceback" not in out
+    assert fake_writer.calls[0] == "爸爸"
+    assert LIVE[0] in out
+    assert LIVE[2] in out  # its English after the answer
+    rows = [json.loads(t) for t in bank.read_text(encoding="utf-8").splitlines() if t]
+    saved = {r["id"]: [s["hanzi"] for s in r["sentences"]] for r in rows}
+    assert saved["爸爸"] == [LIVE[0]]
+    seen = json.loads((tmp_path / "seen.json").read_text(encoding="utf-8"))
+    assert LIVE[0] in seen["爸爸"]
+
+
+def test_live_writer_unreachable_falls_back_to_the_bank(tmp_path):
+    """The real writer: conftest makes `claude` look missing, so the bank is used."""
+    code, out = play_sentences(
+        tmp_path, "full", bank_file(tmp_path), accepted("爸爸")[0] + "\n", live=True
+    )
+    assert code == 0, out
+    assert "Traceback" not in out
+    assert "Score: 1/1" in out
+
+
+def test_next_sentence_is_prepared_while_you_answer(tmp_path, monkeypatch, fake_writer):
+    """When the first answer is read, the second word's sentence is already asked for."""
+    from hsk_trainer import cli
+
+    seed = "1"
+    first, second = deck_words("--n", "2", "--seed", seed)
+    asked_at_first_read = []
+    real_read = cli._read
+
+    def read():
+        if not asked_at_first_read:
+            asked_at_first_read.append(fake_writer.event(second).wait(2))
+        return real_read()
+
+    monkeypatch.setattr(cli, "_read", read)
+    code, out = play(
+        "--mode", "char_sentence", "--n", "2", "--seed", seed, "--no-judge",
+        "--sentences", str(tmp_path / "sentences.jsonl"),
+        "--seen", str(tmp_path / "seen.json"),
+        typed="x\nx\n",
+    )  # fmt: skip
+    assert code == 0, out
+    assert asked_at_first_read == [True]
+    assert fake_writer.calls[:2] == [first, second]

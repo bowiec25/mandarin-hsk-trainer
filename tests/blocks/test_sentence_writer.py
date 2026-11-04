@@ -1282,3 +1282,172 @@ def test_full_tone_on_a_neutral_syllable_must_be_a_real_reading():
         "我吃饭了。", "wǒ chī fàn lè", ("我", "吃", "饭", "了"), [*DECK, le]
     )
     assert any("了" in p for p in found), found
+
+
+# ---- write_one: one word, during the quiz (ADR 0011, used by live_sentences) -------
+
+
+def one(tmp_path, word, ask, cards=DECK, **kwargs):
+    """write_one for the card `word`, logging to tmp_path/log.jsonl."""
+    target = next(c for c in cards if c.id == word)
+    return block.write_one(target, cards, ask=ask, log=tmp_path / "log.jsonl", **kwargs)
+
+
+def hanzi_list(result) -> list[str]:
+    return [x.hanzi for x in result.sentences]
+
+
+def test_write_one_defaults_match_spec():
+    from quizkit.claude import ask_claude
+
+    params = inspect.signature(block.write_one).parameters
+    assert params["vocab"].default is None
+    assert params["ask"].default is ask_claude
+    assert params["timeout"].default == 30  # /code-review: near the 15 s wait
+    assert params["log"].default == block.LIVE_LOG_FILE  # gitignored (block review)
+
+
+def test_write_one_returns_passing_sentences_laid_out_with_the_model(tmp_path):
+    result = one(tmp_path, "爸爸", FakeClaude())
+    assert isinstance(result, block.WrittenSentences)
+    assert result.model == FAKE_MODEL
+    assert hanzi_list(result) == ["我爸爸是医生。", "爸爸吃饭。"]
+    assert all(isinstance(x, block.Sentence) for x in result.sentences)
+    assert result.sentences[0].pinyin == "wǒ bà ba shì yī shēng。"
+    assert result.sentences[0].english == "My dad is a doctor."
+
+
+def test_write_one_makes_exactly_one_call(tmp_path):
+    fake = FakeClaude()
+    one(tmp_path, "吃", fake)
+    assert len(fake.prompts) == 1
+
+
+def test_write_one_does_not_retry_when_nothing_passes(tmp_path):
+    fake = FakeClaude(sentences={"吃": [BAD]})
+    result = one(tmp_path, "吃", fake)
+    assert result.sentences == []
+    assert len(fake.prompts) == 1
+
+
+def test_write_one_drops_failing_sentences(tmp_path):
+    fake = FakeClaude(sentences={"吃": [BAD, s("我吃饭。", "I eat.")]})
+    assert hanzi_list(one(tmp_path, "吃", fake)) == ["我吃饭。"]
+
+
+def test_write_one_drops_bad_pinyin_and_bad_english(tmp_path):
+    wrong_pinyin = ("我吃饭。", "wǒ chí fàn", "I eat.")
+    bad_english = s("爸爸吃饭。", "爸爸吃饭")
+    fake = FakeClaude(sentences={"吃": [wrong_pinyin, bad_english]})
+    assert one(tmp_path, "吃", fake).sentences == []
+
+
+def test_write_one_keeps_at_most_two(tmp_path):
+    many = [
+        s("我吃饭。", "I eat."),
+        s("爸爸吃饭。", "Dad eats."),
+        s("我们吃饭。", "We eat."),
+    ]
+    fake = FakeClaude(sentences={"吃": many})
+    assert hanzi_list(one(tmp_path, "吃", fake)) == ["我吃饭。", "爸爸吃饭。"]
+
+
+def test_write_one_drops_repeats(tmp_path):
+    twice = [s("我吃饭。", "I eat."), s("我吃饭。", "I eat."), s("爸爸吃饭。", "D.")]
+    fake = FakeClaude(sentences={"吃": twice})
+    assert hanzi_list(one(tmp_path, "吃", fake)) == ["我吃饭。", "爸爸吃饭。"]
+
+
+@pytest.mark.parametrize(
+    "bad_text",
+    [
+        "Sure! Here are your sentences.",
+        json.dumps({"sentences": ["我吃饭。"]}, ensure_ascii=False),
+        json.dumps({"cards": "none"}),
+    ],
+    ids=["not-json", "wrong-shape", "cards-not-a-list"],
+)
+def test_write_one_broken_reply_gives_no_sentences(tmp_path, bad_text):
+    result = one(tmp_path, "吃", FakeClaude(script={0: bad_text}))
+    assert result.sentences == []
+
+
+def test_write_one_word_missing_from_reply_gives_no_sentences(tmp_path):
+    result = one(tmp_path, "吃", FakeClaude(sentences={"吃": None}))
+    assert result.sentences == []
+
+
+def test_write_one_claude_error_goes_up(tmp_path):
+    from quizkit.claude import ClaudeError
+
+    with pytest.raises(ClaudeError):
+        one(tmp_path, "吃", FakeClaude(script={0: claude_error()}))
+
+
+def test_write_one_logs_one_line_with_one_card_and_no_retry(tmp_path):
+    one(tmp_path, "吃", FakeClaude(sentences={"吃": [BAD]}))
+    (entry,) = log_entries(tmp_path)
+    assert entry["cards"] == 1
+    assert entry["retry"] == 0
+    assert entry["model"] == FAKE_MODEL
+    assert entry["prompt_version"] == block.PROMPT_VERSION
+    assert (entry["input_tokens"], entry["output_tokens"]) == (100, 50)
+
+
+def test_write_one_writes_nothing_to_the_sentences_file(tmp_path, monkeypatch):
+    before = SENTENCES_JSONL.read_bytes() if SENTENCES_JSONL.exists() else None
+    monkeypatch.setattr(block, "SENTENCES_FILE", tmp_path / "sentences.jsonl")
+    one(tmp_path, "吃", FakeClaude())
+    assert not (tmp_path / "sentences.jsonl").exists()
+    assert [p.name for p in tmp_path.iterdir()] == ["log.jsonl"]
+    after = SENTENCES_JSONL.read_bytes() if SENTENCES_JSONL.exists() else None
+    assert after == before
+
+
+def test_write_one_passes_the_timeout_to_ask(tmp_path):
+    seen = []
+
+    def ask(prompt, **kwargs):
+        seen.append(kwargs)
+        return FakeClaude()(prompt)
+
+    one(tmp_path, "吃", ask)
+    one(tmp_path, "吃", ask, timeout=5)
+    assert [k.get("timeout") for k in seen] == [30, 5]
+    assert seen[0]["model"] == "sonnet"
+
+
+def test_write_one_prompt_uses_the_words_band_only(tmp_path):
+    fake = FakeClaude()
+    one(tmp_path, "吃", fake)
+    (prompt,) = fake.prompts
+    for word in BAND1_IDS:
+        assert word in prompt
+    assert "一起" not in prompt
+
+
+def test_write_one_accepts_a_ready_vocab(tmp_path):
+    result = one(tmp_path, "吃", FakeClaude(), vocab=Vocab(DECK))
+    assert hanzi_list(result) == ["我吃饭。", "爸爸吃饭。"]
+
+
+# -- block-review round 1 --------------------------------------------------------------
+
+
+def test_write_one_log_defaults_to_the_gitignored_live_log():
+    import inspect
+
+    default = inspect.signature(block.write_one).parameters["log"].default
+    assert default == block.LIVE_LOG_FILE
+    assert default != block.LOG_FILE
+    ignored = (block.ROOT / ".gitignore").read_text(encoding="utf-8")
+    assert "data/live_sentence_log.jsonl" in ignored
+
+
+def test_write_one_skips_a_log_it_cannot_write(tmp_path):
+    """A log path that can't be opened (here a folder) doesn't lose the sentences."""
+    target = next(c for c in DECK if c.id == "爸爸")
+    folder = tmp_path / "log.jsonl"
+    folder.mkdir()
+    result = block.write_one(target, DECK, ask=FakeClaude(), log=folder)
+    assert hanzi_list(result) == ["我爸爸是医生。", "爸爸吃饭。"]

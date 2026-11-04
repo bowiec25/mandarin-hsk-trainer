@@ -15,6 +15,7 @@ import typer
 from pydantic import ValidationError
 
 from hsk_trainer.blocks.answer_writer import ANSWERS_FILE, AnswerFileError, load_answers
+from hsk_trainer.blocks.live_sentences import LiveSentences
 from hsk_trainer.blocks.sentence_bank import SEEN_FILE, SentenceBank
 from hsk_trainer.blocks.sentence_writer import (
     SENTENCES_FILE,
@@ -69,28 +70,43 @@ def _check_mode(mode: str) -> str:
 
 class _Sentences:
     """The sentence part of a question: shown under the word, its English after the
-    answer (ADR 0011). Only used by the sentence modes."""
+    answer (ADR 0011). New ones from Claude or banked ones, via live_sentences. Only
+    used by the sentence modes."""
 
-    def __init__(self, bank: SentenceBank, fields: list[str]) -> None:
-        self.bank = bank
+    def __init__(
+        self, live: LiveSentences, fields: list[str], questions: list[Question]
+    ) -> None:
+        self.live = live
         self.fields = fields  # which of SENTENCE_FIELDS the mode shows, in order
+        self.questions = questions
         self.current: Sentence | None = None
-        self.warned = False  # the seen file couldn't be saved (said once)
+        self.at = 0  # questions shown so far (the engine asks them in turn)
+
+    def start(self) -> None:
+        """Before the first question: start on its sentence."""
+        if self.questions:
+            self.live.prepare(self.questions[0].card_id)
 
     def show(self, question: Question) -> None:
-        self.current = self.bank.banked(question.card_id)
+        shown = self.live.sentence_for(question.card_id)
+        self.current = shown.sentence
+        if shown.note:
+            print(f"   ({shown.note})")
+        # While you answer, the next word's sentence is being written.
+        self.at += 1
+        if self.at < len(self.questions):
+            self.live.prepare(self.questions[self.at].card_id)
         if self.current is None:
             print("   (no example sentence yet for this word)")
             return
-        try:
-            self.bank.mark_seen(question.card_id, self.current)
-        except OSError as err:  # e.g. OneDrive or antivirus has it locked: carry on
-            if not self.warned:
-                print(f"   (couldn't save which sentences you've seen: {err})")
-                self.warned = True
         print(f"   {self.current.hanzi}")
         if "sentence_pinyin" in self.fields:
             print(f"   {self.current.pinyin}")
+
+    def finish(self) -> None:
+        """End of the quiz: save sentences still being written."""
+        for note in self.live.finish():
+            print(f"   ({note})")
 
     def after(self) -> None:
         if self.current is not None:
@@ -168,6 +184,10 @@ def _asking() -> None:
     print("   asking the judge…", flush=True)
 
 
+def _writing() -> None:
+    print("   writing a sentence…", flush=True)
+
+
 def _fail(*lines: str) -> NoReturn:
     for line in lines:
         print(line, file=sys.stderr)
@@ -200,6 +220,14 @@ def quiz(
             help="Ask Claude about answers the list misses (needs `claude`, online).",
         ),
     ] = True,
+    live: Annotated[
+        bool,
+        typer.Option(
+            "--live/--no-live",
+            help="Sentence modes: new sentences from Claude as you play, saved to the "
+            "bank (needs `claude`, online). --no-live = banked sentences only.",
+        ),
+    ] = True,
 ) -> None:
     """Quiz yourself: see a word, type its English meaning. Ctrl-C stops (score kept)."""
     if cards is None:  # looked up now, not at import, so tests can point it elsewhere
@@ -229,7 +257,10 @@ def quiz(
             bank = SentenceBank(
                 all_cards, path=sentences or SENTENCES_FILE, seen_path=seen or SEEN_FILE
             )
-            sentence_part = _Sentences(bank, from_bank)
+            sentences_live = LiveSentences(
+                bank, all_cards, enabled=live, before_waiting=_writing
+            )
+            sentence_part = _Sentences(sentences_live, from_bank, questions)
         # Up-front data check (a card nobody can answer), kept apart from run_quiz so a
         # ValueError mid-quiz is never mislabelled as a bad file.
         QuizSession(questions, settings=SETTINGS)
@@ -267,6 +298,7 @@ def quiz(
     ask, tell = _ask, _tell
     if sentence_part is not None:  # the sentence modes: a sentence under each word
         part = sentence_part
+        part.start()
 
         def ask(question: Question) -> str | None:
             _show(question)
@@ -278,6 +310,8 @@ def quiz(
             part.after()
 
     result = run_quiz(questions, ask=ask, tell=tell, settings=SETTINGS, judge=judge_fn)
+    if sentence_part is not None:
+        sentence_part.finish()
 
     print()
     if not result.finished:

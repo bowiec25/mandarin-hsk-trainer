@@ -16,6 +16,7 @@ wheels/
 data/progress.db
 data/judge_cache.jsonl
 data/sentence_seen.json
+data/live_sentence_log.jsonl
 
 # Tool caches
 .pytest_cache/
