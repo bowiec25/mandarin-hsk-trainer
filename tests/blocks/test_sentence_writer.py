@@ -2,7 +2,6 @@
 
 import inspect
 import json
-import re
 from pathlib import Path
 
 import pytest
@@ -46,6 +45,7 @@ def test_inputs_and_outputs_match_spec():
 
 SENTENCES_JSONL = Path(__file__).parents[2] / "data" / "generated" / "sentences.jsonl"
 FAKE_MODEL = "fake-sonnet"
+NEXT = "next"  # a prompt version bump in tests
 
 
 def card(hanzi, pinyin, level, meanings, readings="1") -> Card:
@@ -72,21 +72,47 @@ BAND1 = [c for c in DECK if c.level == 1]
 IDS = [c.id for c in DECK]
 BAND1_IDS = [c.id for c in BAND1]
 
+# Claude's pinyin for each toy sentence (deck: 爸爸 bà ba, 吃 chī, 饭 fàn, 我 wǒ,
+# 一起 yī qǐ, 我们 wǒ men, 是 shì, 医生 yī shēng).
+PINYIN = {
+    "我爸爸是医生。": "wǒ bà ba shì yī shēng",
+    "爸爸吃饭。": "bà ba chī fàn",
+    "我吃饭。": "wǒ chī fàn",
+    "我们吃饭。": "wǒ men chī fàn",
+    "我是医生。": "wǒ shì yī shēng",
+    "我们一起吃饭。": "wǒ men yī qǐ chī fàn",
+    "我们是医生。": "wǒ men shì yī shēng",
+    "爸爸是医生。": "bà ba shì yī shēng",
+}
+
+
+def s(hanzi: str, english: str) -> tuple[str, str, str]:
+    """A toy sentence as Claude sends it: (hanzi, pinyin, english)."""
+    return (hanzi, PINYIN[hanzi], english)
+
+
 GOOD = {
-    "爸爸": [("我爸爸是医生。", "My dad is a doctor."), ("爸爸吃饭。", "Dad eats.")],
-    "吃": [("我吃饭。", "I eat."), ("爸爸吃饭。", "Dad eats.")],
-    "饭": [("我吃饭。", "I eat."), ("我们吃饭。", "We eat.")],
-    "我": [("我是医生。", "I am a doctor."), ("我吃饭。", "I eat.")],
-    "一起": [("我们一起吃饭。", "We eat together.")],
-    "我们": [("我们吃饭。", "We eat."), ("我们是医生。", "We are doctors.")],
-    "是": [("我是医生。", "I am a doctor."), ("爸爸是医生。", "Dad is a doctor.")],
+    "爸爸": [s("我爸爸是医生。", "My dad is a doctor."), s("爸爸吃饭。", "Dad eats.")],
+    "吃": [s("我吃饭。", "I eat."), s("爸爸吃饭。", "Dad eats.")],
+    "饭": [s("我吃饭。", "I eat."), s("我们吃饭。", "We eat.")],
+    "我": [s("我是医生。", "I am a doctor."), s("我吃饭。", "I eat.")],
+    "一起": [s("我们一起吃饭。", "We eat together.")],
+    "我们": [s("我们吃饭。", "We eat."), s("我们是医生。", "We are doctors.")],
+    "是": [s("我是医生。", "I am a doctor."), s("爸爸是医生。", "Dad is a doctor.")],
     "医生": [
-        ("我爸爸是医生。", "My dad is a doctor."),
-        ("我是医生。", "I am a doctor."),
+        s("我爸爸是医生。", "My dad is a doctor."),
+        s("我是医生。", "I am a doctor."),
     ],
 }
-# Fails the checker for 吃 or 饭 (band 1): it uses 一起 (band 2).
-BAD = ("我们一起吃饭。", "We eat together.")
+# Fails the checker for 吃 or 饭 (band 1): it uses 一起 (band 2). Its pinyin is right.
+BAD = s("我们一起吃饭。", "We eat together.")
+# A band-1 word with several readings, for the "Claude's reading is kept" tests.
+CHEAP = card("便宜", "biàn yí / pián yi", 1, ["cheap"], readings="2")
+
+
+def items(triples) -> list[dict]:
+    """Reply items in the SPEC shape: {"hanzi", "pinyin", "english"}."""
+    return [{"hanzi": h, "pinyin": p, "english": e} for h, p, e in triples]
 
 
 def reply(text: str):
@@ -134,7 +160,7 @@ class FakeClaude:
             "cards": [
                 {
                     "id": i,
-                    "sentences": [{"hanzi": h, "english": e} for h, e in table[i]],
+                    "sentences": items(table[i]),
                 }
                 for i in ids
             ]
@@ -193,7 +219,8 @@ def saved_line(word, sentences, version=None) -> str:
             "id": word,
             "hanzi": word,
             "sentences": [
-                {"hanzi": h, "pinyin": "x", "english": e} for h, e in sentences
+                {"hanzi": h, "pinyin": laid_out(h, p), "english": e}
+                for h, p, e in sentences
             ],
             "model": FAKE_MODEL,
             "prompt_version": version or str(block.PROMPT_VERSION),
@@ -207,26 +234,41 @@ def write_saved(tmp_path, *rows):
     (tmp_path / "sentences.jsonl").write_text(text, encoding="utf-8")
 
 
-def tidy(pinyin: str) -> str:
-    """Ignore spaces around punctuation (only the syllables matter here)."""
-    return re.sub(r"\s*([，。！？])\s*", r"\1", pinyin).strip()
+def laid_out(hanzi: str, pinyin: str) -> str:
+    """The toy pinyin as the SPEC saves it: the sentence's end mark, no space before."""
+    end = hanzi[-1] if hanzi[-1] in "。！？" else ""
+    return pinyin if pinyin.endswith(end) else pinyin + end
+
+
+def words_of(hanzi: str, word: str, cards=DECK) -> tuple[str, ...]:
+    """The checker's word-by-word reading, the `words` pinyin_problems takes."""
+    return check_sentence(hanzi, word, Vocab(cards)).words
 
 
 def test_toy_sentences_really_pass_or_fail_the_checker():
     """Guard for the test data itself: GOOD passes the real checker, BAD fails."""
     vocab = Vocab(DECK)
-    for word, pairs in GOOD.items():
-        for hanzi, _ in pairs:
+    for word, triples in GOOD.items():
+        for hanzi, _, _ in triples:
             assert check_sentence(hanzi, word, vocab).passed, (word, hanzi)
     assert not check_sentence(BAD[0], "吃", vocab).passed
     assert not check_sentence(BAD[0], "饭", vocab).passed
+    assert check_sentence("饭便宜。", "便宜", Vocab([*DECK, CHEAP])).passed
+
+
+def test_toy_pinyin_really_passes_the_pinyin_check():
+    """Guard for the test data itself: every toy sentence's pinyin is right."""
+    for word, triples in GOOD.items():
+        for hanzi, pinyin, _ in triples:
+            words = words_of(hanzi, word)
+            assert block.pinyin_problems(hanzi, pinyin, words, DECK) == [], hanzi
 
 
 # Public names and defaults (SPEC "How it's called")
 
 
 def test_public_constants_match_spec():
-    assert block.PROMPT_VERSION == "1"
+    assert block.PROMPT_VERSION == "2"
     assert block.SENTENCES_FILE.name == "sentences.jsonl"
     assert block.SENTENCES_FILE.parent.name == "generated"
     assert block.LOG_FILE.name == "sentence_writer_log.jsonl"
@@ -259,11 +301,11 @@ def test_good_reply_writes_one_line_per_word_with_spec_fields(tmp_path):
     assert first["sentences"][0]["english"] == "My dad is a doctor."
 
 
-def test_saved_sentence_has_script_pinyin(tmp_path):
+def test_saved_sentence_has_claudes_pinyin_laid_out(tmp_path):
     """SPEC example: 我爸爸是医生。 → wǒ bà ba shì yī shēng。"""
     run(tmp_path, DECK, FakeClaude())
     pinyin = saved_by_id(tmp_path)["爸爸"]["sentences"][0]["pinyin"]
-    assert tidy(pinyin) == "wǒ bà ba shì yī shēng。"
+    assert pinyin == "wǒ bà ba shì yī shēng。"
 
 
 def test_lines_saved_in_cards_order(tmp_path):
@@ -276,8 +318,8 @@ def test_every_saved_sentence_passes_the_checker(tmp_path):
     vocab = Vocab(DECK)
     for row in saved(tmp_path):
         assert 1 <= len(row["sentences"]) <= 2
-        for s in row["sentences"]:
-            assert check_sentence(s["hanzi"], row["hanzi"], vocab).passed
+        for one in row["sentences"]:
+            assert check_sentence(one["hanzi"], row["hanzi"], vocab).passed
 
 
 def test_saved_after_every_claude_call(tmp_path):
@@ -421,7 +463,7 @@ def test_retries_sets_extra_tries(tmp_path, retries):
 
 
 def test_partly_good_word_keeps_the_passing_sentence_without_retry(tmp_path):
-    fake = FakeClaude(BAND1, sentences={"吃": [BAD, ("我吃饭。", "I eat.")]})
+    fake = FakeClaude(BAND1, sentences={"吃": [BAD, s("我吃饭。", "I eat.")]})
     result = run(tmp_path, BAND1, fake)
     assert len(fake.prompts) == 1
     assert list(result.failed) == []
@@ -431,9 +473,9 @@ def test_partly_good_word_keeps_the_passing_sentence_without_retry(tmp_path):
 def test_more_than_two_sentences_keeps_the_first_two_that_pass(tmp_path):
     many = [
         BAD,
-        ("我吃饭。", "I eat."),
-        ("爸爸吃饭。", "Dad eats."),
-        ("我们吃饭。", "We eat."),
+        s("我吃饭。", "I eat."),
+        s("爸爸吃饭。", "Dad eats."),
+        s("我们吃饭。", "We eat."),
     ]
     run(tmp_path, BAND1, FakeClaude(BAND1, sentences={"吃": many}))
     assert kept(tmp_path, "吃") == ["我吃饭。", "爸爸吃饭。"]
@@ -448,7 +490,7 @@ def test_more_than_two_sentences_keeps_the_first_two_that_pass(tmp_path):
     ids=["empty", "chinese", "too-long", "no-letter", "non-ascii"],
 )
 def test_sentence_with_bad_english_is_dropped(tmp_path, english):
-    fake = FakeClaude(BAND1, sentences={"吃": [("我吃饭。", english)]})
+    fake = FakeClaude(BAND1, sentences={"吃": [s("我吃饭。", english)]})
     result = run(tmp_path, BAND1, fake, retries=0)
     assert list(result.failed) == ["吃"]
     assert "吃" not in saved_ids(tmp_path)
@@ -460,14 +502,14 @@ def test_sentence_with_bad_english_is_dropped(tmp_path, english):
     ids=["punctuation-digits", "120-chars", "one-letter"],
 )
 def test_sentence_with_good_english_is_kept(tmp_path, english):
-    fake = FakeClaude(BAND1, sentences={"吃": [("我吃饭。", english)]})
+    fake = FakeClaude(BAND1, sentences={"吃": [s("我吃饭。", english)]})
     result = run(tmp_path, BAND1, fake, retries=0)
     assert list(result.failed) == []
     assert saved_by_id(tmp_path)["吃"]["sentences"][0]["english"] == english
 
 
 def test_bad_english_on_one_sentence_keeps_the_other(tmp_path):
-    pairs = [("我吃饭。", "我吃饭"), ("爸爸吃饭。", "Dad eats.")]
+    pairs = [s("我吃饭。", "我吃饭"), s("爸爸吃饭。", "Dad eats.")]
     run(tmp_path, BAND1, FakeClaude(BAND1, sentences={"吃": pairs}), retries=0)
     assert kept(tmp_path, "吃") == ["爸爸吃饭。"]
 
@@ -497,7 +539,7 @@ def test_resume_asks_only_for_missing_words_and_keeps_order(tmp_path):
 def test_old_prompt_version_is_redone(tmp_path):
     others = [saved_line(w, GOOD[w]) for w in BAND1_IDS if w != "吃"]
     write_saved(
-        tmp_path, saved_line("吃", [("我吃饭。", "I eat.")], version="0"), *others
+        tmp_path, saved_line("吃", [s("我吃饭。", "I eat.")], version="0"), *others
     )
     result = run(tmp_path, BAND1, FakeClaude(BAND1))
     assert result.written == 1
@@ -520,35 +562,37 @@ def test_saved_line_that_now_fails_the_checker_is_redone(tmp_path):
 def test_old_lines_stay_when_claude_errors_before_replacing_them(tmp_path, monkeypatch):
     write_saved(tmp_path, *[saved_line(w, GOOD[w]) for w in BAND1_IDS])
     before = (tmp_path / "sentences.jsonl").read_text(encoding="utf-8")
-    monkeypatch.setattr(block, "PROMPT_VERSION", "2")
+    monkeypatch.setattr(block, "PROMPT_VERSION", NEXT)
     run_allowing_stop(tmp_path, BAND1, FakeClaude(BAND1, script={0: claude_error()}))
     assert saved(tmp_path) == [json.loads(t) for t in before.splitlines()]
 
 
 def test_old_line_stays_when_its_word_fails_all_retries(tmp_path, monkeypatch):
     write_saved(tmp_path, *[saved_line(w, GOOD[w]) for w in BAND1_IDS])
-    monkeypatch.setattr(block, "PROMPT_VERSION", "2")
+    old = block.PROMPT_VERSION
+    monkeypatch.setattr(block, "PROMPT_VERSION", NEXT)
     result = run(tmp_path, BAND1, FakeClaude(BAND1, sentences={"吃": [BAD]}))
     assert list(result.failed) == ["吃"]
     assert saved_ids(tmp_path) == BAND1_IDS
     versions = {r["id"]: str(r["prompt_version"]) for r in saved(tmp_path)}
-    assert versions["吃"] == "1"
-    assert {v for w, v in versions.items() if w != "吃"} == {"2"}
+    assert versions["吃"] == old
+    assert {v for w, v in versions.items() if w != "吃"} == {NEXT}
 
 
 def test_version_bump_with_limit_keeps_old_lines_for_the_rest(tmp_path, monkeypatch):
     write_saved(tmp_path, *[saved_line(w, GOOD[w]) for w in BAND1_IDS])
-    monkeypatch.setattr(block, "PROMPT_VERSION", "2")
+    old = block.PROMPT_VERSION
+    monkeypatch.setattr(block, "PROMPT_VERSION", NEXT)
     run(tmp_path, BAND1, FakeClaude(BAND1), limit=2)
     assert saved_ids(tmp_path) == BAND1_IDS
     versions = [str(r["prompt_version"]) for r in saved(tmp_path)]
-    assert versions == ["2", "2", "1", "1", "1", "1", "1"]
+    assert versions == [NEXT, NEXT, old, old, old, old, old]
 
 
 def test_line_for_word_no_longer_in_cards_is_dropped_with_warning(
     tmp_path, capsys, caplog, recwarn
 ):
-    write_saved(tmp_path, saved_line("gone", [("我吃饭。", "I eat.")]))
+    write_saved(tmp_path, saved_line("gone", [s("我吃饭。", "I eat.")]))
     run(tmp_path, BAND1, FakeClaude(BAND1), limit=2)
     assert saved_ids(tmp_path) == BAND1_IDS[:2]
     captured = capsys.readouterr()
@@ -647,11 +691,7 @@ def test_broken_reply_fails_that_calls_words_and_run_goes_on(tmp_path, bad_text)
 
 def test_reply_in_a_json_code_fence_is_fine(tmp_path):
     body = json.dumps(
-        {
-            "cards": [
-                {"id": "吃", "sentences": [{"hanzi": "我吃饭。", "english": "I eat."}]}
-            ]
-        },
+        {"cards": [{"id": "吃", "sentences": items([s("我吃饭。", "I eat.")])}]},
         ensure_ascii=False,
     )
     write_saved(tmp_path, *[saved_line(w, GOOD[w]) for w in BAND1_IDS if w != "吃"])
@@ -679,9 +719,7 @@ def test_word_missing_from_reply_with_no_retries_is_failed(tmp_path):
 
 def test_word_without_sentences_key_fails_alone(tmp_path):
     reply_cards = [
-        {"id": w, "sentences": [{"hanzi": h, "english": e} for h, e in GOOD[w]]}
-        for w in BAND1_IDS
-        if w != "吃"
+        {"id": w, "sentences": items(GOOD[w])} for w in BAND1_IDS if w != "吃"
     ] + [{"id": "吃"}]
     body = json.dumps({"cards": reply_cards}, ensure_ascii=False)
     result = run(tmp_path, BAND1, FakeClaude(BAND1, script={0: body}), retries=0)
@@ -718,31 +756,278 @@ def test_bad_settings_raise_value_error(tmp_path, setting):
     assert fake.prompts == []
 
 
-# sentence_pinyin (by script, ADR 0008)
+# pinyin_problems and layout_pinyin (Claude writes the pinyin, a script checks it;
+# ADR 0010, SPEC "Pinyin")
 
 
-def test_pinyin_uses_dictionary_for_hsk_words_keeping_neutral_tones():
-    assert block.sentence_pinyin("爸爸", DECK) == "bà ba"  # pypinyin says bà bà
+def problems(hanzi, pinyin, words, cards=DECK) -> list[str]:
+    return block.pinyin_problems(hanzi, pinyin, tuple(words), cards)
 
 
-def test_pinyin_dictionary_beats_pypinyin_tone_change():
-    """一起 is yī qǐ in our dictionary (pypinyin would say yì qǐ)."""
-    pinyin = block.sentence_pinyin("我们一起吃饭。", DECK)
-    assert tidy(pinyin) == "wǒ men yī qǐ chī fàn。"
+def test_right_pinyin_has_no_problems():
+    assert (
+        problems(
+            "我爸爸是医生。",
+            "wǒ bà ba shì yī shēng",
+            words_of("我爸爸是医生。", "爸爸"),
+        )
+        == []
+    )
 
 
-def test_pinyin_uses_pypinyin_for_words_not_in_the_deck():
-    assert tidy(block.sentence_pinyin("我喝水。", DECK)) == "wǒ hē shuǐ。"
+@pytest.mark.parametrize(
+    "pinyin", ["wǒ chī", "wǒ chī fàn le"], ids=["too-few", "too-many"]
+)
+def test_syllable_count_must_match_chinese_characters(pinyin):
+    found = problems("我吃饭。", pinyin, ("我", "吃", "饭"))
+    assert found
+    said = " ".join(found)
+    assert str(len(pinyin.split())) in said and "3" in said
 
 
-def test_pinyin_uses_pypinyin_for_hsk_words_with_several_readings():
-    cheap = card("便宜", "biàn yí / pián yi", 1, ["cheap"], readings="2")
-    assert block.sentence_pinyin("便宜", [*DECK, cheap]) == "pián yi"
+def test_punctuation_in_claudes_pinyin_is_ignored():
+    """Only runs of letters are syllables: commas, stops and spaces don't count."""
+    hanzi = "我吃饭，爸爸吃饭！"
+    words = words_of(hanzi, "吃")
+    assert problems(hanzi, "wǒ chī fàn, bà ba chī fàn!", words) == []
 
 
-def test_pinyin_keeps_punctuation_as_written():
-    pinyin = block.sentence_pinyin("我吃饭，爸爸吃饭！", DECK)
-    assert tidy(pinyin) == "wǒ chī fàn，bà ba chī fàn！"
+def test_hsk_word_dictionary_reading_passes():
+    """一起 is yī qǐ in our dictionary: the dictionary tone, no tone change."""
+    words = ("我们", "一起", "吃", "饭")
+    assert problems("我们一起吃饭。", "wǒ men yī qǐ chī fàn", words) == []
+
+
+def test_hsk_word_with_a_tone_change_fails():
+    """The prompt asks for the dictionary tone of 一 / 不; our dictionary says yī qǐ."""
+    words = ("我们", "一起", "吃", "饭")
+    found = problems("我们一起吃饭。", "wǒ men yì qǐ chī fàn", words)
+    assert found
+    assert any("一起" in p for p in found)
+
+
+@pytest.mark.parametrize("reading", ["biàn yí", "pián yi"])
+def test_either_reading_of_a_several_reading_word_passes(reading):
+    deck = [*DECK, CHEAP]
+    assert problems("饭便宜。", f"fàn {reading}", ("饭", "便宜"), deck) == []
+
+
+def test_made_up_reading_of_an_hsk_word_fails_naming_the_word():
+    deck = [*DECK, CHEAP]
+    found = problems("饭便宜。", "fàn bian ya", ("饭", "便宜"), deck)
+    assert found
+    assert any("便宜" in p and "bian ya" in p for p in found)
+
+
+def test_made_up_syllable_for_a_one_character_hsk_word_fails():
+    found = problems("我吃饭。", "wǒ chā fàn", ("我", "吃", "饭"))
+    assert found
+    assert any("吃" in p for p in found)
+
+
+def test_neutral_tone_as_the_dictionary_writes_it_is_fine():
+    assert problems("爸爸吃饭。", "bà ba chī fàn", ("爸爸", "吃", "饭")) == []
+
+
+@pytest.mark.parametrize(
+    "pinyin",
+    ["ba ba chī fàn", "bà ba chī fan", "ba ba chi fan"],
+    ids=["first-syllable", "one-character-word", "all"],
+)
+def test_dropping_a_tone_mark_elsewhere_fails(pinyin):
+    """Block-review round 1: toneless pinyin must not pass (learners need the tones)."""
+    assert problems("爸爸吃饭。", pinyin, ("爸爸", "吃", "饭"))
+
+
+@pytest.mark.parametrize(
+    "sentence, pinyin, words, extra",
+    [
+        ("我是医生。", "wǒ shì yī sheng", ("我", "是", "医生"), []),
+        ("我吃个饭。", "wǒ chī ge fàn", ("我", "吃", "个", "饭"), ["个"]),
+    ],
+    ids=["later-syllable", "ge"],
+)
+def test_neutral_tone_the_dictionary_does_not_write_fails(
+    sentence, pinyin, words, extra
+):
+    """/code-review: any looser rule let wrong pinyin pass (老师 lǎo shi, 他来了
+    tā lai le). The dictionary already writes the real neutral tones."""
+    ge = card("个", "gě / gè", 1, ["measure word"], readings="2")
+    deck = [*DECK, *([ge] if extra else [])]
+    assert block.pinyin_problems(sentence, pinyin, words, deck)
+
+
+def test_a_tone_where_the_dictionary_has_neutral_is_fine():
+    """对不起 is duì bu qǐ in the dictionary; duì bù qǐ (the full tone) is fine."""
+    sorry = card("对不起", "duì bu qǐ", 1, ["sorry"])
+    found = block.pinyin_problems("对不起。", "duì bù qǐ", ("对不起",), [*DECK, sorry])
+    assert found == []
+
+
+@pytest.mark.parametrize("pinyin", ["wo3 chi1 fan4", "wǒ chī fàn4"])
+def test_tone_numbers_fail(pinyin):
+    found = problems("我吃饭。", pinyin, ("我", "吃", "饭"))
+    assert any("tone numbers" in p for p in found)
+
+
+def test_erhua_written_as_its_own_r_passes():
+    nar = card("哪儿", "nǎ r", 1, ["where"])
+    found = block.pinyin_problems(
+        "我去哪儿？", "wǒ qù nǎ r", ("我", "去", "哪儿"), [*DECK, nar]
+    )
+    assert found == []
+
+
+def test_erhua_glued_on_gets_a_hint():
+    nar = card("哪儿", "nǎ r", 1, ["where"])
+    found = block.pinyin_problems(
+        "我去哪儿？", "wǒ qù nǎr", ("我", "去", "哪儿"), [*DECK, nar]
+    )
+    assert any("nǎ r" in p for p in found), found
+
+
+def test_character_pypinyin_does_not_know_fails_with_none_known(monkeypatch):
+    monkeypatch.setattr(block, "_char_readings", lambda ch: [])
+    found = problems("我喝水。", "wǒ hē shuǐ", ("我", "喝", "水"))
+    assert any("none known" in p for p in found), found
+
+
+def test_check_falls_back_to_each_character_when_words_do_not_cover():
+    """With no reading at all, each character is checked against pypinyin."""
+    assert problems("我吃饭。", "wǒ chī fàn", ()) == []
+    assert problems("我吃饭。", "wǒ chī huǒ", ())
+
+
+def test_capitals_are_fine():
+    assert problems("我吃饭。", "Wǒ CHĪ Fàn", ("我", "吃", "饭")) == []
+
+
+@pytest.mark.parametrize(
+    "hanzi, pinyin", [("女", "nv\u030c"), ("绿", "lv\u0300")], ids=["nü", "lü"]
+)
+def test_v_is_read_as_u_umlaut(hanzi, pinyin):
+    """女 nǚ / 绿 lǜ (not in the toy deck: pypinyin's readings), v for ü, tone marked."""
+    assert problems(hanzi, pinyin, (hanzi,)) == []
+
+
+@pytest.mark.parametrize("pinyin", ["wǒ hē shuǐ", "wǒ hè shuǐ"])
+def test_non_hsk_character_passes_any_pypinyin_reading(pinyin):
+    """喝 and 水 aren't in the toy deck; pypinyin says 喝 is hē or hè."""
+    assert problems("我喝水。", pinyin, ("我", "喝", "水")) == []
+
+
+def test_non_hsk_character_with_a_wrong_reading_fails_naming_it():
+    found = problems("我喝水。", "wǒ hē huǒ", ("我", "喝", "水"))
+    assert found
+    assert any("水" in p and "huǒ" in p for p in found)
+
+
+def test_layout_spec_example():
+    assert (
+        block.layout_pinyin("我吃饭，爸爸吃饭！", "wǒ chī fàn bà ba chī fàn")
+        == "wǒ chī fàn，bà ba chī fàn！"
+    )
+
+
+@pytest.mark.parametrize(
+    "pinyin",
+    [
+        "wǒ bà ba shì yī shēng",
+        "wǒ  bà ba shì yī shēng .",
+        " wǒ bà ba, shì yī shēng。",
+    ],
+    ids=["plain", "extra-spaces-and-stop", "claudes-own-punctuation"],
+)
+def test_layout_uses_the_sentences_punctuation_with_no_space_around_it(pinyin):
+    assert block.layout_pinyin("我爸爸是医生。", pinyin) == "wǒ bà ba shì yī shēng。"
+
+
+# Writer-level pinyin (SPEC "Failure modes": a sentence failing the pinyin check)
+
+
+@pytest.mark.parametrize(
+    "bad_pinyin", ["wǒ chī", "wǒ chā fàn"], ids=["count", "made-up"]
+)
+def test_sentence_with_bad_pinyin_is_dropped_and_retried_with_the_reason(
+    tmp_path, bad_pinyin
+):
+    bad = ("我吃饭。", bad_pinyin, "I eat.")
+    fake = FakeClaude(BAND1, sentences={"吃": [bad]}, script={1: {"吃": GOOD["吃"]}})
+    result = run(tmp_path, BAND1, fake)
+    assert len(fake.prompts) == 2
+    reasons = problems("我吃饭。", bad_pinyin, words_of("我吃饭。", "吃"), BAND1)
+    assert reasons
+    for reason in reasons:
+        assert reason in fake.prompts[1]
+    assert list(result.failed) == []
+    assert kept(tmp_path, "吃") == ["我吃饭。", "爸爸吃饭。"]
+
+
+def test_bad_pinyin_on_one_sentence_keeps_the_other(tmp_path):
+    triples = [("我吃饭。", "wǒ chī", "I eat."), GOOD["吃"][1]]
+    run(tmp_path, BAND1, FakeClaude(BAND1, sentences={"吃": triples}), retries=0)
+    assert kept(tmp_path, "吃") == ["爸爸吃饭。"]
+
+
+def test_sentence_without_pinyin_is_dropped(tmp_path):
+    body = json.dumps(
+        {
+            "cards": [
+                {"id": "吃", "sentences": [{"hanzi": "我吃饭。", "english": "I eat."}]}
+            ]
+        },
+        ensure_ascii=False,
+    )
+    write_saved(tmp_path, *[saved_line(w, GOOD[w]) for w in BAND1_IDS if w != "吃"])
+    result = run(tmp_path, BAND1, FakeClaude(BAND1, script={0: body}), retries=0)
+    assert list(result.failed) == ["吃"]
+    assert "吃" not in saved_ids(tmp_path)
+
+
+def test_saved_pinyin_is_claudes_syllables_laid_out(tmp_path):
+    """Claude's reading is kept (biàn yí here), laid out by layout_pinyin."""
+    deck = [*DECK, CHEAP]
+    claude_text = "fàn  biàn yí ."
+    fake = FakeClaude(
+        deck, sentences={"便宜": [("饭便宜。", claude_text, "Food is cheap.")]}
+    )
+    run(tmp_path, deck, fake, retries=0)
+    pinyin = saved_by_id(tmp_path)["便宜"]["sentences"][0]["pinyin"]
+    assert pinyin == block.layout_pinyin("饭便宜。", claude_text)
+    assert pinyin == "fàn biàn yí。"
+
+
+def test_saved_pinyin_keeps_mid_sentence_punctuation(tmp_path):
+    hanzi = "我吃饭，爸爸吃饭！"
+    triple = (hanzi, "wǒ chī fàn, bà ba chī fàn!", "I eat, dad eats!")
+    run(tmp_path, BAND1, FakeClaude(BAND1, sentences={"吃": [triple]}), retries=0)
+    pinyin = saved_by_id(tmp_path)["吃"]["sentences"][0]["pinyin"]
+    assert pinyin == "wǒ chī fàn，bà ba chī fàn！"
+
+
+@pytest.mark.parametrize("saved_pinyin", ["x", "wǒ chā fàn"], ids=["junk", "made-up"])
+def test_saved_line_whose_pinyin_fails_the_check_is_redone(tmp_path, saved_pinyin):
+    others = [saved_line(w, GOOD[w]) for w in BAND1_IDS if w != "吃"]
+    write_saved(
+        tmp_path, saved_line("吃", [("我吃饭。", saved_pinyin, "I eat.")]), *others
+    )
+    fake = FakeClaude(BAND1)
+    result = run(tmp_path, BAND1, fake)
+    assert len(fake.prompts) == 1
+    assert result.skipped == 6
+    assert result.written == 1
+    assert saved_by_id(tmp_path)["吃"]["sentences"][0]["pinyin"] == "wǒ chī fàn。"
+
+
+def test_reply_schema_asks_for_pinyin(tmp_path):
+    seen = {}
+
+    def ask(prompt, **kwargs):
+        seen.update(kwargs)
+        return FakeClaude(BAND1)(prompt)
+
+    run(tmp_path, BAND1, ask, limit=1)
+    assert "pinyin" in json.dumps(seen["json_schema"])
 
 
 # Real file
@@ -756,12 +1041,14 @@ def test_real_sentences_file_lines_all_pass_the_checker(real_cards):
     for row in (json.loads(t) for t in text.splitlines() if t.strip()):
         assert row["id"] in ids
         assert 1 <= len(row["sentences"]) <= 2
-        for s in row["sentences"]:
-            check = check_sentence(s["hanzi"], row["hanzi"], vocab)
-            assert check.passed, s
-            assert s["pinyin"] == block.sentence_pinyin(
-                s["hanzi"], real_cards, check.words
-            ), s
+        for one in row["sentences"]:
+            check = check_sentence(one["hanzi"], row["hanzi"], vocab)
+            assert check.passed, one
+            problems = block.pinyin_problems(
+                one["hanzi"], one["pinyin"], check.words, real_cards
+            )
+            assert problems == [], (one, problems)
+            assert one["pinyin"] == block.layout_pinyin(one["hanzi"], one["pinyin"])
 
 
 # -- Settled while building (SPEC "Failure modes", the 7 test-writer assumptions) ----
@@ -800,17 +1087,6 @@ def test_ask_gets_model_system_and_schema(tmp_path):
     assert seen["system"]
 
 
-def test_pinyin_without_a_reading_prefers_longer_dictionary_words():
-    """With no reading given, 一起 is read as one word (yī qǐ), not 一 + 起."""
-    assert (
-        tidy(block.sentence_pinyin("我们一起吃饭。", DECK)) == "wǒ men yī qǐ chī fàn。"
-    )
-
-
-def test_pinyin_has_no_space_before_punctuation():
-    assert block.sentence_pinyin("我吃饭。", DECK) == "wǒ chī fàn。"
-
-
 def test_command_line_prints_stopped_on_claude_error(monkeypatch, capsys):
     from hsk_trainer.blocks.sentence_writer import __main__ as cli
 
@@ -840,8 +1116,8 @@ def test_word_listed_twice_keeps_the_first_passing_copy(tmp_path, capsys):
     write_saved(
         tmp_path,
         saved_line("吃", [BAD]),
-        saved_line("吃", [("我吃饭。", "I eat.")]),
-        saved_line("吃", [("爸爸吃饭。", "Dad eats.")]),
+        saved_line("吃", [s("我吃饭。", "I eat.")]),
+        saved_line("吃", [s("爸爸吃饭。", "Dad eats.")]),
         *others,
     )
     fake = FakeClaude(BAND1)
@@ -853,18 +1129,11 @@ def test_word_listed_twice_keeps_the_first_passing_copy(tmp_path, capsys):
     assert "listed twice" in capsys.readouterr().out
 
 
-def test_saved_pinyin_is_made_again_on_resume(tmp_path):
-    write_saved(tmp_path, *[saved_line(w, GOOD[w]) for w in BAND1_IDS])  # pinyin "x"
-    run(tmp_path, BAND1, FakeClaude(BAND1))
-    pinyin = saved_by_id(tmp_path)["吃"]["sentences"][0]["pinyin"]
-    assert pinyin == "wǒ chī fàn。"
-
-
 def test_same_sentence_twice_is_kept_once(tmp_path):
     twice = [
-        ("我吃饭。", "I eat."),
-        ("我吃饭。", "I eat."),
-        ("爸爸吃饭。", "Dad eats."),
+        s("我吃饭。", "I eat."),
+        s("我吃饭。", "I eat."),
+        s("爸爸吃饭。", "Dad eats."),
     ]
     run(tmp_path, BAND1, FakeClaude(BAND1, sentences={"吃": twice}))
     assert kept(tmp_path, "吃") == ["我吃饭。", "爸爸吃饭。"]
@@ -882,7 +1151,7 @@ def test_command_line_prints_stopped_when_cards_file_is_missing(monkeypatch, cap
 
 
 def test_saved_line_with_the_same_sentence_twice_is_redone(tmp_path):
-    same = [("我吃饭。", "I eat."), ("我吃饭。", "I eat.")]
+    same = [s("我吃饭。", "I eat."), s("我吃饭。", "I eat.")]
     others = [saved_line(w, GOOD[w]) for w in BAND1_IDS if w != "吃"]
     write_saved(tmp_path, saved_line("吃", same), *others)
     fake = FakeClaude(BAND1)
@@ -894,16 +1163,9 @@ def test_saved_line_with_the_same_sentence_twice_is_redone(tmp_path):
 # -- /code-review round 1 --------------------------------------------------------------
 
 
-def test_pinyin_for_other_words_sees_the_whole_sentence():
-    """个 after 这 is light (ge) in context; read alone, pypinyin would say gè."""
-    zhe = card("这", "zhè", 1, ["this"])
-    pinyin = block.sentence_pinyin("这个", [*DECK, zhe], ("这", "个"))
-    assert pinyin == "zhè ge"
-
-
 def test_curly_quotes_and_dashes_in_english_are_made_plain(tmp_path):
     fake = FakeClaude(
-        BAND1, sentences={"吃": [("我吃饭。", "I\u2019m eating \u2014 now.")]}
+        BAND1, sentences={"吃": [s("我吃饭。", "I\u2019m eating \u2014 now.")]}
     )
     run(tmp_path, BAND1, fake, retries=0)
     assert saved_by_id(tmp_path)["吃"]["sentences"][0]["english"] == "I'm eating - now."
@@ -911,7 +1173,7 @@ def test_curly_quotes_and_dashes_in_english_are_made_plain(tmp_path):
 
 def test_slash_percent_and_ampersand_are_fine_in_english(tmp_path):
     fake = FakeClaude(
-        BAND1, sentences={"吃": [("我吃饭。", "He/she eats 100% & more.")]}
+        BAND1, sentences={"吃": [s("我吃饭。", "He/she eats 100% & more.")]}
     )
     result = run(tmp_path, BAND1, fake, retries=0)
     assert list(result.failed) == []
@@ -927,8 +1189,8 @@ def test_word_listed_twice_prefers_a_current_copy_over_an_older_one(tmp_path):
     others = [saved_line(w, GOOD[w]) for w in BAND1_IDS if w != "吃"]
     write_saved(
         tmp_path,
-        saved_line("吃", [("我吃饭。", "I eat.")], version="0"),
-        saved_line("吃", [("爸爸吃饭。", "Dad eats.")]),
+        saved_line("吃", [s("我吃饭。", "I eat.")], version="0"),
+        saved_line("吃", [s("爸爸吃饭。", "Dad eats.")]),
         *others,
     )
     fake = FakeClaude(BAND1)
@@ -938,7 +1200,7 @@ def test_word_listed_twice_prefers_a_current_copy_over_an_older_one(tmp_path):
 
 
 def test_first_entry_wins_when_reply_repeats_a_word(tmp_path):
-    good = [{"hanzi": h, "english": e} for h, e in GOOD["吃"]]
+    good = items(GOOD["吃"])
     body = json.dumps(
         {"cards": [{"id": "吃", "sentences": good}, {"id": "吃", "sentences": []}]},
         ensure_ascii=False,
@@ -952,7 +1214,7 @@ def test_first_entry_wins_when_reply_repeats_a_word(tmp_path):
 
 
 def test_a_stray_item_in_the_reply_fails_alone(tmp_path):
-    good = [{"hanzi": h, "english": e} for h, e in GOOD["吃"]]
+    good = items(GOOD["吃"])
     body = json.dumps(
         {"cards": ["oops", {"id": "吃", "sentences": good}]}, ensure_ascii=False
     )
@@ -960,3 +1222,43 @@ def test_a_stray_item_in_the_reply_fails_alone(tmp_path):
     write_saved(tmp_path, *others)
     result = run(tmp_path, BAND1, FakeClaude(BAND1, script={0: body}))
     assert result.written == 1
+
+
+# -- block-review round 2 --------------------------------------------------------------
+
+
+def test_count_reason_shows_claudes_pinyin():
+    found = problems("我吃饭。", "wǒchī fàn", ("我", "吃", "饭"))
+    assert any("wǒchī fàn" in p for p in found), found
+
+
+def test_retry_prompt_shows_the_rejected_pinyin(tmp_path):
+    wrong = ("我吃饭。", "wǒ chā fàn", "I eat.")
+    fake = FakeClaude(BAND1, sentences={"吃": [wrong]}, script={1: {"吃": GOOD["吃"]}})
+    run(tmp_path, BAND1, fake)
+    assert "wǒ chā fàn" in fake.prompts[1]
+
+
+def test_same_sentence_with_corrected_pinyin_is_still_tried(tmp_path):
+    wrong = ("我吃饭。", "wǒ chā fàn", "I eat.")
+    right = ("我吃饭。", "wǒ chī fàn", "I eat.")
+    fake = FakeClaude(BAND1, sentences={"吃": [wrong, right]})
+    result = run(tmp_path, BAND1, fake, retries=0)
+    assert list(result.failed) == []
+    assert kept(tmp_path, "吃") == ["我吃饭。"]
+
+
+def test_layout_turns_v_with_a_tone_mark_into_u_umlaut():
+    assert block.layout_pinyin("绿。", "lv\u0300") == "lǜ。"
+
+
+# -- block-review round 3 --------------------------------------------------------------
+
+
+def test_full_tone_on_a_neutral_syllable_must_be_a_real_reading():
+    """了 is le; lè is no reading of 了, so it fails (bù for 不 in 对不起 passes)."""
+    le = card("了", "le", 1, ["particle"])
+    found = block.pinyin_problems(
+        "我吃饭了。", "wǒ chī fàn lè", ("我", "吃", "饭", "了"), [*DECK, le]
+    )
+    assert any("了" in p for p in found), found
