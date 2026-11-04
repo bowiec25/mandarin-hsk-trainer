@@ -141,6 +141,7 @@ Some of these **physically stop** a mistake. Others are just **instructions or h
 | Small steps | ⚪ | You + Claude | Each plan | Everyone | A habit. Agent work: plan the 4-PR split before building (M4 Step 4b lesson) |
 | No real Claude in tests | 🟠 | pytest (`tests/conftest.py` autouse fixture) | Every test | Everyone running tests | Only covers `quizkit.claude`; a test can still start another program on purpose |
 | Judge eval bar (≥ 90%, no wrong "yes") | ⚪ | You + Claude, by hand | Prompt or model change | The judge | Not in CI (needs Claude); a small set catches big problems, not rare ones |
+| Live sentence checks (script checks every sentence Claude writes during play) | 🔴 | Our code (`sentence_validator` + pinyin + English checks inside `write_one`) | Every live sentence, before it's shown or saved | The quiz | Only as good as the rules: they catch wrong words and pinyin, not an unnatural sentence (that's the `data-auditor`, Step 6) |
 
 ### The big lesson
 - **If it really matters, make it 🔴.** E.g. "Don't read `.env`" in CLAUDE.md is only 🔵, but the deny rule plus the hook makes it 🔴.
@@ -223,6 +224,8 @@ Some of these **physically stop** a mistake. Others are just **instructions or h
 - **An AI judge needs an eval, not just tests.** Tests (with a fake Claude) prove the plumbing; only a hand-labelled set run against the real model shows how often it's *right*. Set the bar first (here: ≥ 90% and **no** wrong "yes"), run it twice (models aren't fully consistent), and pick the model by the numbers (M4 Step 4b: Haiku = Sonnet, so Haiku).
 - **When two models disagree with your label the same way, look at the label.** Decide on purpose, write *why* next to it, and never relabel just to pass.
 - **Make it impossible for tests to call the real AI.** One autouse fixture (`tests/conftest.py`) makes `claude` look "not installed"; a test that needs it fakes it.
+- **Live AI in an app: check, fall back, switch off, save.** Every live sentence goes through the same script checks as the batch ones; if Claude is slow or failing the app falls back (bank, or nothing), switches live off after 2 failures, has an off flag (`--no-live`), and saves what passes so it needs Claude less over time. Ask ahead (while the user answers the previous question) to hide the wait (M4 Step 5, ADR 0011).
+- **Background threads: they only call the AI; files stay on the main thread.** Then a slow or failed call can't corrupt a file. Test the "late" paths too: a result (or an error) that arrives after the app has moved on was the one real crash the review found.
 - **Force the AI's reply shape, then check it anyway.** `claude -p --json-schema` + a pydantic model; a bad reply counts as "couldn't check", never as right. Treat user text inside the prompt as data (escape it, wrap it in tags) and test an injection attempt.
 
 ---

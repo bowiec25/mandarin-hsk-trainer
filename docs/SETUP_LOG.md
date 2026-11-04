@@ -663,3 +663,22 @@ You now have: decision records, data shapes, hooks and permissions, the `/new-bl
 - **No test can call the real Claude:** `tests/conftest.py` makes `claude` look "not installed" in every test.
 - **Lesson: this was too big for one PR.** It did four jobs (helper option, block, wiring, eval) and ran long. Next agent: four small PRs.
 - 540 tests (was 447).
+
+## M4 Step 5: sentences, live and banked (2026-11-04)
+
+> **In plain words:** `char_sentence` and `full` now play. Under each word you get an example sentence (with pinyin in `full`), and its English after you answer. While you answer one word, Claude writes the next word's sentence; our script checks it, and every good one is saved to a bank that grows as you play.
+
+1. **ADR 0008 → the checker (PR #42, #43).** `sentence_validator` checks each sentence: the word is there **on its own** (not hidden inside a bigger word), every word is at or below the band, 3–20 characters. It splits the sentence with our own HSK word list, not jieba (**ADR 0009**: jieba split words in ways that don't match HSK).
+2. **The writer (PR #44).** `sentence_writer`, a batch agent like `answer_writer`: Claude writes 2 sentences + English per word, the checker rejects bad ones, and Claude retries with the reasons.
+3. **The trial found wrong pinyin (PR #45, ADR 0010).** The script-made pinyin was wrong for words with two readings (不便宜 came out biàn yí). Now **Claude writes the pinyin and a script checks it** against the dictionary readings. A looser neutral-tone rule was tried first; `/code-review` showed it let wrong pinyin through (老师 lǎo shi), so the rule is strict.
+4. **Still the right thing? You changed direction (ADR 0011, PR #46).** Not one fixed file of 978 × 2 sentences, but **live sentences in the quiz + a bank built from play**. Your rule: a new sentence with chance max(0.2, 1/(1+n)) when a word has n banked, otherwise the least recently seen banked one. No seed run; the 20 trial words are the head start.
+5. **The bank (PR #47).** `sentence_bank`: the rule, the least-recently-seen pick, saving new sentences (up to 10 a word). Which sentences you've seen lives in `data/sentence_seen.json` (gitignored; two quizzes at once don't wipe each other).
+6. **Live (PR #48).** `live_sentences`: asks Claude for the **next** word's sentence while you answer, waits at most 15 s, falls back to the bank, switches off after 2 failures in a row, and at the end saves sentences still being written. `sentence_writer.write_one` = one word, one call, the same checks. Its log goes to the gitignored `data/live_sentence_log.jsonl`, so playing never changes the repo.
+7. **Reviews:** test-writer first for each block; block-reviewer until ✅ (the live block's round 1 found a real crash: when Claude hung, the late error crashed the next question); `/code-review` on every PR.
+
+**Good to know:**
+- **Real play, 3 words:** 人 and 喝 got fresh sentences (about 4 s and 2,700 tokens each, under your subscription). 天 got none: **our** checker rejected both of Claude's sentences (今天天气很好 hides 天 inside 今天 / 天气; 我每天都喝牛奶 uses band-2 每). The quiz just says "no example sentence yet" and carries on. A live retry with the reasons is in `docs/FUTURE.md`.
+- **Turn it off:** `uv run hsk quiz --mode full --no-live` uses only banked sentences (no internet needed; most words have none yet).
+- **Top up the bank offline** (optional): `uv run python -m hsk_trainer.blocks.sentence_writer --limit 20`.
+- **Lesson: split agent work.** Step 5 was 7 small PRs instead of one big one, and each stayed reviewable.
+- 881 tests (was 540).

@@ -40,7 +40,7 @@
   - [x] 3. `answer_writer` agent + validator → `data/generated/answers.jsonl` (all 978; 25 `claude -p` calls, ~148k tokens; the checker caught 9, re-runs fixed them; trial of 20 + random spot-check of 20 approved: "a bit generous is fine"). Shared `quizkit.claude.ask_claude` helper (no tools, empty folder). 2 block-reviewer rounds → ✅. The quiz plugs the file in at Step 4
   - [x] 4a. **One answer list** (issue #33, ADR 0006 = PR #34, code = PR #35; changed from ADR 0005 after measuring: the old cleaner list added 1,434 mostly-junk answers like 猫 "modem"). The quiz reads only `answers.jsonl`, through `answer_writer.load_answers` (same checker as the writer, one band at a time); `cedict_cleaner` and the `cleaner` slot deleted, and `tests/test_retired.py` keeps them gone; the writer never shrinks the file. 3 block-reviews ✅, 2 `/code-review` passes (18 findings, 13 fixed). The `meanings` rename moved to `docs/FUTURE.md` (keep the step simple)
   - [x] 4b. **Generic Claude judge** (issue #37, ADR 0007 = PR #38, code = PR #39; changed from ADR 0005: the user will reuse it in other quizzes, so it's one generic `quizkit.blocks.judge` block, not an HSK judge). Asked only when the list says wrong; reply forced with `--json-schema` + checked; verdicts cached (keyed by what Claude saw); 2 failures in a row switch it off; `--no-judge`. Eval: 31 hand-labelled cases, Haiku passes (no wrong "yes"), 4 borderline answers labelled reject by choice. 540 tests. Lesson: this PR did four jobs; split agent work next time
-  - [ ] 5. `sentence_writer` + `sentence_validator` (unlocks `char_sentence`, `full`)
+  - [x] 5. **Sentences, live and banked** (issue #41, PRs #42–#48; unlocks `char_sentence`, `full`). `sentence_validator` (script, our own word list, no jieba: ADR 0009) checks each sentence: the word on its own, every word at or below the band, length. `sentence_writer` (agent): Claude writes the sentence, its English and its **pinyin**, and a script checks the pinyin against the dictionary (ADR 0010). Still-the-right-thing change: **you changed direction** after the trial, from one fixed batch file to **live sentences + a growing bank** (ADR 0011): p(new) = max(0.2, 1/(1+n)), banked pick = least recently seen, asked while you answer the word before, fallback to the bank, switch-off after 2 failures, `--no-live`. Blocks `sentence_bank` and `live_sentences`. Real play: about 4 s and 2,700 tokens a sentence. 881 tests
   - [ ] 6. `data-auditor` subagent (moved from M1: needs real sentences to test against)
 - [ ] M5 Learning smarts
 - [ ] M6 Web UI
@@ -166,7 +166,7 @@ mandarin-hsk-trainer/
 - Every PR: `uv run ruff check`, `uv run pytest`, and green CI on GitHub
 - M2: band word counts match the official totals (±known duplicates)
 - M3: `uv run hsk quiz --band 1 --mode char --n 10` plays end to end, and the grader accepts "to love" or "love" for 爱
-- M4: the validator passes ≥95% of generated sentences, and the `data-auditor` subagent plus your own spot-check of 20 samples
+- M4: the validator passes ≥95% of generated sentences, and the `data-auditor` subagent plus your own spot-check of 20 samples (since ADR 0011 there's no full batch: the bar applies to the bank as it grows, and every live sentence passes the checks before it's shown)
 - Reuse check (end of M3): scaffold a toy second deck (e.g. 10 country capitals) using only `quizkit` + `/new-block`, to prove the blocks are generic
 
 ## How we'll work (this is your first fully specified project)
