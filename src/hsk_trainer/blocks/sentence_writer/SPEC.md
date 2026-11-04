@@ -40,7 +40,7 @@ Command line: `uv run python -m hsk_trainer.blocks.sentence_writer --limit 20 [-
 ## Outputs
 1. **`data/generated/sentences.jsonl`** (committed): one line per word that has at least one passing sentence:
    `{"id": "爸爸", "hanzi": "爸爸", "sentences": [{"hanzi": "我爸爸是医生。", "pinyin": "wǒ bà ba shì yī shēng。", "english": "My dad is a doctor."}], "model": "...", "prompt_version": "2"}`.
-   Up to 2 sentences, each passed by the checker, the pinyin check and the English check. Saved after every Claude call, in `cards.jsonl` order.
+   Up to 2 sentences per call, each passed by the checker, the pinyin check and the English check. A line may hold up to `MAX_SAVED` (10) sentences: the quiz's bank adds sentences written during play (ADR 0011, `sentence_bank`), and such a line still counts as done. Saved after every Claude call, in `cards.jsonl` order.
 2. **`data/generated/sentence_writer_log.jsonl`** (committed, appended): one line per call: `time`, `model`, `prompt_version`, `cards`, `retry` (the round: 0 for the first call, then 1, 2…), `input_tokens`, `output_tokens`, `cost_usd`.
 3. **`SentenceRun`** summary (and on screen): `written`, `skipped` (already have a current, passing line), `failed` (ids with no passing sentence after all retries, or in a failed call), `input_tokens`, `output_tokens`.
 
@@ -58,6 +58,7 @@ Command line: `uv run python -m hsk_trainer.blocks.sentence_writer --limit 20 [-
 ## Tools
 - `quizkit.claude.ask_claude` (no tools for Claude, empty folder, subscription).
 - `hsk_trainer.blocks.sentence_validator` (`Vocab`, `check_sentence`): the checker. Its `words` give the word-by-word reading the pinyin check uses.
+- Shared with `sentence_bank`: `read_lines(path)` (reads the file; `SentenceFileError` names a bad line) and `write_lines(path, lines)` (the one way the file is written, atomically).
 - `pypinyin` (`heteronym=True`: every possible reading of a character), `quizkit.files.write_atomically` and `load_cards`, pydantic.
 
 ## Failure modes

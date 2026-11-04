@@ -15,6 +15,7 @@ wheels/
 # Local data (personal progress, not shared)
 data/progress.db
 data/judge_cache.jsonl
+data/sentence_seen.json
 
 # Tool caches
 .pytest_cache/

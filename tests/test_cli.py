@@ -266,14 +266,6 @@ def test_bad_n_is_refused(n):
     assert code != 0
 
 
-@pytest.mark.parametrize("mode", ["char_sentence", "full"])
-def test_sentence_modes_not_ready_yet(mode):
-    code, out = play("--mode", mode)
-    assert code != 0
-    assert "sentence" in out.lower()
-    assert "Traceback" not in out
-
-
 def test_unknown_mode_is_refused():
     code, out = play("--mode", "banana")
     assert code != 0
@@ -487,3 +479,138 @@ def test_hanzi_print_through_a_pipe_on_any_os():
     assert proc.returncode == 0, proc.stderr.decode("utf-8", "replace")
     out = proc.stdout.decode("utf-8")
     assert "Score: 0/2" in out
+
+
+# --- the sentence modes (M4 Step 5, ADR 0011: banked sentences) -------------------
+# Hidden --sentences / --seen point the quiz at a tmp bank and seen file; --no-judge
+# keeps Claude out. A 1-word deck's word depends only on the seed, not the mode.
+
+SENTENCE = ("我爸爸是医生。", "wǒ bà ba shì yī shēng。", "My dad is a doctor.")
+
+
+def bank_file(tmp_path, word="爸爸", sentence=SENTENCE):
+    import json
+
+    hanzi, pinyin, english = sentence
+    path = tmp_path / "sentences.jsonl"
+    row = {
+        "id": word,
+        "hanzi": word,
+        "sentences": [{"hanzi": hanzi, "pinyin": pinyin, "english": english}],
+        "model": "fake-sonnet",
+        "prompt_version": "2",
+    }
+    path.write_text(json.dumps(row, ensure_ascii=False) + "\n", encoding="utf-8")
+    return path
+
+
+def play_sentences(tmp_path, mode, sentences, typed, word="爸爸"):
+    return play(
+        "--mode", mode, "--n", "1", "--seed", seed_for(word), "--no-judge",
+        "--sentences", str(sentences), "--seen", str(tmp_path / "seen.json"),
+        typed=typed,
+    )  # fmt: skip
+
+
+@pytest.mark.parametrize("mode", ["char_sentence", "full"])
+def test_sentence_modes_play(tmp_path, mode):
+    code, out = play_sentences(
+        tmp_path, mode, bank_file(tmp_path), accepted("爸爸")[0] + "\n"
+    )
+    assert code == 0, out
+    assert "Score: 1/1" in out
+    assert "Traceback" not in out
+
+
+@pytest.mark.parametrize("mode", ["char_sentence", "full"])
+def test_banked_sentence_is_shown_under_the_word(tmp_path, mode):
+    _, out = play_sentences(tmp_path, mode, bank_file(tmp_path), "x\n")
+    lines = out.splitlines()
+    at = next(i for i, text in enumerate(lines) if SENTENCE[0] in text)
+    assert any("爸爸" in text and SENTENCE[0] not in text for text in lines[:at])
+
+
+def test_full_mode_shows_the_sentence_pinyin(tmp_path):
+    _, out = play_sentences(tmp_path, "full", bank_file(tmp_path), "x\n")
+    assert SENTENCE[1].rstrip("。") in out
+
+
+def test_char_sentence_mode_hides_the_sentence_pinyin(tmp_path):
+    _, out = play_sentences(tmp_path, "char_sentence", bank_file(tmp_path), "x\n")
+    assert SENTENCE[1].rstrip("。") not in out
+    assert "bà ba" not in out  # nor the word's pinyin
+
+
+@pytest.mark.parametrize("mode", ["char_sentence", "full"])
+@pytest.mark.parametrize("typed", ["right", "zzzzzzzz"])
+def test_sentence_english_is_shown_only_after_the_answer(tmp_path, mode, typed):
+    answer = accepted("爸爸")[0] if typed == "right" else typed
+    _, out = play_sentences(tmp_path, mode, bank_file(tmp_path), answer + "\n")
+    mark = "✅" if typed == "right" else "❌"
+    assert SENTENCE[2] in out
+    assert out.index(SENTENCE[0]) < out.index(mark) < out.index(SENTENCE[2])
+
+
+def test_english_not_shown_when_quitting_before_answering(tmp_path):
+    _, out = play_sentences(tmp_path, "char_sentence", bank_file(tmp_path), "")
+    assert SENTENCE[0] in out
+    assert SENTENCE[2] not in out
+
+
+@pytest.mark.parametrize("mode", ["char_sentence", "full"])
+def test_word_without_a_sentence_says_so_and_still_plays(tmp_path, mode):
+    other = bank_file(
+        tmp_path, word="猫", sentence=("猫吃饭。", "māo chī fàn。", "A cat eats.")
+    )
+    code, out = play_sentences(tmp_path, mode, other, accepted("爸爸")[0] + "\n")
+    assert code == 0, out
+    assert "no example sentence" in out.lower()
+    assert "猫吃饭。" not in out
+    assert "Score: 1/1" in out
+
+
+def test_missing_bank_file_says_no_sentence_and_still_plays(tmp_path):
+    code, out = play_sentences(
+        tmp_path, "full", tmp_path / "none.jsonl", accepted("爸爸")[0] + "\n"
+    )
+    assert code == 0, out
+    assert "no example sentence" in out.lower()
+    assert "Score: 1/1" in out
+
+
+@pytest.mark.parametrize("mode", ["char_sentence", "full"])
+def test_seen_file_is_written(tmp_path, mode):
+    import json
+
+    play_sentences(tmp_path, mode, bank_file(tmp_path), "x\n")
+    seen = json.loads((tmp_path / "seen.json").read_text(encoding="utf-8"))
+    assert SENTENCE[0] in seen["爸爸"]
+
+
+def test_char_modes_never_write_the_seen_file(tmp_path):
+    play_sentences(tmp_path, "char", bank_file(tmp_path), "x\n")
+    assert not (tmp_path / "seen.json").exists()
+
+
+def test_broken_bank_file_gives_a_clean_error(tmp_path):
+    bad = tmp_path / "sentences.jsonl"
+    bad.write_text('{"id": "爸爸"\n', encoding="utf-8")
+    code, out = play_sentences(tmp_path, "full", bad, "x\n")
+    assert code != 0
+    assert "sentence bank" in out
+    assert "Traceback" not in out
+
+
+def test_seen_file_that_cannot_be_saved_does_not_stop_the_quiz(tmp_path, monkeypatch):
+    from hsk_trainer.blocks import sentence_bank
+
+    def locked(*args, **kwargs):
+        raise PermissionError("locked")
+
+    monkeypatch.setattr(sentence_bank, "write_atomically", locked)
+    code, out = play_sentences(
+        tmp_path, "full", bank_file(tmp_path), accepted("爸爸")[0] + "\n"
+    )
+    assert code == 0, out
+    assert "Score: 1/1" in out
+    assert "couldn't save" in out

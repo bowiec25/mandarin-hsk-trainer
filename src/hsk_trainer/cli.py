@@ -3,7 +3,8 @@
 Not a block: it is the thin shell that wires the blocks to the keyboard and screen
 (cards.jsonl + answers.jsonl -> deck_builder -> engine's run_quiz). One answer list
 decides what counts (ADR 0006): the answers in data/generated/answers.jsonl. An answer
-the list misses goes to the Claude judge (ADR 0007), unless --no-judge.
+the list misses goes to the Claude judge (ADR 0007), unless --no-judge. The sentence
+modes show an example sentence from the bank (ADR 0011, `sentence_bank`).
 """
 
 import sys
@@ -14,6 +15,12 @@ import typer
 from pydantic import ValidationError
 
 from hsk_trainer.blocks.answer_writer import ANSWERS_FILE, AnswerFileError, load_answers
+from hsk_trainer.blocks.sentence_bank import SEEN_FILE, SentenceBank
+from hsk_trainer.blocks.sentence_writer import (
+    SENTENCES_FILE,
+    Sentence,
+    SentenceFileError,
+)
 from hsk_trainer.modes import HSK_MODES
 from quizkit.blocks.deck_builder import build_deck
 from quizkit.blocks.engine import Attempt, QuizSession, run_quiz
@@ -21,6 +28,7 @@ from quizkit.blocks.grader import GradeSettings, clean
 from quizkit.blocks.judge import ClaudeJudge
 from quizkit.files import load_cards
 from quizkit.models import Card, Question
+from quizkit.modes import Mode
 
 # Found from this file, so `hsk` works from any folder (src/hsk_trainer/cli.py -> root).
 # Assumes it runs from the repo (`uv run hsk`), not from an installed wheel.
@@ -34,7 +42,8 @@ JUDGE_SUBJECT = (
     "Chinese word and types its English meaning."
 )
 
-PLAYABLE_MODES = ("char", "char_pinyin")  # the sentence modes need M4's sentences
+PLAYABLE_MODES = tuple(HSK_MODES)
+SENTENCE_FIELDS = ("sentence", "sentence_pinyin")  # from the bank, not the card
 SHOW_ANSWERS = 4  # how many accepted answers to show after a wrong one
 
 app = typer.Typer(
@@ -53,26 +62,61 @@ def _root() -> None:
 def _check_mode(mode: str) -> str:
     if mode in PLAYABLE_MODES:
         return mode
-    if mode in HSK_MODES:
-        raise typer.BadParameter(
-            f"{mode!r} needs example sentences, which arrive in M4."
-        )
     raise typer.BadParameter(
         f"{mode!r} is not a mode. Try: {', '.join(PLAYABLE_MODES)}."
     )
+
+
+class _Sentences:
+    """The sentence part of a question: shown under the word, its English after the
+    answer (ADR 0011). Only used by the sentence modes."""
+
+    def __init__(self, bank: SentenceBank, fields: list[str]) -> None:
+        self.bank = bank
+        self.fields = fields  # which of SENTENCE_FIELDS the mode shows, in order
+        self.current: Sentence | None = None
+        self.warned = False  # the seen file couldn't be saved (said once)
+
+    def show(self, question: Question) -> None:
+        self.current = self.bank.banked(question.card_id)
+        if self.current is None:
+            print("   (no example sentence yet for this word)")
+            return
+        try:
+            self.bank.mark_seen(question.card_id, self.current)
+        except OSError as err:  # e.g. OneDrive or antivirus has it locked: carry on
+            if not self.warned:
+                print(f"   (couldn't save which sentences you've seen: {err})")
+                self.warned = True
+        print(f"   {self.current.hanzi}")
+        if "sentence_pinyin" in self.fields:
+            print(f"   {self.current.pinyin}")
+
+    def after(self) -> None:
+        if self.current is not None:
+            print(f"   = {self.current.english}")
+
+
+def _show(question: Question) -> None:
+    print()
+    print("   ".join(question.shown.values()))
+
+
+def _read() -> str | None:
+    """The typed answer; end-of-input = quit (None)."""
+    try:
+        return input("> ")
+    except EOFError:
+        print()
+        return None
 
 
 def _ask(question: Question) -> str | None:
     """Show the word, read the typed answer. End-of-input = quit (None).
 
     Ctrl-C needs nothing here: run_quiz treats it as a quit wherever it lands."""
-    print()
-    print("   ".join(question.shown.values()))
-    try:
-        return input("> ")
-    except EOFError:
-        print()
-        return None
+    _show(question)
+    return _read()
 
 
 def _readable(question: Question) -> dict[str, str]:
@@ -147,6 +191,8 @@ def quiz(
     ] = None,
     cards: Annotated[Path | None, typer.Option(hidden=True)] = None,
     answers: Annotated[Path | None, typer.Option(hidden=True)] = None,
+    sentences: Annotated[Path | None, typer.Option(hidden=True)] = None,
+    seen: Annotated[Path | None, typer.Option(hidden=True)] = None,
     judge: Annotated[
         bool,
         typer.Option(
@@ -167,14 +213,32 @@ def quiz(
         _fail(f"No cards file at {cards}.")
     answers = answers or ANSWERS_FILE
 
+    wanted = HSK_MODES[mode]
+    from_bank = [f for f in wanted.show if f in SENTENCE_FIELDS]
+    # The card has no sentence fields: they come from the bank as each word is shown.
+    shown = Mode(name=wanted.name, show=[f for f in wanted.show if f not in from_bank])
+    sentence_part: _Sentences | None = None
     try:
+        all_cards = load_cards(cards)
         # Only this band's cards: a bad line in another band doesn't block this quiz.
-        in_band = [c for c in load_cards(cards) if c.level == band]
+        in_band = [c for c in all_cards if c.level == band]
         playable = _with_answers(in_band, answers)
-        questions = build_deck(playable, HSK_MODES[mode], n, levels=[band], seed=seed)
+        questions = build_deck(playable, shown, n, levels=[band], seed=seed)
+        # The bank knows every card, so other bands' lines stay as they are.
+        if from_bank:
+            bank = SentenceBank(
+                all_cards, path=sentences or SENTENCES_FILE, seen_path=seen or SEEN_FILE
+            )
+            sentence_part = _Sentences(bank, from_bank)
         # Up-front data check (a card nobody can answer), kept apart from run_quiz so a
         # ValueError mid-quiz is never mislabelled as a bad file.
         QuizSession(questions, settings=SETTINGS)
+    except SentenceFileError as err:  # the bank (a ValueError: caught first)
+        _fail(
+            f"Can't read the sentence bank {sentences or SENTENCES_FILE}:",
+            str(err),
+            "Restore it with git checkout, or fix the line it names.",
+        )
     except (ValidationError, ValueError) as err:  # bad or partial data file
         hint = []
         if answers == ANSWERS_FILE and isinstance(err, AnswerFileError):
@@ -183,6 +247,8 @@ def quiz(
                 "uv run python -m hsk_trainer.blocks.answer_writer",
             ]
         _fail(f"Can't build a quiz from {cards} and {answers.name}:", str(err), *hint)
+    except OSError as err:  # a data file that can't be opened
+        _fail(f"Can't read the quiz files: {err}")
 
     if len(questions) < n:
         print(
@@ -198,9 +264,20 @@ def quiz(
         if judge
         else None
     )
-    result = run_quiz(
-        questions, ask=_ask, tell=_tell, settings=SETTINGS, judge=judge_fn
-    )
+    ask, tell = _ask, _tell
+    if sentence_part is not None:  # the sentence modes: a sentence under each word
+        part = sentence_part
+
+        def ask(question: Question) -> str | None:
+            _show(question)
+            part.show(question)
+            return _read()
+
+        def tell(attempt: Attempt) -> None:
+            _tell(attempt)
+            part.after()
+
+    result = run_quiz(questions, ask=ask, tell=tell, settings=SETTINGS, judge=judge_fn)
 
     print()
     if not result.finished:

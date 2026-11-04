@@ -39,7 +39,8 @@ ROOT = Path(__file__).resolve().parents[4]
 SENTENCES_FILE = ROOT / "data" / "generated" / "sentences.jsonl"
 LOG_FILE = ROOT / "data" / "generated" / "sentence_writer_log.jsonl"
 MODEL = "sonnet"
-MAX_SENTENCES = 2
+MAX_SENTENCES = 2  # asked for, and kept, per word per call
+MAX_SAVED = 10  # most sentences one word may have saved (the bank's cap, ADR 0011)
 MAX_ENGLISH = 120
 ENGLISH = re.compile(r"(?=.*[A-Za-z])[A-Za-z0-9 .,!?'\"():;/%&-]+")  # needs a letter
 # Typographic marks Claude often uses, made plain before the check (and saved plain).
@@ -313,8 +314,8 @@ def _sentence_problems(
 def _line_problems(
     line: SentenceLine, word: str, vocab: Vocab, cards: list[Card]
 ) -> list[str]:
-    if not 1 <= len(line.sentences) <= MAX_SENTENCES:
-        return [f"needs 1-{MAX_SENTENCES} sentences, has {len(line.sentences)}"]
+    if not 1 <= len(line.sentences) <= MAX_SAVED:
+        return [f"needs 1-{MAX_SAVED} sentences, has {len(line.sentences)}"]
     problems: list[str] = []
     if len({s.hanzi for s in line.sentences}) < len(line.sentences):
         problems.append("the same sentence is listed twice")
@@ -400,7 +401,7 @@ def build_prompt(
 # -- the file ------------------------------------------------------------------------
 
 
-def _read_lines(path: Path) -> list[SentenceLine]:
+def read_lines(path: Path) -> list[SentenceLine]:
     """Every line of a sentences file (blank lines skipped). Raises SentenceFileError."""
     try:
         text = path.read_text(encoding="utf-8")
@@ -434,7 +435,7 @@ def _load_existing(
     saved: dict[str, SentenceLine] = {}
     usable: set[str] = set()  # ids whose kept line passes the checker
     changed = False
-    for line in _read_lines(out):
+    for line in read_lines(out):
         if line.id not in by_id:
             print(f"Warning: dropped {line.id!r} from {out.name} (no longer a card)")
             changed = True
@@ -468,14 +469,20 @@ def _save(
     saved: dict[str, SentenceLine],
 ) -> None:
     """Write every word's newest line: done this run or good, else the old saved one."""
-    rows = [
-        (done.get(c.id) or saved[c.id]).model_dump()
-        for c in cards
-        if c.id in done or c.id in saved
-    ]
-    out.parent.mkdir(parents=True, exist_ok=True)
-    data = "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows)
-    write_atomically(out, data.encode("utf-8"))
+    write_lines(
+        out,
+        [done.get(c.id) or saved[c.id] for c in cards if c.id in done or c.id in saved],
+    )
+
+
+def write_lines(path: Path, lines: list[SentenceLine]) -> None:
+    """Save sentence lines in the file's one format (atomically). sentence_bank uses
+    it too, so the shared file is always written the same way."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    data = "".join(
+        json.dumps(line.model_dump(), ensure_ascii=False) + "\n" for line in lines
+    )
+    write_atomically(path, data.encode("utf-8"))
 
 
 def _log(log: Path, reply: ClaudeReply, n_cards: int, retry: int) -> None:
