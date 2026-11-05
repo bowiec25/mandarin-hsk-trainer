@@ -14,8 +14,10 @@ AI = Card(
 )
 
 
-def test_the_four_modes_exist():
-    assert set(HSK_MODES) == {"char", "char_pinyin", "char_sentence", "full"}
+def test_the_six_modes_exist():
+    assert set(HSK_MODES) == {
+        "char", "char_pinyin", "char_sentence", "full", "translate", "translate_pinyin"
+    }  # fmt: skip
     assert HSK_MODES["full"].show == ["hanzi", "pinyin", "sentence", "sentence_pinyin"]
 
 
@@ -33,3 +35,13 @@ def test_sentence_modes_need_sentences_first():
     # Sentences arrive in M4; until then these modes must fail clearly, not silently.
     with pytest.raises(MissingFieldError, match="sentence"):
         build_question(AI, HSK_MODES["full"])
+
+
+def test_translate_modes_take_the_answer_from_the_sentence():
+    """ADR 0012: the expected answer is the sentence's English, not the word's."""
+    assert HSK_MODES["translate"].show == ["sentence"]
+    assert HSK_MODES["translate_pinyin"].show == ["sentence", "sentence_pinyin"]
+    for name in ("translate", "translate_pinyin"):
+        assert HSK_MODES[name].answer_from == "sentence"
+    for name in ("char", "char_pinyin", "char_sentence", "full"):
+        assert HSK_MODES[name].answer_from == "card"

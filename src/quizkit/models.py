@@ -47,7 +47,9 @@ class Verdict(BaseModel):
 
     correct: bool
     reason: str
-    source: Literal["claude", "cache", "not_checked"]
+    source: Literal[
+        "claude", "cache", "not_checked", "self"
+    ]  # self = learner marked it
 
     @model_validator(mode="after")
     def not_checked_is_wrong(self) -> "Verdict":

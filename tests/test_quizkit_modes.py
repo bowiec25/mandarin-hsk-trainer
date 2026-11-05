@@ -32,3 +32,13 @@ def test_missing_field_gives_clear_error():
 def test_mode_must_show_something():
     with pytest.raises(ValueError):
         Mode(name="empty", show=[])
+
+
+def test_answer_from_defaults_to_the_card_and_is_checked():
+    assert Mode(name="m", show=["country"]).answer_from == "card"
+    assert (
+        Mode(name="m", show=["country"], answer_from="sentence").answer_from
+        == "sentence"
+    )
+    with pytest.raises(ValueError):
+        Mode(name="m", show=["country"], answer_from="map")

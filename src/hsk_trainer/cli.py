@@ -4,7 +4,8 @@ Not a block: it is the thin shell that wires the blocks to the keyboard and scre
 (cards.jsonl + answers.jsonl -> deck_builder -> engine's run_quiz). One answer list
 decides what counts (ADR 0006): the answers in data/generated/answers.jsonl. An answer
 the list misses goes to the Claude judge (ADR 0007), unless --no-judge. The sentence
-modes show an example sentence from the bank (ADR 0011, `sentence_bank`).
+modes show an example sentence from the bank (ADR 0011, `sentence_bank`). The translate
+modes ask for a whole sentence's meaning, graded for the gist (ADR 0012).
 """
 
 import sys
@@ -26,9 +27,9 @@ from hsk_trainer.modes import HSK_MODES
 from quizkit.blocks.deck_builder import build_deck
 from quizkit.blocks.engine import Attempt, QuizSession, run_quiz
 from quizkit.blocks.grader import GradeSettings, clean
-from quizkit.blocks.judge import ClaudeJudge
+from quizkit.blocks.judge import GIST_MAX_CHARS, GIST_RUBRIC, ClaudeJudge
 from quizkit.files import load_cards
-from quizkit.models import Card, Question
+from quizkit.models import Card, Judge, Question, Verdict
 from quizkit.modes import Mode
 
 # Found from this file, so `hsk` works from any folder (src/hsk_trainer/cli.py -> root).
@@ -37,10 +38,18 @@ ROOT = Path(__file__).resolve().parents[2]
 CARDS_FILE = ROOT / "data" / "processed" / "cards.jsonl"
 JUDGE_CACHE = ROOT / "data" / "judge_cache.jsonl"  # gitignored: verdicts, not source
 SETTINGS = GradeSettings()
+# Sentences: no typo forgiveness. A 1-2 letter change can flip the meaning
+# ("I don't like" -> "I do like"); near-misses go to the gist judge instead.
+TRANSLATE_SETTINGS = GradeSettings(allow_typos=False)
 # The only HSK part of the judge: what the quiz is about (ADR 0007).
 JUDGE_SUBJECT = (
     "Chinese vocabulary for learners of HSK 3.0, bands 1-3. The learner sees a "
     "Chinese word and types its English meaning."
+)
+# The translate modes' subject; the sentence eval set uses the same one (ADR 0012).
+TRANSLATE_SUBJECT = (
+    "Chinese example sentences for learners of HSK 3.0, bands 1-3. The learner sees "
+    "a Chinese sentence and types what it means in English."
 )
 
 PLAYABLE_MODES = tuple(HSK_MODES)
@@ -74,12 +83,20 @@ class _Sentences:
     used by the sentence modes."""
 
     def __init__(
-        self, live: LiveSentences, fields: list[str], questions: list[Question]
+        self,
+        live: LiveSentences,
+        fields: list[str],
+        questions: list[Question],
+        cards: dict[str, Card] | None = None,
     ) -> None:
         self.live = live
         self.fields = fields  # which of SENTENCE_FIELDS the mode shows, in order
         self.questions = questions
+        self.cards = cards or {}  # for the word line after a translation
         self.current: Sentence | None = None
+        self.revealed = False  # the English was shown already (self-marking)
+        self.stopped = False  # Ctrl-C at the y/n prompt: stop after this answer
+        self.told_fallback = False  # the 'mark it yourself' reason, said once
         self.at = 0  # questions shown so far (the engine asks them in turn)
 
     def start(self) -> None:
@@ -87,16 +104,71 @@ class _Sentences:
         if self.questions:
             self.live.prepare(self.questions[0].card_id)
 
-    def show(self, question: Question) -> None:
+    def _fetch(self, question: Question) -> Sentence | None:
         shown = self.live.sentence_for(question.card_id)
         self.current = shown.sentence
+        self.revealed = False
         if shown.note:
             print(f"   ({shown.note})")
         # While you answer, the next word's sentence is being written.
         self.at += 1
         if self.at < len(self.questions):
             self.live.prepare(self.questions[self.at].card_id)
+        return self.current
+
+    def translate(self, question: Question) -> Question | None:
+        """The engine's `prepare` for the translate modes: the word's question becomes
+        its sentence's, with the English as the answer. No usable sentence = skip."""
+        sentence = self._fetch(question)
+        if sentence is None or not clean(sentence.english, SETTINGS):
+            word = next(iter(question.shown.values()))
+            print(f"\n   (skipped {word}: no example sentence yet)")
+            return None
+        shown = {"sentence": sentence.hanzi}
+        if "sentence_pinyin" in self.fields:
+            shown["sentence_pinyin"] = sentence.pinyin
+        return Question(
+            card_id=question.card_id,
+            mode=question.mode,
+            shown=shown,
+            accepted_answers=[sentence.english],
+        )
+
+    def self_mark(self, question: Question, typed: str) -> Verdict:
+        """A Judge without Claude: show the English, the learner says if they got it."""
+        print(f"   = {question.accepted_answers[0]}")
+        self.revealed = True
+        while True:
+            try:
+                reply = _read("   Did you get the gist? (y/n) ")
+            except KeyboardInterrupt:  # keep this answer (unmarked), then stop
+                print()
+                reply, self.stopped = None, True
+            if reply is None:  # end of input: not marked, so not right
+                return Verdict(correct=False, reason="not marked", source="not_checked")
+            reply = reply.strip().lower()
+            if reply in ("y", "yes"):
+                return Verdict(correct=True, reason="you got the gist", source="self")
+            if reply in ("n", "no"):
+                return Verdict(correct=False, reason="you missed it", source="self")
+
+    def after_translation(self) -> None:
+        """After a translation: the English, the pinyin if it was hidden, the word."""
         if self.current is None:
+            return
+        if not self.revealed:
+            print(f"   = {self.current.english}")
+        if "sentence_pinyin" not in self.fields:
+            print(f"   {self.current.pinyin}")
+        card = self.cards.get(self.questions[self.at - 1].card_id)
+        if card is not None:
+            meaning = "; ".join(card.answers[:SHOW_ANSWERS])
+            print(
+                f"   word: {card.fields['hanzi']} ({card.fields['pinyin']}) = {meaning}"
+            )
+
+    def show(self, question: Question) -> None:
+        if self._fetch(question) is None:
             print("   (no example sentence yet for this word)")
             return
         print(f"   {self.current.hanzi}")
@@ -118,10 +190,10 @@ def _show(question: Question) -> None:
     print("   ".join(question.shown.values()))
 
 
-def _read() -> str | None:
+def _read(prompt: str = "> ") -> str | None:
     """The typed answer; end-of-input = quit (None)."""
     try:
-        return input("> ")
+        return input(prompt)
     except EOFError:
         print()
         return None
@@ -168,6 +240,8 @@ def _tell(attempt: Attempt) -> None:
         print(f"✅ close enough (typo): {readable.get(g.matched, g.matched)}")
     elif g.correct:
         print("✅")
+    elif verdict is not None and verdict.correct and verdict.source == "self":
+        print(f"✅ {verdict.reason}")
     elif verdict is not None and verdict.correct:
         print(f"✅ accepted by the Claude judge: {verdict.reason}")
     else:
@@ -178,6 +252,39 @@ def _tell(attempt: Attempt) -> None:
             print(f"   (judge {verdict.reason})")
         elif verdict is not None:
             print(f"   judge: {verdict.reason}")
+
+
+def _tell_translation(attempt: Attempt) -> None:
+    g, verdict = attempt.grade, attempt.verdict
+    if g.correct:
+        print("✅ close enough (typo)" if g.typo else "✅")
+    elif verdict is not None and verdict.correct:
+        if verdict.source == "self":
+            print(f"✅ {verdict.reason}")
+        else:
+            print(f"✅ accepted by the Claude judge: {verdict.reason}")
+    else:
+        print("❌")
+        if verdict is not None and verdict.source in ("claude", "cache"):
+            print(f"   judge: {verdict.reason}")
+        elif verdict is not None and verdict.source == "not_checked":
+            print(f"   ({verdict.reason})")
+
+
+def _or_self_mark(judge: Judge, part: "_Sentences") -> Judge:
+    """Claude's verdict, or the learner's own when Claude couldn't check (ADR 0012)."""
+
+    def judged(question: Question, typed: str) -> Verdict:
+        verdict = judge(question, typed)
+        if verdict.source != "not_checked":
+            return verdict
+        if not part.told_fallback:  # the reason once, not on every question
+            print(f"   (the judge couldn't check: {verdict.reason})")
+            part.told_fallback = True
+        print("   Mark it yourself:")
+        return part.self_mark(question, typed)
+
+    return judged
 
 
 def _asking() -> None:
@@ -229,7 +336,8 @@ def quiz(
         ),
     ] = True,
 ) -> None:
-    """Quiz yourself: see a word, type its English meaning. Ctrl-C stops (score kept)."""
+    """Quiz yourself: see a word (or, in the translate modes, a sentence), type its
+    English meaning. Ctrl-C stops (score kept)."""
     if cards is None:  # looked up now, not at import, so tests can point it elsewhere
         cards = CARDS_FILE
         if not cards.exists():
@@ -242,9 +350,12 @@ def quiz(
     answers = answers or ANSWERS_FILE
 
     wanted = HSK_MODES[mode]
+    translating = wanted.answer_from == "sentence"
     from_bank = [f for f in wanted.show if f in SENTENCE_FIELDS]
     # The card has no sentence fields: they come from the bank as each word is shown.
-    shown = Mode(name=wanted.name, show=[f for f in wanted.show if f not in from_bank])
+    # A translate mode's deck is of word questions, turned into sentences one by one.
+    on_card = [f for f in wanted.show if f not in from_bank] or ["hanzi"]
+    shown = Mode(name=wanted.name, show=on_card)
     sentence_part: _Sentences | None = None
     try:
         all_cards = load_cards(cards)
@@ -260,7 +371,8 @@ def quiz(
             sentences_live = LiveSentences(
                 bank, all_cards, enabled=live, before_waiting=_writing
             )
-            sentence_part = _Sentences(sentences_live, from_bank, questions)
+            by_id = {c.id: c for c in playable}
+            sentence_part = _Sentences(sentences_live, from_bank, questions, by_id)
         # Up-front data check (a card nobody can answer), kept apart from run_quiz so a
         # ValueError mid-quiz is never mislabelled as a bad file.
         QuizSession(questions, settings=SETTINGS)
@@ -285,18 +397,55 @@ def quiz(
         print(
             f"Only {len(questions)} band-{band} words, so the quiz has {len(questions)}."
         )
-    print(
-        f"Band {band}, {len(questions)} words. Type the meaning in English; Ctrl-C stops."
+    task = (
+        "Type what each sentence means in English"
+        if translating
+        else "Type the meaning in English"
     )
+    print(f"Band {band}, {len(questions)} words. {task}; Ctrl-C stops.")
 
     # run_quiz treats Ctrl-C anywhere in its loop as a quit, so the score is kept.
-    judge_fn = (
+    judge_fn: Judge | None = (
         ClaudeJudge(JUDGE_SUBJECT, cache_file=JUDGE_CACHE, before_asking=_asking)
-        if judge
+        if judge and not translating
         else None
     )
     ask, tell = _ask, _tell
-    if sentence_part is not None:  # the sentence modes: a sentence under each word
+    prepare = None
+    settings = SETTINGS
+    if translating and sentence_part is not None:  # whole sentences (ADR 0012)
+        part = sentence_part
+        part.start()
+        prepare = part.translate
+        settings = TRANSLATE_SETTINGS
+        judge_fn = (
+            _or_self_mark(
+                ClaudeJudge(
+                    TRANSLATE_SUBJECT,
+                    cache_file=JUDGE_CACHE,
+                    before_asking=_asking,
+                    rubric=GIST_RUBRIC,
+                    max_chars=GIST_MAX_CHARS,
+                ),
+                part,
+            )
+            if judge
+            else part.self_mark
+        )
+
+        def ask(question: Question) -> str | None:
+            if part.stopped:  # Ctrl-C at the last y/n: that answer is kept
+                return None
+            print()
+            for text in question.shown.values():
+                print(text)
+            return _read()
+
+        def tell(attempt: Attempt) -> None:
+            _tell_translation(attempt)
+            part.after_translation()
+
+    elif sentence_part is not None:  # the sentence modes: a sentence under each word
         part = sentence_part
         part.start()
 
@@ -309,14 +458,27 @@ def quiz(
             _tell(attempt)
             part.after()
 
-    result = run_quiz(questions, ask=ask, tell=tell, settings=SETTINGS, judge=judge_fn)
+    result = run_quiz(
+        questions,
+        ask=ask,
+        tell=tell,
+        settings=settings,
+        judge=judge_fn,
+        prepare=prepare,
+    )
     if sentence_part is not None:
         sentence_part.finish()
 
     print()
+    if result.skipped:
+        print(f"Skipped {result.skipped} with no example sentence.")
     if not result.finished:
-        print(f"Stopped after {result.answered} of {result.total}.")
-    print(f"Score: {result.correct}/{result.answered}")
+        print(f"Stopped after {result.answered + result.skipped} of {result.total}.")
+    if result.answered == 0 and result.skipped:
+        why = "Claude couldn't write any just now" if live else "try --live"
+        print(f"Nothing to score: no word had a sentence ({why}).")
+    else:
+        print(f"Score: {result.correct}/{result.answered}")
 
 
 def _utf8_output() -> None:
