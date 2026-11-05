@@ -556,3 +556,275 @@ def test_other_judge_errors_are_passed_through():
     with pytest.raises(ValueError, match="broken judge"):
         block.run_quiz([FRANCE], ask, tell, judge=judge)
     assert told == []
+
+
+# -- The prepare hook (ADR 0012) and QuizResult.skipped ----------------------------
+
+
+def live(question: Question, *answers: str) -> Question:
+    """A "prepared" version of `question`: same card, new content and answers."""
+    return Question(
+        card_id=question.card_id,
+        mode="capital_live",
+        shown={"country": question.shown["country"], "hint": "old name"},
+        accepted_answers=list(answers),
+    )
+
+
+def fake_prepare(replace: dict | None = None):
+    """A `prepare` that records each call; `replace` maps card_id -> what to return.
+
+    Cards not in `replace` come back unchanged. A value of None skips that card.
+    """
+    replace = replace or {}
+    calls: list[Question] = []
+
+    def prepare(question: Question) -> Question | None:
+        calls.append(question)
+        return replace.get(question.card_id, question)
+
+    return prepare, calls
+
+
+def test_prepare_called_once_per_question_in_order_with_the_question_as_given():
+    prepare, calls = fake_prepare()
+    result, asked, _ = play(CAPITALS, ["Paris", "Rome", "Madrid"], prepare=prepare)
+    assert calls == CAPITALS
+    assert asked == CAPITALS
+    assert result.correct == 3
+
+
+def test_prepare_called_only_when_the_question_becomes_current():
+    """Not all up front, and not again on a second read of `current`."""
+    prepare, calls = fake_prepare()
+    session = block.QuizSession(CAPITALS, prepare=prepare)
+    assert calls == []  # nothing is prepared when the session is made
+    assert session.current == FRANCE
+    assert session.current == FRANCE
+    assert calls == [FRANCE]
+    session.answer("Paris")
+    assert session.current == ITALY
+    assert session.current == ITALY
+    assert calls == [FRANCE, ITALY]
+
+
+def test_prepared_question_is_what_ask_grader_and_attempt_see():
+    old_paris = live(FRANCE, "Lutetia")
+    prepare, _ = fake_prepare({"france": old_paris})
+    result, asked, told = play([FRANCE, ITALY], ["Lutetia", "Rome"], prepare=prepare)
+    assert asked == [old_paris, ITALY]
+    assert result.attempts[0].question == old_paris
+    assert result.attempts[0].grade.correct is True  # graded against the new answers
+    assert told[0].question == old_paris
+
+
+def test_prepared_question_replaces_the_original_answers():
+    prepare, _ = fake_prepare({"france": live(FRANCE, "Lutetia")})
+    result, _, _ = play([FRANCE], ["Paris"], prepare=prepare)
+    assert result.attempts[0].grade.correct is False
+
+
+def test_judge_sees_the_prepared_question():
+    old_paris = live(FRANCE, "Lutetia")
+    prepare, _ = fake_prepare({"france": old_paris})
+    judge, calls = fake_judge(correct=False)
+    play([FRANCE], ["Paris"], prepare=prepare, judge=judge)
+    assert calls == [(old_paris, "Paris")]
+
+
+def test_prepare_none_skips_the_question():
+    prepare, calls = fake_prepare({"italy": None})
+    result, asked, told = play(CAPITALS, ["Paris", "Madrid"], prepare=prepare)
+    assert calls == CAPITALS
+    assert asked == [FRANCE, SPAIN]  # ask not called for the skipped one
+    assert [a.question for a in result.attempts] == [FRANCE, SPAIN]
+    assert len(told) == 2
+    assert (result.correct, result.answered, result.total) == (2, 2, 3)
+    assert result.skipped == 1
+    assert result.finished is True
+
+
+def test_skipping_the_last_questions_finishes_the_quiz():
+    prepare, _ = fake_prepare({"italy": None, "spain": None})
+    session = block.QuizSession(CAPITALS, prepare=prepare)
+    assert session.current == FRANCE
+    session.answer("Paris")
+    assert session.current is None
+    assert session.done is True
+    result = session.result()
+    assert (result.answered, result.skipped, result.total) == (1, 2, 3)
+    assert result.finished is True
+
+
+def test_every_question_skipped_asks_nothing_and_finishes():
+    prepare, _ = fake_prepare({"france": None, "italy": None, "spain": None})
+    result, asked, told = play(CAPITALS, [], prepare=prepare)
+    assert asked == [] and told == []
+    assert (result.answered, result.skipped, result.total) == (0, 3, 3)
+    assert result.correct == 0
+    assert result.finished is True
+
+
+def test_prepare_returning_another_card_raises_value_error_and_keeps_answers():
+    prepare, _ = fake_prepare({"italy": SPAIN})  # wrong card_id for Italy
+    session = block.QuizSession(CAPITALS, prepare=prepare)
+    assert session.current == FRANCE
+    session.answer("Paris")  # marking never prepares the next question
+    with pytest.raises(ValueError):
+        session.current  # noqa: B018 Italy is prepared (and fails) here
+    result = session.result()
+    assert result.answered == 1
+    assert result.attempts[0].typed == "Paris"
+
+
+def test_prepare_returning_another_card_raises_in_run_quiz():
+    prepare, _ = fake_prepare({"italy": SPAIN})
+    ask, asked = fake_ask(["Paris", "Rome", "Madrid"])
+    tell, _ = collector()
+    with pytest.raises(ValueError):
+        block.run_quiz(CAPITALS, ask, tell, prepare=prepare)
+    assert asked == [FRANCE]  # Italy was never asked
+
+
+def test_prepare_returning_an_unanswerable_question_raises_value_error():
+    prepare, _ = fake_prepare({"italy": live(ITALY, "   ")})
+    ask, asked = fake_ask(["Paris", "Rome", "Madrid"])
+    tell, _ = collector()
+    with pytest.raises(ValueError):
+        block.run_quiz(CAPITALS, ask, tell, prepare=prepare)
+    assert asked == [FRANCE]
+
+
+def test_unanswerable_prepared_question_keeps_the_answers_given():
+    prepare, _ = fake_prepare({"italy": live(ITALY, "   ")})
+    session = block.QuizSession(CAPITALS, prepare=prepare)
+    session.answer("Paris")
+    with pytest.raises(ValueError):
+        session.current  # noqa: B018
+    assert [a.typed for a in session.result().attempts] == ["Paris"]
+
+
+def test_answer_before_reading_current_prepares_first():
+    prepare, _ = fake_prepare({"france": live(FRANCE, "Lutetia")})
+    session = block.QuizSession(CAPITALS, prepare=prepare)
+    attempt = session.answer("Lutetia")  # current never read
+    assert attempt.correct
+    assert attempt.question.accepted_answers == ["Lutetia"]
+
+
+def test_reading_done_prepares_the_current_question():
+    prepare, _ = fake_prepare({"france": None, "italy": None, "spain": None})
+    session = block.QuizSession(CAPITALS, prepare=prepare)
+    assert session.done is True  # all skipped: done had to prepare them
+    assert session.result().skipped == 3
+
+
+def test_ctrl_c_inside_prepare_is_a_quit():
+    def prepare(question: Question) -> Question | None:
+        if question.card_id == "italy":
+            raise KeyboardInterrupt
+        return question
+
+    ask, asked = fake_ask(["Paris", "Rome", "Madrid"])
+    tell, told = collector()
+    result = run_expecting_no_ctrl_c(CAPITALS, ask, tell, prepare=prepare)
+    assert (result.correct, result.answered, result.total) == (1, 1, 3)
+    assert result.skipped == 0  # the question being prepared isn't skipped
+    assert result.finished is False
+    assert asked == [FRANCE]
+    assert told == list(result.attempts)
+
+
+def test_other_prepare_errors_are_passed_through():
+    def prepare(question: Question) -> Question | None:
+        if question.card_id == "italy":
+            raise RuntimeError("broken prepare")
+        return question
+
+    ask, _ = fake_ask(["Paris", "Rome", "Madrid"])
+    tell, _ = collector()
+    with pytest.raises(RuntimeError, match="broken prepare"):
+        block.run_quiz(CAPITALS, ask, tell, prepare=prepare)
+
+
+def test_no_prepare_is_the_old_behaviour():
+    result, asked, _ = play(CAPITALS, ["Paris", "Lisbon", "Madrid"])
+    assert asked == CAPITALS
+    assert result.skipped == 0
+    assert result.finished is True
+
+
+def test_session_takes_a_prepare_too():
+    old_paris = live(FRANCE, "Lutetia")
+    prepare, calls = fake_prepare({"france": old_paris, "italy": None})
+    session = block.QuizSession(CAPITALS, prepare=prepare)
+    assert session.current == old_paris
+    assert session.answer("Lutetia").correct is True
+    assert session.current == SPAIN
+    session.answer("Madrid")
+    assert session.done is True
+    result = session.result()
+    assert (result.correct, result.answered, result.skipped) == (2, 2, 1)
+    assert result.finished is True
+    assert calls == CAPITALS
+
+
+def test_result_skipped_defaults_to_zero():
+    assert block.QuizResult(attempts=(), total=2).skipped == 0
+
+
+def test_result_finished_counts_skipped():
+    result, _, _ = play([FRANCE], ["Paris"])
+    done = block.QuizResult(attempts=result.attempts, total=3, skipped=2)
+    assert done.finished is True
+    partway = block.QuizResult(attempts=result.attempts, total=3, skipped=1)
+    assert partway.finished is False
+
+
+def test_result_rejects_answered_plus_skipped_above_total():
+    result, _, _ = play([FRANCE], ["Paris"])
+    with pytest.raises(ValidationError):
+        block.QuizResult(attempts=result.attempts, total=2, skipped=2)
+
+
+def test_result_rejects_negative_skipped():
+    with pytest.raises(ValidationError):
+        block.QuizResult(attempts=(), total=1, skipped=-1)
+
+
+def test_prepare_is_not_called_at_creation_or_after_marking():
+    """Lazy: nothing is prepared at creation or after marking, so Ctrl-C or an error is a quit or
+    loud in the loop, never while the session is made or an answer is being kept."""
+    calls = []
+
+    def prepare(q):
+        calls.append(q.card_id)
+        return q
+
+    questions = [
+        Question(card_id=c, mode="m", shown={"country": c}, accepted_answers=[c])
+        for c in ("a", "b")
+    ]
+    session = block.QuizSession(questions, prepare=prepare)
+    assert calls == []
+    assert session.current is not None
+    session.answer("a")
+    assert calls == ["a"]
+    assert session.current is not None
+    assert calls == ["a", "b"]
+
+
+def test_prepare_returning_a_non_question_raises_value_error():
+    session = block.QuizSession(CAPITALS, prepare=lambda q: "Paris")
+    with pytest.raises(ValueError):
+        session.current  # noqa: B018
+
+
+def test_unusable_prepare_result_is_not_asked_for_again():
+    """A second read repeats the error without calling prepare (and its side effects)."""
+    prepare, calls = fake_prepare({"france": SPAIN})
+    session = block.QuizSession(CAPITALS, prepare=prepare)
+    for _ in range(2):
+        with pytest.raises(ValueError):
+            session.current  # noqa: B018
+    assert calls == [FRANCE]

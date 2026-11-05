@@ -3,7 +3,8 @@
 See SPEC.md in this folder (ADR 0003). Two layers:
 - `QuizSession` (the brain): step by step, no keyboard or screen code (fits a web UI).
 - `run_quiz` (the voice): the whole loop, getting answers from `ask`, feedback to `tell`.
-Generic: it never imports deck_builder or anything quiz-specific.
+Generic: it never imports deck_builder or anything quiz-specific. An optional `prepare`
+finishes each question just before it is asked, or skips it (ADR 0012).
 """
 
 from collections.abc import Callable
@@ -18,7 +19,7 @@ BLOCK_SPEC = BlockSpec(
     name="engine",
     kind="script",
     goal="Run a quiz: show each question, mark the typed answer with the grader, and keep score.",
-    inputs=["questions", "settings", "ask", "tell", "judge"],
+    inputs=["questions", "settings", "ask", "tell", "judge", "prepare"],
     outputs=["Attempt", "QuizResult"],
 )
 
@@ -47,12 +48,14 @@ class QuizResult(BaseModel):
 
     attempts: tuple[Attempt, ...]  # a tuple, so a frozen result truly can't change
     total: int = Field(ge=1)
+    skipped: int = Field(default=0, ge=0)  # questions `prepare` skipped
 
     @model_validator(mode="after")
     def total_covers_attempts(self) -> "QuizResult":
-        if len(self.attempts) > self.total:
+        if len(self.attempts) + self.skipped > self.total:
             raise ValueError(
-                f"{len(self.attempts)} attempts but the quiz only has {self.total} questions"
+                f"{len(self.attempts)} attempts and {self.skipped} skipped, but the quiz "
+                f"only has {self.total} questions"
             )
         return self
 
@@ -69,7 +72,7 @@ class QuizResult(BaseModel):
     @computed_field
     @property
     def finished(self) -> bool:
-        return self.answered == self.total
+        return self.answered + self.skipped == self.total
 
 
 class QuizSession:
@@ -80,6 +83,7 @@ class QuizSession:
         questions: list[Question],
         settings: GradeSettings | None = None,
         judge: Judge | None = None,
+        prepare: Callable[[Question], Question | None] | None = None,
     ) -> None:
         if not questions:
             raise ValueError("a quiz needs at least one question")
@@ -87,7 +91,11 @@ class QuizSession:
         self._questions = [q.model_copy(deep=True) for q in questions]
         self._settings = settings or GradeSettings()
         self._judge = judge
+        self._prepare = prepare
         self._attempts: list[Attempt] = []
+        self._skipped = 0
+        self._ready: Question | None = None  # the prepared current question
+        self._bad: ValueError | None = None  # what prepare returned was unusable
         # Fail before question 1, not mid-quiz: a card nobody can answer makes the
         # grader raise, so grade a blank answer for each one now.
         for question in self._questions:
@@ -95,14 +103,51 @@ class QuizSession:
 
     @property
     def current(self) -> Question | None:
-        """The question being asked now, or None when the quiz is finished."""
-        if self.done:
-            return None
-        return self._questions[len(self._attempts)]
+        """The question being asked now (prepared), or None when the quiz is finished.
+
+        With `prepare`, each question is prepared once, the first time it is current;
+        a skipped one is counted and the next is prepared.
+        """
+        if self._bad is not None:  # don't call prepare (and its side effects) again
+            raise self._bad
+        # One counter of truth: the next question is the one after those done.
+        while self._ready is None and (at := len(self._attempts) + self._skipped) < len(
+            self._questions
+        ):
+            given = self._questions[at]
+            if self._prepare is None:
+                self._ready = given
+                break
+            offered = given.model_copy(deep=True)  # prepare can't change ours
+            prepared = self._prepare(offered)
+            if prepared is None:
+                self._skipped += 1
+                continue
+            self._ready = self._usable(prepared, given, offered)
+        return self._ready
+
+    def _usable(self, prepared: object, given: Question, offered: Question) -> Question:
+        """Check what prepare returned; an unusable one stays an error (loud)."""
+        try:
+            if not isinstance(prepared, Question):
+                raise ValueError(  # noqa: TRY004 (SPEC: every bad prepare result is a ValueError)
+                    f"prepare must return a Question or None, not {type(prepared).__name__}"
+                )
+            if prepared.card_id != given.card_id:
+                raise ValueError(
+                    f"prepare returned a question for {prepared.card_id!r}, "
+                    f"not {given.card_id!r}"
+                )
+            grade("", prepared.accepted_answers, settings=self._settings)
+        except ValueError as err:
+            self._bad = err
+            raise
+        # A new object from prepare may still be held by it: keep our own copy.
+        return prepared if prepared is offered else prepared.model_copy(deep=True)
 
     @property
     def done(self) -> bool:
-        return len(self._attempts) == len(self._questions)
+        return self.current is None
 
     def answer(self, typed: str) -> Attempt:
         """Mark `typed` for the current question, move on, and return the Attempt."""
@@ -115,10 +160,15 @@ class QuizSession:
             verdict = self._judge(question, typed)  # only when the list says wrong
         attempt = Attempt(question=question, typed=typed, grade=marked, verdict=verdict)
         self._attempts.append(attempt)
+        self._ready = None
         return attempt
 
     def result(self) -> QuizResult:
-        return QuizResult(attempts=tuple(self._attempts), total=len(self._questions))
+        return QuizResult(
+            attempts=tuple(self._attempts),
+            total=len(self._questions),
+            skipped=self._skipped,
+        )
 
 
 def run_quiz(
@@ -127,13 +177,15 @@ def run_quiz(
     tell: Callable[[Attempt], None],
     settings: GradeSettings | None = None,
     judge: Judge | None = None,
+    prepare: Callable[[Question], Question | None] | None = None,
 ) -> QuizResult:
     """The voice: ask every question in turn; `ask` returning None means quit.
 
     Ctrl-C (KeyboardInterrupt) anywhere in the loop is a quit too: on Windows it can
-    land just after input() returns, while grading or in `tell`, not only in `ask`.
+    land just after input() returns, while grading or in `tell`, not only in `ask`;
+    and inside `prepare` (e.g. waiting for a live sentence).
     """
-    session = QuizSession(questions, settings=settings, judge=judge)
+    session = QuizSession(questions, settings=settings, judge=judge, prepare=prepare)
     try:
         while (question := session.current) is not None:
             typed = ask(question)

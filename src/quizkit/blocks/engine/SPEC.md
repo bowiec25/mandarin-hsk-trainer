@@ -24,18 +24,19 @@ It comes in two layers, so the same quizmaster works in a terminal now and on a 
 | `ask` *(run_quiz only)* | `Callable[[Question], str \| None]` | Shows one question and returns what was typed. Returns **`None` to quit** |
 | `tell` *(run_quiz only)* | `Callable[[Attempt], None]` | Shows feedback after each answer |
 | `judge` | `Judge \| None` | Optional (M4 Step 4b, ADR 0007): asked only when the grader says wrong and the answer isn't blank. Any `(Question, str) -> Verdict`, e.g. `quizkit.blocks.judge.ClaudeJudge`. `None` (default) = grader only |
+| `prepare` | `Callable[[Question], Question \| None] \| None` | Optional (ADR 0012): **finishes a question just before it is asked**, for questions whose content only exists then (e.g. a sentence written live, whose English is the answer). Called **once per question**, the first time the session needs it: reading `current` or `done`, or calling `answer()` before either (then it is prepared first, before anything is marked). Never when the session is created, and never after an answer is marked, so a `prepare` error can't lose the answer just given. If `prepare` itself raised (or Ctrl-C), the next read tries that question again; if it returned something unusable (see Failure modes), the same `ValueError` is raised again without calling `prepare` again (no repeated side effects). The questions given must still be answerable themselves (the up-front check grades them), e.g. the word's own question in translate mode. Returns the question to ask instead (it must be for the same `card_id`), or **`None` to skip it** (not asked, not scored). `None` (default) = every question is asked as given |
 
 **How it's called** (all importable from `quizkit.blocks.engine`):
 ```python
 # the brain, step by step (web page later)
-session = QuizSession(questions, settings=None, judge=None)
-session.current         # the Question being asked now (None when finished)
+session = QuizSession(questions, settings=None, judge=None, prepare=None)
+session.current         # the Question being asked now, prepared (None when finished)
 session.answer("love")  # marks it, moves to the next question, returns the Attempt
 session.done            # True when every question has been answered
 session.result()        # the QuizResult so far
 
 # the voice: the whole loop in one call (CLI)
-run_quiz(questions, ask, tell, settings=None, judge=None) -> QuizResult
+run_quiz(questions, ask, tell, settings=None, judge=None, prepare=None) -> QuizResult
 ```
 
 These choices keep screen code out of the engine:
@@ -59,12 +60,13 @@ Everything is returned in memory as pydantic models (frozen). Nothing is saved t
 | Field | Type | Plain meaning |
 |---|---|---|
 | `attempts` | `tuple[Attempt, ...]` | Every answer, in the order asked (a tuple, so answers can't be added or removed afterwards) |
-| `total` | `int` | How many questions the quiz had (at least 1, and never fewer than `answered`) |
+| `total` | `int` | How many questions the quiz had (at least 1, and never fewer than `answered` + `skipped`) |
+| `skipped` | `int` | How many questions `prepare` skipped (default 0, never negative). They are not answered and not in `attempts` |
 | `correct` | `int` (computed) | How many attempts are `correct`. A typo-forgiven or judge-accepted answer **counts as right** |
 | `answered` | `int` (computed) | `len(attempts)`, less than `total` if the learner quit early |
-| `finished` | `bool` (computed) | `answered == total` |
+| `finished` | `bool` (computed) | `answered + skipped == total` |
 
-Example: quit after 3 of 10 with 2 right → `correct=2, answered=3, total=10, finished=False`. The CLI can then show "2 / 3 (quit early, 7 not asked)".
+Example: quit after 3 of 10 with 2 right → `correct=2, answered=3, total=10, finished=False`. The CLI can then show "2 / 3 (quit early, 7 not asked)". With `prepare`: 10 questions, 2 skipped, 8 answered → `skipped=2, answered=8, finished=True`; the score is out of the 8 answered.
 
 ## Tools
 - **`quizkit.blocks.grader.grade`**: does all the marking. The engine never compares answers itself.
@@ -88,6 +90,11 @@ Example: quit after 3 of 10 with 2 right → `correct=2, answered=3, total=10, f
 | `ask` or `tell` raises anything else (e.g. `ValueError`) | Passed through, not swallowed (a bug must be loud), and `run_quiz` returns nothing |
 | `QuizSession` (the brain) and Ctrl-C | Not its job: the brain has no loop, so whoever drives it step by step handles Ctrl-C |
 | A card nobody can answer | Found **when the session is created**, before question 1 (each question is graded once with a blank answer), so the grader's error is raised before `ask` is called and no answers are lost mid-quiz. A data bug must be loud, as in the grader's SPEC |
+| `prepare` returns `None` | That question is skipped: `skipped` goes up by 1, nothing is asked or graded, and the next question is prepared. If every remaining question is skipped, the quiz is finished (`current` is `None`) |
+| `prepare` returns something that isn't a `Question` (or `None`), a question for another `card_id`, or one nobody can answer | **Raises `ValueError`** (the grader's own error, for an unanswerable one) when `current` is read (a bug in `prepare` must be loud). The answers already given are kept in the session |
+| `prepare` raises anything (but Ctrl-C) | Passed through, not swallowed |
+| `KeyboardInterrupt` (Ctrl-C) inside `prepare` in `run_quiz` (e.g. while waiting for a live sentence) | **A quit**, like Ctrl-C in `ask`: the result so far is returned; the question being prepared isn't skipped or answered |
+| Reading `current` again before answering | `prepare` is **not** called again: the prepared question is kept until it is answered (`prepare` may be slow or have side effects) |
 | The same question appears twice | Asked twice, both recorded (removing repeats is `deck_builder`'s job) |
 | A `QuizResult` built by hand with `total` < 1 or more attempts than `total` | pydantic **rejects** it (`ValidationError`), so a result is trustworthy outside `QuizSession` too (e.g. M5's progress store) |
 | The caller changes its `questions` list, or a question's answers, after starting | No effect: the session keeps its own deep copy |
@@ -103,6 +110,7 @@ Automatic tests in `tests/blocks/test_engine.py`. They use toy English questions
 - **Step by step:** `current` moves forward, `done` flips, `answer()` after the end → `RuntimeError`, `result()` partway works
 - **Ctrl-C is a quit, anywhere in the loop:** `KeyboardInterrupt` from `ask` after 1 answer → `answered=1`; before question 1 → `answered=0`; from `tell` on answer 2 → that answer still counts (`answered=2`), `ask` not called again; while answer 2 is being marked → it doesn't count (`answered=1`); the result is returned, nothing raised. But Ctrl-C while the session is being **created** → passed through, `ask` never called
 - **Judge hook:** not called when the grader says right (exact or typo-forgiven) or for a blank / spaces-only answer; called with the question and the raw typed text when the grader says wrong; a "yes" makes `Attempt.correct` and the score count it (`grade.correct` stays False); a "no" stays wrong; no judge = old behaviour (`verdict` is None); works through `QuizSession` too; Ctrl-C inside the judge → a quit, that answer not counted; any other judge error passed through
+- **Prepare hook:** called once per question, in order, with the question as given, and only when it becomes current (not all up front; not again on a second read of `current`); the prepared question is what `ask`, the grader, the judge and the `Attempt` see; `None` skips it (`skipped` counted, `ask` not called for it, `finished` still True at the end); skipping the last questions finishes the quiz; another `card_id` or an unanswerable prepared question → `ValueError`; Ctrl-C inside `prepare` in `run_quiz` → a quit; any other error passed through; no `prepare` = old behaviour (`skipped=0`); works through `QuizSession` too; a hand-built `QuizResult` with `answered + skipped > total` or `skipped < 0` is rejected
 - **Errors:** empty list → `ValueError`; any other error from `ask`, `tell` or the grader is passed through
 - **Own copy:** changing the list, or a question's answers, after starting has no effect
 - **Bad card found early:** an unanswerable question 2 raises before `ask` is ever called
