@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HSK Trainer Build Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a technical field map. Summary first, then the data pipeline, the gates a change passes, the block routine, tests, strictness, docs, timeline. */
+/* Source of the "HSK Trainer Build Map" artifact. Edit here, then republish (see CLAUDE.md, after each step). */
+:root {
+  --bg: #f3f5f7;
+  --surface: #ffffff;
+  --ink: #1c2530;
+  --muted: #5d6a78;
+  --line: #d3dae2;
+  --accent: #b8322a;      /* seal red: the one highlight */
+  --pass: #2f7d5b;        /* semantic: done / green */
+  --warn: #a8690f;        /* semantic: automatic */
+  --info: #2f5f9e;        /* semantic: guidance */
+  --font-display: "IBM Plex Sans Condensed", "Arial Narrow", sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12171d; --surface: #1a2129; --ink: #e3e8ee; --muted: #98a5b3; --line: #2e3843;
+    --accent: #e3645a; --pass: #58b48b; --warn: #d9a046; --info: #6f9ee0;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12171d; --surface: #1a2129; --ink: #e3e8ee; --muted: #98a5b3; --line: #2e3843;
+  --accent: #e3645a; --pass: #58b48b; --warn: #d9a046; --info: #6f9ee0;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--font-body); }
+main { max-width: 1280px; margin: 0 auto; padding: 32px 20px 64px; display: grid; gap: 40px; }
+h1, h2 { font-family: var(--font-display); font-weight: 600; text-wrap: balance; margin: 0; letter-spacing: 0.01em; }
+h1 { font-size: 34px; line-height: 1.15; }
+h2 { font-size: 22px; margin-bottom: 6px; }
+p { margin: 0; max-width: 68ch; }
+.lede { color: var(--muted); margin-top: 6px; }
+code, .mono { font-family: var(--font-mono); font-size: 0.88em; }
+section { display: grid; gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+
+/* Summary tiles */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+.tile b { display: block; font: 600 30px/1.1 var(--font-display); font-variant-numeric: tabular-nums; }
+.tile span { color: var(--muted); font-size: 13px; }
+.tile.hi b { color: var(--accent); }
+
+/* Milestones */
+.milestones { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.ms { border-top: 4px solid var(--line); padding-top: 8px; font-size: 13px; }
+.ms b { display: block; font-family: var(--font-display); font-size: 15px; }
+.ms.done { border-color: var(--pass); }
+.ms.next { border-color: var(--accent); }
+.ms small { color: var(--muted); }
+@media (max-width: 640px) { .milestones { grid-template-columns: repeat(2, 1fr); } }
+
+/* Diagrams */
+figure { margin: 0; }
+.diagram { overflow-x: auto; }
+.diagram svg { display: block; width: 100%; height: auto; color: var(--ink); }
+@media (max-width: 900px) { .diagram svg { min-width: 760px; } }
+figcaption { color: var(--muted); font-size: 13px; margin-top: 8px; max-width: 80ch; }
+
+/* Change gates */
+.gates { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; counter-reset: gate; }
+.gate { background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 6px; align-content: start; }
+.gate h3 { margin: 0; font: 600 15px/1.25 var(--font-display); }
+.gate h3::before { counter-increment: gate; content: counter(gate) "  "; color: var(--muted); font-family: var(--font-mono); font-size: 12px; }
+.gate ul { margin: 0; padding-left: 16px; font-size: 13px; color: var(--muted); }
+.gate.hard { border-top-color: var(--accent); }
+.gate.auto { border-top-color: var(--warn); }
+.gate.guide { border-top-color: var(--info); }
+.gate.you { border-top-color: var(--pass); }
+
+.chip { display: inline-block; font: 500 11px/1 var(--font-body); padding: 4px 7px; border-radius: 999px; border: 1px solid currentColor; letter-spacing: 0.02em; width: fit-content; }
+.chip.hard { color: var(--accent); }
+.chip.auto { color: var(--warn); }
+.chip.guide { color: var(--info); }
+.chip.habit { color: var(--muted); }
+.chip.you { color: var(--pass); }
+
+/* Block routine */
+.routine { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+.step { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 13px; }
+.step b { display: block; font: 600 14px/1.3 var(--font-display); margin-bottom: 2px; }
+.step .who { color: var(--muted); font-size: 12px; }
+.step.loop { border-color: var(--accent); }
+
+/* Tests table */
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+th { font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+td.n { font-variant-numeric: tabular-nums; text-align: right; width: 44px; font-weight: 600; }
+td.bar { width: 28%; }
+.bar span { display: block; height: 8px; border-radius: 4px; background: var(--info); opacity: 0.8; }
+.bar span.real { background: var(--accent); }
+tfoot td { font-weight: 600; border-bottom: none; }
+.table-wrap { overflow-x: auto; }
+
+/* Strictness */
+.strict { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.strict .card { display: grid; gap: 8px; align-content: start; }
+.strict ul { margin: 0; padding-left: 16px; font-size: 13.5px; }
+.strict p { font-size: 13px; color: var(--muted); }
+
+/* Docs */
+.docs { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
+.doc { font-size: 13.5px; }
+.doc b { display: block; font-family: var(--font-mono); font-size: 12.5px; font-weight: 500; }
+.doc span { color: var(--muted); }
+
+/* Timeline */
+.timeline { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.timeline li { display: grid; grid-template-columns: 96px 150px 1fr; gap: 12px; padding: 9px 4px; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+.timeline li:first-child { border-left: 3px solid var(--accent); padding-left: 10px; }
+.timeline .when { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.timeline .what { font-weight: 600; }
+@media (max-width: 640px) { .timeline li { grid-template-columns: 1fr; gap: 2px; } }
+
+/* Flow diagrams */
+.fl text { fill: var(--ink); font-family: var(--font-body); font-size: 11.5px; }
+.fl .t { font-weight: 600; }
+.fl .s { fill: var(--muted); font-size: 10.5px; }
+.fl .lane { fill: var(--bg); stroke: var(--line); }
+.fl .lane-t { font: 600 11px var(--font-body); letter-spacing: 0.06em; fill: var(--muted); }
+.fl .box { fill: var(--surface); stroke: var(--ink); stroke-opacity: 0.45; stroke-width: 1.2; }
+.fl .box.hard { stroke: var(--accent); stroke-opacity: 1; stroke-width: 2; }
+.fl .box.auto { stroke: var(--warn); stroke-opacity: 1; stroke-width: 2; }
+.fl .box.guide { stroke: var(--info); stroke-opacity: 1; stroke-width: 2; }
+.fl .box.you { stroke: var(--pass); stroke-opacity: 1; stroke-width: 2; }
+.fl .box.key { stroke: var(--accent); stroke-opacity: 1; stroke-width: 2; }
+.fl .box.todo { stroke-dasharray: 5 4; fill: transparent; }
+.fl .box.stop { fill: var(--accent); fill-opacity: 0.12; stroke: var(--accent); stroke-opacity: 1; }
+.fl .ar { fill: none; stroke: var(--ink); stroke-opacity: 0.7; stroke-width: 1.3; }
+.fl .ar.plan { stroke-dasharray: 5 4; stroke-opacity: 0.55; }
+.fl .ar.no { stroke: var(--accent); stroke-opacity: 1; stroke-dasharray: 4 3; }
+.fl .ar.next { stroke: var(--pass); stroke-opacity: 1; stroke-dasharray: 6 4; }
+.fl .no-t { fill: var(--accent); font-size: 10.5px; font-weight: 600; }
+.fl .next-t { fill: var(--pass); font-size: 10.5px; font-weight: 600; }
+.fl .mk { fill: var(--ink); opacity: 0.8; }
+.fl .mk-no { fill: var(--accent); }
+.fl .mk-next { fill: var(--pass); }
+@media (max-width: 900px) { .fl.wide svg { min-width: 1300px; } }
+.fl .t { font-size: 11px; }
+.views { display: grid; gap: 22px; }
+.views h3 { margin: 0 0 4px; font: 600 17px/1.25 var(--font-display); }
+
+/* Parts by kind (layers) */
+.layers { display: grid; gap: 10px; }
+.layer { display: grid; grid-template-columns: 210px 1fr; gap: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+.layer.future { border-style: dashed; background: transparent; }
+.layer-head b { display: block; font: 600 16px/1.25 var(--font-display); }
+.layer-head .mono { display: block; color: var(--muted); font-size: 11.5px; margin: 2px 0 4px; }
+.layer-head span:last-child { display: block; color: var(--muted); font-size: 12.5px; }
+.items { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 8px; align-content: start; }
+.item { border: 1px solid var(--line); border-left: 4px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 12.5px; display: grid; gap: 2px; align-content: start; }
+.item b { font: 500 12px/1.3 var(--font-mono); }
+.item small { color: var(--muted); font-size: 11.5px; }
+.item.hard { border-left-color: var(--accent); }
+.item.auto { border-left-color: var(--warn); }
+.item.guide { border-left-color: var(--info); }
+.item.todo { border-style: dashed; border-left-style: dashed; color: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 8px; font-size: 12.5px; color: var(--muted); align-items: center; }
+@media (max-width: 640px) { .layer { grid-template-columns: 1fr; } }
+.versus { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.versus .card { display: grid; gap: 6px; align-content: start; font-size: 13.5px; }
+.versus h3 { margin: 0; font: 600 16px/1.25 var(--font-display); }
+.versus ul { margin: 0; padding-left: 16px; }
+.gate.todo { border-style: dashed; background: transparent; }
+.chip.todo { color: var(--muted); border-style: dashed; }
+
+footer { color: var(--muted); font-size: 12.5px; border-top: 1px solid var(--line); padding-top: 14px; }
+a { color: var(--info); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Architecture guide additions */
+.fl .box.file { fill: var(--bg); }
+.kv th { width: 130px; text-transform: none; letter-spacing: 0; font-size: 12.5px; vertical-align: top; }
+.kv td { vertical-align: top; }
+.ws-h { margin: 0 0 8px; font: 600 17px/1.25 var(--font-display); }
+.card h3 { margin: 0 0 6px; font: 600 17px/1.25 var(--font-display); }
+.versus .card .chip { margin-bottom: 2px; }
+.fl .box.agent { stroke: var(--accent); stroke-opacity: 1; stroke-width: 2; }
+.fl .box.check { stroke: var(--info); stroke-opacity: 1; stroke-width: 2; stroke-dasharray: 4 3; }
+.fl .bd { stroke: var(--surface); stroke-width: 1; }
+.fl .bd.hard { fill: var(--accent); }
+.fl .bd.auto { fill: var(--warn); }
+.fl .bd.guide { fill: var(--info); }
+.fl .bd.habit { fill: var(--muted); }
+.diagram.mini { margin: 4px 0 12px; }
+@media (max-width: 900px) { .diagram.mini svg { min-width: 720px; } }
+.swatch { display: inline-flex; align-items: center; gap: 5px; }
+.swatch svg { width: 30px; height: 18px; }
+.start { border-left: 4px solid var(--accent); display: grid; gap: 8px; }
+.start ul { margin: 0; padding-left: 18px; }
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <h1>HSK Trainer Build Map: the architecture guide</h1>
+  <p class="lede">A vocab trainer for <b>HSK 3.0, bands 1–3</b> (the 2026 syllabus, 978 words), built from reusable <b>blocks</b>: small parts with one job each, a <code>SPEC.md</code>, code and tests. Generic parts live in <code>quizkit</code> (any quiz could use them); Mandarin parts live in <code>hsk_trainer</code>. State: <b>after M4, 2026-11-05</b>. Repo: <span class="mono">bowiec25/mandarin-hsk-trainer</span>.</p>
+</header>
+
+<section aria-label="Summary">
+  <div>
+    <h2>0. At a glance</h2>
+  </div>
+  <div class="card start">
+    <p><b>Start here.</b> Think of the app as a <b>little factory</b> that turns a word list into a quiz. The <b>blocks</b> are its machines: <b>script</b> blocks follow fixed rules, <b>agent</b> blocks ask Claude when a job needs language judgment. The <b>data files</b> are the shelves between the machines: each machine takes from one shelf and puts on the next. The <b>checks</b> are inspectors at the doors: tests, scripts and GitHub stop bad work from passing. The <b>subagents and hooks</b> are helpers who build and inspect the factory while we work; they are never part of the app. The factory has five lines:</p>
+    <ul>
+      <li><b>A · Data in:</b> the word list is downloaded, checked and turned into 978 cards.</li>
+      <li><b>B · The quiz loop:</b> cards are dealt, you answer, the engine keeps score.</li>
+      <li><b>C · Grading:</b> your answer is marked against Claude's answer list, and a Claude judge has the last word.</li>
+      <li><b>D · Sentences:</b> Claude writes example sentences while you play; scripts check them; good ones are banked.</li>
+      <li><b>E · How we build:</b> the routine and helpers that make and inspect every block.</li>
+    </ul>
+  </div>
+  <div class="tiles">
+    <div class="tile hi"><b>881</b><span>automatic tests, all passing</span></div>
+    <div class="tile"><b>11</b><span>blocks: 4 in <code>quizkit</code>, 7 in <code>hsk_trainer</code>; 3 of them are agents (call Claude)</span></div>
+    <div class="tile"><b>3</b><span>subagents: test-writer, block-reviewer, data-auditor</span></div>
+    <div class="tile"><b>2</b><span>hooks: <code>block_env.py</code> (before), <code>format_python.py</code> (after)</span></div>
+    <div class="tile"><b>1 + 1</b><span>skills: our <code>/new-block</code> + the built-in <code>/code-review</code></span></div>
+    <div class="tile"><b>11</b><span>decision records (ADRs)</span></div>
+    <div class="tile"><b>5 / 7</b><span>milestones done (M0–M4 after this PR)</span></div>
+  </div>
+  <div class="milestones" aria-label="Milestones">
+    <div class="ms done"><b>M0</b>Setup<br><small>done</small></div>
+    <div class="ms done"><b>M1</b>Foundations<br><small>done</small></div>
+    <div class="ms done"><b>M2</b>Data in<br><small>done</small></div>
+    <div class="ms done"><b>M3</b>First quiz<br><small>done</small></div>
+    <div class="ms done"><b>M4</b>Sentences (agents)<br><small>done</small></div>
+    <div class="ms next"><b>M5</b>Learning smarts<br><small>next</small></div>
+    <div class="ms"><b>M6</b>Web UI<br><small>later</small></div>
+  </div>
+  <div class="card">
+    <p><b>How to read this page.</b> Top to bottom, it goes from the whole to the parts. <b>1</b> is the one picture to remember. <b>2</b> splits it into five workstreams. <b>3</b> lists every check and safety net, <b>4</b> every Claude Code feature, <b>5</b> every agent and helper, <b>6</b> every data file, <b>7</b> every test (and what is <b>not</b> tested). <b>8</b> is the recipe to do it again in a new project. <b>9</b> is why things are the way they are, and <b>10</b> is how it grew, with a frozen snapshot of this page after each step.</p>
+  </div>
+  <div class="legend">
+    Strictness, used everywhere below:
+    <span class="chip hard">🔴 Hard stop: a machine blocks it</span>
+    <span class="chip auto">🟠 Automatic: runs by itself</span>
+    <span class="chip guide">🔵 Guidance: Claude follows a written rule</span>
+    <span class="chip habit">⚪ Habit: people choose to do it</span>
+  </div>
+  <div class="legend fl" aria-label="Box colours">
+    Box colours in every diagram:
+    <span class="swatch"><svg viewBox="0 0 30 18"><rect class="box" x="1" y="2" width="28" height="14" rx="3"/></svg>script (follows rules)</span>
+    <span class="swatch"><svg viewBox="0 0 30 18"><rect class="box agent" x="1" y="2" width="28" height="14" rx="3"/></svg>agent (calls Claude)</span>
+    <span class="swatch"><svg viewBox="0 0 30 18"><rect class="box file" x="1" y="2" width="28" height="14" rx="3"/></svg>data file</span>
+    <span class="swatch"><svg viewBox="0 0 30 18"><rect class="box you" x="1" y="2" width="28" height="14" rx="3"/></svg>you</span>
+    <span class="swatch"><svg viewBox="0 0 30 18"><rect class="box check" x="1" y="2" width="28" height="14" rx="3"/></svg>check / inspector</span>
+  </div>
+</section>
+
+<section>
+  <div>
+    <h2>1. The big picture: from the word list to you</h2>
+    <p class="lede">One diagram. Box colours as in the legend above. The left half runs once, offline, and its files are committed. The right half runs every time you play. While you study, only two parts call Claude: the <b>judge</b> and sentence_writer's <b>write_one</b> (via live_sentences), each with an off switch.</p>
+  </div>
+  <figure class="card diagram fl wide">
+    <svg viewBox="0 0 1240 530" role="img" aria-label="The whole system. Offline: the pinned GitHub source is downloaded by the fetcher into data/raw, the normalizer writes 978 cards to data/processed/cards.jsonl, and the answer_writer agent wrote data/generated/answers.jsonl once, with a token log. Every quiz: the hsk quiz command joins answers.jsonl onto the cards, takes the sentence fields out of the mode, and gives cards and mode to deck_builder, which deals the questions; the engine asks you, the grader marks your answer against the answers, and only if the list says wrong the judge asks Claude, saving the verdict in judge_cache.jsonl (off with --no-judge). In the sentence modes the CLI wires sentences into ask and tell: live_sentences asks sentence_writer's write_one for the next word's sentence in the background, the scripts check it, what passes is shown and added by sentence_bank to sentences.jsonl, write_one logs to live_sentence_log.jsonl, sentence_bank records what you saw in sentence_seen.json, and when Claude is slow or failing a banked sentence is used (off with --no-live). The engine never sees sentences.">
+      <defs>
+        <marker id="bp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+<text class="lane-t" x="20" y="18">ONCE, OFFLINE · YOU RUN THESE · FILES COMMITTED</text>
+<text class="lane-t" x="700" y="18">EVERY QUIZ · uv run hsk quiz</text>
+<text class="lane-t" x="20" y="306">SENTENCE MODES ONLY (char_sentence, full)</text>
+<rect class="box" x="20" y="40" width="110" height="50" rx="6"/><text class="t" x="75" y="62" text-anchor="middle">Pinned source</text><text class="s" x="75" y="77" text-anchor="middle">GitHub @ 7ac65bf</text>
+<rect class="box" x="150" y="40" width="110" height="50" rx="6"/><text class="t" x="205" y="62" text-anchor="middle">fetcher</text><text class="s" x="205" y="77" text-anchor="middle">script · hsk_trainer</text>
+<rect class="box file" x="280" y="40" width="110" height="50" rx="6"/><text class="t" x="335" y="62" text-anchor="middle">data/raw/hsk3_2026</text><text class="s" x="335" y="77" text-anchor="middle">1–3.json + LICENSE</text>
+<rect class="box" x="410" y="40" width="110" height="50" rx="6"/><text class="t" x="465" y="62" text-anchor="middle">normalizer</text><text class="s" x="465" y="77" text-anchor="middle">script · hsk_trainer</text>
+<rect class="box file" x="540" y="40" width="110" height="50" rx="6"/><text class="t" x="595" y="62" text-anchor="middle">cards.jsonl</text><text class="s" x="595" y="77" text-anchor="middle">978 cards</text>
+<rect class="box file" x="280" y="150" width="110" height="50" rx="6"/><text class="t" x="335" y="172" text-anchor="middle">answer_writer_log</text><text class="s" x="335" y="187" text-anchor="middle">.jsonl · tokens</text>
+<rect class="box agent" x="410" y="150" width="110" height="50" rx="6"/><text class="t" x="465" y="172" text-anchor="middle">answer_writer</text><text class="s" x="465" y="187" text-anchor="middle">AGENT · Claude, once</text>
+<rect class="box file" x="540" y="150" width="110" height="50" rx="6"/><text class="t" x="595" y="172" text-anchor="middle">answers.jsonl</text><text class="s" x="595" y="187" text-anchor="middle">the one answer list</text>
+<rect class="box you" x="700" y="40" width="130" height="160" rx="6"/><text class="t" x="765" y="62" text-anchor="middle">hsk quiz (CLI)</text><text class="s" x="765" y="78" text-anchor="middle">cli.py · not a block</text><text class="s" x="765" y="100" text-anchor="middle">joins the answers</text><text class="s" x="765" y="114" text-anchor="middle">onto the cards</text><text class="s" x="765" y="136" text-anchor="middle">takes the sentence</text><text class="s" x="765" y="150" text-anchor="middle">fields out of the mode</text><text class="s" x="765" y="172" text-anchor="middle">wires ask · tell</text><text class="s" x="765" y="186" text-anchor="middle">+ the judge</text>
+<rect class="box" x="860" y="40" width="110" height="50" rx="6"/><text class="t" x="915" y="62" text-anchor="middle">deck_builder</text><text class="s" x="915" y="77" text-anchor="middle">quizkit · deals</text>
+<rect class="box" x="1000" y="40" width="110" height="50" rx="6"/><text class="t" x="1055" y="62" text-anchor="middle">engine</text><text class="s" x="1055" y="77" text-anchor="middle">quizkit · asks, scores</text>
+<rect class="box you" x="1130" y="40" width="95" height="50" rx="6"/><text class="t" x="1177" y="62" text-anchor="middle">You</text><text class="s" x="1177" y="77" text-anchor="middle">type the meaning</text>
+<rect class="box" x="1000" y="150" width="110" height="50" rx="6"/><text class="t" x="1055" y="172" text-anchor="middle">grader</text><text class="s" x="1055" y="187" text-anchor="middle">quizkit · right/wrong?</text>
+<rect class="box agent" x="1000" y="250" width="110" height="50" rx="6"/><text class="t" x="1055" y="272" text-anchor="middle">judge</text><text class="s" x="1055" y="287" text-anchor="middle">AGENT · --no-judge</text>
+<rect class="box file" x="1130" y="250" width="95" height="50" rx="6"/><text class="t" x="1177" y="272" text-anchor="middle">judge_cache</text><text class="s" x="1177" y="287" text-anchor="middle">.jsonl · gitignored</text>
+<rect class="box check" x="390" y="320" width="120" height="56" rx="6"/><text class="t" x="450" y="343" text-anchor="middle">script checks</text><text class="s" x="450" y="359" text-anchor="middle">words · pinyin · English</text>
+<rect class="box agent" x="540" y="320" width="120" height="56" rx="6"/><text class="t" x="600" y="343" text-anchor="middle">sentence_writer</text><text class="s" x="600" y="359" text-anchor="middle">AGENT · write_one</text>
+<rect class="box" x="700" y="320" width="130" height="56" rx="6"/><text class="t" x="765" y="343" text-anchor="middle">live_sentences</text><text class="s" x="765" y="359" text-anchor="middle">script · 15 s · --no-live</text>
+<rect class="box file" x="390" y="430" width="120" height="50" rx="6"/><text class="t" x="450" y="452" text-anchor="middle">live_sentence_log</text><text class="s" x="450" y="467" text-anchor="middle">.jsonl · gitignored</text>
+<rect class="box file" x="540" y="430" width="120" height="50" rx="6"/><text class="t" x="600" y="452" text-anchor="middle">sentences.jsonl</text><text class="s" x="600" y="467" text-anchor="middle">the bank · committed</text>
+<rect class="box" x="700" y="430" width="130" height="50" rx="6"/><text class="t" x="765" y="452" text-anchor="middle">sentence_bank</text><text class="s" x="765" y="467" text-anchor="middle">script · new or banked?</text>
+<rect class="box file" x="860" y="430" width="120" height="50" rx="6"/><text class="t" x="920" y="452" text-anchor="middle">sentence_seen.json</text><text class="s" x="920" y="467" text-anchor="middle">gitignored</text>
+<path class="ar" d="M130,65 H150" marker-end="url(#bp)"/>
+<path class="ar" d="M260,65 H280" marker-end="url(#bp)"/>
+<path class="ar" d="M390,65 H410" marker-end="url(#bp)"/>
+<path class="ar" d="M520,65 H540" marker-end="url(#bp)"/>
+<path class="ar" d="M650,65 H700" marker-end="url(#bp)"/>
+<path class="ar" d="M575,90 V120 H475 V150" marker-end="url(#bp)"/>
+<text class="s" x="525" y="114" text-anchor="middle">reads the cards</text>
+<path class="ar" d="M520,175 H540" marker-end="url(#bp)"/>
+<path class="ar" d="M410,175 H390" marker-end="url(#bp)"/>
+<path class="ar" d="M650,175 H700" marker-end="url(#bp)"/>
+<path class="ar" d="M830,65 H860" marker-end="url(#bp)"/>
+<text class="s" x="845" y="34" text-anchor="middle">cards + mode</text>
+<path class="ar" d="M970,65 H1000" marker-end="url(#bp)"/>
+<text class="s" x="985" y="104" text-anchor="middle">questions</text>
+<path class="ar" d="M1110,57 H1130" marker-end="url(#bp)"/>
+<path class="ar" d="M1130,75 H1110" marker-end="url(#bp)"/>
+<path class="ar" d="M830,128 H1020 V90" marker-end="url(#bp)"/>
+<text class="s" x="925" y="122" text-anchor="middle">ask · tell · judge (from the CLI)</text>
+<path class="ar" d="M1055,90 V150" marker-end="url(#bp)"/>
+<text class="s" x="1062" y="128">mark</text>
+<path class="ar" d="M1055,200 V250" marker-end="url(#bp)"/>
+<text class="s" x="1062" y="228">only if the list says wrong</text>
+<path class="ar" d="M1110,275 H1130" marker-end="url(#bp)"/>
+<path class="ar" d="M765,200 V320" marker-end="url(#bp)"/>
+<text class="s" x="772" y="252">a sentence under each word,</text>
+<text class="s" x="772" y="266">its English after you answer</text>
+<path class="ar" d="M700,338 H660" marker-end="url(#bp)"/>
+<path class="ar" d="M660,360 H700" marker-end="url(#bp)"/>
+<text class="s" x="680" y="314" text-anchor="middle">next word</text>
+<path class="ar" d="M540,338 H510" marker-end="url(#bp)"/>
+<path class="ar" d="M510,360 H540" marker-end="url(#bp)"/>
+<path class="ar" d="M600,376 V402 H450 V430" marker-end="url(#bp)"/>
+<path class="ar" d="M765,376 V430" marker-end="url(#bp)"/>
+<text class="s" x="772" y="400">passes → added · slow or failing → a banked one</text>
+<path class="ar" d="M700,447 H660" marker-end="url(#bp)"/>
+<path class="ar" d="M660,463 H700" marker-end="url(#bp)"/>
+<path class="ar" d="M830,455 H860" marker-end="url(#bp)"/>
+<text class="s" x="20" y="340">Live Claude calls: judge, write_one.</text>
+<text class="s" x="20" y="356">Off switches: --no-judge, --no-live.</text>
+<text class="s" x="20" y="372">With both, the quiz needs no internet.</text>
+<text class="s" x="20" y="396">The engine never sees sentences:</text>
+<text class="s" x="20" y="412">the CLI wraps ask/tell around them.</text>
+<text class="s" x="20" y="512">Batch top-up (optional): uv run python -m hsk_trainer.blocks.sentence_writer --limit N  →  sentences.jsonl + sentence_writer_log.jsonl (both committed). Every batch or live sentence passes the same script checks.</text>
+    </svg>
+    <figcaption>How to say it in one breath: <b>a pinned word list becomes 978 cards; Claude wrote the accepted answers once; each quiz joins the two, deals questions, asks you, marks you against the list, and asks the Claude judge only when the list says wrong. In the sentence modes, Claude writes the next word's sentence while you answer, scripts check it, and every good one is banked.</b> Simplified: the CLI calls <code>build_deck</code> and gets the questions back, then hands them to <code>run_quiz</code> (the engine) with its own <code>ask</code>/<code>tell</code> and the judge.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div>
+    <h2>2. The five workstreams</h2>
+    <p class="lede">Each card is one strand of the picture above: what it does, its parts, its files, what it hands to the next strand, and how it is tested. "Script" = plain code that can be checked; "agent" = calls Claude for language judgment, and a script checks its output (ADR 0002).</p>
+  </div>
+
+  <div class="card table-wrap">
+    <h3 class="ws-h">A · Data in</h3>
+  <figure class="diagram fl mini">
+<svg viewBox="0 0 900 190" role="img" aria-label="Data in: pinned source, fetcher checks size and SHA-256, data/raw, normalizer, cards.jsonl with 978 cards; the contract tests and the word-count test inspect it.">
+<defs><marker id="wa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<text class="lane-t" x="10" y="22">ONCE · uv run python -m hsk_trainer.blocks.fetcher, then .normalizer</text>
+<rect class="box " x="10" y="40" width="120" height="50" rx="6"/><text class="t" x="70" y="62" text-anchor="middle">Pinned source</text><text class="s" x="70" y="77" text-anchor="middle">GitHub @ 7ac65bf</text>
+<rect class="box " x="160" y="40" width="120" height="50" rx="6"/><text class="t" x="220" y="62" text-anchor="middle">fetcher</text><text class="s" x="220" y="77" text-anchor="middle">script</text>
+<rect class="box file" x="310" y="40" width="120" height="50" rx="6"/><text class="t" x="370" y="62" text-anchor="middle">data/raw</text><text class="s" x="370" y="77" text-anchor="middle">1–3.json + LICENSE</text>
+<rect class="box " x="460" y="40" width="120" height="50" rx="6"/><text class="t" x="520" y="62" text-anchor="middle">normalizer</text><text class="s" x="520" y="77" text-anchor="middle">script</text>
+<rect class="box file" x="610" y="40" width="120" height="50" rx="6"/><text class="t" x="670" y="62" text-anchor="middle">cards.jsonl</text><text class="s" x="670" y="77" text-anchor="middle">978 cards</text>
+<path class="ar " d="M130,65 H160" marker-end="url(#wa)"/>
+<path class="ar " d="M280,65 H310" marker-end="url(#wa)"/>
+<path class="ar " d="M430,65 H460" marker-end="url(#wa)"/>
+<path class="ar " d="M580,65 H610" marker-end="url(#wa)"/>
+<path class="ar " d="M730,65 H760" marker-end="url(#wa)"/>
+<text class="s" x="766" y="62">read by every</text>
+<text class="s" x="766" y="76">later part</text>
+<rect class="box check" x="160" y="135" width="120" height="40" rx="6"/><text class="t" x="220" y="159" text-anchor="middle">size + SHA-256</text>
+<path class="ar plan" d="M220,135 V90"/>
+<rect class="box check" x="460" y="135" width="120" height="40" rx="6"/><text class="t" x="520" y="159" text-anchor="middle">contract tests</text>
+<path class="ar plan" d="M520,135 V90"/>
+<rect class="box check" x="610" y="135" width="120" height="40" rx="6"/><text class="t" x="670" y="159" text-anchor="middle">word-count test</text>
+<path class="ar plan" d="M670,135 V90"/>
+</svg>
+    <figcaption>The source is pinned to one commit and every file is checked by fingerprint, so every run starts from the same trusted files. Dashed blue = the inspectors.</figcaption>
+  </figure>
+    <table class="kv">
+      <tr><th>What it does</th><td>Downloads the 2026 HSK word list, pinned to one commit, checks every file's size and SHA-256 fingerprint, and turns it into one flat file of cards, one per word.</td></tr>
+      <tr><th>Parts</th><td><code>fetcher</code> (script, hsk_trainer) · <code>normalizer</code> (script, hsk_trainer) · <code>quizkit/download.py</code> (verified download) · <code>quizkit/files.py</code> (<code>write_atomically</code>: write a temp file, then swap it in; <code>load_cards</code>) · <code>quizkit/models.py</code> (the <code>Card</code> shape)</td></tr>
+      <tr><th>Files</th><td>in: <code>drkameleon/complete-hsk-vocabulary</code> @ <code>7ac65bf</code> → <code>data/raw/hsk3_2026/{1,2,3}.json</code> + <code>LICENSE</code> → out: <code>data/processed/cards.jsonl</code> (978 cards: 294 · 197 · 487 new words per band)</td></tr>
+      <tr><th>Run it</th><td><code>uv run python -m hsk_trainer.blocks.fetcher</code>, then <code>uv run python -m hsk_trainer.blocks.normalizer</code></td></tr>
+      <tr><th>Hands on to</th><td>Every later part reads only <code>cards.jsonl</code>, never the raw format.</td></tr>
+      <tr><th>Tested by</th><td><code>blocks/test_fetcher.py</code> (fake downloader) · <code>blocks/test_normalizer.py</code> · <code>test_quizkit_download.py</code> · <code>test_quizkit_models.py</code> · <code>test_word_counts.py</code> (real data: counts, file up to date)</td></tr>
+    </table>
+  </div>
+
+  <div class="card table-wrap">
+    <h3 class="ws-h">B · The quiz loop</h3>
+  <figure class="diagram fl mini">
+<svg viewBox="0 0 900 195" role="img" aria-label="Quiz loop: cards.jsonl and answers.jsonl go into the CLI, which joins them; deck_builder deals by mode, band, n and seed; the engine asks you; your answer goes to the grader; the score adds up; then the next word.">
+<defs><marker id="wb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<text class="lane-t" x="10" y="22">EVERY QUIZ · uv run hsk quiz --band 1 --mode char --n 10</text>
+<rect class="box file" x="10" y="35" width="110" height="40" rx="6"/><text class="t" x="65" y="59" text-anchor="middle">cards.jsonl</text>
+<rect class="box file" x="10" y="105" width="110" height="40" rx="6"/><text class="t" x="65" y="129" text-anchor="middle">answers.jsonl</text>
+<rect class="box " x="150" y="45" width="110" height="90" rx="6"/><text class="t" x="205" y="87" text-anchor="middle">CLI</text><text class="s" x="205" y="102" text-anchor="middle">joins them</text>
+<rect class="box " x="290" y="65" width="120" height="50" rx="6"/><text class="t" x="350" y="87" text-anchor="middle">deck_builder</text><text class="s" x="350" y="102" text-anchor="middle">mode · band · n · seed</text>
+<rect class="box " x="430" y="65" width="100" height="50" rx="6"/><text class="t" x="480" y="87" text-anchor="middle">engine</text><text class="s" x="480" y="102" text-anchor="middle">asks</text>
+<rect class="box you" x="565" y="65" width="100" height="50" rx="6"/><text class="t" x="615" y="87" text-anchor="middle">You</text><text class="s" x="615" y="102" text-anchor="middle">type the meaning</text>
+<rect class="box " x="700" y="65" width="100" height="50" rx="6"/><text class="t" x="750" y="87" text-anchor="middle">grader</text><text class="s" x="750" y="102" text-anchor="middle">right / wrong</text>
+<rect class="box " x="825" y="65" width="65" height="50" rx="6"/><text class="t" x="857.5" y="94" text-anchor="middle">score</text>
+<path class="ar " d="M120,55 H135 V80 H150" marker-end="url(#wb)"/>
+<path class="ar " d="M120,125 H135 V100 H150" marker-end="url(#wb)"/>
+<path class="ar " d="M260,90 H290" marker-end="url(#wb)"/>
+<path class="ar " d="M410,90 H430" marker-end="url(#wb)"/>
+<path class="ar " d="M530,90 H565" marker-end="url(#wb)"/>
+<path class="ar " d="M665,90 H700" marker-end="url(#wb)"/>
+<path class="ar " d="M800,90 H825" marker-end="url(#wb)"/>
+<text class="s" x="548" y="58" text-anchor="middle">ask</text>
+<text class="s" x="683" y="58" text-anchor="middle">answer</text>
+<path class="ar " d="M750,115 V165 H480 V115" marker-end="url(#wb)"/>
+<text class="s" x="615" y="180" text-anchor="middle">next word</text>
+</svg>
+    <figcaption>The CLI is the glue, not a block. In the sentence modes it also wraps the engine's ask/tell with a sentence (workstream D). Ctrl-C stops and keeps the score.</figcaption>
+  </figure>
+    <table class="kv">
+      <tr><th>What it does</th><td>You run <code>uv run hsk quiz --band 1 --mode char --n 10</code>: it deals the band's words, shows each one, reads your answer, marks it and keeps score. Ctrl-C stops and keeps the score. <code>--seed</code> replays the same words.</td></tr>
+      <tr><th>Parts</th><td><code>deck_builder</code> (script, quizkit: level, how many, shuffle) · <code>engine</code> (script, quizkit: <code>QuizSession</code> + <code>run_quiz</code>) · the CLI <code>src/hsk_trainer/cli.py</code> (Typer; not a block, it wires blocks to the keyboard) · modes as config: <code>quizkit/modes.py</code> + <code>hsk_trainer/modes.py</code></td></tr>
+      <tr><th>Modes</th><td>All 4 play: <code>char</code> (hanzi) · <code>char_pinyin</code> (+ pinyin) · <code>char_sentence</code> (+ a sentence) · <code>full</code> (+ pinyin, sentence, sentence pinyin). A mode is just a list of fields to show, not branching code.</td></tr>
+      <tr><th>Files</th><td>in: <code>cards.jsonl</code> + <code>answers.jsonl</code> (joined by the CLI) → out: nothing saved yet (scores are kept in M5, <code>data/progress.db</code>)</td></tr>
+      <tr><th>Hands on to</th><td>The engine calls the grader for every answer and the judge (if given) when the grader says wrong. In the sentence modes the CLI wraps <code>ask</code>/<code>tell</code> with the sentence part.</td></tr>
+      <tr><th>Tested by</th><td><code>blocks/test_deck_builder.py</code> · <code>blocks/test_engine.py</code> (fake typed answers) · <code>test_cli.py</code> (scripted keystrokes on the real cards) · <code>test_hsk_modes.py</code> · <code>test_quizkit_modes.py</code> · <code>test_hsk_deck.py</code> · <code>test_reuse.py</code> (a toy capitals quiz, <code>examples/capitals_quiz.py</code>, plays with only quizkit)</td></tr>
+    </table>
+  </div>
+
+  <div class="card table-wrap">
+    <h3 class="ws-h">C · Grading</h3>
+  <figure class="diagram fl mini">
+<svg viewBox="0 0 900 195" role="img" aria-label="Grading: answer_writer, an offline agent using claude -p, is checked by a script checker (failures re-run), writes answers.jsonl, committed; the grader forgives typos; only if it says wrong, the judge, a live Haiku agent, decides and saves to judge_cache.jsonl; the eval set is the judge's by-hand test; --no-judge turns it off.">
+<defs><marker id="wc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker><marker id="wcn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk-no" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<text class="lane-t" x="10" y="22">ONCE, OFFLINE</text>
+<text class="lane-t" x="450" y="22">EVERY ANSWER, WHILE YOU STUDY</text>
+<rect class="box agent" x="10" y="40" width="120" height="50" rx="6"/><text class="t" x="70" y="62" text-anchor="middle">answer_writer</text><text class="s" x="70" y="77" text-anchor="middle">agent · claude -p</text>
+<rect class="box check" x="160" y="40" width="120" height="50" rx="6"/><text class="t" x="220" y="62" text-anchor="middle">script checker</text><text class="s" x="220" y="77" text-anchor="middle">validate_answers</text>
+<rect class="box file" x="310" y="40" width="110" height="50" rx="6"/><text class="t" x="365" y="62" text-anchor="middle">answers.jsonl</text><text class="s" x="365" y="77" text-anchor="middle">committed</text>
+<rect class="box " x="450" y="40" width="110" height="50" rx="6"/><text class="t" x="505" y="62" text-anchor="middle">grader</text><text class="s" x="505" y="77" text-anchor="middle">typos OK</text>
+<rect class="box agent" x="610" y="40" width="120" height="50" rx="6"/><text class="t" x="670" y="62" text-anchor="middle">judge</text><text class="s" x="670" y="77" text-anchor="middle">agent · Haiku</text>
+<rect class="box file" x="770" y="40" width="120" height="50" rx="6"/><text class="t" x="830" y="62" text-anchor="middle">judge_cache</text><text class="s" x="830" y="77" text-anchor="middle">gitignored</text>
+<path class="ar " d="M130,65 H160" marker-end="url(#wc)"/>
+<path class="ar " d="M280,65 H310" marker-end="url(#wc)"/>
+<path class="ar " d="M420,65 H450" marker-end="url(#wc)"/>
+<path class="ar " d="M560,65 H610" marker-end="url(#wc)"/>
+<path class="ar " d="M730,65 H770" marker-end="url(#wc)"/>
+<text class="s" x="585" y="58" text-anchor="middle">if wrong</text>
+<path class="ar no" d="M220,90 V115 H70 V90" marker-end="url(#wcn)"/>
+<text class="no-t" x="145" y="129" text-anchor="middle">fail → re-run</text>
+<text class="s" x="505" y="110" text-anchor="middle">right → ✅</text>
+<text class="s" x="670" y="110" text-anchor="middle">--no-judge · off after</text>
+<text class="s" x="670" y="124" text-anchor="middle">2 failures in a row</text>
+<rect class="box check" x="610" y="145" width="120" height="40" rx="6"/><text class="t" x="670" y="162" text-anchor="middle">eval set</text><text class="s" x="670" y="177" text-anchor="middle">by hand · ≥ 90%</text>
+<path class="ar plan" d="M670,145 V128"/>
+</svg>
+    <figcaption>Claude wrote the list once and a script checked it; the quiz only asks Claude again for answers the list misses. The eval set (31 hand-labelled cases) is how we trust the judge.</figcaption>
+  </figure>
+    <table class="kv">
+      <tr><th>What it does</th><td>Two layers (ADR 0005–0007). <b>1.</b> One answer list Claude wrote once, offline, checked by a script and committed. <b>2.</b> Only when the list says wrong, a Claude judge is asked "is this right after all?", and its verdict is saved.</td></tr>
+      <tr><th>Parts</th><td><code>answer_writer</code> (agent, hsk_trainer: batch, chunks of 40, Sonnet, <code>--limit</code> / <code>--dry-run</code>; <code>load_answers</code> reads the file back through the same checker) → <code>grader</code> (script, quizkit: forgives case, punctuation, "to", small typos) → <code>judge</code> (agent, <b>quizkit</b>: generic, any quiz passes one subject sentence; Haiku by default) · <code>quizkit/claude.py</code> (the shared <code>claude -p</code> helper) · <code>quizkit/blocks/judge/eval.py</code> (the eval script)</td></tr>
+      <tr><th>Files</th><td>out of answer_writer: <code>data/generated/answers.jsonl</code> (978 lines) + <code>answer_writer_log.jsonl</code> (model, prompt version, tokens) · judge: <code>data/judge_cache.jsonl</code> (gitignored; keyed by card, answer, answer list, model, prompt version) · eval set: <code>tests/data/judge_eval_hsk.jsonl</code> (31 cases)</td></tr>
+      <tr><th>Hands on to</th><td>The CLI joins <code>answers.jsonl</code> onto each card, so the grader sees answers that are already typeable (ADR 0006). The judge's verdict ("✅ accepted by the Claude judge: …") is printed by the CLI's <code>tell</code>.</td></tr>
+      <tr><th>Tested by</th><td><code>blocks/test_answer_writer.py</code> (fake Claude; the real file passes for all 978 cards) · <code>blocks/test_grader.py</code> (toy data, no Chinese) · <code>blocks/test_judge.py</code> (fake Claude, injection cases) · <code>test_judge_eval.py</code> (counting only) · <code>test_claude_helper.py</code> · <code>test_retired.py</code> (the old rule cleaner stays gone) · the real eval by hand (section 7)</td></tr>
+    </table>
+  </div>
+
+  <div class="card table-wrap">
+    <h3 class="ws-h">D · Sentences</h3>
+  <figure class="diagram fl mini">
+<svg viewBox="0 0 900 320" role="img" aria-label="Sentences, a loop: the sentence_bank rule p(new) = max(0.2, 1/(1+n)) decides new or banked; live_sentences asks write_one, Claude, while you answer the word before; script checks test the word on its own, band, pinyin and English; on pass the sentence is saved to sentences.jsonl and shown under the word; on fail a banked one, or none, is shown; the data-auditor subagent reviews the bank by hand, you decide, removals are recorded in docs/audits.">
+<defs><marker id="wd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker><marker id="wdn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk-no" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<text class="lane-t" x="10" y="22">SENTENCE MODES · WHILE YOU ANSWER THE WORD BEFORE</text>
+<rect class="box " x="10" y="40" width="150" height="50" rx="6"/><text class="t" x="85" y="62" text-anchor="middle">sentence_bank</text><text class="s" x="85" y="77" text-anchor="middle">p(new) = max(0.2, 1/(1+n))</text>
+<rect class="box " x="190" y="40" width="110" height="50" rx="6"/><text class="t" x="245" y="62" text-anchor="middle">live_sentences</text><text class="s" x="245" y="77" text-anchor="middle">≤ 15 s · --no-live</text>
+<rect class="box agent" x="330" y="40" width="110" height="50" rx="6"/><text class="t" x="385" y="62" text-anchor="middle">write_one</text><text class="s" x="385" y="77" text-anchor="middle">agent · Claude</text>
+<rect class="box check" x="470" y="40" width="130" height="50" rx="6"/><text class="t" x="535" y="62" text-anchor="middle">script checks</text><text class="s" x="535" y="77" text-anchor="middle">band · pinyin · English</text>
+<rect class="box you" x="650" y="40" width="110" height="50" rx="6"/><text class="t" x="705" y="62" text-anchor="middle">shown</text><text class="s" x="705" y="77" text-anchor="middle">under the word</text>
+<rect class="box file" x="470" y="150" width="130" height="50" rx="6"/><text class="t" x="535" y="172" text-anchor="middle">sentences.jsonl</text><text class="s" x="535" y="187" text-anchor="middle">the bank</text>
+<rect class="box check" x="470" y="260" width="130" height="50" rx="6"/><text class="t" x="535" y="282" text-anchor="middle">data-auditor</text><text class="s" x="535" y="297" text-anchor="middle">subagent · by hand</text>
+<rect class="box you" x="640" y="260" width="110" height="50" rx="6"/><text class="t" x="695" y="289" text-anchor="middle">you decide</text>
+<rect class="box file" x="780" y="260" width="110" height="50" rx="6"/><text class="t" x="835" y="282" text-anchor="middle">removals</text><text class="s" x="835" y="297" text-anchor="middle">docs/audits/</text>
+<path class="ar " d="M160,65 H190" marker-end="url(#wd)"/>
+<text class="s" x="175" y="34" text-anchor="middle">new?</text>
+<path class="ar " d="M300,65 H330" marker-end="url(#wd)"/>
+<path class="ar " d="M440,65 H470" marker-end="url(#wd)"/>
+<path class="ar " d="M600,65 H650" marker-end="url(#wd)"/>
+<text class="s" x="625" y="58" text-anchor="middle">pass</text>
+<path class="ar " d="M535,90 V150" marker-end="url(#wd)"/>
+<text class="s" x="542" y="124">pass → saved</text>
+<path class="ar no" d="M600,165 H705 V90" marker-end="url(#wdn)"/>
+<text class="no-t" x="712" y="120">fail → a banked</text>
+<text class="no-t" x="712" y="134">one, or none</text>
+<path class="ar " d="M470,175 H85 V90" marker-end="url(#wd)"/>
+<text class="s" x="270" y="169" text-anchor="middle">n = how many are banked</text>
+<path class="ar " d="M535,200 V260" marker-end="url(#wd)"/>
+<path class="ar " d="M600,285 H640" marker-end="url(#wd)"/>
+<path class="ar " d="M750,285 H780" marker-end="url(#wd)"/>
+<path class="ar " d="M835,260 V190 H600" marker-end="url(#wd)"/>
+<text class="s" x="840" y="228">removed</text>
+</svg>
+    <figcaption>The fewer sentences a word has banked (n), the likelier a new one: 0 banked → always new, 1 → 50%, 4 or more → 20%. The scripts check the word stands on its own, the band, the pinyin and the English; the data-auditor covers what they can't judge (naturalness, meaning), and only you remove.</figcaption>
+  </figure>
+    <table class="kv">
+      <tr><th>What it does</th><td>In <code>char_sentence</code> and <code>full</code>, each word comes with an example sentence. While you answer one word, Claude writes the next word's sentence; scripts check it; if it passes it is shown and saved to a bank that grows as you play (ADR 0008–0011).</td></tr>
+      <tr><th>Parts</th><td><code>sentence_validator</code> (script: the word stands on its own, every other word at or below the band, 3–20 characters; reads with our own word list, not jieba, ADR 0009) + the <b>pinyin check</b> (every syllable is a real reading, ADR 0010) + the <b>English check</b>, both inside sentence_writer · <code>sentence_writer</code> (agent: batch top-up per band, chunks of 20, up to 2 retries with the reasons; and <code>write_one</code>: one word, one call, no retry, used live) · <code>sentence_bank</code> (script: new or banked by max(0.2, 1/(1+n)), least recently seen first, up to 10 a word) · <code>live_sentences</code> (script: background threads ask ahead, wait at most 15 s, switch off after 2 failures in a row, fall back to the bank) · <code>data-auditor</code> subagent (reads the bank for what scripts can't judge)</td></tr>
+      <tr><th>Files</th><td><code>data/generated/sentences.jsonl</code> (the bank, committed: 23 words / 40 sentences now, grows with play) · <code>sentence_writer_log.jsonl</code> (batch, committed) · <code>data/live_sentence_log.jsonl</code> (live, gitignored) · <code>data/sentence_seen.json</code> (when you saw each one, gitignored) · <code>docs/audits/2026-11-05-sentences.md</code> (first audit: 44 checked, 4 removed)</td></tr>
+      <tr><th>Hands on to</th><td>The CLI takes <code>sentence</code> / <code>sentence_pinyin</code> out of the mode before the deck is built, then prints the sentence under the word and its English after you answer. At the end, <code>finish</code> saves sentences still being written.</td></tr>
+      <tr><th>Tested by</th><td><code>blocks/test_sentence_validator.py</code> · <code>blocks/test_sentence_writer.py</code> (fake Claude; the real bank passes the checker) · <code>blocks/test_sentence_bank.py</code> · <code>blocks/test_live_sentences.py</code> (fake writer, slow and late paths) · <code>test_cli.py</code> (sentence modes) · the auditor's planted test, by hand</td></tr>
+    </table>
+  </div>
+
+  <div class="card table-wrap">
+    <h3 class="ws-h">E · How we build</h3>
+    <p class="lede">The picture for this line is the swimlane right below this card: test-writer, the two hooks, local checks, block-reviewer, <code>/code-review</code>, CI, the Claude review, protected <code>main</code> and you.</p>
+    <table class="kv">
+      <tr><th>The routine</th><td>Issue (form, with "Still the right thing?") → branch → <code>/new-block</code> (scaffold) → SPEC with you → <b>test-writer</b> writes tests from the SPEC → code until green (hooks fire on every edit) → <code>ruff check</code>, <code>ruff format --check</code>, <code>pytest</code> → <b>block-reviewer</b> until ✅ → <code>/code-review</code> on the branch → docs + this map → PR with "Still the right thing?" → CI + the Claude review on GitHub → protected <code>main</code> → <b>you merge</b>.</td></tr>
+      <tr><th>Used for</th><td>All 11 blocks (and block changes, e.g. the engine's Ctrl-C fix in M3 Step 6). Docs-only steps skip the block parts.</td></tr>
+      <tr><th>Files</th><td><code>.github/ISSUE_TEMPLATE/step.yml</code> · <code>.claude/skills/new-block/SKILL.md</code> → <code>src/quizkit/scaffold.py</code> · <code>.claude/agents/*.md</code> · <code>.claude/hooks/*.py</code> · <code>.github/pull_request_template.md</code> · <code>.github/workflows/*.yml</code> · <code>docs/*.md</code></td></tr>
+      <tr><th>Tested by</th><td><code>test_scaffold.py</code> · <code>test_hooks.py</code> · <code>test_pr_body.py</code> · the contract test in every block. Not tested: the settings wiring, the workflows, the skill and subagent prompts (section 7).</td></tr>
+    </table>
+  </div>
+
+  <figure class="card diagram fl wide">
+    <h3>How one step gets built (who does what)</h3>
+      <svg viewBox="0 -28 1460 538" role="img" aria-label="Swimlane flow of one build step: you give the go, Claude plans, the /new-block skill scaffolds, you write the SPEC together, the test-writer subagent writes tests, Claude writes code while two hooks fire on every edit, local ruff and pytest checks loop back on failure, the block-reviewer subagent loops back on issues, /code-review comes next, docs and the build map are updated, Claude commits and pushes, GitHub runs CI and the Claude review, protected main requires green CI, and you merge, which starts the next step.">
+      <defs>
+        <marker id="fa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="fno" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk-no" d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="fnext" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk-next" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+<rect class="lane" x="0" y="10" width="1460" height="80" rx="6"/><text class="lane-t" x="10" y="34">YOU</text><text class="s" x="10" y="50">decide · approve</text>
+<rect class="lane" x="0" y="100" width="1460" height="80" rx="6"/><text class="lane-t" x="10" y="124">CLAUDE</text><text class="s" x="10" y="140">main session</text>
+<rect class="lane" x="0" y="190" width="1460" height="80" rx="6"/><text class="lane-t" x="10" y="214">HELPERS</text><text class="s" x="10" y="230">skill · subagents · hooks</text>
+<rect class="lane" x="0" y="280" width="1460" height="80" rx="6"/><text class="lane-t" x="10" y="304">YOUR COMPUTER</text><text class="s" x="10" y="320">checks · git</text>
+<rect class="lane" x="0" y="370" width="1460" height="120" rx="6"/><text class="lane-t" x="10" y="394">GITHUB</text><text class="s" x="10" y="410">PR · CI · review · main</text>
+<rect class="box you" x="140" y="25.0" width="96" height="50" rx="6"/><text class="t" x="188.0" y="47.0" text-anchor="middle">1 · Idea</text><text class="s" x="188.0" y="62.0" text-anchor="middle">you say go</text>
+<rect class="box " x="250" y="115.0" width="96" height="50" rx="6"/><text class="t" x="298.0" y="137.0" text-anchor="middle">2 · Plan</text><text class="s" x="298.0" y="152.0" text-anchor="middle">right thing?</text>
+<rect class="box guide" x="360" y="205.0" width="96" height="50" rx="6"/><text class="t" x="408.0" y="227.0" text-anchor="middle">3 · /new-block</text><text class="s" x="408.0" y="242.0" text-anchor="middle">skill → scaffold</text>
+<rect class="box you" x="470" y="25.0" width="96" height="50" rx="6"/><text class="t" x="518.0" y="47.0" text-anchor="middle">4 · SPEC</text><text class="s" x="518.0" y="62.0" text-anchor="middle">written together</text>
+<rect class="box guide" x="580" y="205.0" width="96" height="50" rx="6"/><text class="t" x="628.0" y="227.0" text-anchor="middle">5 · Tests first</text><text class="s" x="628.0" y="242.0" text-anchor="middle">test-writer</text>
+<rect class="box " x="690" y="115.0" width="96" height="50" rx="6"/><text class="t" x="738.0" y="137.0" text-anchor="middle">6 · Write code</text><text class="s" x="738.0" y="152.0" text-anchor="middle">until tests pass</text>
+<rect class="box hard" x="690" y="203" width="96" height="22" rx="6"/><text class="t" x="738.0" y="218.0" text-anchor="middle">block_env</text>
+<rect class="box auto" x="690" y="231" width="96" height="22" rx="6"/><text class="t" x="738.0" y="246.0" text-anchor="middle">format</text>
+<rect class="box guide" x="800" y="295.0" width="96" height="50" rx="6"/><text class="t" x="848.0" y="317.0" text-anchor="middle">7 · Checks</text><text class="s" x="848.0" y="332.0" text-anchor="middle">ruff + pytest</text>
+<rect class="box guide" x="910" y="205.0" width="96" height="50" rx="6"/><text class="t" x="958.0" y="227.0" text-anchor="middle">8 · Review</text><text class="s" x="958.0" y="242.0" text-anchor="middle">block-reviewer</text>
+<rect class="box guide" x="1020" y="205.0" width="96" height="50" rx="6"/><text class="t" x="1068.0" y="227.0" text-anchor="middle">9 · Code review</text><text class="s" x="1068.0" y="242.0" text-anchor="middle">/code-review skill</text>
+<rect class="box guide" x="1130" y="115.0" width="96" height="50" rx="6"/><text class="t" x="1178.0" y="137.0" text-anchor="middle">10 · Docs + map</text><text class="s" x="1178.0" y="152.0" text-anchor="middle">log · snapshot</text>
+<rect class="box " x="1130" y="295.0" width="96" height="50" rx="6"/><text class="t" x="1178.0" y="317.0" text-anchor="middle">11 · Commit, push</text><text class="s" x="1178.0" y="332.0" text-anchor="middle">branch → GitHub</text>
+<rect class="box auto" x="1240" y="380" width="96" height="40" rx="6"/><text class="t" x="1288.0" y="397.0" text-anchor="middle">12 · CI</text><text class="s" x="1288.0" y="412.0" text-anchor="middle">ruff + pytest</text>
+<rect class="box auto" x="1240" y="440" width="96" height="40" rx="6"/><text class="t" x="1288.0" y="457.0" text-anchor="middle">Claude review</text><text class="s" x="1288.0" y="472.0" text-anchor="middle">GitHub app</text>
+<rect class="box hard" x="1350" y="405" width="96" height="50" rx="6"/><text class="t" x="1398.0" y="427.0" text-anchor="middle">Protected main</text><text class="s" x="1398.0" y="442.0" text-anchor="middle">green CI needed</text>
+<rect class="box you" x="1350" y="25.0" width="96" height="50" rx="6"/><text class="t" x="1398.0" y="47.0" text-anchor="middle">13 · You merge</text><text class="s" x="1398.0" y="62.0" text-anchor="middle">your call</text>
+<path class="ar " d="M236,50 H243 V140 H250" marker-end="url(#fa)"/>
+<path class="ar " d="M346,140 H353 V230 H360" marker-end="url(#fa)"/>
+<path class="ar " d="M456,230 H463 V50 H470" marker-end="url(#fa)"/>
+<path class="ar " d="M566,50 H573 V230 H580" marker-end="url(#fa)"/>
+<path class="ar " d="M676,230 H683 V140 H690" marker-end="url(#fa)"/>
+<path class="ar plan" d="M738,165 V203"/>
+<text class="s" x="742" y="190">hooks, every edit</text>
+<path class="ar " d="M786,140 H793 V320 H800" marker-end="url(#fa)"/>
+<path class="ar " d="M896,320 H903 V230 H910" marker-end="url(#fa)"/>
+<path class="ar " d="M1006,230 H1020" marker-end="url(#fa)"/>
+<path class="ar " d="M1116,230 H1123 V140 H1130" marker-end="url(#fa)"/>
+<path class="ar " d="M1178,165 V295" marker-end="url(#fa)"/>
+<path class="ar " d="M1226,320 H1233 V400 H1240" marker-end="url(#fa)"/>
+<path class="ar " d="M1288,420 V440" marker-end="url(#fa)"/>
+<path class="ar " d="M1336,400 H1343 V430 H1350" marker-end="url(#fa)"/>
+<path class="ar" d="M1336,460 H1343 V430"/>
+<path class="ar " d="M1398,405 V75" marker-end="url(#fa)"/>
+<path class="ar no" d="M830,295 V158 H786" marker-end="url(#fno)"/>
+<text class="no-t" x="836" y="275">fail → fix</text>
+<path class="ar no" d="M970,205 V122 H786" marker-end="url(#fno)"/>
+<text class="no-t" x="976" y="185">issues → fix</text>
+<text class="no-t" x="1238" y="500">red → fix, push again</text>
+<path class="ar next" d="M1398,25 V-10 H188 V25" marker-end="url(#fnext)"/>
+<text class="next-t" x="700" y="-15" text-anchor="middle">merged → the next step starts at 1</text>
+    </svg>
+    <figcaption>Read left to right. Each lane is one "who". The two red loops are where problems get caught early: failing checks, and the reviewer's issues. Both send the work back to 6. Not every step uses every box: a docs-only step skips 3–5 and 8. In this one picture the box colours mean strictness (red hard, orange automatic, blue guidance, green you), as in section 3.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div>
+    <h2>3. Every check and safety net</h2>
+    <p class="lede">The M1 lesson: if it really matters, make it a hard stop. Only GitHub settings stop everyone, you included; permissions and hooks only stop Claude. "Not tested" means no automatic test proves it works.</p>
+  </div>
+  <figure class="card diagram fl wide">
+    <h3>The checks on the map</h3>
+<svg viewBox="0 0 1000 436" role="img" aria-label="The checks on the map, in three zones. (a) Your computer and Claude Code: Claude's tools pass a permission check (the block_env hook, the deny rule, ask for anything not allowed) before files change; .env is blocked; ruff format, local checks and test guards act on the files. (b) The app: Claude's reply (no tools, forced shape, injection guard) goes through script checks before data files are written (atomic, never shrink, audited by hand); a slow or failing Claude falls back to the bank or not checked, with a 15 second wait, switch-off after 2 failures and the off switches. (c) GitHub: push and PR (push protection, PR template, issue form), CI (PR-body check, locked install, pinned action), protected main (PR and green CI required, admins too), then you merge, after the Claude review and /code-review.">
+<defs><marker id="km" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker><marker id="kmn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk-no" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<rect class="lane" x="4" y="8" width="326" height="420" rx="8"/>
+<rect class="lane" x="338" y="8" width="326" height="420" rx="8"/>
+<rect class="lane" x="672" y="8" width="324" height="420" rx="8"/>
+<text class="lane-t" x="16" y="30">(a) YOUR COMPUTER · CLAUDE CODE</text>
+<text class="lane-t" x="350" y="30">(b) THE APP</text>
+<text class="lane-t" x="684" y="30">(c) GITHUB</text>
+<rect class="box agent" x="25" y="50" width="120" height="56" rx="6"/><text class="t" x="85" y="75" text-anchor="middle">Claude's tools</text><text class="s" x="85" y="90" text-anchor="middle">Bash · Read · Edit …</text>
+<rect class="box check" x="25" y="150" width="120" height="56" rx="6"/><text class="t" x="85" y="175" text-anchor="middle">permission check</text><text class="s" x="85" y="190" text-anchor="middle">hook + allow / deny</text>
+<rect class="box file" x="25" y="250" width="120" height="56" rx="6"/><text class="t" x="85" y="275" text-anchor="middle">files change</text><text class="s" x="85" y="290" text-anchor="middle">code · docs</text>
+<rect class="box file" x="25" y="350" width="120" height="56" rx="6"/><text class="t" x="85" y="375" text-anchor="middle">.env</text><text class="s" x="85" y="390" text-anchor="middle">secrets</text>
+<path class="ar " d="M85,106 V150" marker-end="url(#km)"/>
+<path class="ar " d="M85,206 V250" marker-end="url(#km)"/>
+<text class="s" x="91" y="232">allowed</text>
+<path class="ar no" d="M25,178 H14 V378 H25" marker-end="url(#kmn)"/>
+<text class="no-t" x="30" y="340">blocked</text>
+<circle class="bd guide" cx="160" cy="64" r="6"/><text class="s" x="171" y="68">CLAUDE.md rules</text>
+<circle class="bd hard" cx="160" cy="80" r="6"/><text class="s" x="171" y="84">subagent tool limits</text>
+<circle class="bd hard" cx="160" cy="96" r="6"/><text class="s" x="171" y="100">plan mode (when on)</text>
+<circle class="bd hard" cx="160" cy="164" r="6"/><text class="s" x="171" y="168">block_env hook (6 tools)</text>
+<circle class="bd hard" cx="160" cy="180" r="6"/><text class="s" x="171" y="184">deny Read(./.env)</text>
+<circle class="bd hard" cx="160" cy="196" r="6"/><text class="s" x="171" y="200">not allowed → asks you</text>
+<circle class="bd auto" cx="160" cy="264" r="6"/><text class="s" x="171" y="268">ruff format hook</text>
+<circle class="bd guide" cx="160" cy="280" r="6"/><text class="s" x="171" y="284">ruff + pytest before done</text>
+<circle class="bd auto" cx="160" cy="296" r="6"/><text class="s" x="171" y="300">conftest · contract · reuse</text>
+<circle class="bd auto" cx="160" cy="370" r="6"/><text class="s" x="171" y="374">.gitignore</text>
+<circle class="bd habit" cx="160" cy="386" r="6"/><text class="s" x="171" y="390">.env.example for key names</text>
+<rect class="box agent" x="355" y="50" width="120" height="56" rx="6"/><text class="t" x="415" y="75" text-anchor="middle">Claude reply</text><text class="s" x="415" y="90" text-anchor="middle">judge · writers</text>
+<rect class="box check" x="355" y="150" width="120" height="56" rx="6"/><text class="t" x="415" y="175" text-anchor="middle">script checks</text><text class="s" x="415" y="190" text-anchor="middle">shape · rules</text>
+<rect class="box file" x="355" y="250" width="120" height="56" rx="6"/><text class="t" x="415" y="275" text-anchor="middle">data files</text><text class="s" x="415" y="290" text-anchor="middle">answers · bank</text>
+<rect class="box " x="355" y="350" width="120" height="56" rx="6"/><text class="t" x="415" y="375" text-anchor="middle">fallback</text><text class="s" x="415" y="390" text-anchor="middle">bank · not checked</text>
+<path class="ar " d="M415,106 V150" marker-end="url(#km)"/>
+<path class="ar " d="M415,206 V250" marker-end="url(#km)"/>
+<text class="s" x="421" y="232">pass</text>
+<path class="ar no" d="M355,78 H346 V378 H355" marker-end="url(#kmn)"/>
+<text class="no-t" x="362" y="340">slow / error</text>
+<circle class="bd hard" cx="490" cy="64" r="6"/><text class="s" x="501" y="68">no tools, empty folder</text>
+<circle class="bd hard" cx="490" cy="80" r="6"/><text class="s" x="501" y="84">--json-schema + pydantic</text>
+<circle class="bd hard" cx="490" cy="96" r="6"/><text class="s" x="501" y="100">judge injection guard</text>
+<circle class="bd hard" cx="490" cy="164" r="6"/><text class="s" x="501" y="168">sentence checks, every one</text>
+<circle class="bd hard" cx="490" cy="180" r="6"/><text class="s" x="501" y="184">answer checker</text>
+<circle class="bd habit" cx="490" cy="196" r="6"/><text class="s" x="501" y="200">judge eval (by hand)</text>
+<circle class="bd auto" cx="490" cy="270" r="6"/><text class="s" x="501" y="274">atomic, never shrink</text>
+<circle class="bd guide" cx="490" cy="286" r="6"/><text class="s" x="501" y="290">data-auditor (by hand)</text>
+<circle class="bd auto" cx="490" cy="364" r="6"/><text class="s" x="501" y="368">live: 15 s wait</text>
+<circle class="bd auto" cx="490" cy="380" r="6"/><text class="s" x="501" y="384">off after 2 failures</text>
+<circle class="bd habit" cx="490" cy="396" r="6"/><text class="s" x="501" y="400">--no-judge · --no-live</text>
+<rect class="box " x="690" y="50" width="120" height="56" rx="6"/><text class="t" x="750" y="75" text-anchor="middle">push + PR</text><text class="s" x="750" y="90" text-anchor="middle">branch → GitHub</text>
+<rect class="box check" x="690" y="150" width="120" height="56" rx="6"/><text class="t" x="750" y="175" text-anchor="middle">CI</text><text class="s" x="750" y="190" text-anchor="middle">lint · tests · PR body</text>
+<rect class="box check" x="690" y="250" width="120" height="56" rx="6"/><text class="t" x="750" y="275" text-anchor="middle">protected main</text><text class="s" x="750" y="290" text-anchor="middle">the only way in</text>
+<rect class="box you" x="690" y="350" width="120" height="56" rx="6"/><text class="t" x="750" y="375" text-anchor="middle">you merge</text><text class="s" x="750" y="390" text-anchor="middle">your call</text>
+<path class="ar " d="M750,106 V150" marker-end="url(#km)"/>
+<path class="ar " d="M750,206 V250" marker-end="url(#km)"/>
+<path class="ar " d="M750,306 V350" marker-end="url(#km)"/>
+<text class="s" x="756" y="232">green</text>
+<circle class="bd hard" cx="825" cy="64" r="6"/><text class="s" x="836" y="68">push protection</text>
+<circle class="bd habit" cx="825" cy="80" r="6"/><text class="s" x="836" y="84">PR template</text>
+<circle class="bd hard" cx="825" cy="96" r="6"/><text class="s" x="836" y="100">issue form (website)</text>
+<circle class="bd hard" cx="825" cy="164" r="6"/><text class="s" x="836" y="168">PR-body check</text>
+<circle class="bd auto" cx="825" cy="180" r="6"/><text class="s" x="836" y="184">uv sync --locked</text>
+<circle class="bd auto" cx="825" cy="196" r="6"/><text class="s" x="836" y="200">action pinned by SHA</text>
+<circle class="bd hard" cx="825" cy="264" r="6"/><text class="s" x="836" y="268">PR + green CI required</text>
+<circle class="bd hard" cx="825" cy="280" r="6"/><text class="s" x="836" y="284">admins too · squash only</text>
+<circle class="bd auto" cx="825" cy="364" r="6"/><text class="s" x="836" y="368">Claude review (advice)</text>
+<circle class="bd habit" cx="825" cy="380" r="6"/><text class="s" x="836" y="384">@claude: can push branches</text>
+<circle class="bd guide" cx="825" cy="396" r="6"/><text class="s" x="836" y="400">/code-review before PR</text>
+</svg>
+    <figcaption>Find any check here, then look it up in the table below. Badge colours = strictness: red hard stop, orange automatic, blue guidance, grey habit.</figcaption>
+  </figure>
+  <div class="card table-wrap">
+    <table>
+      <thead><tr><th>Thing</th><th>What it stops</th><th>Strictness</th><th>When it runs</th><th>Where it lives</th><th>How it's tested</th></tr></thead>
+      <tbody>
+        <tr><td colspan="6"><b>On GitHub</b></td></tr>
+        <tr><td>Protected <code>main</code></td><td>any change reaching <code>main</code> without a PR and green CI; admins included; squash-only merges, branches auto-deleted</td><td><span class="chip hard">🔴</span></td><td>every push or merge to <code>main</code></td><td>GitHub repo settings</td><td><b>not tested</b> (a setting)</td></tr>
+        <tr><td>Push protection</td><td>pushes containing known API-key formats (public repos)</td><td><span class="chip hard">🔴</span></td><td>every push</td><td>GitHub</td><td><b>not tested</b></td></tr>
+        <tr><td>CI (<code>ci.yml</code>)</td><td>code that fails lint, format or tests; a lockfile out of date (<code>uv sync --locked</code>)</td><td><span class="chip auto">🟠</span> → 🔴 via main</td><td>every push to <code>main</code> and every PR (opened, pushed, reopened, description edited); a newer run cancels the older one (concurrency)</td><td><code>.github/workflows/ci.yml</code></td><td>runs on every PR; the workflow itself <b>not tested</b></td></tr>
+        <tr><td>PR-body check</td><td>a PR whose "Still the right thing?" section is missing, empty, hint-only or "n/a"; the body goes in through an env var (<code>PR_BODY</code>), never pasted into the script, so it can't inject code</td><td><span class="chip hard">🔴</span></td><td>every PR, inside the required CI job</td><td><code>.github/scripts/check_pr_body.py</code></td><td><code>test_pr_body.py</code> (22)</td></tr>
+        <tr><td>Third-party action pinned by SHA</td><td>a moved tag silently running different code (<code>astral-sh/setup-uv@68559e9…</code>)</td><td><span class="chip auto">🟠</span></td><td>every CI run</td><td><code>ci.yml</code></td><td><b>not tested</b></td></tr>
+        <tr><td>Issue form + blank issues off</td><td>an issue without a Goal or a "Still the right thing?" answer (website only: <code>gh issue create</code> skips forms)</td><td><span class="chip hard">🔴</span> on the website</td><td>each new issue</td><td><code>.github/ISSUE_TEMPLATE/step.yml</code> + <code>config.yml</code> (<code>blank_issues_enabled: false</code>)</td><td><b>not tested</b></td></tr>
+        <tr><td>PR template</td><td>forgetting What / Why / Still the right thing? / How tested, and the checklist (reviewer verdict, <code>/code-review</code>, no secrets)</td><td><span class="chip habit">⚪</span></td><td>each PR made on the website (<code>gh pr create --body</code> skips it)</td><td><code>.github/pull_request_template.md</code></td><td>indirectly: <code>test_pr_body.py</code> checks the unfilled template fails</td></tr>
+        <tr><td>Claude review on GitHub</td><td>bugs a second reader would spot; comments on the PR's lines; it has one tool only (inline comments) and read-only permissions</td><td><span class="chip auto">🟠</span> advice, not a gate</td><td>every PR opened / pushed / reopened; <b>skipped</b> when the PR changes its own workflow (green ≠ reviewed: read the log); token renew before 2027-10-15</td><td><code>.github/workflows/claude-code-review.yml</code></td><td>by hand: planted-bug PR #20 (caught 1 of 2)</td></tr>
+        <tr><td><code>@claude</code> on GitHub</td><td>nothing by itself: it does what a comment asks with the app's own permissions and <b>can push a branch</b>; only protected <code>main</code> stops it reaching <code>main</code></td><td><span class="chip habit">⚪</span></td><td>a comment, review or issue containing <code>@claude</code></td><td><code>.github/workflows/claude.yml</code></td><td><b>not tested</b></td></tr>
+        <tr><td colspan="6"><b>In Claude Code (Claude only)</b></td></tr>
+        <tr><td>Deny rule</td><td>Claude's <b>Read</b> tool opening <code>.env</code>. Only Read: not shell commands, which is why the hook exists</td><td><span class="chip hard">🔴</span></td><td>every Read</td><td><code>.claude/settings.json</code> (<code>"deny": ["Read(./.env)"]</code>)</td><td><b>not tested</b></td></tr>
+        <tr><td>Secrets hook</td><td>any of <b>6 tools</b> (Bash, Read, Edit, Write, Grep, Glob) touching <code>.env</code>: file tools by path or pattern, Bash by command text; <code>.env.example</code> allowed; exit 2 = blocked, Claude is told why</td><td><span class="chip hard">🔴</span></td><td>before each of those tool calls (PreToolUse)</td><td><code>.claude/hooks/block_env.py</code></td><td><code>test_hooks.py</code> (calls the script directly)</td></tr>
+        <tr><td>Format hook</td><td>untidy Python: runs <code>ruff format</code> on the edited <code>.py</code> file; never blocks</td><td><span class="chip auto">🟠</span></td><td>after each Edit or Write (PostToolUse)</td><td><code>.claude/hooks/format_python.py</code></td><td><code>test_hooks.py</code></td></tr>
+        <tr><td>Allow list</td><td>loosens, not tightens: 13 safe commands run without asking (<code>uv run pytest</code>, <code>uv run ruff</code>, <code>uv sync</code>, <code>git status/diff/log/branch</code>, <code>gh pr view/checks/diff</code>, <code>gh run view/watch</code>, <code>gh issue view</code>). Everything else asks: commit, push, PR, merge always ask</td><td><span class="chip hard">🔴</span> (asks)</td><td>every tool call</td><td><code>.claude/settings.json</code></td><td><b>not tested</b></td></tr>
+        <tr><td>Plan mode</td><td>Claude changing anything while you're still deciding: it can only read and plan</td><td><span class="chip hard">🔴</span> while on</td><td>when you press Shift+Tab</td><td>Claude Code</td><td>by hand (M1 Step 2)</td></tr>
+        <tr><td>CLAUDE.md rules</td><td>skipping checks before "done", hand-made block folders, skipped reviews, stale docs</td><td><span class="chip guide">🔵</span></td><td>read at the start of every session</td><td><code>CLAUDE.md</code></td><td><b>not tested</b></td></tr>
+        <tr><td colspan="6"><b>In git and the tests</b></td></tr>
+        <tr><td><code>.gitignore</code></td><td><code>.env</code>, personal data (<code>progress.db</code>, <code>judge_cache.jsonl</code>, <code>sentence_seen.json</code>, <code>live_sentence_log.jsonl</code>) and personal Claude files (<code>settings.local.json</code>, <code>statusline.ps1</code>, <code>CLAUDE.local.md</code>) being committed</td><td><span class="chip auto">🟠</span></td><td>when files are added (<code>git add -f</code> overrides)</td><td><code>.gitignore</code></td><td><b>not tested</b></td></tr>
+        <tr><td>No real Claude in tests</td><td>a test starting the real <code>claude</code> (slow, online, uses the subscription): an autouse fixture makes it look "not installed"</td><td><span class="chip auto">🟠</span></td><td>every test</td><td><code>tests/conftest.py</code></td><td>it is the net; covers only <code>quizkit.claude</code></td></tr>
+        <tr><td>Contract test in every block</td><td>a block whose <code>BLOCK_SPEC</code>, <code>SPEC.md</code> sections and inputs/outputs disagree</td><td><span class="chip auto">🟠</span></td><td>every test run</td><td><code>tests/blocks/test_&lt;name&gt;.py</code> (made by the scaffold)</td><td>11 blocks; the maker: <code>test_scaffold.py</code></td></tr>
+        <tr><td>Reuse guard</td><td>Mandarin code creeping into <code>quizkit</code>: no quizkit file imports or names <code>hsk_trainer</code>; the capitals quiz plays with <code>hsk_trainer</code> blocked</td><td><span class="chip auto">🟠</span></td><td>every test run</td><td><code>tests/test_reuse.py</code></td><td>proved by a planted import</td></tr>
+        <tr><td>Retired stays retired</td><td><code>cedict_cleaner</code> / <code>clean_answer</code> or the <code>cleaner</code> slot coming back (ADR 0006)</td><td><span class="chip auto">🟠</span></td><td>every test run</td><td><code>tests/test_retired.py</code></td><td>itself</td></tr>
+        <tr><td>Pinned, fingerprinted data</td><td>the word list changing under us: pinned commit, size + SHA-256 per file, no half-written files</td><td><span class="chip hard">🔴</span></td><td>each fetch</td><td><code>src/hsk_trainer/blocks/fetcher/</code></td><td><code>blocks/test_fetcher.py</code></td></tr>
+        <tr><td colspan="6"><b>Inside the app's agents</b></td></tr>
+        <tr><td>Claude with no tools, in an empty folder</td><td>the app's Claude calls doing anything but answer: <code>--tools ""</code>, <code>--strict-mcp-config</code>, <code>--no-session-persistence</code>, run from an empty temp folder (no project files, no CLAUDE.md)</td><td><span class="chip hard">🔴</span></td><td>every agent call</td><td><code>src/quizkit/claude.py</code></td><td><code>test_claude_helper.py</code></td></tr>
+        <tr><td>Reply shape forced + checked</td><td>a reply in the wrong shape: <code>--json-schema</code> (judge, sentence_writer), then pydantic and the script checkers; answer_writer's reply is parsed and checked by <code>validate_answers</code></td><td><span class="chip hard">🔴</span></td><td>every agent reply</td><td><code>quizkit/claude.py</code> + each agent block</td><td><code>test_claude_helper.py</code>, the agent block tests</td></tr>
+        <tr><td>Judge injection guard</td><td>your typed text tricking the judge: it is escaped inside <code>&lt;answer&gt;</code> tags, and the prompt says never follow it</td><td><span class="chip hard">🔴</span></td><td>every judge call</td><td><code>src/quizkit/blocks/judge/</code></td><td><code>blocks/test_judge.py</code> (injection cases)</td></tr>
+        <tr><td>Judge eval bar</td><td>a prompt or model change that makes the judge worse: ≥ 90% right and no wrong "yes" on 31 hand-labelled cases</td><td><span class="chip habit">⚪</span></td><td>by hand, before changing the judge's prompt or model</td><td><code>quizkit/blocks/judge/eval.py</code> + <code>tests/data/judge_eval_hsk.jsonl</code></td><td>by hand (needs Claude); <code>test_judge_eval.py</code> tests only the counting</td></tr>
+        <tr><td>Judge switch-off</td><td>waiting on a broken Claude: off for the quiz after 2 failures in a row; "couldn't check" counts as wrong; <code>--no-judge</code></td><td><span class="chip auto">🟠</span></td><td>every quiz</td><td><code>src/quizkit/blocks/judge/</code></td><td><code>blocks/test_judge.py</code>, <code>test_cli.py</code></td></tr>
+        <tr><td>Script checks on every sentence</td><td>a sentence with a missing or too-hard word, wrong length, a made-up reading, tone numbers, or bad English being shown or saved (batch and live)</td><td><span class="chip hard">🔴</span></td><td>every sentence Claude writes</td><td><code>sentence_validator</code> + <code>pinyin_problems</code> and the English check in <code>sentence_writer</code></td><td><code>blocks/test_sentence_validator.py</code>, <code>blocks/test_sentence_writer.py</code></td></tr>
+        <tr><td>Live sentence limits</td><td>a slow or failing Claude spoiling the quiz: waits at most 15 s, switches off after 2 failures in a row, falls back to the bank, <code>finish</code> saves late sentences; <code>--no-live</code></td><td><span class="chip auto">🟠</span></td><td>every sentence-mode quiz</td><td><code>src/hsk_trainer/blocks/live_sentences/</code></td><td><code>blocks/test_live_sentences.py</code>, <code>test_cli.py</code></td></tr>
+        <tr><td>Files never shrink (atomic writes)</td><td>losing answers or sentences: old lines stay until replaced, the bank only adds, every write goes to a temp file then swaps in</td><td><span class="chip auto">🟠</span></td><td>every save</td><td>answer_writer, sentence_writer, sentence_bank, <code>quizkit/files.py</code></td><td>the three block tests; <code>write_atomically</code> only indirectly</td></tr>
+        <tr><td colspan="6"><b>Helpers and habits</b></td></tr>
+        <tr><td>data-auditor (read-only)</td><td>sentences the scripts can't judge (unnatural, wrong English, wrong reading, too hard, wrong sense); it flags, you decide</td><td>tools <span class="chip hard">🔴</span> · trigger <span class="chip guide">🔵</span></td><td>each milestone end + about every 50 new sentences (CLAUDE.md rule)</td><td><code>.claude/agents/data-auditor.md</code>, reports in <code>docs/audits/</code></td><td>by hand: planted test (5/5 caught, no good one flagged)</td></tr>
+        <tr><td>Subagent tool limits</td><td>block-reviewer and data-auditor can't edit (Read, Grep, Glob). test-writer may write, but "only in tests/" is just an instruction</td><td><span class="chip hard">🔴</span> / <span class="chip guide">🔵</span></td><td>whenever they run</td><td><code>.claude/agents/*.md</code> (<code>tools:</code>)</td><td>by hand (M1 Step 6 demo); prompts <b>not tested</b></td></tr>
+        <tr><td><code>/code-review</code> before each PR</td><td>bugs between blocks that block reviews miss</td><td><span class="chip guide">🔵</span></td><td>before opening any PR</td><td>CLAUDE.md rule + PR checkbox</td><td>built in</td></tr>
+        <tr><td>"Still the right thing?"</td><td>building yesterday's plan: re-test it against what we know now</td><td><span class="chip habit">⚪</span> → 🔴</td><td>each plan, issue and PR</td><td>CLAUDE.md, issue form, PR template, CI check</td><td>CI proves it's answered, not that it's good</td></tr>
+        <tr><td>Small PRs</td><td>PRs too big to review: agent work split into helper / block / wiring / eval PRs</td><td><span class="chip habit">⚪</span></td><td>each plan</td><td>habit (playbook)</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <figure class="card diagram fl">
+    <h3>One Claude action, up close</h3>
+    <svg viewBox="0 0 1070 250" role="img" aria-label="One Claude action up close: Claude picks a tool; for Bash, Read, Edit, Write, Grep and Glob the block_env hook runs first and blocks anything touching the secrets file; then the permission rules in settings.json block it (the deny rule covers only Read of .env), allow it, or ask you; the tool runs; after an Edit or Write of a .py file the format hook runs ruff format; the result goes back to Claude.">
+      <defs>
+        <marker id="fc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="fcno" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk-no" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+<rect class="box " x="20" y="50" width="150" height="54" rx="6"/><text class="t" x="95.0" y="74.0" text-anchor="middle">Claude picks a tool</text><text class="s" x="95.0" y="89.0" text-anchor="middle">Read · Edit · Bash …</text>
+<rect class="box hard" x="195" y="50" width="150" height="54" rx="6"/><text class="t" x="270.0" y="74.0" text-anchor="middle">block_env.py hook</text><text class="s" x="270.0" y="89.0" text-anchor="middle">BEFORE 6 tools · .env?</text>
+<rect class="box hard" x="370" y="50" width="150" height="54" rx="6"/><text class="t" x="445.0" y="74.0" text-anchor="middle">Permission rules</text><text class="s" x="445.0" y="89.0" text-anchor="middle">settings.json</text>
+<rect class="box " x="545" y="50" width="150" height="54" rx="6"/><text class="t" x="620.0" y="74.0" text-anchor="middle">Tool runs</text><text class="s" x="620.0" y="89.0" text-anchor="middle">read · edit · command</text>
+<rect class="box auto" x="720" y="50" width="150" height="54" rx="6"/><text class="t" x="795.0" y="74.0" text-anchor="middle">format_python.py hook</text><text class="s" x="795.0" y="89.0" text-anchor="middle">AFTER Edit/Write · .py?</text>
+<rect class="box " x="895" y="50" width="150" height="54" rx="6"/><text class="t" x="970.0" y="74.0" text-anchor="middle">Back to Claude</text><text class="s" x="970.0" y="89.0" text-anchor="middle">sees the result</text>
+<rect class="box stop" x="195" y="160" width="150" height="46" rx="6"/><text class="t" x="270.0" y="180.0" text-anchor="middle">⛔ Blocked</text><text class="s" x="270.0" y="195.0" text-anchor="middle">Claude is told why</text>
+<rect class="box you" x="370" y="160" width="150" height="46" rx="6"/><text class="t" x="445.0" y="180.0" text-anchor="middle">🙋 Asks you</text><text class="s" x="445.0" y="195.0" text-anchor="middle">not on the allow-list</text>
+<rect class="box auto" x="720" y="160" width="150" height="46" rx="6"/><text class="t" x="795.0" y="180.0" text-anchor="middle">ruff format</text><text class="s" x="795.0" y="195.0" text-anchor="middle">tidies the file</text>
+<path class="ar " d="M170,77 H195" marker-end="url(#fc)"/>
+<path class="ar " d="M345,77 H370" marker-end="url(#fc)"/>
+<path class="ar " d="M520,77 H545" marker-end="url(#fc)"/>
+<path class="ar " d="M695,77 H720" marker-end="url(#fc)"/>
+<path class="ar " d="M870,77 H895" marker-end="url(#fc)"/>
+<text class="s" x="362" y="44" text-anchor="middle">ok</text>
+<text class="s" x="537" y="44" text-anchor="middle">ok</text>
+<path class="ar no" d="M270,104 V160" marker-end="url(#fcno)"/>
+<text class="no-t" x="277" y="136">yes</text>
+<path class="ar no" d="M400,104 V118 H315 V160" marker-end="url(#fcno)"/>
+<text class="no-t" x="406" y="128">deny: Read(./.env)</text>
+<path class="ar " d="M480,104 V160" marker-end="url(#fc)"/>
+<text class="s" x="486" y="150">unsure</text>
+<path class="ar " d="M520,183 H620 V104" marker-end="url(#fc)"/>
+<text class="s" x="565" y="176">you say yes</text>
+<path class="ar " d="M795,104 V160" marker-end="url(#fc)"/>
+<text class="s" x="802" y="136">yes</text>
+<text class="s" x="20" y="240">Runs on every tool call. The hook watches 6 tools (Bash, Read, Edit, Write, Grep, Glob); the deny rule covers only Read of .env; the format hook only Edit/Write of .py files.</text>
+    </svg>
+    <figcaption>Two guards stand before a tool runs: the <code>block_env.py</code> hook and the permission rules in <code>.claude/settings.json</code>. One tidy-up runs after. Layers beat one lock: for secrets we have <code>.gitignore</code> 🟠 + deny 🔴 + hook 🔴 + push protection 🔴.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div>
+    <h2>4. Claude Code features used</h2>
+    <p class="lede">Every Claude Code feature this project uses, from <code>docs/COURSE_MAP.md</code>. "Where here" is the file or command to copy.</p>
+  </div>
+  <div class="card table-wrap">
+    <table>
+      <thead><tr><th>Feature</th><th>What it is</th><th>Where here</th><th>When we used it</th></tr></thead>
+      <tbody>
+        <tr><td><code>CLAUDE.md</code></td><td>the briefing note Claude reads at the start of every session: rules + commands</td><td><code>CLAUDE.md</code> (shared in git)</td><td>M0 Step 4d; grown every milestone</td></tr>
+        <tr><td><code>/init</code></td><td>writes a first CLAUDE.md from the repo</td><td>run once, then trimmed by hand</td><td>M0 Step 4d</td></tr>
+        <tr><td><code>/memory</code></td><td>opens the memory files to edit them</td><td>opened CLAUDE.md with it</td><td>M0 Step 4d</td></tr>
+        <tr><td>Memory levels</td><td>project <code>CLAUDE.md</code> (shared) vs <code>CLAUDE.local.md</code> (personal, gitignored) vs <code>~/.claude/CLAUDE.md</code> (all projects)</td><td>only the project file is used; <code>CLAUDE.local.md</code> is gitignored but not created</td><td>M0 Step 4d (explained)</td></tr>
+        <tr><td>Auto-memory</td><td>Claude keeps short notes about how you like to work, across sessions</td><td>automatic (per folder); handoff notes between sessions</td><td>throughout</td></tr>
+        <tr><td><code>settings.json</code> vs <code>settings.local.json</code></td><td>shared permissions + hooks (in git) vs personal overrides (gitignored)</td><td><code>.claude/settings.json</code>: allow list (13), deny <code>Read(./.env)</code>, hooks · <code>.claude/settings.local.json</code>: the status line</td><td>M0 Step 4a, M1 Step 4</td></tr>
+        <tr><td>Hooks</td><td>your own scripts Claude Code runs before (PreToolUse) or after (PostToolUse) a tool</td><td><code>.claude/hooks/block_env.py</code>, <code>format_python.py</code>; wired in <code>settings.json</code></td><td>M1 Step 4; they also fired in the M3 worktree session</td></tr>
+        <tr><td>Skills</td><td>a slash command written as instructions (<code>SKILL.md</code>); best with the mechanical part in a tested script</td><td><code>/new-block</code> → <code>.claude/skills/new-block/SKILL.md</code> → <code>quizkit.scaffold</code>; built-in <code>/code-review</code>, run as a background fork</td><td>M1 Step 5; <code>/code-review</code> since M3 Step 1c</td></tr>
+        <tr><td>Subagents</td><td>a helper with its own prompt and tool list; main Claude hands it a job and gets a report. New ones load only at session start: <code>/exit</code> → <code>claude --continue</code></td><td><code>.claude/agents/</code>: test-writer, block-reviewer, data-auditor; built-in ones used too: <code>statusline-setup</code>, Explore</td><td>M1 Step 6; data-auditor M4 Step 6; Explore compared repo vs this page at M4's end</td></tr>
+        <tr><td>Plan mode</td><td>Shift+Tab: Claude can only read and plan until you approve</td><td>Claude Code</td><td>M1 Step 2 (the first ADRs)</td></tr>
+        <tr><td>Status line</td><td>a bar showing folder, branch, model</td><td><code>.claude/settings.local.json</code> + <code>.claude/statusline.ps1</code> (both gitignored), set up by <code>/statusline</code></td><td>M0 Step 6b</td></tr>
+        <tr><td><code>!</code> commands</td><td>you run a command yourself (e.g. one that asks for input); the output lands in the chat</td><td><code>! gh auth login</code></td><td>M0 Steps 1–2</td></tr>
+        <tr><td>Sessions</td><td><code>/clear</code> (fresh start), <code>/compact</code> (summarise), <code>claude --continue</code> (last session), <code>--resume</code> (pick one)</td><td>handoff in a memory note + PLAN.md</td><td>the M2 break; after new subagents</td></tr>
+        <tr><td>Worktrees</td><td>a second folder of the repo on its own branch, for a second Claude session in parallel</td><td><code>git worktree add -b m3-engine ../mandarin-hsk-trainer-engine main</code></td><td>M3 Steps 3–4 (deck_builder here, engine there)</td></tr>
+        <tr><td>Background agents</td><td>work that runs while the main session goes on, reporting back when done</td><td><code>/code-review</code> as a forked skill; read-only subagents</td><td>M3 Step 5 (found 8 things on the CLI); the M4-end check of this page</td></tr>
+        <tr><td>Headless <code>claude -p</code></td><td>Claude Code run from a script, no chat, under your subscription (no API key): how our agents call Claude</td><td><code>src/quizkit/claude.py</code> (JSON output, token counts, <code>--json-schema</code>)</td><td>M4 Steps 2–5: answer_writer, judge, sentence_writer</td></tr>
+        <tr><td>The GitHub app</td><td><code>/install-github-app</code>: installs the Claude app, saves a subscription token as a secret, adds 2 workflows</td><td><code>claude-code-review.yml</code> (auto review), <code>claude.yml</code> (<code>@claude</code>)</td><td>M3 Step 1c (PR #18); proved in Step 1d</td></tr>
+        <tr><td>Artifacts</td><td>a shareable page Claude publishes</td><td>this page: source <code>docs/build-map/index.html</code>, republished as the "HSK Trainer Build Map" artifact after every step, with a frozen snapshot per step in <code>docs/build-map/snapshots/</code></td><td>since M2 end; rebuilt as this guide at M4's end</td></tr>
+        <tr><td>MCP servers</td><td>plug-in tools for Claude</td><td>not used yet (candidate for testing the M6 web UI)</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div>
+    <h2>5. Agents and helpers</h2>
+    <p class="lede">Everything that acts on its own: the app's agents, our building helpers, hooks and GitHub workflows.</p>
+  </div>
+  <div class="versus">
+    <div class="card">
+      <h3>Agent block: part of the app</h3>
+      <ul>
+        <li>Python in <code>src/</code> that calls Claude itself, through <code>claude -p</code></li>
+        <li>A block like any other: SPEC, code, tests (with a fake Claude)</li>
+        <li>A script always checks what it writes; it logs model, prompt version and tokens</li>
+        <li>Examples: answer_writer, sentence_writer, judge</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Subagent: a helper for us, while building</h3>
+      <ul>
+        <li>A Markdown file in <code>.claude/agents/</code>, used inside Claude Code</li>
+        <li>Main Claude hands it a job; it reports back; never part of the app</li>
+        <li>Its tool list is a hard limit; its instructions are guidance</li>
+        <li>Examples: test-writer, block-reviewer, data-auditor</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card table-wrap">
+    <table>
+      <thead><tr><th>Name</th><th>Kind</th><th>Job</th><th>When it runs</th><th>Allowed to</th><th>How it's tested</th></tr></thead>
+      <tbody>
+        <tr><td><code>answer_writer</code></td><td>agent block (hsk_trainer)</td><td>write the English answers a learner might type, for every card (Sonnet, chunks of 40); saved after each chunk, resumable</td><td>you run <code>uv run python -m hsk_trainer.blocks.answer_writer</code> (<code>--limit</code>, <code>--dry-run</code>); ran once in M4 Step 3 (25 calls)</td><td>Claude with no tools; output checked by <code>validate_answers</code></td><td><code>blocks/test_answer_writer.py</code> (102, fake Claude)</td></tr>
+        <tr><td><code>sentence_writer</code> (batch)</td><td>agent block (hsk_trainer)</td><td>1–2 sentences per word with pinyin + English, one band per call (chunks of 20), failures retried up to 2 times with the reasons</td><td>optional top-up: <code>uv run python -m hsk_trainer.blocks.sentence_writer --limit N</code> (<code>--dry-run</code>)</td><td>Claude with no tools, <code>--json-schema</code>; every sentence script-checked</td><td><code>blocks/test_sentence_writer.py</code> (152)</td></tr>
+        <tr><td><code>sentence_writer.write_one</code></td><td>agent block (live)</td><td>one word, one call, no retry; returns what passes; logs to the live log; banking is the bank's job</td><td>called by <code>live_sentences</code> in a background thread during sentence-mode quizzes</td><td>same as batch</td><td>same file</td></tr>
+        <tr><td><code>judge</code></td><td>agent block (<b>quizkit</b>)</td><td>decide whether an answer the list missed is right after all, with a short reason; cache it</td><td>by the engine, only when the grader says wrong; unless <code>--no-judge</code></td><td>Claude with no tools, <code>--json-schema</code>, Haiku</td><td><code>blocks/test_judge.py</code> (62) + eval by hand</td></tr>
+        <tr><td>test-writer</td><td>Claude Code subagent</td><td>write tests from the SPEC only (black-box), before the code</td><td><code>/new-block</code> step 6; any new or changed block (CLAUDE.md)</td><td>Read, Grep, Glob, Write, Edit, Bash ("only in tests/" is an instruction)</td><td>by hand (M1 Step 6 demo); prompt <b>not tested</b></td></tr>
+        <tr><td>block-reviewer</td><td>Claude Code subagent</td><td>fresh-eyes review of one block against its SPEC, ADR 0002 and 0003; verdict ✅ ready / ⚠️ fix first</td><td>before every block PR, a fresh one each round until ✅</td><td>Read, Grep, Glob (can't edit)</td><td>by hand (caught planted mistakes); prompt <b>not tested</b></td></tr>
+        <tr><td>data-auditor</td><td>Claude Code subagent</td><td>flag bank sentences on 5 checks (natural, English, reading, level, sense); you decide</td><td>each milestone end + about every 50 new sentences; after changing its prompt, re-run the planted test</td><td>Read, Grep, Glob (can't edit)</td><td>by hand: <code>tests/data/auditor_planted.jsonl</code> vs <code>auditor_planted_expected.md</code></td></tr>
+        <tr><td><code>/new-block</code> + <code>quizkit.scaffold</code></td><td>skill + script</td><td>3 questions (goal, script or agent, which package), then the script makes folder, SPEC.md, contract test (dry run first); then SPEC, tests, code, review</td><td>you type <code>/new-block</code> or ask for a new block</td><td>the skill guides; the script never overwrites a block</td><td><code>test_scaffold.py</code> (15); <code>SKILL.md</code> <b>not tested</b></td></tr>
+        <tr><td><code>/code-review</code></td><td>built-in skill (background fork)</td><td>hunt for bugs in the whole branch</td><td>before every PR (CLAUDE.md + PR checkbox)</td><td>reads; fixes are ours</td><td>built in</td></tr>
+        <tr><td><code>block_env.py</code></td><td>hook (PreToolUse)</td><td>block <code>.env</code> access</td><td>before Bash, Read, Edit, Write, Grep, Glob</td><td>exit 2 = block</td><td><code>test_hooks.py</code></td></tr>
+        <tr><td><code>format_python.py</code></td><td>hook (PostToolUse)</td><td><code>ruff format</code> the edited <code>.py</code> file</td><td>after Edit, Write</td><td>never blocks</td><td><code>test_hooks.py</code></td></tr>
+        <tr><td><code>ci.yml</code></td><td>GitHub workflow</td><td>PR-body check, <code>uv sync --locked</code>, ruff, format check, pytest</td><td>push to <code>main</code>, every PR</td><td>default token</td><td>runs on every PR; <b>not tested</b> itself</td></tr>
+        <tr><td><code>claude-code-review.yml</code></td><td>GitHub workflow</td><td>Claude reviews the PR and comments on lines</td><td>PR opened, pushed, ready, reopened</td><td>read-only; one tool (inline comments)</td><td>by hand (PR #20)</td></tr>
+        <tr><td><code>claude.yml</code></td><td>GitHub workflow</td><td>do what an <code>@claude</code> comment asks</td><td>comments, reviews, issues with <code>@claude</code></td><td>the app's permissions (can push a branch)</td><td><b>not tested</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div>
+    <h2>6. Data files</h2>
+    <p class="lede">Rule: shared source data is committed; anything personal or re-creatable stays out of git.</p>
+  </div>
+  <div class="card table-wrap">
+    <table>
+      <thead><tr><th>Path</th><th>What</th><th>Written by</th><th>Read by</th><th>Git</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">data/raw/hsk3_2026/{1,2,3}.json + LICENSE</td><td>the pinned word list, bands 1–3</td><td>fetcher</td><td>normalizer</td><td>committed</td></tr>
+        <tr><td class="mono">data/processed/cards.jsonl</td><td>978 cards (hanzi, pinyin, readings, dictionary text, band)</td><td>normalizer</td><td>CLI, answer_writer, sentence_writer, sentence_bank, data-auditor, tests</td><td>committed</td></tr>
+        <tr><td class="mono">data/generated/answers.jsonl</td><td>the one answer list, 978 lines</td><td>answer_writer</td><td>CLI (<code>load_answers</code>), data-auditor, judge eval test</td><td>committed</td></tr>
+        <tr><td class="mono">data/generated/sentences.jsonl</td><td>the sentence bank: 23 words / 40 sentences now; grows with live play</td><td>sentence_bank (live), sentence_writer (batch)</td><td>sentence_bank, data-auditor</td><td>committed</td></tr>
+        <tr><td class="mono">data/generated/answer_writer_log.jsonl</td><td>one line per Claude call: model, prompt version, tokens</td><td>answer_writer</td><td>you</td><td>committed</td></tr>
+        <tr><td class="mono">data/generated/sentence_writer_log.jsonl</td><td>the same, for batch sentence runs</td><td>sentence_writer (batch)</td><td>you</td><td>committed</td></tr>
+        <tr><td class="mono">data/judge_cache.jsonl</td><td>saved judge verdicts, so a repeat is instant</td><td>judge</td><td>judge</td><td>gitignored</td></tr>
+        <tr><td class="mono">data/sentence_seen.json</td><td>when you last saw each sentence</td><td>sentence_bank</td><td>sentence_bank</td><td>gitignored</td></tr>
+        <tr><td class="mono">data/live_sentence_log.jsonl</td><td>one line per live Claude call</td><td><code>write_one</code></td><td>you</td><td>gitignored</td></tr>
+        <tr><td class="mono">data/progress.db</td><td>your attempts and spaced repetition (M5, not yet created)</td><td>progress_store (M5)</td><td>M5</td><td>gitignored</td></tr>
+        <tr><td class="mono">tests/data/judge_eval_hsk.jsonl</td><td>31 hand-labelled judge cases</td><td>us, by hand</td><td>judge eval, <code>test_judge_eval.py</code></td><td>committed</td></tr>
+        <tr><td class="mono">tests/data/auditor_planted.jsonl + auditor_planted_expected.md</td><td>a planted bank (5 bad, 6 good) + its answer key</td><td>us, by hand</td><td>data-auditor's planted test</td><td>committed</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div>
+    <h2>7. Tests: what the 881 guard</h2>
+    <p class="lede">Red bar = runs against the real committed data. Everything else uses small fake data, so it's fast and works offline. "Guards" = the source the test protects.</p>
+  </div>
+  <div class="card table-wrap">
+    <table>
+      <thead><tr><th>Test file</th><th class="n">Tests</th><th></th><th>What it protects</th><th>Guards</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">blocks/test_sentence_writer.py</td><td class="n">152</td><td class="bar"><span class="real" style="width:100%"></span></td><td>the sentence agent with a <b>fake Claude</b>: one band per call with only that band's words, retries with the checker's reasons, the <b>pinyin check</b> (ADR 0010: dictionary readings, neutral tones, made-up readings and tone changes fail), the English check, resume, <b>the file never shrinks</b>, <code>--limit</code>, <code>--dry-run</code>; <code>write_one</code>: one word, one call, no retry, logs to the gitignored live log, writes nothing to the bank; plus the real <code>sentences.jsonl</code> passes the checker</td><td class="mono">hsk_trainer/blocks/sentence_writer/</td></tr>
+        <tr><td class="mono">blocks/test_answer_writer.py</td><td class="n">102</td><td class="bar"><span class="real" style="width:67%"></span></td><td>the answer agent with a <b>fake Claude</b>: saved after each chunk, resume, <code>--limit</code>, <code>--dry-run</code>, broken replies, one bad card fails alone, the checker's rules, <b>the file never shrinks</b> (old lines stay until replaced), <code>load_answers</code> for the quiz; plus the real <code>answers.jsonl</code> passes for all 978 cards</td><td class="mono">hsk_trainer/blocks/answer_writer/</td></tr>
+        <tr><td class="mono">test_cli.py</td><td class="n">68</td><td class="bar"><span class="real" style="width:45%"></span></td><td><code>hsk quiz</code> played with scripted keystrokes on the real cards and answer list: the judge's "✅ accepted" / reason / <code>--no-judge</code> / "couldn't check" (fake judge, own cache file), score, "love" / "to love" for 爱, "dad" for 爸爸 ✅ and "modem" for 猫 ❌, a bad answer file (only its band stops), quitting (incl. Ctrl-C), short decks, every error, hanzi through a Windows pipe; the <b>sentence modes</b> (own tmp bank): the banked sentence under the word, its pinyin only in <code>full</code>, the English only after you answer, "no example sentence yet" and the quiz goes on, <code>--no-live</code> never asks, a live sentence shown and banked (fake writer), Claude unreachable falls back to the bank</td><td class="mono">hsk_trainer/cli.py</td></tr>
+        <tr><td class="mono">blocks/test_sentence_bank.py</td><td class="n">68</td><td class="bar"><span style="width:45%"></span></td><td>the ADR 0011 rule (0 banked → always new, 1 → 50%, 4 or more → 20%), least recently seen first (never seen first), the seen file (written safely, two quizzes at once keep both histories), <code>add</code>: no repeats, up to 10 a word, never shrinks, cards order; broken or missing files</td><td class="mono">hsk_trainer/blocks/sentence_bank/</td></tr>
+        <tr><td class="mono">blocks/test_grader.py</td><td class="n">63</td><td class="bar"><span style="width:41%"></span></td><td>case, punctuation, "to", typo limits 0/1/2 (toy data, no Chinese)</td><td class="mono">quizkit/blocks/grader/</td></tr>
+        <tr><td class="mono">blocks/test_judge.py</td><td class="n">62</td><td class="bar"><span style="width:41%"></span></td><td>the judge with a <b>fake Claude</b>: verdicts, the prompt (subject, shown, answers, your text escaped in tags, an injection attempt), no HSK words in its own text, the capitals quiz uses it, the cache (per card, per answer list, per model and prompt version), every "couldn't check" case, switch-off after 2 failures</td><td class="mono">quizkit/blocks/judge/</td></tr>
+        <tr><td class="mono">blocks/test_sentence_validator.py</td><td class="n">53</td><td class="bar"><span class="real" style="width:35%"></span></td><td>the checker: Chinese only, the word is there <b>on its own</b>, 3–20 characters, every word at or below the band, every reason names the word and its band; real data: good band-1 sentences pass, a band-2 word fails, sentences jieba used to reject now pass (ADR 0009)</td><td class="mono">hsk_trainer/blocks/sentence_validator/</td></tr>
+        <tr><td class="mono">blocks/test_engine.py</td><td class="n">49</td><td class="bar"><span style="width:32%"></span></td><td>the quiz loop with fake typed answers: score, record, quit (incl. Ctrl-C anywhere in the loop, added after the reuse check), bad cards caught before question 1; the <b>judge hook</b>: asked only when the grader says wrong, a "yes" counts, Ctrl-C while judging is a quit</td><td class="mono">quizkit/blocks/engine/</td></tr>
+        <tr><td class="mono">blocks/test_live_sentences.py</td><td class="n">44</td><td class="bar"><span style="width:29%"></span></td><td>live sentences with a <b>fake writer</b>: asked ahead, shown and banked, the 15 s wait then the bank, late sentences banked later, switch-off after 2 failures in a row, <code>--no-live</code> never asks, the end of the quiz banks sentences still being written</td><td class="mono">hsk_trainer/blocks/live_sentences/</td></tr>
+        <tr><td class="mono">blocks/test_normalizer.py</td><td class="n">39</td><td class="bar"><span style="width:26%"></span></td><td>every card's shape and every failure mode of the normalizer</td><td class="mono">hsk_trainer/blocks/normalizer/</td></tr>
+        <tr><td class="mono">blocks/test_deck_builder.py</td><td class="n">31</td><td class="bar"><span style="width:20%"></span></td><td>levels, count, no repeats (by id), same seed = same deck, every failure mode (toy capitals)</td><td class="mono">quizkit/blocks/deck_builder/</td></tr>
+        <tr><td class="mono">test_pr_body.py</td><td class="n">22</td><td class="bar"><span style="width:14%"></span></td><td>the "Still the right thing?" CI check: a filled section passes; missing, empty, hint-only or "n/a" fails; the unfilled PR template fails; headings inside code blocks, unclosed hints and other heading levels handled</td><td class="mono">.github/scripts/check_pr_body.py</td></tr>
+        <tr><td class="mono">test_claude_helper.py</td><td class="n">21</td><td class="bar"><span style="width:14%"></span></td><td>the <code>claude -p</code> helper with a fake runner: no tools, prompt on stdin, not installed, timeout, error replies, token counts, <code>--json-schema</code> and its <code>structured_output</code></td><td class="mono">src/quizkit/claude.py</td></tr>
+        <tr><td class="mono">test_hooks.py</td><td class="n">19</td><td class="bar"><span style="width:13%"></span></td><td>the <code>.env</code> blocker and the auto-format hook (the scripts are called directly)</td><td class="mono">.claude/hooks/</td></tr>
+        <tr><td class="mono">blocks/test_fetcher.py</td><td class="n">16</td><td class="bar"><span style="width:11%"></span></td><td>downloads, fingerprints, no half-written files (fake downloader)</td><td class="mono">hsk_trainer/blocks/fetcher/</td></tr>
+        <tr><td class="mono">test_scaffold.py</td><td class="n">15</td><td class="bar"><span style="width:10%"></span></td><td><code>/new-block</code>'s file maker and SPEC checker</td><td class="mono">src/quizkit/scaffold.py</td></tr>
+        <tr><td class="mono">test_quizkit_download.py</td><td class="n">11</td><td class="bar"><span style="width:7%"></span></td><td>the generic verified download helper</td><td class="mono">src/quizkit/download.py</td></tr>
+        <tr><td class="mono">test_judge_eval.py</td><td class="n">11</td><td class="bar"><span class="real" style="width:7%"></span></td><td>the eval script's counting and pass bar (fake judge); the 31 HSK cases match today's answer list and each is one the list really misses</td><td class="mono">quizkit/blocks/judge/eval.py + tests/data/judge_eval_hsk.jsonl</td></tr>
+        <tr><td class="mono">test_word_counts.py</td><td class="n">7</td><td class="bar"><span class="real" style="width:5%"></span></td><td>real data: 294 / 197 / 487, within 5% of 300 / 500 / 1,000, file up to date</td><td class="mono">data/processed/cards.jsonl</td></tr>
+        <tr><td class="mono">test_quizkit_models.py</td><td class="n">7</td><td class="bar"><span style="width:5%"></span></td><td><b>Card</b> rules only: a valid card, whitespace trimmed, bad cards rejected (blank id, no or blank answers, level below 1), cards can't be changed</td><td class="mono">src/quizkit/models.py</td></tr>
+        <tr><td class="mono">test_reuse.py</td><td class="n">5</td><td class="bar"><span style="width:3%"></span></td><td>the reuse check: no <code>quizkit</code> file imports (or even names) <code>hsk_trainer</code>, and the toy capitals quiz plays to the end with <code>hsk_trainer</code> blocked (both proved by a planted import)</td><td class="mono">examples/capitals_quiz.py + src/quizkit/</td></tr>
+        <tr><td class="mono">test_retired.py</td><td class="n">5</td><td class="bar"><span style="width:3%"></span></td><td>retired stays retired: <code>cedict_cleaner</code> / <code>clean_answer</code> never come back in code, tests or SPECs, and the <code>cleaner</code> slot is gone from the grader and engine (ADR 0006)</td><td class="mono">src/, tests/, SPECs</td></tr>
+        <tr><td class="mono">test_hsk_modes.py</td><td class="n">4</td><td class="bar"><span style="width:3%"></span></td><td>the 4 HSK quiz modes</td><td class="mono">src/hsk_trainer/modes.py</td></tr>
+        <tr><td class="mono">test_quizkit_modes.py</td><td class="n">3</td><td class="bar"><span style="width:2%"></span></td><td>modes as config</td><td class="mono">src/quizkit/modes.py</td></tr>
+        <tr><td class="mono">test_hsk_deck.py</td><td class="n">2</td><td class="bar"><span class="real" style="width:1%"></span></td><td>real data: band 1 → 10 hanzi-only questions; band 2 asked for 500 → all of band 2</td><td class="mono">cards.jsonl + deck_builder + HSK modes</td></tr>
+        <tr><td class="mono">test_smoke.py</td><td class="n">1</td><td class="bar"><span style="width:1%"></span></td><td>both packages import</td><td class="mono">src/quizkit/, src/hsk_trainer/</td></tr>
+        <tr><td class="mono">test_quizkit_blocks.py</td><td class="n">1</td><td class="bar"><span style="width:1%"></span></td><td>the block ID card (<code>BlockSpec</code>)</td><td class="mono">src/quizkit/blocks/base.py</td></tr>
+        <tr><td class="mono">conftest.py</td><td class="n">–</td><td></td><td>not tests: shared helpers. <code>no_real_claude</code> (autouse: every test sees <code>claude</code> as "not installed") and <code>real_cards</code> (the committed cards, loaded once per run)</td><td class="mono">tests/</td></tr>
+      </tbody>
+      <tfoot><tr><td>Total</td><td class="n">881</td><td></td><td>run locally and by CI on every PR</td><td></td></tr></tfoot>
+    </table>
+  </div>
+  <div class="versus">
+    <div class="card">
+      <span class="chip habit">Run by hand (needs real Claude)</span>
+      <h3>Not in CI, on purpose</h3>
+      <ul>
+        <li><b>Judge eval:</b> <code>uv run python -m quizkit.blocks.judge.eval tests/data/judge_eval_hsk.jsonl --model haiku</code>. Bar: ≥ 90% right and no wrong "yes" (exit code 0 = met). Re-run when the judge's prompt or model changes. <code>test_judge_eval.py</code> only tests the counting, with a fake judge.</li>
+        <li><b>Auditor's planted test:</b> ask Claude Code to "run the data-auditor on <code>tests/data/auditor_planted.jsonl</code>" and compare with <code>tests/data/auditor_planted_expected.md</code>. Bar: all 5 planted problems flagged with the right check, none of the 6 good ones marked remove. Re-run after changing the auditor's prompt.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="chip hard">Not tested</span>
+      <h3>Honest gaps</h3>
+      <ul>
+        <li>How <code>settings.json</code> wires the hooks and the deny rule: <code>test_hooks.py</code> calls the hook scripts directly, so a broken matcher would go unnoticed</li>
+        <li>Both Claude workflows (<code>claude-code-review.yml</code>, <code>claude.yml</code>); CI's own workflow file</li>
+        <li><code>.claude/skills/new-block/SKILL.md</code> (only its script is tested)</li>
+        <li>The test-writer, block-reviewer and data-auditor prompts (only by hand)</li>
+        <li><code>quizkit.files.write_atomically</code>: only indirectly, through the blocks that use it</li>
+        <li>GitHub settings (protected <code>main</code>, push protection)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div>
+    <h2>8. How to replicate it in a new project</h2>
+    <p class="lede">The order from <code>docs/PLAYBOOK.md</code>. Each step links its playbook section; the playbook has the exact commands.</p>
+  </div>
+  <div class="routine">
+    <div class="step"><b>1 · Project + git</b>uv project, git on <code>main</code>, repo on GitHub with <code>gh</code><div class="who"><a href="https://github.com/bowiec25/mandarin-hsk-trainer/blob/main/docs/PLAYBOOK.md#1-project--git">playbook §1</a></div></div>
+    <div class="step"><b>2 · Secrets</b><code>.gitignore</code> <code>.env</code>, document keys in <code>.env.example</code>, push protection on<div class="who"><a href="https://github.com/bowiec25/mandarin-hsk-trainer/blob/main/docs/PLAYBOOK.md#2--secrets">playbook §2</a></div></div>
+    <div class="step"><b>3 · Checks</b>ruff + pytest; tests first; a test on the real data<div class="who"><a href="https://github.com/bowiec25/mandarin-hsk-trainer/blob/main/docs/PLAYBOOK.md#3--checks-the-validation">playbook §3</a></div></div>
+    <div class="step"><b>4 · CI</b><code>ci.yml</code>: <code>uv sync --locked</code>, the same checks; pin third-party actions by SHA<div class="who"><a href="https://github.com/bowiec25/mandarin-hsk-trainer/blob/main/docs/PLAYBOOK.md#4-%E2%80%8D%EF%B8%8F-ci-github-runs-the-checks">playbook §4</a></div></div>
+    <div class="step"><b>5 · Protect main</b>PR + green CI required, admins included, squash only<div class="who"><a href="https://github.com/bowiec25/mandarin-hsk-trainer/blob/main/docs/PLAYBOOK.md#5-%EF%B8%8F-protect-main">playbook §5</a></div></div>
+    <div class="step"><b>6 · CLAUDE.md</b><code>/init</code>, then trim to rules + commands<div class="who"><a href="https://github.com/bowiec25/mandarin-hsk-trainer/blob/main/docs/PLAYBOOK.md#6--claudemd-the-briefing-note">playbook §6</a></div></div>
+    <div class="step"><b>7 · Permissions</b>allow safe read/test commands; deny <code>Read(./.env)</code><div class="who"><a href="https://github.com/bowiec25/mandarin-hsk-trainer/blob/main/docs/PLAYBOOK.md#7--claude-permissions">playbook §7</a></div></div>
+    <div class="step"><b>8 · Hooks</b>secrets lock (before) + auto-format (after), each with tests<div class="who"><a href="https://github.com/bowiec25/mandarin-hsk-trainer/blob/main/docs/PLAYBOOK.md#8--hooks-automatic-little-scripts">playbook §8</a></div></div>
+    <div class="step"><b>9 · Docs + routine</b>README, ADRs, PR template, issue form; issue → branch → PR → merge, with "Still the right thing?" checked by CI<div class="who"><a href="https://github.com/bowiec25/mandarin-hsk-trainer/blob/main/docs/PLAYBOOK.md#9--docs">§9</a> · <a href="https://github.com/bowiec25/mandarin-hsk-trainer/blob/main/docs/PLAYBOOK.md#10--the-routine-every-change">§10</a></div></div>
+    <div class="step"><b>10 · Skills</b>a <code>/new-block</code>-style skill, with the file-making in a tested script<div class="who"><a href="https://github.com/bowiec25/mandarin-hsk-trainer/blob/main/docs/PLAYBOOK.md#11--skills-your-own-slash-commands">playbook §11</a></div></div>
+    <div class="step"><b>11 · Subagents + code review</b>test-writer, read-only reviewer(s); <code>/code-review</code> before PRs + the GitHub app<div class="who"><a href="https://github.com/bowiec25/mandarin-hsk-trainer/blob/main/docs/PLAYBOOK.md#12--subagents-specialist-helpers">§12</a> · <a href="https://github.com/bowiec25/mandarin-hsk-trainer/blob/main/docs/PLAYBOOK.md#13--code-review-a-second-pair-of-eyes-on-every-change">§13</a></div></div>
+    <div class="step loop"><b>12 · AI agents in the app</b>copy <code>quizkit/claude.py</code> + its tests; always a script checker, <code>--limit</code> / <code>--dry-run</code>, a token log, a fake Claude in tests, an eval for judgment calls<div class="who"><a href="https://github.com/bowiec25/mandarin-hsk-trainer/blob/main/docs/PLAYBOOK.md#-other-claude-features-weve-used">playbook: other features</a> · <a href="https://github.com/bowiec25/mandarin-hsk-trainer/blob/main/docs/PLAYBOOK.md#-lessons-by-milestone">lessons</a></div></div>
+  </div>
+</section>
+
+<section>
+  <div>
+    <h2>9. Decisions and where the notes live</h2>
+    <p class="lede">An ADR says "we decided X, because Y". Accepted ADRs are never edited: a change gets a new ADR that supersedes part of the old one.</p>
+  </div>
+  <div class="card table-wrap">
+    <table>
+      <thead><tr><th>ADR</th><th>Decision</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">0001</td><td>Use the HSK 3.0 word lists, bands 1–3</td><td>Accepted; word counts superseded by 0004</td></tr>
+        <tr><td class="mono">0002</td><td>Script if code can check it; agent if it needs judgment, and a script checks the agent</td><td>Accepted</td></tr>
+        <tr><td class="mono">0003</td><td>The block contract: SPEC.md + code + tests, pydantic in and out</td><td>Accepted</td></tr>
+        <tr><td class="mono">0004</td><td>Word list = the 2026 syllabus from <code>complete-hsk-vocabulary</code>, pinned</td><td>Accepted</td></tr>
+        <tr><td class="mono">0005</td><td>Grading = answer list + Claude judge, both via <code>claude -p</code> (subscription)</td><td>Accepted; partly superseded by 0006 (one list) and 0007 (generic judge)</td></tr>
+        <tr><td class="mono">0006</td><td>One answer list (<code>answers.jsonl</code>); <code>cedict_cleaner</code> retired</td><td>Accepted</td></tr>
+        <tr><td class="mono">0007</td><td>Generic Claude judge in <code>quizkit</code>, with rules for trusting it (forced shape, escaped input, cache, safe failure, eval set)</td><td>Accepted</td></tr>
+        <tr><td class="mono">0008</td><td>Sentences: Claude writes, a script checks, Claude retries</td><td>Accepted; partly superseded by 0009, 0010 and 0011</td></tr>
+        <tr><td class="mono">0009</td><td>The checker reads sentences with our own word list, not jieba</td><td>Accepted</td></tr>
+        <tr><td class="mono">0010</td><td>Sentence pinyin: Claude writes it, a script checks every syllable</td><td>Accepted</td></tr>
+        <tr><td class="mono">0011</td><td>Sentences written live during the quiz, saved to a growing bank</td><td>Accepted</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="docs">
+    <div class="card doc"><b>docs/PLAN.md</b><span>the plan and the "Where we are" checklist</span></div>
+    <div class="card doc"><b>docs/SETUP_LOG.md</b><span>why each step was done, in plain English</span></div>
+    <div class="card doc"><b>docs/COURSE_MAP.md</b><span>course topics vs where we used them</span></div>
+    <div class="card doc"><b>docs/PLAYBOOK.md</b><span>your checklist and lessons for the next project</span></div>
+    <div class="card doc"><b>docs/FUTURE.md</b><span>ideas for later</span></div>
+    <div class="card doc"><b>docs/audits/</b><span>one dated report per sentence-bank audit</span></div>
+    <div class="card doc"><b>docs/decisions/README.md</b><span>the ADR index and template</span></div>
+    <div class="card doc"><b>README.md</b><span>the front page of the repo</span></div>
+    <div class="card doc"><b>docs/build-map/</b><span>the source of this page + a frozen snapshot per step</span></div>
+    <div class="card doc"><b>src/*/blocks/*/SPEC.md</b><span>each block's job description (Goal, Kind, Inputs, Outputs, Tools, Failure modes, How to test)</span></div>
+  </div>
+</section>
+
+<section>
+  <div>
+    <h2>10. How it grew</h2>
+    <p class="lede">One line per step, newest first. Click <b>snapshot</b> to see the whole map exactly as it was after that step.</p>
+  </div>
+  <ol class="timeline card" reversed>
+    <li><span class="when">2026-11-05</span><span class="what">M4 done: lessons + this page rebuilt as an architecture guide (#52)</span><span>The M4 lessons went into the playbook, and a fresh-eyes check of the repo against this map (11 stale facts, many missing pieces) led to this rebuild: the big picture, five workstreams, every check, every Claude feature, the agents, the data files, the tests (incl. what is not tested) and how to replicate it · <a href="m4-done.html">snapshot</a></span></li>
+    <li><span class="when">2026-11-05</span><span class="what">M4 Step 6: data-auditor (#51)</span><span>A third subagent, for <b>data</b> instead of code: read-only, it flags sentences the scripts can't judge, and you decide. Tested on a planted bank (5/5 caught, no good one flagged), then the first real audit: 44 sentences, 4 removed with your OK, saved as <code>docs/audits/2026-11-05-sentences.md</code>. It also found a gap in the script checker (一边 read as 一 + 边) · <a href="m4-step6.html">snapshot</a></span></li>
+    <li><span class="when">2026-11-04</span><span class="what">M4 Step 5: sentences, live and banked (#42–#48)</span><span><code>char_sentence</code> and <code>full</code> now play: while you answer one word, Claude writes the next word's sentence, and scripts check its words, band and pinyin (<b>ADRs 0008–0010</b>; Claude writes the pinyin after the trial found 不便宜 as biàn yí). Your change of direction (<b>ADR 0011</b>): no fixed batch, every good sentence is saved to a bank that grows as you play; <code>--no-live</code> = bank only. Lesson: 7 small PRs, each one reviewable · <a href="m4-step5.html">snapshot</a></span></li>
+    <li><span class="when">2026-11-03</span><span class="what">M4 Step 4b: generic Claude judge (#38, #39)</span><span>Answers the list misses go to a <b>Claude judge</b>, generic (<code>quizkit</code>) so any quiz can use it (<b>ADR 0007</b>). Reply shape forced and checked, your text can't trick it, verdicts saved, <code>--no-judge</code>. <b>Eval:</b> 31 hand-labelled cases; Haiku passes with no wrong "yes" (4 borderline answers labelled reject by your choice). Lesson: one PR did four jobs, so split agent work next time · <a href="m4-step4b.html">snapshot</a></span></li>
+    <li><span class="when">2026-11-03</span><span class="what">M4 Step 4a: one answer list (#34, #35)</span><span><b>Measured before building:</b> keeping the old cleaner list too would add 1,434 mostly-wrong answers (猫 "modem"), so <b>ADR 0006</b>: the quiz marks against <code>answers.jsonl</code> only. <code>cedict_cleaner</code> and the <code>cleaner</code> slot deleted, a guard test keeps them gone, and the writer never shrinks the file. Block reviews said ✅; the whole-branch <code>/code-review</code> found the risk between blocks · <a href="m4-step4a.html">snapshot</a></span></li>
+    <li><span class="when">2026-11-02</span><span class="what">M4 Step 3: answer_writer</span><span><b>The first agent.</b> Claude wrote the answers for all 978 words in 25 calls (~148k tokens, under the subscription); the checker caught 9 (e.g. "from小", 11 answers), re-runs fixed them. You checked a 20-word trial and a random 20. Static: the quiz reads the file, no Claude at quiz time · <a href="m4-step3.html">snapshot</a></span></li>
+    <li><span class="when">2026-11-02</span><span class="what">M4 Step 2 (ADR 0005)</span><span>Grading becomes <b>two layers</b>: an answer list Claude writes once (checked by a script, committed) + a <b>Claude judge</b> asked only when the list says "wrong" (verdicts saved). Both run under the subscription via <code>claude -p</code>. Your catch: sentence translation can't use a fixed list, so the judge moves from M5 into M4 · <a href="m4-step2.html">snapshot</a></span></li>
+    <li><span class="when">2026-11-02</span><span class="what">M4 Step 1 (#28)</span><span><b>"Still the right thing?" moves from a habit to a gate</b>: a required box in the issue form, a section in the PR template, and a CI check that fails a PR when it's empty. Re-check of M4: the answer agent now comes before sentence_writer · <a href="m4-step1.html">snapshot</a></span></li>
+    <li><span class="when">2026-11-02</span><span class="what">M3 done: Step 6 (#27)</span><span><b>reuse check</b>: a toy capitals quiz built only from <code>quizkit</code> plays with <code>hsk_trainer</code> blocked; a scan test keeps <code>quizkit</code> free of Mandarin code. It also found a weak spot: Ctrl-C could lose the score in the shared quiz loop, so the <b>engine</b> now handles it for every quiz (full block routine) and the CLI dropped its workaround. Play-test: works, but grading needs judgment, not rules (→ M4 answer agent) · <a href="m3-done.html">snapshot</a></span></li>
+    <li><span class="when">2026-11-02</span><span class="what">M3 Step 5 (#26)</span><span><b>the first playable quiz</b>: <code>uv run hsk quiz --band 1 --mode char --n 10</code> (Typer). Tested with <b>scripted keystrokes</b>; <code>/code-review</code> found 8 things (fixed 6, e.g. a Windows Ctrl-C could lose the score) · <a href="m3-step5.html">snapshot</a></span></li>
+    <li><span class="when">2026-11-02</span><span class="what">M3 Step 4 (#24)</span><span><code>engine</code> (the quizmaster: <code>QuizSession</code> + <code>run_quiz</code>), built by a <b>2nd Claude session in a worktree</b> in parallel with Step 3; merged <code>main</code> in first, no conflicts; worktree removed after · <a href="m3-step4.html">snapshot</a></span></li>
+    <li><span class="when">2026-11-02</span><span class="what">M3 Step 3 (#23)</span><span><code>deck_builder</code> (the dealer), built while a 2nd Claude session built the engine in a <b>git worktree</b>. Future ideas got their own list (<code>docs/FUTURE.md</code>), starting with your smart "what's next" deck · <a href="m3-step3.html">snapshot</a></span></li>
+    <li><span class="when">2026-11-02</span><span class="what">M3 Step 2 (#22)</span><span>Grading as 2 blocks: generic <code>grader</code> (quizkit) + HSK <code>cedict_cleaner</code>. A real-data test across both found a bug toy tests missed (给 = "to" was dropped). Your call: rules are a stopgap; an answer agent replaces them in M4 · <a href="m3-step2.html">snapshot</a></span></li>
+    <li><span class="when">2026-11-02</span><span class="what">M3 Step 1d</span><span>Proved the GitHub review with a planted-bug PR (#20, closed): it caught ×10-instead-of-×100 and missed the divide-by-zero. Lesson: green ≠ reviewed, and a reviewer catches some bugs, not all · <a href="m3-step1d.html">snapshot</a></span></li>
+    <li><span class="when">2026-11-02</span><span class="what">M3 Step 1c</span><span>Code review, two layers: <code>/code-review</code> before every PR (CLAUDE.md rule + PR checkbox), and the Claude GitHub app reviewing every PR (#18, subscription token). Was planned since M1 but never wired in · <a href="m3-step1c.html">snapshot</a></span></li>
+    <li><span class="when">2026-11-02</span><span class="what">Map: flow diagrams</span><span>New section 2 with three flow views: how one step gets built (in lanes, with the fail loops), what the app does with the words, and one Claude action up close (hooks + permissions) · <a href="m3-flows.html">snapshot</a></span></li>
+    <li><span class="when">2026-11-02</span><span class="what">M3 Step 1b</span><span>New section 1 (every kind of part, where it lives, subagent vs agent) and section 3 (the journey of a change: every hook, skill, subagent and gate). Code review shown as a gap. Frozen snapshots per step · <a href="m3-step1b.html">snapshot</a></span></li>
+    <li><span class="when">2026-11-02</span><span class="what">M3 Step 1</span><span>Issue #16 opened; "Still the right thing?" check; decisions: <code>--band 2</code> = only band-2 words, grader forgives typos. Build map saved in git, and updating it is now a CLAUDE.md rule · <a href="m3-step1.html">snapshot</a></span></li>
+    <li><span class="when">2026-11-02</span><span class="what">M2 done (#15)</span><span>Word-count test on the real data. First version of this map · <a href="m2-done.html">snapshot</a></span></li>
+    <li><span class="when">2026-11-02</span><span class="what">M2 Step 5 (#14)</span><span><code>normalizer</code> block → 978 cards</span></li>
+    <li><span class="when">2026-11-02</span><span class="what">M2 Step 4 (#13)</span><span><code>fetcher</code> block + generic verified download</span></li>
+    <li><span class="when">2026-11-02</span><span class="what">M2 Steps 2–3</span><span>ADR 0004 (2026 syllabus, pinned); contract test checks SPEC inputs/outputs</span></li>
+    <li><span class="when">2026-11-01</span><span class="what">M1 done</span><span>ADRs 0001–0003, Card/Question models, hooks, <code>/new-block</code>, two subagents</span></li>
+    <li><span class="when">2026-11-01</span><span class="what">M0 done</span><span>uv + gh, repo on GitHub, CI, protected <code>main</code></span></li>
+  </ol>
+</section>
+
+<footer>
+  Latest map, after M4, 2026-11-05. There are no snapshots from before M2 done (the map started then). Known gaps, by choice: words with several readings keep all of them (197 words), "bands 1+2 together" comes later, listening practice, sentence translation (needs a judgment agent) and other later ideas are listed in docs/FUTURE.md; the grader can accept an opposite with a prefix ("expensive" for 便宜, in docs/FUTURE.md); the dictionary text in cards.jsonl is still called <code>answers</code> (rename in docs/FUTURE.md); a live sentence the checker rejects isn't retried, so some words show "no example sentence yet" (a retry with the reasons is in docs/FUTURE.md); the checker accepts the word inside a harder compound (一边 for 边), caught by the auditor, fix in docs/FUTURE.md; live sentences are shown before any audit; the settings wiring, the Claude workflows and the skill and subagent prompts have no automatic tests (section 7). Reminder: the Claude review token expires after 1 year (renew before 2027-10-15). Green on GitHub is not the same as reviewed.
+</footer>
+
+</main>
+</body>
+</html>
