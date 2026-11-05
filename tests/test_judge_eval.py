@@ -242,3 +242,10 @@ def test_every_sentence_case_fits_the_gist_limit():
 
     for c in load_cases(SENTENCE_CASES):
         assert len(c.typed) <= GIST_MAX_CHARS, c.typed
+
+
+def test_sentence_cases_use_the_translate_modes_subject():
+    """The eval must measure the judge exactly as translate mode calls it."""
+    from hsk_trainer.cli import TRANSLATE_SUBJECT
+
+    assert {c.subject for c in load_cases(SENTENCE_CASES)} == {TRANSLATE_SUBJECT}

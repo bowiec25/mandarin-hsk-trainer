@@ -1,5 +1,7 @@
 """Quiz modes as config: a Mode lists which card fields to show, in order."""
 
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, Field
 
 from quizkit.models import Card, Question
@@ -14,6 +16,11 @@ class Mode(BaseModel):
 
     name: str = Field(min_length=1)
     show: list[str] = Field(min_length=1)
+    # Where the expected answer comes from (ADR 0012): the card's own answers, or
+    # the English of a sentence found as each question is asked. build_question
+    # always uses the card; for "sentence" the front end swaps the answer in through
+    # the engine's `prepare` hook (the HSK CLI does).
+    answer_from: Literal["card", "sentence"] = "card"
 
 
 def build_question(card: Card, mode: Mode) -> Question:

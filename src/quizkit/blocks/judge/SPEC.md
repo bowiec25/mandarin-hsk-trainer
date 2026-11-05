@@ -55,7 +55,7 @@ Any callable `(Question, str) -> Verdict` is a judge (`Judge` type), so a quiz c
 |---|---|---|
 | `correct` | `bool` | Right or wrong |
 | `reason` | `str` | One short sentence, shown on screen |
-| `source` | `"claude" \| "cache" \| "not_checked"` | Who decided. `not_checked` is always `correct=False` |
+| `source` | `"claude" \| "cache" \| "not_checked" \| "self"` | Who decided. `not_checked` is always `correct=False`. `self` = the learner marked it (a quiz's own fallback Judge, ADR 0012); `ClaudeJudge` never returns it |
 
 **Engine changes:** `Attempt` gains `verdict: Verdict | None` (None = judge not asked) and a computed `correct` (grade right, or judge said yes). `QuizResult.correct` counts `Attempt.correct`.
 
