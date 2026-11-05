@@ -1,0 +1,9 @@
+{"id": "爱", "hanzi": "爱", "sentences": [{"hanzi": "我爱我的妈妈。", "pinyin": "wǒ ài wǒ de mā ma。", "english": "I love my mom."}], "model": "planted", "prompt_version": "2"}
+{"id": "八", "hanzi": "八", "sentences": [{"hanzi": "我有八个朋友。", "pinyin": "wǒ yǒu bā gè péng you。", "english": "I have eight friends."}], "model": "planted", "prompt_version": "2"}
+{"id": "吧", "hanzi": "吧", "sentences": [{"hanzi": "我们去吧。", "pinyin": "wǒ men qù ba。", "english": "Let's go."}], "model": "planted", "prompt_version": "2"}
+{"id": "坐", "hanzi": "坐", "sentences": [{"hanzi": "你坐吧。", "pinyin": "nǐ zuò ba。", "english": "Please sit down."}], "model": "planted", "prompt_version": "2"}
+{"id": "爸爸", "hanzi": "爸爸", "sentences": [{"hanzi": "爸爸喜欢喝茶。", "pinyin": "bà ba xǐ huan hē chá。", "english": "Dad likes drinking tea."}, {"hanzi": "我爸爸在家。", "pinyin": "wǒ bà ba zài jiā。", "english": "My dad is at school."}], "model": "planted", "prompt_version": "2"}
+{"id": "吃", "hanzi": "吃", "sentences": [{"hanzi": "我很吃饭。", "pinyin": "wǒ hěn chī fàn。", "english": "I eat a lot."}], "model": "planted", "prompt_version": "2"}
+{"id": "长", "hanzi": "长", "sentences": [{"hanzi": "这条路很长。", "pinyin": "zhè tiáo lù hěn cháng。", "english": "This road is very long."}, {"hanzi": "他的头发很长。", "pinyin": "tā de tóu fa hěn zhǎng。", "english": "His hair is very long."}], "model": "planted", "prompt_version": "2"}
+{"id": "人", "hanzi": "人", "sentences": [{"hanzi": "那个男人是老师。", "pinyin": "nà ge nán rén shì lǎo shī。", "english": "That man is a teacher."}], "model": "planted", "prompt_version": "2"}
+{"id": "走", "hanzi": "走", "sentences": [{"hanzi": "他爷爷去年走了。", "pinyin": "tā yé ye qù nián zǒu le。", "english": "His grandpa passed away last year."}], "model": "planted", "prompt_version": "2"}
