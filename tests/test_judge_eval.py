@@ -147,3 +147,98 @@ def test_limit_must_be_positive():
     for bad in ("0", "-5"):
         with pytest.raises(SystemExit):
             main([str(HSK_CASES), "--limit", bad])
+
+
+# --- per-case rubric (ADR 0012) -----------------------------------------------------
+
+SENTENCE_CASES = ROOT / "tests" / "data" / "judge_eval_sentences.jsonl"
+
+
+def with_rubric(c: EvalCase, rubric: str) -> dict:
+    return {**c.model_dump(), "rubric": rubric}
+
+
+def test_case_rubric_defaults_to_words():
+    assert case("Paris", True).rubric == "words"
+    gist = EvalCase.model_validate(with_rubric(case("Paris", True), "gist"))
+    assert gist.rubric == "gist"
+
+
+def test_unknown_rubric_name_is_rejected():
+    import pytest
+    from pydantic import ValidationError
+
+    with pytest.raises(ValidationError):
+        EvalCase.model_validate(with_rubric(case("Paris", True), "loose"))
+
+
+def test_hsk_cases_are_all_word_cases():
+    assert {c.rubric for c in load_cases(HSK_CASES)} == {"words"}
+
+
+def test_main_judges_gist_cases_with_gist_rubric_and_200_chars(tmp_path, monkeypatch):
+    """A fake ClaudeJudge records how main makes each judge; no Claude runs."""
+    import quizkit.blocks.judge as judge_block
+    import quizkit.blocks.judge.eval as judge_eval
+
+    made: list[dict] = []
+
+    def fake_judge(subject, **kwargs):
+        made.append({"subject": subject, **kwargs})
+        return lambda question, typed: YES
+
+    monkeypatch.setattr(judge_eval, "ClaudeJudge", fake_judge)
+    word = case("Paree", True, "Same quiz.").model_dump()
+    gist = with_rubric(case("It is Paris.", True, "Same quiz."), "gist")
+    cases = tmp_path / "cases.jsonl"
+    cases.write_text(json.dumps(word) + "\n" + json.dumps(gist) + "\n", "utf-8")
+
+    assert main([str(cases)]) == 0
+    assert len(made) == 2  # same subject, two rubrics: two judges
+    words_judge, gist_judge = made
+    assert words_judge.get("rubric") in (None, judge_block.WORD_RUBRIC)
+    assert words_judge.get("max_chars", 100) == 100
+    assert gist_judge["rubric"] == judge_block.GIST_RUBRIC
+    assert gist_judge["max_chars"] == 200
+
+
+def test_sentence_cases_load_as_gist_and_cover_both_verdicts():
+    cases = load_cases(SENTENCE_CASES)
+    assert len(cases) >= 30
+    assert {c.rubric for c in cases} == {"gist"}
+    labels = [c.expected for c in cases]
+    assert labels.count(True) >= 10 and labels.count(False) >= 10
+    assert any("ignore" in c.typed.lower() for c in cases)  # an injection attempt
+
+
+SENTENCES = ROOT / "data" / "generated" / "sentences.jsonl"
+
+
+def test_sentence_cases_match_the_banks_english():
+    """A case's reference English is the bank's, while the sentence is in the bank.
+
+    The audit (or live play) may remove a sentence: the case still tests the judge,
+    so only a changed English line is a failure (rebuild that case).
+    """
+    bank = {}
+    for line in SENTENCES.read_text("utf-8").splitlines():
+        if line.strip():
+            row = json.loads(line)
+            for s in row["sentences"]:
+                bank[(row["id"], s["hanzi"])] = s["english"]
+    for c in load_cases(SENTENCE_CASES):
+        key = (c.card_id, c.shown["sentence"])
+        if key in bank:
+            assert c.accepted == [bank[key]], key
+
+
+def test_every_sentence_case_is_one_the_grader_misses():
+    for c in load_cases(SENTENCE_CASES):
+        assert not grade(c.typed, c.accepted).correct, (c.card_id, c.typed)
+
+
+def test_every_sentence_case_fits_the_gist_limit():
+    from quizkit.blocks.judge import GIST_MAX_CHARS
+
+    for c in load_cases(SENTENCE_CASES):
+        assert len(c.typed) <= GIST_MAX_CHARS, c.typed
