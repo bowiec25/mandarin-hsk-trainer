@@ -682,3 +682,18 @@ You now have: decision records, data shapes, hooks and permissions, the `/new-bl
 - **Top up the bank offline** (optional): `uv run python -m hsk_trainer.blocks.sentence_writer --limit 20`.
 - **Lesson: split agent work.** Step 5 was 7 small PRs instead of one big one, and each stayed reviewable.
 - 881 tests (was 540).
+
+## M4 Step 6: the data-auditor (2026-11-05)
+
+> **In plain words:** a read-only helper that reads the sentence bank like a careful Chinese teacher and flags sentences our scripts can't judge. You decide; only what you agree with is removed; each audit is saved as a dated report.
+
+1. **Still the right thing? (issue #50)** The plan expected one finished batch; since ADR 0011 the bank grows from play. So the auditor runs **again and again** on the bank, not once. The ADRs had left it 5 jobs: natural Chinese, matching English, the right reading of a several-reading word (长), compounds too hard for the band (男人), and the word in the sense the quiz teaches.
+2. **A subagent, not a block.** It isn't part of the quiz: it's a review tool for us (like `block-reviewer`), with only Read, Grep and Glob, so it can't change anything. `.claude/agents/data-auditor.md`.
+3. **Tested before trusted.** A planted bank with one bad sentence per check and 6 good ones (`tests/data/auditor_planted.jsonl` + its answer key). Result: 5/5 caught with the right check, no good one flagged. New subagents load only at session start, so this needed `/exit` → `claude --continue`.
+4. **First real audit:** 44 sentences, 4 flagged (我有一百个字 sounds odd; two 一边……一边 sentences don't really teach 边; 他有病 usually means "he's crazy"). You agreed; removed. Saved as `docs/audits/2026-11-05-sentences.md`.
+5. **It found a script gap:** the checker reads 一边 as 一 + 边, so 边 counted as "on its own". In `docs/FUTURE.md` as a checker fix.
+
+**Good to know:**
+- **When it runs:** CLAUDE.md says at each milestone end and whenever the bank has grown by about 50 sentences. Ask *"audit the sentence bank, only new"*.
+- **After editing the auditor's instructions,** re-run the planted test and compare with `tests/data/auditor_planted_expected.md`.
+- 881 tests (the auditor's test is the planted file: it needs Claude, so it's run by hand, not by pytest).

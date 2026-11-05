@@ -199,7 +199,7 @@ a { color: var(--info); }
     <div class="tile"><b>294 · 197 · 487</b><span>new words in bands 1 · 2 · 3</span></div>
     <div class="tile"><b>881</b><span>automatic tests, all passing</span></div>
     <div class="tile"><b>11</b><span>blocks built: fetcher, normalizer, grader, deck_builder, engine, answer_writer (agent), judge (agent), sentence_validator, sentence_writer (agent), sentence_bank, live_sentences</span></div>
-    <div class="tile"><b>2 · 2 · 2</b><span>hooks · skills used · subagents</span></div>
+    <div class="tile"><b>2 · 2 · 3</b><span>hooks · skills used · subagents (test-writer, block-reviewer, data-auditor)</span></div>
     <div class="tile"><b>11</b><span>decision records (ADRs)</span></div>
     <div class="tile"><b>4 / 7</b><span>milestones done</span></div>
   </div>
@@ -233,6 +233,7 @@ a { color: var(--info); }
         <div class="item guide"><b>skill: /new-block</b>"hire a new worker": 3 questions + scaffold<small>you type it</small></div>
         <div class="item guide"><b>subagent: test-writer</b>writes tests from the SPEC only<small>after the SPEC, before code</small></div>
         <div class="item guide"><b>subagent: block-reviewer</b>fresh, read-only eyes on one block<small>before a block PR, until ✅</small></div>
+        <div class="item guide"><b>subagent: data-auditor</b>read-only eyes on the <b>data</b>: flags sentences the scripts can't judge (natural? English? reading? too hard? taught meaning?); you decide<small>M4 Step 6 · each milestone end + every ~50 new sentences · reports in <code>docs/audits/</code> · tested on a planted bank</small></div>
         <div class="item guide"><b>skill: /code-review</b>built in; hunts for bugs in the change<small>before every PR · CLAUDE.md rule</small></div>
         <div class="item guide"><b>git worktree</b>a 2nd folder on its own branch, for a 2nd Claude session<small>used in M3 Steps 3–4 (deck_builder ‖ engine)</small></div>
         <div class="item auto"><b>Claude GitHub app</b>reviews every PR; answers <code>@claude</code><small>on GitHub · tested: caught 1 of 2 planted bugs</small></div>
@@ -290,7 +291,7 @@ a { color: var(--info); }
         <li>A Markdown file: <code>.claude/agents/*.md</code></li>
         <li>Main Claude hands it a job; it reports back</li>
         <li>Runs on your Claude subscription</li>
-        <li>Examples: test-writer, block-reviewer</li>
+        <li>Examples: test-writer, block-reviewer (code), data-auditor (data)</li>
       </ul>
     </div>
     <div class="card">
@@ -736,6 +737,7 @@ a { color: var(--info); }
         <li>test-writer "only write in tests/"</li>
         <li>update this build map after every step</li>
         <li><code>/code-review</code> before every PR</li>
+        <li>audit the sentence bank (data-auditor) at each milestone end + every ~50 new sentences, saved in <code>docs/audits/</code></li>
       </ul>
       <p>Claude follows it; nothing enforces it.</p>
     </div>
@@ -777,6 +779,7 @@ a { color: var(--info); }
     <p class="lede">One line per step, newest first. Click <b>snapshot</b> to see the whole map exactly as it was after that step.</p>
   </div>
   <ol class="timeline card" reversed>
+    <li><span class="when">2026-11-05</span><span class="what">M4 Step 6: data-auditor (#50)</span><span>A third subagent, for <b>data</b> instead of code: read-only, it flags sentences the scripts can't judge, and you decide. Tested on a planted bank (5/5 caught, no good one flagged), then the first real audit: 44 sentences, 4 removed with your OK, saved as <code>docs/audits/2026-11-05-sentences.md</code>. It also found a gap in the script checker (一边 read as 一 + 边) · <a href="snapshots/m4-step6.html">snapshot</a></span></li>
     <li><span class="when">2026-11-04</span><span class="what">M4 Step 5: sentences, live and banked (#42–#48)</span><span><code>char_sentence</code> and <code>full</code> now play: while you answer one word, Claude writes the next word's sentence, and scripts check its words, band and pinyin (<b>ADRs 0008–0010</b>; Claude writes the pinyin after the trial found 不便宜 as biàn yí). Your change of direction (<b>ADR 0011</b>): no fixed batch, every good sentence is saved to a bank that grows as you play; <code>--no-live</code> = bank only. Lesson: 7 small PRs, each one reviewable · <a href="snapshots/m4-step5.html">snapshot</a></span></li>
     <li><span class="when">2026-11-03</span><span class="what">M4 Step 4b: generic Claude judge (#38, #39)</span><span>Answers the list misses go to a <b>Claude judge</b>, generic (<code>quizkit</code>) so any quiz can use it (<b>ADR 0007</b>). Reply shape forced and checked, your text can't trick it, verdicts saved, <code>--no-judge</code>. <b>Eval:</b> 31 hand-labelled cases; Haiku passes with no wrong "yes" (4 borderline answers labelled reject by your choice). Lesson: one PR did four jobs, so split agent work next time · <a href="snapshots/m4-step4b.html">snapshot</a></span></li>
     <li><span class="when">2026-11-03</span><span class="what">M4 Step 4a: one answer list (#34, #35)</span><span><b>Measured before building:</b> keeping the old cleaner list too would add 1,434 mostly-wrong answers (猫 "modem"), so <b>ADR 0006</b>: the quiz marks against <code>answers.jsonl</code> only. <code>cedict_cleaner</code> and the <code>cleaner</code> slot deleted, a guard test keeps them gone, and the writer never shrinks the file. Block reviews said ✅; the whole-branch <code>/code-review</code> found the risk between blocks · <a href="snapshots/m4-step4a.html">snapshot</a></span></li>
@@ -803,7 +806,7 @@ a { color: var(--info); }
 </section>
 
 <footer>
-  Latest map, after M4 Step 5, 2026-11-04. There are no snapshots from before M2 done (the map started then). Known gaps, by choice: words with several readings keep all of them (197 words), "bands 1+2 together" comes later, listening practice, sentence translation (needs a judgment agent) and other later ideas are listed in docs/FUTURE.md; the grader can accept an opposite with a prefix ("expensive" for 便宜, in docs/FUTURE.md); the dictionary text in cards.jsonl is still called <code>answers</code> (rename in docs/FUTURE.md); a live sentence the checker rejects isn't retried, so some words show "no example sentence yet" (a retry with the reasons is in docs/FUTURE.md). Reminder: the Claude review token expires after 1 year (renew before 2027-10-15). Green on GitHub is not the same as reviewed.
+  Latest map, after M4 Step 6, 2026-11-05. There are no snapshots from before M2 done (the map started then). Known gaps, by choice: words with several readings keep all of them (197 words), "bands 1+2 together" comes later, listening practice, sentence translation (needs a judgment agent) and other later ideas are listed in docs/FUTURE.md; the grader can accept an opposite with a prefix ("expensive" for 便宜, in docs/FUTURE.md); the dictionary text in cards.jsonl is still called <code>answers</code> (rename in docs/FUTURE.md); a live sentence the checker rejects isn't retried, so some words show "no example sentence yet" (a retry with the reasons is in docs/FUTURE.md); the checker accepts the word inside a harder compound (一边 for 边), caught by the auditor, fix in docs/FUTURE.md; live sentences are shown before any audit. Reminder: the Claude review token expires after 1 year (renew before 2027-10-15). Green on GitHub is not the same as reviewed.
 </footer>
 
 </main>

@@ -141,6 +141,7 @@ Some of these **physically stop** a mistake. Others are just **instructions or h
 | Small steps | ⚪ | You + Claude | Each plan | Everyone | A habit. Agent work: plan the 4-PR split before building (M4 Step 4b lesson) |
 | No real Claude in tests | 🟠 | pytest (`tests/conftest.py` autouse fixture) | Every test | Everyone running tests | Only covers `quizkit.claude`; a test can still start another program on purpose |
 | Judge eval bar (≥ 90%, no wrong "yes") | ⚪ | You + Claude, by hand | Prompt or model change | The judge | Not in CI (needs Claude); a small set catches big problems, not rare ones |
+| Sentence bank audit (`data-auditor` + you) | 🔵 | CLAUDE.md rule; dated report in `docs/audits/` | Each milestone end, every ~50 new sentences | The sentence bank | Advice: it flags, you decide. Live sentences are shown before any audit |
 | Live sentence checks (script checks every sentence Claude writes during play) | 🔴 | Our code (`sentence_validator` + pinyin + English checks inside `write_one`) | Every live sentence, before it's shown or saved | The quiz | Only as good as the rules: they catch wrong words and pinyin, not an unnatural sentence (that's the `data-auditor`, Step 6) |
 
 ### The big lesson
@@ -420,6 +421,7 @@ issue → plan mode → branch → small commits → PR → CI ✅ → squash-me
 |---|---|---|
 | 🔍 `block-reviewer` | Checks a block against its job description + ADRs → ✅ / ⚠️ verdict | Read, Grep, Glob only, so it **can't change anything** 🔴 |
 | 🧪 `test-writer` | Writes tests from the job description (not from the code) | Read, Write, Edit, Bash (told: only in `tests/` 🔵) |
+| 🔎 `data-auditor` | Checks the **data**, not code: flags sentences the scripts can't judge (natural? English right? right reading? too hard? taught meaning?), each with a reason; you decide | Read, Grep, Glob only 🔴 |
 
 **How they get triggered** (none of these are 🔴, but together they make it reliable):
 | Trigger | Strictness | Where |
@@ -429,6 +431,8 @@ issue → plan mode → branch → small commits → PR → CI ✅ → squash-me
 | PR template checkbox + pasted verdict | ⚪ (lets *you* see that it ran) | `.github/pull_request_template.md` |
 | Claude spots a match from the helper's description | 🔵 unreliable | the agent file's `description` |
 | You just ask: *"review the X block"* | ⚪ always works | n/a |
+| CLAUDE.md rule: audit the sentence bank at each milestone end + every ~50 new sentences | 🔵 | `CLAUDE.md` |
+| A dated report per audit (flags, your decisions, what was checked) | ⚪ (lets you see that it ran, and when) | `docs/audits/` |
 
 **How you can see they ran:** they show up in the chat while they run, Claude shows you the verdict, and the ✅ verdict is pasted into the PR.
 
@@ -438,7 +442,8 @@ issue → plan mode → branch → small commits → PR → CI ✅ → squash-me
 - **New subagents only load at session start:** `/exit` → `claude --continue`
 - **Limit the tools.** A reviewer with no Write/Edit tools *can't* make changes (🔴). An instruction like "only write in tests/" is only 🔵.
 - **Plan the triggers, not just the helper.** A helper nobody calls is useless.
-- **Test it on a planted mistake** before trusting it
+- **Test it on a planted mistake** before trusting it. For a judgment helper, keep the planted file + an answer key in the repo (`tests/data/auditor_planted*`) and re-run it after every change to its instructions
+- **AI-made data gets an AI reviewer + you.** Scripts check the rules; a read-only auditor checks meaning; you make the call; a dated report keeps it traceable (M4 Step 6: 4 of 44 sentences removed, and it found a gap in the script checker)
 - A read-only reviewer can't run tests, so it reviews by reading. Claude still runs pytest.
 - **Fresh reviewer each round.** Round 2 found a gap round 1 missed. A new subagent has no memory of "what I already approved".
 - **A subagent flags, reality decides.** The test-writer only sees the SPEC, so it can ask "may `pos` be empty?" but not answer it. Check questions like that against the real data (here: 11 words had no `pos`, which would have crashed the real run).
