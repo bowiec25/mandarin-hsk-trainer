@@ -3,7 +3,8 @@
     uv run python -m quizkit.blocks.judge.eval <cases.jsonl>
         [--model haiku] [--limit N] [--timeout 15]
 
-Each line of the cases file is one `EvalCase` (the HSK set: tests/data/judge_eval_hsk.jsonl). It reports how many verdicts were right,
+Each line of the cases file is one `EvalCase` (the HSK word set: tests/data/judge_eval_hsk.jsonl;
+the sentence set, `"rubric": "gist"`: tests/data/judge_eval_sentences.jsonl). It reports how many verdicts were right,
 the wrong "yes"es and "no"s, the cases Claude couldn't check, and seconds per call.
 Bar to ship: at least 90% right and no wrong "yes" (exit code 0 = bar met, 1 = not).
 Run by hand, not in CI; re-run whenever the prompt or the model changes.
@@ -14,13 +15,15 @@ import sys
 import time
 from collections.abc import Callable
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, computed_field
 
-from quizkit.blocks.judge import ClaudeJudge, Judge
+from quizkit.blocks.judge import GIST_MAX_CHARS, GIST_RUBRIC, ClaudeJudge, Judge
 from quizkit.models import Question
 
 PASS_RATE = 0.9
+RUBRICS = {"gist": GIST_RUBRIC}  # a case's rubric name -> its text ("words" = default)
 
 
 def _positive(text: str) -> int:
@@ -42,6 +45,7 @@ class EvalCase(BaseModel):
     typed: str = Field(min_length=1)
     expected: bool
     why: str = ""  # the labeller's note: why this verdict is the right one
+    rubric: Literal["words", "gist"] = "words"  # which marking rules (ADR 0012)
 
     def question(self) -> Question:
         return Question(
@@ -81,18 +85,26 @@ def load_cases(path: Path) -> list[EvalCase]:
 
 def run_eval(
     cases: list[EvalCase],
-    make_judge: Callable[[str], Judge],
+    make_judge: Callable[..., Judge],
     show: Callable[[str], None] = print,
     clock: Callable[[], float] = time.perf_counter,
 ) -> EvalReport:
-    """Judge every case (one judge per subject) and count how it did."""
-    judges: dict[str, Judge] = {}
+    """Judge every case and count how it did.
+
+    One judge per subject and rubric: `make_judge(subject)` for word cases,
+    `make_judge(subject, rubric=GIST_RUBRIC)` (the rubric's text) for gist cases.
+    """
+    judges: dict[tuple[str, str], Judge] = {}
     right = wrong_yes = wrong_no = not_checked = 0
     spent = 0.0
     for case in cases:
-        if case.subject not in judges:
-            judges[case.subject] = make_judge(case.subject)
-        judge = judges[case.subject]
+        which = (case.subject, case.rubric)
+        if which not in judges:
+            if case.rubric == "words":
+                judges[which] = make_judge(case.subject)
+            else:
+                judges[which] = make_judge(case.subject, rubric=RUBRICS[case.rubric])
+        judge = judges[which]
         start = clock()
         verdict = judge(case.question(), case.typed)
         took = clock() - start
@@ -137,10 +149,19 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     cases = load_cases(args.cases)[: args.limit]
-    report = run_eval(
-        cases,
-        lambda subject: ClaudeJudge(subject, model=args.model, timeout=args.timeout),
-    )
+
+    def make_judge(subject: str, rubric: str | None = None) -> Judge:
+        if rubric == GIST_RUBRIC:
+            return ClaudeJudge(
+                subject,
+                model=args.model,
+                timeout=args.timeout,
+                rubric=GIST_RUBRIC,
+                max_chars=GIST_MAX_CHARS,
+            )
+        return ClaudeJudge(subject, model=args.model, timeout=args.timeout)
+
+    report = run_eval(cases, make_judge)
     print(
         f"\n{args.model}: {report.right}/{report.total} right "
         f"({report.right / max(report.total, 1):.0%}), wrong yes {report.wrong_yes}, "

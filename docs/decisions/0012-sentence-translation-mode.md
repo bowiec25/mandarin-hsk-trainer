@@ -1,6 +1,6 @@
 # 0012: Sentence translation modes, graded for the gist by the Claude judge
 
-- **Status:** Proposed (2026-11-05)
+- **Status:** Accepted (2026-11-05)
 - **In plain words:** Two new quiz modes. You see a Chinese sentence (`translate`: characters only; `translate_pinyin`: characters + pinyin) and type what it means in English. A sentence can be translated many ways, so there's no answer list: if your answer isn't close to the saved English, the Claude judge decides whether you **got the gist**. Without Claude, you mark yourself against the saved English.
 
 ## Context

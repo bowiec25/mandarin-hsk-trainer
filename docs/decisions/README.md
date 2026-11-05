@@ -18,7 +18,7 @@
 | [0009](0009-validator-reads-without-jieba.md) | The sentence checker reads with our own word list, not `jieba` ("readable at the band") | Accepted |
 | [0010](0010-claude-writes-pinyin-script-checks.md) | Sentence pinyin: Claude writes it, a script checks every syllable is a real reading | Accepted |
 | [0011](0011-live-sentences-growing-bank.md) | Sentences written live in the quiz and saved to a growing bank; a rule picks new or banked | Accepted |
-| [0012](0012-sentence-translation-mode.md) | Sentence translation modes (`translate`, `translate_pinyin`), graded for the gist by the Claude judge; self-marking without Claude | Proposed |
+| [0012](0012-sentence-translation-mode.md) | Sentence translation modes (`translate`, `translate_pinyin`), graded for the gist by the Claude judge; self-marking without Claude | Accepted |
 
 ## Template
 ```markdown
