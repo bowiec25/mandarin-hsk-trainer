@@ -697,3 +697,15 @@ You now have: decision records, data shapes, hooks and permissions, the `/new-bl
 - **When it runs:** CLAUDE.md says at each milestone end and whenever the bank has grown by about 50 sentences. Ask *"audit the sentence bank, only new"*.
 - **After editing the auditor's instructions,** re-run the planted test and compare with `tests/data/auditor_planted_expected.md`.
 - 881 tests (the auditor's test is the planted file: it needs Claude, so it's run by hand, not by pytest).
+
+## M4 done: lessons + the architecture guide (2026-11-05)
+
+> **In plain words:** M4 is finished. Its lessons are in the playbook, and the build map is now an **architecture guide**: one page you can read top to bottom to explain the whole system and rebuild it elsewhere.
+
+1. **Lessons (issue #52):** the M4 entry in `docs/PLAYBOOK.md` (what was built + 7 "think about next time" points: re-planning as a gate, measure before you trust, layered checks on AI output, tests for judgment pieces, small PRs, the slow and late paths of live AI, explain what you'll see).
+2. **Fresh-eyes check of the map:** a read-only Explore subagent listed everything in the repo and compared it with the page. All the counts were right, but 11 facts were stale (e.g. the judge shown as Mandarin code, a diagram saying the engine shows sentences) and many things were missing (the `@claude` workflow, the allow list, plan mode, artifacts, which data files are committed, which tests are by hand, what has no test).
+3. **Rebuilt as an architecture guide** (your choice: easy to read but complete): the big picture, the workstreams, every check and safety net (how strict, how tested, or "not tested"), every Claude feature, agents and helpers, data files, tests, how to replicate, decisions. The timeline and all old snapshots stay.
+
+**Good to know:**
+- **The audit was due at milestone end:** it ran in Step 6 and the bank hasn't grown since, so no new audit.
+- **Next:** translation mode (an ADR first, then small PRs), or M5 learning smarts.

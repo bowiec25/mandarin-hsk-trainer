@@ -67,7 +67,15 @@ The short version: what each stage built, and **what to think about next time**.
 7. **Parallel sessions pay off for independent parts.** Two blocks in the time of one, using a worktree, as long as only one session edits the shared docs.
 
 ### ✍️ M4: Sentences (first AI agent)
-*(added when M4 is done)*
+**Built:** "Still the right thing?" as a gate (issue form + a CI check on the PR description); the first agents, all via `claude -p` under the subscription: `answer_writer` (one answer list, ADR 0006), a **generic Claude judge** with an eval set (ADR 0007), `sentence_writer` with Claude-written pinyin checked by script (ADR 0010); the script checkers `sentence_validator` (ADR 0009) and the pinyin check; **live sentences + a growing bank** (`sentence_bank`, `live_sentences`, ADR 0011); and a read-only **`data-auditor`** subagent for the data. 881 tests, ADRs 0005–0011.
+**Think about next time:**
+1. **Re-planning is a feature: make it a gate.** "Still the right thing?" changed the plan five times in M4 (answer agent first, judge moved in from M5, one answer list, a generic judge, live sentences instead of a batch). Each change got a new ADR; old ADRs were marked superseded, not rewritten, so the history stays readable.
+2. **Measure before you trust.** Counting showed the "safe" fallback list was mostly junk; a 20-word trial found wrong pinyin; one real call (4 s, 2,700 tokens) settled the model; one real quiz showed how often the strict checker rejects. Small, cheap measurements beat guesses every time.
+3. **Layer the checks on AI output.** Force the reply's shape (`--json-schema`) → script checks for everything code can decide (words, band, pinyin) → a read-only AI reviewer for what it can't (natural? right meaning?) → you make the call, written down (`docs/audits/`). Each layer caught things the others missed.
+4. **Judgment pieces need their own tests, kept in the repo.** pytest can't (and shouldn't) call Claude, so the judge has a hand-labelled eval set and the auditor a planted bank with an answer key. Re-run them whenever their prompt changes.
+5. **Split agent work into small PRs, planned up front.** The judge PR did four jobs and dragged; Step 5 was seven small PRs (ADR → checker → writer → pinyin → ADR → bank → live), each reviewable on its own.
+6. **Live AI: test the slow and late paths.** Background threads only call Claude, file writes stay on the main thread, and there's always a fallback, a switch-off and an off flag. The one real crash the review found was a late error arriving after the quiz had moved on.
+7. **Explain what the user will see, not how it works.** The trickiest moments were jargon ("the checker rejected the reply"). Say "Claude wrote it, our script checked it, it failed because 每 is band 2" and ask one question at a time.
 
 ### 🧠 M5: Learning smarts
 *(added when M5 is done)*
