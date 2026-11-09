@@ -1,6 +1,6 @@
 """deck_builder: contract tests (ID card + SPEC.md) and behaviour tests from SPEC.md."""
 
-from datetime import UTC, datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta, timezone, tzinfo
 from pathlib import Path
 from types import MappingProxyType
 
@@ -471,9 +471,28 @@ def test_naive_now_without_schedule_is_ignored():
     assert len(deck) == 3
 
 
-def test_naive_time_for_a_card_outside_the_pool_still_raises():
+def test_bad_entry_for_a_card_outside_the_pool_is_ignored():
+    """/code-review: one bad row for another level mustn't stop this deck."""
+    deck = deal(3, {"atlantis": datetime(2026, 1, 1), "laos": "oops"}, levels=[1])
+    assert len(deck) == 3
+
+
+class _NoOffset(tzinfo):  # a tzinfo that says "no offset": still naive
+    def utcoffset(self, dt):
+        return None
+
+
+def test_tzinfo_without_offset_counts_as_naive():
     with pytest.raises(ValueError):
-        deal(3, {"atlantis": datetime(2026, 1, 1)})
+        deal(3, {"france": datetime(2026, 1, 1, tzinfo=_NoOffset())})
+    with pytest.raises(ValueError):
+        deal(3, {}, now=datetime(2026, 1, 1, tzinfo=_NoOffset()))
+
+
+@pytest.mark.parametrize("bad", [NOW.date(), "2026-11-10T12:00:00+00:00"])
+def test_now_not_a_datetime_raises_type_error(bad):
+    with pytest.raises(TypeError):
+        deal(3, {}, now=bad)
 
 
 @pytest.mark.parametrize("bad", [None, NOW.date(), "2026-11-10T12:00:00+00:00"])

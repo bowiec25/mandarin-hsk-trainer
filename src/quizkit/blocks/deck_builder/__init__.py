@@ -50,16 +50,7 @@ def build_deck(
         raise ValueError("no cards to build a deck from")
     if schedule is not None:
         now = datetime.now(UTC) if now is None else now
-        if now.tzinfo is None:
-            raise ValueError("now must have a timezone (e.g. datetime.now(UTC))")
-        wrong_type = sorted(
-            cid for cid, due in schedule.items() if not isinstance(due, datetime)
-        )
-        if wrong_type:  # e.g. a date or text read back from a file
-            raise TypeError(f"schedule times must be datetimes: {wrong_type[:5]}")
-        naive = sorted(cid for cid, due in schedule.items() if due.tzinfo is None)
-        if naive:
-            raise ValueError(f"schedule times need a timezone: {naive[:5]}")
+        _check_time("now", now)
 
     pool: dict[str, Card] = {}  # by id, first copy wins: no card twice
     for card in cards:
@@ -76,11 +67,29 @@ def build_deck(
         return rng.sample(questions, k=min(n, len(questions)))
 
     # Shuffle once, then stable-sort each group: equal due times stay shuffled.
-    shuffled = rng.sample(questions, k=len(questions))
-    due, new, later = [], [], []
-    for q in shuffled:
-        when = schedule.get(q.card_id)
-        (new if when is None else due if when <= now else later).append(q)
-    due.sort(key=lambda q: schedule[q.card_id])
-    later.sort(key=lambda q: schedule[q.card_id])
-    return (due + new + later)[:n]
+    # Only the pool's own schedule entries are read (and checked): a bad entry for a
+    # card at another level doesn't stop this deck.
+    due: list[tuple[datetime, Question]] = []
+    new: list[Question] = []
+    later: list[tuple[datetime, Question]] = []
+    for q in rng.sample(questions, k=len(questions)):
+        if q.card_id not in schedule:
+            new.append(q)
+            continue
+        when = schedule[q.card_id]
+        _check_time(f"schedule[{q.card_id!r}]", when)
+        if when <= now:  # due right now counts as due
+            due.append((when, q))
+        else:
+            later.append((when, q))
+    due.sort(key=lambda pair: pair[0])
+    later.sort(key=lambda pair: pair[0])
+    return ([q for _, q in due] + new + [q for _, q in later])[:n]
+
+
+def _check_time(name: str, value: object) -> None:
+    """A real, timezone-aware datetime, or a clear error (naive ones can't be compared)."""
+    if not isinstance(value, datetime):  # e.g. a date or text read back from a file
+        raise TypeError(f"{name} must be a datetime, got {value!r}")
+    if value.utcoffset() is None:  # Python's own test for "naive"
+        raise ValueError(f"{name} must have a timezone (e.g. datetime.now(UTC))")
