@@ -709,3 +709,17 @@ You now have: decision records, data shapes, hooks and permissions, the `/new-bl
 **Good to know:**
 - **The audit was due at milestone end:** it ran in Step 6 and the bank hasn't grown since, so no new audit.
 - **Next:** translation mode (an ADR first, then small PRs), or M5 learning smarts.
+
+## Sentence translation (2026-11-09)
+
+> **In plain words:** two new quiz modes. You see a Chinese sentence (`translate`; `translate_pinyin` adds the pinyin) and type what it means. The answer is the sentence's English; if yours isn't a near-copy, the Claude judge decides whether you **got the gist**. Without Claude, you see the English and mark yourself.
+
+1. **Still the right thing? (issue #54, ADR 0012 = PR #55)** You asked for it twice. Your choices: **gist is enough** and **two modes**. One judge with a second rubric, not a second judge.
+2. **The judge's rubric (PR #56).** The judge's instructions are now opening + **rubric** + closing. The word rubric is unchanged (byte for byte); `GIST_RUBRIC` accepts different wording and tone, rejects a wrong meaning, a lost "not" or a missing key fact. You labelled the 6 borderline cases; your labels became the "key fact" rule. Eval: 33 sentence cases, Haiku **33/33 twice**; the word eval re-run: 29/31, unchanged.
+3. **A miss, and its fix (PR #57).** The engine wanted every answer before the quiz starts, but a translate answer only exists once its live sentence is ready. The engine got a small generic hook, `prepare`: finish each question just before it's asked, or skip it. Lesson in the playbook.
+4. **The modes (PR #58).** `hsk quiz --mode translate` / `translate_pinyin`. No typo forgiveness for sentences; the judge's gist rubric; "Did you get the gist? (y/n)" when the judge is off or can't be reached; after each answer, the English, the pinyin and the word the sentence was for. A word with no sentence is skipped and not scored.
+
+**Good to know:**
+- **Expect skips with `--no-live`:** the bank has sentences for only 23 words so far. With live on, Claude writes them as you play and the bank grows.
+- **Re-run the sentence eval** after changing `GIST_RUBRIC`: `uv run python -m quizkit.blocks.judge.eval tests/data/judge_eval_sentences.jsonl --model haiku` (twice).
+- 955 tests (was 881).

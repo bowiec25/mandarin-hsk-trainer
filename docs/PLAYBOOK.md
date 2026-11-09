@@ -77,6 +77,14 @@ The short version: what each stage built, and **what to think about next time**.
 6. **Live AI: test the slow and late paths.** Background threads only call Claude, file writes stay on the main thread, and there's always a fallback, a switch-off and an off flag. The one real crash the review found was a late error arriving after the quiz had moved on.
 7. **Explain what the user will see, not how it works.** The trickiest moments were jargon ("the checker rejected the reply"). Say "Claude wrote it, our script checked it, it failed because 每 is band 2" and ask one question at a time.
 
+### 🔤 Between M4 and M5: sentence translation
+**Built:** the `translate` and `translate_pinyin` modes (ADR 0012): one generic judge with a second rubric (`GIST_RUBRIC`) and its own 33-case eval set, a generic `prepare` hook in the engine, a self-mark fallback. 5 small PRs (#55–#58 + docs). 955 tests.
+**Think about next time:**
+1. **When an ADR reuses a block in a new way, check that block's inputs and timing, not just its features.** ADR 0012 reused the sentence modes' live sentences, but there the sentence was a hint; in translate it is the answer, and the engine needed every answer before the quiz started. Reading the engine's code while writing the ADR would have caught it.
+2. **Let the user label the borderline cases.** "Gist" was vague until you labelled 6 tricky answers; your labels became a rule in the prompt ("a missing key fact is wrong") and the eval checks it.
+3. **A new setting must not change the old behaviour, so prove it.** The default rubric keeps the prompt byte for byte the same (a test compares against a hand copy), old cache lines are pinned, and the word eval was re-run.
+4. **Grading settings depend on the task.** Typo forgiveness is right for one word and wrong for a sentence ("I do like tea" is 2 letters from "I don't like tea"). The code review found it.
+
 ### 🧠 M5: Learning smarts
 *(added when M5 is done)*
 
