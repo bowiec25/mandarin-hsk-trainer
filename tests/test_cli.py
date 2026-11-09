@@ -723,3 +723,174 @@ def test_next_sentence_is_prepared_while_you_answer(tmp_path, monkeypatch, fake_
     assert code == 0, out
     assert asked_at_first_read == [True]
     assert fake_writer.calls[:2] == [first, second]
+
+
+# --- translate modes (ADR 0012) ------------------------------------------------------
+# The bank's sentence for 爸爸 is SENTENCE; its English is the expected answer.
+
+
+def play_translate(tmp_path, typed, mode="translate", sentences=None, judge=False):
+    return play(
+        "--mode", mode, "--n", "1", "--seed", seed_for("爸爸"),
+        *([] if judge else ["--no-judge"]), "--no-live",
+        "--sentences", str(sentences or bank_file(tmp_path)),
+        "--seen", str(tmp_path / "seen.json"),
+        typed=typed,
+    )  # fmt: skip
+
+
+@pytest.mark.parametrize("mode", ["translate", "translate_pinyin"])
+def test_translate_the_reference_english_is_right(tmp_path, mode):
+    code, out = play_translate(tmp_path, SENTENCE[2] + "\n", mode=mode)
+    assert code == 0, out
+    assert SENTENCE[0] in out
+    assert "Score: 1/1" in out
+    assert "Did you get the gist" not in out  # the grader was enough
+
+
+def test_translate_shows_the_sentence_not_the_word_first(tmp_path):
+    _, out = play_translate(tmp_path, SENTENCE[2] + "\n")
+    before_answer = out.split("> ")[0]
+    assert SENTENCE[0] in before_answer
+    assert "word:" not in before_answer
+    assert "word: 爸爸" in out  # the word is taught after the answer
+
+
+def test_translate_hides_the_sentence_pinyin_until_after(tmp_path):
+    _, out = play_translate(tmp_path, SENTENCE[2] + "\n")
+    assert SENTENCE[1] not in out.split("> ")[0]
+    assert SENTENCE[1] in out
+
+
+def test_translate_pinyin_shows_the_sentence_pinyin_first(tmp_path):
+    _, out = play_translate(tmp_path, SENTENCE[2] + "\n", mode="translate_pinyin")
+    assert SENTENCE[1] in out.split("> ")[0]
+
+
+@pytest.mark.parametrize(("reply", "score"), [("y", "1/1"), ("n", "0/1")])
+def test_no_judge_self_marks_against_the_english(tmp_path, reply, score):
+    code, out = play_translate(tmp_path, f"my father works in a hospital\n{reply}\n")
+    assert code == 0, out
+    assert "Did you get the gist? (y/n)" in out
+    assert out.count(SENTENCE[2]) == 1  # shown to mark against, not again after
+    assert f"Score: {score}" in out
+
+
+def test_self_mark_asks_again_until_y_or_n(tmp_path):
+    _, out = play_translate(tmp_path, "my father works in a hospital\nmaybe\ny\n")
+    assert out.count("Did you get the gist") == 2
+    assert "Score: 1/1" in out
+
+
+def test_word_with_no_sentence_is_skipped_not_scored(tmp_path):
+    code, out = play_translate(tmp_path, "", sentences=tmp_path / "none.jsonl")
+    assert code == 0, out
+    assert "Traceback" not in out
+    assert "skipped" in out.lower()
+    assert "Score: 0/0" not in out
+    assert "Nothing to score" in out
+
+
+def fake_gist_judge(monkeypatch, verdict):
+    """Swap the CLI's ClaudeJudge; returns how each judge was made."""
+    made: list[dict] = []
+
+    class FakeJudge:
+        def __init__(self, subject, **kwargs):
+            made.append({"subject": subject, **kwargs})
+
+        def __call__(self, question, typed):
+            return verdict
+
+    monkeypatch.setattr("hsk_trainer.cli.ClaudeJudge", FakeJudge)
+    return made
+
+
+def test_translate_judge_uses_the_gist_rubric(tmp_path, monkeypatch):
+    from hsk_trainer.cli import TRANSLATE_SUBJECT
+    from quizkit.blocks.judge import GIST_MAX_CHARS, GIST_RUBRIC, Verdict
+
+    yes = Verdict(correct=True, reason="Same gist.", source="claude")
+    made = fake_gist_judge(monkeypatch, yes)
+    code, out = play_translate(tmp_path, "dad works as a doctor\n", judge=True)
+    assert code == 0, out
+    assert len(made) == 1  # only the gist judge is made (not a word judge too)
+    gist = [m for m in made if m.get("rubric") == GIST_RUBRIC]
+    assert len(gist) == 1
+    assert gist[0]["subject"] == TRANSLATE_SUBJECT
+    assert gist[0]["max_chars"] == GIST_MAX_CHARS
+    assert gist[0]["cache_file"] is not None
+    assert "accepted by the Claude judge: Same gist." in out
+    assert "Score: 1/1" in out
+
+
+def test_translate_judge_unreachable_falls_back_to_self_marking(tmp_path, monkeypatch):
+    from quizkit.blocks.judge import Verdict
+
+    unchecked = Verdict(correct=False, reason="couldn't check", source="not_checked")
+    fake_gist_judge(monkeypatch, unchecked)
+    code, out = play_translate(tmp_path, "dad works as a doctor\ny\n", judge=True)
+    assert code == 0, out
+    assert "mark it yourself" in out.lower()
+    assert "Score: 1/1" in out
+
+
+def test_word_modes_still_use_the_word_judge(monkeypatch):
+    """The default rubric for words: no rubric passed (ADR 0012: words unchanged)."""
+    from quizkit.blocks.judge import Verdict
+
+    no = Verdict(correct=False, reason="No.", source="claude")
+    made = fake_gist_judge(monkeypatch, no)
+    play("--n", "1", "--seed", seed_for("爸爸"), typed="zzz\n")
+    assert made and all("rubric" not in m for m in made)
+
+
+def test_translate_uses_a_live_sentence_and_its_english(tmp_path, fake_writer):
+    code, out = play(
+        "--mode", "translate", "--n", "1", "--seed", seed_for("爸爸"), "--no-judge",
+        "--sentences", str(tmp_path / "sentences.jsonl"),
+        "--seen", str(tmp_path / "seen.json"),
+        typed=LIVE[2] + "\n",
+    )  # fmt: skip
+    assert code == 0, out
+    assert fake_writer.calls[0] == "爸爸"
+    assert LIVE[0] in out
+    assert "Score: 1/1" in out
+
+
+def test_translate_forgives_no_typos(tmp_path):
+    """A letter or two can flip a sentence ("I do like" vs "I don't like"), so a
+    near-copy isn't instantly right: it goes to the judge (here: self-marking)."""
+    near = SENTENCE[2].replace("doctor", "doctr")
+    _, out = play_translate(tmp_path, near + "\nn\n")
+    assert "close enough" not in out
+    assert "Did you get the gist" in out
+    assert "Score: 0/1" in out
+
+
+def test_ctrl_c_at_the_gist_prompt_keeps_the_answer_and_stops(tmp_path, monkeypatch):
+    from hsk_trainer import cli
+
+    real_read = cli._read
+
+    def read(prompt="> "):
+        if "gist" in prompt:
+            raise KeyboardInterrupt
+        return real_read(prompt)
+
+    monkeypatch.setattr(cli, "_read", read)
+    code, out = play_translate(tmp_path, "my father works in a hospital\n")
+    assert code == 0, out
+    assert "Traceback" not in out
+    assert "Score: 0/1" in out  # answered (not marked), not lost
+
+
+def test_nothing_to_score_when_stopped_after_skips_too(tmp_path):
+    code, out = play(
+        "--mode", "translate", "--n", "1", "--seed", seed_for("爸爸"), "--no-judge",
+        "--no-live", "--sentences", str(tmp_path / "none.jsonl"),
+        "--seen", str(tmp_path / "seen.json"),
+    )  # fmt: skip
+    assert code == 0, out
+    assert "Score: 0/0" not in out
+    assert "try --live" in out
