@@ -34,6 +34,8 @@ session.current         # the Question being asked now, prepared (None when fini
 session.answer("love")  # marks it, moves to the next question, returns the Attempt
 session.done            # True when every question has been answered
 session.result()        # the QuizResult so far
+session.can_own_mark    # True if the last answer is waiting for your own mark
+session.own_mark(verdict)  # your own mark on the last answer (ADR 0014), returns it
 
 # the voice: the whole loop in one call (CLI)
 run_quiz(questions, ask, tell, settings=None, judge=None, prepare=None) -> QuizResult
@@ -43,6 +45,7 @@ These choices keep screen code out of the engine:
 - **`ask` returns `None` to quit.** The front end decides which key means quit; the engine just stops.
 - **Ctrl-C (`KeyboardInterrupt`) anywhere in the loop is also a quit** (added M3 Step 6, after the reuse check). On Windows, Ctrl-C can arrive just *after* `input()` returns, while grading or inside `tell`, so catching it only in `ask` isn't enough. `run_quiz` catches it around the whole loop, so every quiz built on it keeps the score without copying a workaround.
 - **`tell` gets the whole `Attempt`**, not a ready-made sentence. The CLI writes the words ("✓ Correct!" / "✗ The answer was: love"), so a web page can show it its own way.
+- **Your own mark comes after the answer, not inside it** (ADR 0014). A terminal can ask "Did you get the gist?" inside a judge call, but a web page can't pause in the middle of `answer()`. So `answer()` marks as usual; if nobody could check it, the front end asks you, then calls `own_mark(verdict)` with a `Verdict` whose `source` is `"self"`. It replaces the **last** answer's verdict in the record and returns the updated `Attempt`. It doesn't move the quiz on. A **blank** answer can't take your mark (nothing was typed, and the judge skips blanks too). A `"self"` verdict that came through the judge (the terminal's prompt) already counts as checked. A refused mark changes nothing.
 
 ## Outputs
 Everything is returned in memory as pydantic models (frozen). Nothing is saved to a file; saving is M5's `progress_store`.
@@ -98,6 +101,11 @@ Example: quit after 3 of 10 with 2 right → `correct=2, answered=3, total=10, f
 | The same question appears twice | Asked twice, both recorded (removing repeats is `deck_builder`'s job) |
 | A `QuizResult` built by hand with `total` < 1 or more attempts than `total` | pydantic **rejects** it (`ValidationError`), so a result is trustworthy outside `QuizSession` too (e.g. M5's progress store) |
 | The caller changes its `questions` list, or a question's answers, after starting | No effect: the session keeps its own deep copy |
+| `own_mark()` before any answer (also when the questions so far were all skipped) | **Raises `RuntimeError`** (nothing to mark) |
+| `own_mark()` after a blank or spaces-only answer | **Raises `ValueError`** (nothing was typed to mark) |
+| `own_mark()` when the last answer was right by the answer list, or already has a verdict that was checked (Claude, the cache, or your own mark) | **Raises `ValueError`**: only an answer nobody checked (no verdict, or "couldn't check") can take your mark, and only once. `can_own_mark` says so in advance |
+| `own_mark()` with a verdict whose `source` isn't `"self"` | **Raises `ValueError`** (it's for your own mark; a judge's verdict comes through `judge`) |
+| `own_mark()` after the last question | Allowed: the last answer can still take your mark, and `result()` includes it |
 
 ## How to test
 Automatic tests in `tests/blocks/test_engine.py`. They use toy English questions only (e.g. capitals), to prove the engine is generic, and **fake typed answers**: `ask` comes from a list (`iter(["Paris", "rome", None])`) and `tell` just collects what it's given. No real keyboard.
@@ -111,6 +119,7 @@ Automatic tests in `tests/blocks/test_engine.py`. They use toy English questions
 - **Ctrl-C is a quit, anywhere in the loop:** `KeyboardInterrupt` from `ask` after 1 answer → `answered=1`; before question 1 → `answered=0`; from `tell` on answer 2 → that answer still counts (`answered=2`), `ask` not called again; while answer 2 is being marked → it doesn't count (`answered=1`); the result is returned, nothing raised. But Ctrl-C while the session is being **created** → passed through, `ask` never called
 - **Judge hook:** not called when the grader says right (exact or typo-forgiven) or for a blank / spaces-only answer; called with the question and the raw typed text when the grader says wrong; a "yes" makes `Attempt.correct` and the score count it (`grade.correct` stays False); a "no" stays wrong; no judge = old behaviour (`verdict` is None); works through `QuizSession` too; Ctrl-C inside the judge → a quit, that answer not counted; any other judge error passed through
 - **Prepare hook:** called once per question, in order, with the question as given, and only when it becomes current (not all up front; not again on a second read of `current`); the prepared question is what `ask`, the grader, the judge and the `Attempt` see; `None` skips it (`skipped` counted, `ask` not called for it, `finished` still True at the end); skipping the last questions finishes the quiz; another `card_id` or an unanswerable prepared question → `ValueError`; Ctrl-C inside `prepare` in `run_quiz` → a quit; any other error passed through; no `prepare` = old behaviour (`skipped=0`); works through `QuizSession` too; a hand-built `QuizResult` with `answered + skipped > total` or `skipped < 0` is rejected
+- **Own mark:** after a wrong answer with no judge, `can_own_mark` is True and `own_mark(self "yes")` makes it count (`Attempt.correct`, the score, `result()`), returning the new `Attempt`; a self "no" stays wrong but is marked; works after a "couldn't check" verdict; works on the last question; `can_own_mark` False and `own_mark` raises: before any answer (`RuntimeError`), after a right answer, after a checked verdict (Claude, cache, or an own mark already), and for a verdict that isn't `"self"` (`ValueError`); only the last answer changes
 - **Errors:** empty list → `ValueError`; any other error from `ask`, `tell` or the grader is passed through
 - **Own copy:** changing the list, or a question's answers, after starting has no effect
 - **Bad card found early:** an unanswerable question 2 raises before `ask` is ever called

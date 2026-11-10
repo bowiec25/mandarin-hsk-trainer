@@ -163,6 +163,39 @@ class QuizSession:
         self._ready = None
         return attempt
 
+    @property
+    def can_own_mark(self) -> bool:
+        """True if the last answer is waiting for your own mark (ADR 0014): typed,
+        wrong by the answer list, and nobody checked it (no verdict, or "couldn't
+        check")."""
+        if not self._attempts:
+            return False
+        last = self._attempts[-1]
+        return (
+            not last.grade.correct
+            and bool(last.typed.strip())
+            and (last.verdict is None or last.verdict.source == "not_checked")
+        )
+
+    def own_mark(self, verdict: Verdict) -> Attempt:
+        """Your own mark on the last answer (e.g. "Did you get the gist?"), given
+        after `answer()` because a web page can't pause inside it. Returns the
+        updated Attempt; the quiz doesn't move on."""
+        if not self._attempts:
+            raise RuntimeError("there is no answer yet to mark")
+        if verdict.source != "self":
+            raise ValueError(
+                f"own_mark takes your own mark (source 'self'), not {verdict.source!r}"
+            )
+        if not self.can_own_mark:
+            raise ValueError(
+                "the last answer can't take your mark: it was blank, right by the "
+                "answer list, or already checked"
+            )
+        marked = self._attempts[-1].model_copy(update={"verdict": verdict})
+        self._attempts[-1] = marked
+        return marked
+
     def result(self) -> QuizResult:
         return QuizResult(
             attempts=tuple(self._attempts),
