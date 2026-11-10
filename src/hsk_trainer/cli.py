@@ -29,11 +29,12 @@ from quizkit.blocks.deck_builder import build_deck
 from quizkit.blocks.engine import Attempt, QuizSession, run_quiz
 from quizkit.blocks.grader import GradeSettings, clean
 from quizkit.blocks.judge import GIST_MAX_CHARS, GIST_RUBRIC, ClaudeJudge
+from quizkit.blocks.leitner import DEFAULT_RULE
 from quizkit.blocks.progress_store import ProgressFileError, ProgressStore
 from quizkit.files import load_cards
 from quizkit.models import Card, Judge, Question, Verdict
 from quizkit.modes import Mode
-from quizkit.progress import save_attempt
+from quizkit.progress import SkillStats, save_attempt, skill_stats
 
 # Found from this file, so `hsk` works from any folder (src/hsk_trainer/cli.py -> root).
 # Assumes it runs from the repo (`uv run hsk`), not from an installed wheel.
@@ -555,6 +556,70 @@ def quiz(
         print(f"Score: {result.correct}/{result.answered}")
     if saving is not None and (moved := saving.summary()):
         print(moved)
+
+
+def _skills() -> dict[str, list[str]]:
+    """Each skill and the modes that practise it, in mode order (from config)."""
+    skills: dict[str, list[str]] = {}
+    for m in HSK_MODES.values():
+        skills.setdefault(m.skill, []).append(m.name)
+    return skills
+
+
+def _stats_lines(s: SkillStats, hanzi: dict[str, str]) -> list[str]:
+    if s.new == s.cards:
+        return ["    Nothing yet."]
+    last = max([len(DEFAULT_RULE.waits), *s.by_box])  # a box past 5: show it too
+    boxes = " · ".join(f"box {b}: {s.by_box.get(b, 0)}" for b in range(1, last + 1))
+    lines = [f"    new: {s.new} · {boxes} · due now: {s.due}"]
+    if s.recent_answered:
+        pct = round(100 * s.recent_right / s.recent_answered)
+        lines.append(
+            f"    last 7 days: {s.recent_right}/{s.recent_answered} right ({pct}%)"
+        )
+    else:
+        lines.append("    last 7 days: no answers")
+    if s.most_missed:
+        missed = ", ".join(f"{hanzi.get(c, c)} ×{n}" for c, n in s.most_missed)
+        lines.append(f"    most missed: {missed}")
+    return lines
+
+
+@app.command()
+def stats(
+    band: Annotated[
+        int | None,
+        typer.Option(min=1, max=3, help="Only this HSK band (default: all three)."),
+    ] = None,
+    cards: Annotated[Path | None, typer.Option(hidden=True)] = None,
+    progress: Annotated[Path | None, typer.Option(hidden=True)] = None,
+) -> None:
+    """How you're doing: words new / in each Leitner box / due now, the last 7 days'
+    accuracy and your most-missed words, per band and skill. Changes nothing."""
+    progress_file = progress or PROGRESS_FILE
+    if not progress_file.exists():  # never make the file just to look at it
+        print("No progress saved yet: play `hsk quiz` (it saves unless --no-save).")
+        return
+    cards_file = cards or CARDS_FILE
+    try:
+        all_cards = load_cards(cards_file)
+        store = ProgressStore(progress_file)
+        now = datetime.now(UTC)
+        bands = [band] if band is not None else sorted({c.level for c in all_cards})
+        out: list[str] = []
+        for b in bands:
+            in_band = [c for c in all_cards if c.level == b]
+            hanzi = {c.id: c.fields.get("hanzi", c.id) for c in in_band}
+            out.append(f"Band {b} · {len(in_band)} words")
+            for skill, modes in _skills().items():
+                out.append(f"  {skill} ({', '.join(modes)})")
+                s = skill_stats(store, hanzi, skill, now)
+                out.extend(_stats_lines(s, hanzi))
+    except ProgressFileError as err:
+        _fail(f"Can't read your progress file {progress_file}:", str(err))
+    except (ValidationError, ValueError, OSError) as err:
+        _fail(f"Can't read the cards file {cards_file}:", str(err))
+    print("\n".join(out))
 
 
 def _utf8_output() -> None:
