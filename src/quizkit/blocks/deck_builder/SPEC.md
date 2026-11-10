@@ -39,7 +39,7 @@ build_deck(cards, mode, n, levels=None, seed=None, schedule=None, now=None) -> l
 2. **new** cards (not in the schedule), shuffled;
 3. only if `n` isn't filled yet: cards **not due yet**, soonest first.
 
-Cards with the same due time are in a shuffled order (same seed → same order). Schedule entries for cards not in the pool (other levels, unknown ids) are ignored, not even checked, so one bad entry elsewhere can't stop this deck. A schedule that knows none of the pool's cards (`{}`, or a first quiz) means every card is new: **the same deck as `schedule=None`** for the same seed, so a replay with `--seed` matches. "Most overdue" = earliest due time, compared as real moments across timezones; `now` is read once per call.
+Cards with the same due time are in a shuffled order (same seed → same order). Schedule entries for cards not in the pool (other levels, unknown ids) are ignored, not even checked, so one bad entry elsewhere can't stop this deck. A schedule that knows none of the pool's cards (`{}`, or a first quiz) means every card is new: **the same deck as `schedule=None`** for the same seed (given a valid `now`), so a replay with `--seed` matches. "Most overdue" = earliest due time, compared as real moments across timezones; `now` is read once per call.
 
 ## Tools
 - Python `random.Random(seed)` (its own random generator, so a seed doesn't affect anything else).

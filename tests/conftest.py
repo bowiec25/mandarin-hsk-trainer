@@ -28,5 +28,10 @@ def real_cards() -> list[Card]:
 @pytest.fixture(autouse=True)
 def no_real_progress(tmp_path, monkeypatch):
     """Safety net: no test reads or writes the learner's real data/progress.db
-    (ADR 0013). Each test gets its own empty one; a test can pass --progress too."""
-    monkeypatch.setattr("hsk_trainer.cli.PROGRESS_FILE", tmp_path / "progress.db")
+    (ADR 0013). Each test gets its own empty one; a test can pass --progress too.
+    Only once the CLI is imported, so generic quizkit tests don't load it. A subprocess
+    test is out of its reach: give it --no-save."""
+    import sys
+
+    if "hsk_trainer.cli" in sys.modules:
+        monkeypatch.setattr("hsk_trainer.cli.PROGRESS_FILE", tmp_path / "progress.db")

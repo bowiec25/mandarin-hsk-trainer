@@ -966,16 +966,13 @@ def test_right_answer_is_saved_and_moves_the_word_up(tmp_path):
 
 def test_wrong_answer_goes_back_to_box_1(tmp_path):
     db = tmp_path / "mine.db"
-    _, out = play(
-        "--n",
-        "1",
-        "--seed",
-        seed_for("爱"),
-        "--no-judge",
-        "--progress",
-        str(db),
-        typed="zzz\n",
-    )
+    seed = seed_for("爱")
+    args = ("--n", "1", "--seed", seed, "--no-judge", "--progress", str(db))
+    _, out = play(*args, typed="zzz\n")  # a new word missed: starts (stays) in box 1
+    assert "Boxes: 0 words moved up, 0 back to box 1, 1 stayed." in out
+    _store_with(db, "爱", datetime.now(UTC) - timedelta(days=1))  # now in box 3, due
+    _, out = play(*args, typed="zzz\n")
+    assert "\n爱\n" in out
     assert "Boxes: 0 words moved up, 1 back to box 1." in out
     assert ProgressStore(db).box("爱", "recognise").box == 1
 
@@ -1047,6 +1044,27 @@ def test_a_failed_save_warns_once_and_the_quiz_goes_on(monkeypatch):
     typed = "\n".join(right_answers(deck_words(*args))) + "\n"
     code, out = play(*args, typed=typed)
     assert code == 0
-    assert out.count("Couldn't save your progress") == 1
+    assert out.count("Couldn't save this answer") == 2  # tries again each time
     assert "Score: 2/2" in out
     assert "Boxes:" not in out
+
+
+def test_a_quiz_that_cannot_start_leaves_no_new_progress_file(tmp_path):
+    db = tmp_path / "mine.db"
+    code, _ = play(
+        "--n", "1", "--cards", str(tmp_path / "nope.jsonl"), "--progress", str(db)
+    )
+    assert code == 1
+    assert not db.exists()
+
+
+def test_save_happens_before_the_result_is_shown(monkeypatch, tmp_path):
+    """A Ctrl-C while the result shows can't lose an answer that was already scored."""
+    db = tmp_path / "mine.db"
+
+    def interrupted(attempt):
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr("hsk_trainer.cli._tell", interrupted)
+    play("--n", "1", "--seed", seed_for("爱"), "--progress", str(db), typed="love\n")
+    assert ProgressStore(db).box("爱", "recognise").box == 2

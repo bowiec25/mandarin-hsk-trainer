@@ -296,29 +296,31 @@ class _Saving:
 
     def __init__(self, store: ProgressStore, skill: str) -> None:
         self.store, self.skill = store, skill
-        self.up = self.back = 0
-        self.failed = False
+        self.up = self.back = self.stayed = 0
 
-    def save(self, attempt: Attempt) -> None:
-        if self.failed:  # told once already: the rest of this quiz isn't saved
-            return
+    def save(self, attempt: Attempt) -> str | None:
+        """Save it; a problem comes back as a warning to show (the quiz goes on, and
+        the next answer tries again: a busy file may have cleared by then)."""
         try:
             old, new = save_attempt(self.store, attempt, self.skill, datetime.now(UTC))
-        except ProgressFileError as err:
-            print(f"   ⚠️ Couldn't save your progress: {err}")
-            print("   The rest of this quiz won't be saved.")
-            self.failed = True
-            return
-        if new is not None and not attempt.correct:
-            self.back += 1
-        elif new is not None and (old is None or new.box > old.box):
-            self.up += 1
+        except ValueError as err:  # ProgressFileError, or a bad saved row
+            return f"   ⚠️ Couldn't save this answer: {err}"
+        if new is not None:  # None: couldn't check, so the box didn't move
+            before = old.box if old is not None else 1  # a new word starts at box 1
+            if new.box > before:
+                self.up += 1
+            elif new.box < before:
+                self.back += 1
+            else:
+                self.stayed += 1
+        return None
 
     def summary(self) -> str | None:
-        if not (self.up or self.back):
+        if not (self.up or self.back or self.stayed):
             return None
         word = "word" if self.up == 1 else "words"
-        return f"Boxes: {self.up} {word} moved up, {self.back} back to box 1."
+        line = f"Boxes: {self.up} {word} moved up, {self.back} back to box 1"
+        return line + (f", {self.stayed} stayed." if self.stayed else ".")
 
 
 def _asking() -> None:
@@ -406,11 +408,14 @@ def quiz(
         # Only this band's cards: a bad line in another band doesn't block this quiz.
         in_band = [c for c in all_cards if c.level == band]
         playable = _with_answers(in_band, answers)
+        progress_file = progress or PROGRESS_FILE
+        store: ProgressStore | None = None
         schedule = None
         if save:  # due words first, then new ones (ADR 0013)
-            store = ProgressStore(progress or PROGRESS_FILE)
-            saving = _Saving(store, wanted.skill)
-            schedule = {cid: b.due for cid, b in store.boxes(wanted.skill).items()}
+            schedule = {}
+            if progress_file.exists():  # a first quiz makes it once the quiz is ready
+                store = ProgressStore(progress_file)
+                schedule = {cid: b.due for cid, b in store.boxes(wanted.skill).items()}
         questions = build_deck(
             playable, shown, n, levels=[band], seed=seed, schedule=schedule
         )
@@ -427,6 +432,8 @@ def quiz(
         # Up-front data check (a card nobody can answer), kept apart from run_quiz so a
         # ValueError mid-quiz is never mislabelled as a bad file.
         QuizSession(questions, settings=SETTINGS)
+        if save:  # only now: a quiz that can't start leaves no new file behind
+            saving = _Saving(store or ProgressStore(progress_file), wanted.skill)
     except ProgressFileError as err:  # your progress file (a ValueError too)
         _fail(
             f"Can't use your progress file {progress or PROGRESS_FILE}:",
@@ -519,8 +526,11 @@ def quiz(
         progress_saver, shown_tell = saving, tell
 
         def tell(attempt: Attempt) -> None:
+            # Saved first: a Ctrl-C while the result shows can't lose it.
+            problem = progress_saver.save(attempt)
             shown_tell(attempt)
-            progress_saver.save(attempt)
+            if problem:
+                print(problem)
 
     result = run_quiz(
         questions,

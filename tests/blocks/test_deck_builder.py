@@ -399,6 +399,8 @@ def test_schedule_knowing_no_pool_card_gives_the_same_deck_as_none():
             plain = block.build_deck(make_cards(), COUNTRY, n, seed=seed)
             assert deal(n, {}, seed=seed) == plain
             assert deal(n, {"atlantis": NOW}, seed=seed) == plain
+            at_1 = block.build_deck(make_cards(), COUNTRY, n, levels=[1], seed=seed)
+            assert deal(n, {"peru": NOW}, levels=[1], seed=seed) == at_1
 
 
 def test_no_schedule_ignores_now():
