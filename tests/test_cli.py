@@ -1068,3 +1068,100 @@ def test_save_happens_before_the_result_is_shown(monkeypatch, tmp_path):
     monkeypatch.setattr("hsk_trainer.cli._tell", interrupted)
     play("--n", "1", "--seed", seed_for("爱"), "--progress", str(db), typed="love\n")
     assert ProgressStore(db).box("爱", "recognise").box == 2
+
+
+# --- hsk stats (ADR 0013) --------------------------------------------------------
+
+
+def stats(*args: str) -> tuple[int, str]:
+    result = runner.invoke(app, ["stats", *args])
+    return result.exit_code, result.output
+
+
+def test_stats_with_no_progress_says_so_and_makes_no_file(tmp_path):
+    db = tmp_path / "mine.db"
+    code, out = stats("--progress", str(db))
+    assert code == 0
+    assert "No progress saved yet" in out
+    assert not db.exists()
+
+
+def test_stats_after_a_quiz(tmp_path):
+    db = tmp_path / "mine.db"
+    play("--n", "1", "--seed", seed_for("爱"), "--progress", str(db), typed="love\n")
+    code, out = stats("--band", "1", "--progress", str(db))
+    assert code == 0
+    assert "Band 1 · " in out
+    assert "Band 2" not in out
+    assert "recognise (char, char_pinyin, char_sentence, full)" in out
+    assert "box 1: 0 · box 2: 1 ·" in out
+    assert "due now: 0" in out
+    assert "last 7 days: 1/1 right (100%)" in out
+    assert "sentence (translate, translate_pinyin)\n    Nothing yet." in out
+
+
+def test_stats_lists_most_missed_by_hanzi(tmp_path):
+    db = tmp_path / "mine.db"
+    seed = seed_for("爱")
+    play("--n", "1", "--seed", seed, "--no-judge", "--progress", str(db), typed="x\n")
+    _, out = stats("--band", "1", "--progress", str(db))
+    assert "most missed: 爱 ài ×1" in out  # pinyin: 还 hái / 还 huán differ
+    assert "last 7 days: 0/1 right (0%)" in out
+
+
+def test_stats_without_band_shows_every_band(tmp_path):
+    db = tmp_path / "mine.db"
+    play("--n", "1", "--seed", seed_for("爱"), "--progress", str(db), typed="love\n")
+    _, out = stats("--progress", str(db))
+    assert all(f"Band {b} · " in out for b in (1, 2, 3))
+
+
+def test_stats_shows_a_box_past_5(tmp_path):
+    db = tmp_path / "mine.db"
+    _store_with(db, "爱", datetime.now(UTC) + timedelta(days=1))
+    store = ProgressStore(db)
+    note = store.box("爱", "recognise").model_copy(update={"box": 6})
+    store.record(store.answers()[0], note)
+    _, out = stats("--band", "1", "--progress", str(db))
+    assert "box 5: 0 · box 6: 1 ·" in out
+
+
+def test_stats_on_a_broken_progress_file_is_a_friendly_error(tmp_path):
+    db = tmp_path / "mine.db"
+    db.write_bytes(b"not a database at all, just text" * 10)
+    code, out = stats("--progress", str(db))
+    assert code == 1
+    assert "progress file" in out
+    assert db.read_bytes() == b"not a database at all, just text" * 10
+
+
+def test_stats_bad_band_is_refused():
+    code, _ = stats("--band", "4")
+    assert code != 0
+
+
+def test_stats_on_an_empty_progress_file_leave_it_empty(tmp_path):
+    """A 0-byte file (a crash before the first save): stats doesn't set it up."""
+    db = tmp_path / "mine.db"
+    db.touch()
+    code, out = stats("--progress", str(db))
+    assert code == 0
+    assert "No progress saved yet" in out
+    assert db.stat().st_size == 0
+
+
+def test_stats_count_unchecked_answers_but_not_in_accuracy(tmp_path):
+    """No `claude` here: a miss is "couldn't check", so it isn't counted as wrong."""
+    db = tmp_path / "mine.db"
+    play("--n", "1", "--seed", seed_for("爱"), "--progress", str(db), typed="x\n")
+    _, out = stats("--band", "1", "--progress", str(db))
+    assert "last 7 days: no checked answers (+1 not checked)" in out
+    assert "box 1: 0 ·" in out  # the box didn't move
+
+
+def test_stats_bad_cards_file_names_the_cards_file(tmp_path):
+    db = tmp_path / "mine.db"
+    _store_with(db, "爱", datetime.now(UTC))
+    code, out = stats("--progress", str(db), "--cards", str(tmp_path / "nope.jsonl"))
+    assert code == 1
+    assert "cards file" in out
