@@ -1039,7 +1039,7 @@ def test_a_failed_save_warns_once_and_the_quiz_goes_on(monkeypatch):
     def broken(*args, **kwargs):
         raise ProgressFileError("the progress file is busy")
 
-    monkeypatch.setattr("hsk_trainer.cli.save_attempt", broken)
+    monkeypatch.setattr("hsk_trainer.quiz_setup.save_attempt", broken)
     args = ("--band", "1", "--n", "2", "--seed", "1")
     typed = "\n".join(right_answers(deck_words(*args))) + "\n"
     code, out = play(*args, typed=typed)

@@ -33,5 +33,6 @@ def no_real_progress(tmp_path, monkeypatch):
     test is out of its reach: give it --no-save."""
     import sys
 
-    if "hsk_trainer.cli" in sys.modules:
-        monkeypatch.setattr("hsk_trainer.cli.PROGRESS_FILE", tmp_path / "progress.db")
+    for module in ("hsk_trainer.cli", "hsk_trainer.quiz_setup"):  # both front-end paths
+        if module in sys.modules:
+            monkeypatch.setattr(f"{module}.PROGRESS_FILE", tmp_path / "progress.db")
