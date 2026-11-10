@@ -21,6 +21,9 @@ class Mode(BaseModel):
     # always uses the card; for "sentence" the front end swaps the answer in through
     # the engine's `prepare` hook (the HSK CLI does).
     answer_from: Literal["card", "sentence"] = "card"
+    # Which skill this mode practises (ADR 0013): progress is kept per card and
+    # skill, so modes that test the same thing share one Leitner box.
+    skill: str = Field(default="default", min_length=1)
 
 
 def build_question(card: Card, mode: Mode) -> Question:

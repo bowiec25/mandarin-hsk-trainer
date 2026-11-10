@@ -23,3 +23,10 @@ def no_real_claude(monkeypatch):
 def real_cards() -> list[Card]:
     """All cards from the committed data/processed/cards.jsonl, loaded once per run."""
     return load_cards(CARDS_JSONL)
+
+
+@pytest.fixture(autouse=True)
+def no_real_progress(tmp_path, monkeypatch):
+    """Safety net: no test reads or writes the learner's real data/progress.db
+    (ADR 0013). Each test gets its own empty one; a test can pass --progress too."""
+    monkeypatch.setattr("hsk_trainer.cli.PROGRESS_FILE", tmp_path / "progress.db")

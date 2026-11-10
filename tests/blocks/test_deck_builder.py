@@ -392,6 +392,15 @@ def test_empty_schedule_is_a_plain_shuffle_of_new_cards():
     assert len({tuple(d) for d in decks}) > 1
 
 
+def test_schedule_knowing_no_pool_card_gives_the_same_deck_as_none():
+    """A first quiz (empty store) deals exactly what --seed dealt before."""
+    for seed in range(5):
+        for n in (1, 4, 10):
+            plain = block.build_deck(make_cards(), COUNTRY, n, seed=seed)
+            assert deal(n, {}, seed=seed) == plain
+            assert deal(n, {"atlantis": NOW}, seed=seed) == plain
+
+
 def test_no_schedule_ignores_now():
     plain = block.build_deck(make_cards(), COUNTRY, 10, seed=3)
     with_now = block.build_deck(make_cards(), COUNTRY, 10, seed=3, now=NOW)

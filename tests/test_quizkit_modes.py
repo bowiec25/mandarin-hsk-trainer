@@ -42,3 +42,11 @@ def test_answer_from_defaults_to_the_card_and_is_checked():
     )
     with pytest.raises(ValueError):
         Mode(name="m", show=["country"], answer_from="map")
+
+
+def test_skill_defaults_to_default_and_cannot_be_blank():
+    from pydantic import ValidationError
+
+    assert Mode(name="m", show=["country"]).skill == "default"
+    with pytest.raises(ValidationError):
+        Mode(name="m", show=["country"], skill="")

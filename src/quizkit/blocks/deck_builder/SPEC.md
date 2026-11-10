@@ -39,7 +39,7 @@ build_deck(cards, mode, n, levels=None, seed=None, schedule=None, now=None) -> l
 2. **new** cards (not in the schedule), shuffled;
 3. only if `n` isn't filled yet: cards **not due yet**, soonest first.
 
-Cards with the same due time are in a shuffled order (same seed → same order). Schedule entries for cards not in the pool (other levels, unknown ids) are ignored, not even checked, so one bad entry elsewhere can't stop this deck. An empty schedule `{}` means every card is new: a shuffle (not promised to be the same order as `schedule=None`). "Most overdue" = earliest due time, compared as real moments across timezones; `now` is read once per call.
+Cards with the same due time are in a shuffled order (same seed → same order). Schedule entries for cards not in the pool (other levels, unknown ids) are ignored, not even checked, so one bad entry elsewhere can't stop this deck. A schedule that knows none of the pool's cards (`{}`, or a first quiz) means every card is new: **the same deck as `schedule=None`** for the same seed, so a replay with `--seed` matches. "Most overdue" = earliest due time, compared as real moments across timezones; `now` is read once per call.
 
 ## Tools
 - Python `random.Random(seed)` (its own random generator, so a seed doesn't affect anything else).
@@ -69,7 +69,7 @@ Automatic tests in `tests/blocks/test_deck_builder.py` (toy data only, e.g. capi
 - Same seed → same deck; different seeds → (almost always) a different order
 - Questions show only the mode's fields; `accepted_answers` = the card's answers
 - Input list unchanged
-- Schedule: due first (most overdue first), then new (shuffled), then not-due (soonest first) only to fill `n`; ties shuffled by seed; extra schedule ids ignored; `{}` = plain shuffle; `due == now` counts as due; no timezone → `ValueError`; not a datetime → `TypeError`
+- Schedule: due first (most overdue first), then new (shuffled), then not-due (soonest first) only to fill `n`; ties shuffled by seed; extra schedule ids ignored; `{}` = the same deck as no schedule; `due == now` counts as due; no timezone → `ValueError`; not a datetime → `TypeError`
 - Each failure mode above
 
 Real-data check in `tests/test_hsk_deck.py`: band 1, mode `char`, n = 10 → 10 band-1 questions showing only `hanzi`; band 2 with n = 500 → all band-2 cards (the exact count is pinned in `tests/test_word_counts.py`).
