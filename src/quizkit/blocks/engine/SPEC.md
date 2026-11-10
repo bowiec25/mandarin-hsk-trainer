@@ -35,7 +35,7 @@ session.answer("love")  # marks it, moves to the next question, returns the Atte
 session.done            # True when every question has been answered
 session.result()        # the QuizResult so far
 session.can_own_mark    # True if the last answer is waiting for your own mark
-session.own_mark(verdict)  # your own mark on the last answer (ADR 0014), returns it
+session.own_mark(verdict, card_id=None)  # your own mark on the last answer (ADR 0014)
 
 # the voice: the whole loop in one call (CLI)
 run_quiz(questions, ask, tell, settings=None, judge=None, prepare=None) -> QuizResult
@@ -45,7 +45,7 @@ These choices keep screen code out of the engine:
 - **`ask` returns `None` to quit.** The front end decides which key means quit; the engine just stops.
 - **Ctrl-C (`KeyboardInterrupt`) anywhere in the loop is also a quit** (added M3 Step 6, after the reuse check). On Windows, Ctrl-C can arrive just *after* `input()` returns, while grading or inside `tell`, so catching it only in `ask` isn't enough. `run_quiz` catches it around the whole loop, so every quiz built on it keeps the score without copying a workaround.
 - **`tell` gets the whole `Attempt`**, not a ready-made sentence. The CLI writes the words ("✓ Correct!" / "✗ The answer was: love"), so a web page can show it its own way.
-- **Your own mark comes after the answer, not inside it** (ADR 0014). A terminal can ask "Did you get the gist?" inside a judge call, but a web page can't pause in the middle of `answer()`. So `answer()` marks as usual; if nobody could check it, the front end asks you, then calls `own_mark(verdict)` with a `Verdict` whose `source` is `"self"`. It replaces the **last** answer's verdict in the record and returns the updated `Attempt`. It doesn't move the quiz on. A **blank** answer can't take your mark (nothing was typed, and the judge skips blanks too). A `"self"` verdict that came through the judge (the terminal's prompt) already counts as checked. A refused mark changes nothing.
+- **Your own mark comes after the answer, not inside it** (ADR 0014). A terminal can ask "Did you get the gist?" inside a judge call, but a web page can't pause in the middle of `answer()`. So `answer()` marks as usual; if nobody could check it, the front end asks you, then calls `own_mark(verdict)` with a `Verdict` whose `source` is `"self"`. It replaces the **last** answer's verdict in the record and returns the updated `Attempt`. It doesn't move the quiz on. A **blank** answer can't take your mark (nothing was typed, and the judge skips blanks too). A `"self"` verdict that came through the judge (the terminal's prompt) already counts as checked. A refused mark changes nothing. Pass `card_id` (the question the mark is for): if the last answer is for another card, it raises `ValueError`, so a late or repeated click on a web page can't mark the wrong answer. **Save an answer once it's final:** after `own_mark` when the front end asks for your mark, not straight after `answer()`.
 
 ## Outputs
 Everything is returned in memory as pydantic models (frozen). Nothing is saved to a file; saving is M5's `progress_store`.
@@ -105,6 +105,7 @@ Example: quit after 3 of 10 with 2 right → `correct=2, answered=3, total=10, f
 | `own_mark()` after a blank or spaces-only answer | **Raises `ValueError`** (nothing was typed to mark) |
 | `own_mark()` when the last answer was right by the answer list, or already has a verdict that was checked (Claude, the cache, or your own mark) | **Raises `ValueError`**: only an answer nobody checked (no verdict, or "couldn't check") can take your mark, and only once. `can_own_mark` says so in advance |
 | `own_mark()` with something that isn't a `Verdict` | **Raises `TypeError`** |
+| `own_mark(verdict, card_id=...)` when the last answer is for another card | **Raises `ValueError`** (the mark was meant for an earlier question) |
 | `own_mark()` with a verdict whose `source` isn't `"self"` | **Raises `ValueError`** (it's for your own mark; a judge's verdict comes through `judge`) |
 | `own_mark()` after the last question | Allowed: the last answer can still take your mark, and `result()` includes it |
 

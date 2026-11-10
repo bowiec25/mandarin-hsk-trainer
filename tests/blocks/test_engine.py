@@ -1014,3 +1014,17 @@ def test_own_mark_with_something_that_is_not_a_verdict_raises_type_error():
     with pytest.raises(TypeError):
         session.own_mark({"correct": True, "reason": "yes", "source": "self"})
     assert session.can_own_mark is True  # nothing changed
+
+
+def test_own_mark_for_another_card_raises_and_changes_nothing():
+    """A late click meant for France must not land on Italy (code review)."""
+    from quizkit.models import Verdict
+
+    session = block.QuizSession([FRANCE, ITALY])
+    session.answer("Lyon")
+    session.answer("Milan")
+    yes = Verdict(correct=True, reason="yes", source="self")
+    with pytest.raises(ValueError):
+        session.own_mark(yes, card_id=FRANCE.card_id)
+    assert session.result().correct == 0
+    assert session.own_mark(yes, card_id=ITALY.card_id).correct is True
