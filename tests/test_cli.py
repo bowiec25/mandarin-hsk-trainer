@@ -1105,7 +1105,7 @@ def test_stats_lists_most_missed_by_hanzi(tmp_path):
     seed = seed_for("爱")
     play("--n", "1", "--seed", seed, "--no-judge", "--progress", str(db), typed="x\n")
     _, out = stats("--band", "1", "--progress", str(db))
-    assert "most missed: 爱 ×1" in out
+    assert "most missed: 爱 ài ×1" in out  # pinyin: 还 hái / 还 huán differ
     assert "last 7 days: 0/1 right (0%)" in out
 
 
@@ -1138,3 +1138,30 @@ def test_stats_on_a_broken_progress_file_is_a_friendly_error(tmp_path):
 def test_stats_bad_band_is_refused():
     code, _ = stats("--band", "4")
     assert code != 0
+
+
+def test_stats_on_an_empty_progress_file_leave_it_empty(tmp_path):
+    """A 0-byte file (a crash before the first save): stats doesn't set it up."""
+    db = tmp_path / "mine.db"
+    db.touch()
+    code, out = stats("--progress", str(db))
+    assert code == 0
+    assert "No progress saved yet" in out
+    assert db.stat().st_size == 0
+
+
+def test_stats_count_unchecked_answers_but_not_in_accuracy(tmp_path):
+    """No `claude` here: a miss is "couldn't check", so it isn't counted as wrong."""
+    db = tmp_path / "mine.db"
+    play("--n", "1", "--seed", seed_for("爱"), "--progress", str(db), typed="x\n")
+    _, out = stats("--band", "1", "--progress", str(db))
+    assert "last 7 days: no checked answers (+1 not checked)" in out
+    assert "box 1: 0 ·" in out  # the box didn't move
+
+
+def test_stats_bad_cards_file_names_the_cards_file(tmp_path):
+    db = tmp_path / "mine.db"
+    _store_with(db, "爱", datetime.now(UTC))
+    code, out = stats("--progress", str(db), "--cards", str(tmp_path / "nope.jsonl"))
+    assert code == 1
+    assert "cards file" in out

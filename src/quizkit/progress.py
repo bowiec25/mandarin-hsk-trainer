@@ -71,8 +71,9 @@ class SkillStats(BaseModel):
     new: int  # never answered for this skill
     by_box: dict[int, int]  # box -> how many cards are in it (only boxes in use)
     due: int  # due now (or overdue)
-    recent_answered: int  # answers in the last `days` days
+    recent_answered: int  # checked answers in the last `days` days
     recent_right: int
+    recent_unchecked: int  # answers nobody could mark (not in accuracy)
     most_missed: list[tuple[str, int]]  # (card id, times wrong), most first
 
 
@@ -92,11 +93,12 @@ def skill_stats(
         raise ValueError("now must have a timezone (e.g. datetime.now(UTC))")
     ids = set(card_ids)
     notes = [b for cid, b in store.boxes(skill).items() if cid in ids]
-    recent = [
+    lately = [
         a
         for a in store.answers(since=now - timedelta(days=days), skill=skill)
         if a.card_id in ids
     ]
+    recent = [a for a in lately if a.decided_by != "not_checked"]  # someone marked it
     missed = sorted(
         ((b.card_id, b.wrong) for b in notes if b.wrong),
         key=lambda pair: (-pair[1], pair[0]),
@@ -108,5 +110,6 @@ def skill_stats(
         due=sum(b.due <= now for b in notes),
         recent_answered=len(recent),
         recent_right=sum(a.correct for a in recent),
+        recent_unchecked=len(lately) - len(recent),
         most_missed=missed[:top],
     )

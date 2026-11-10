@@ -180,3 +180,21 @@ def test_most_missed_most_first_ties_by_id_and_capped(store):
 def test_stats_need_a_timezone(store):
     with pytest.raises(ValueError):
         skill_stats(store, CAPITALS, "capital", datetime(2026, 11, 10))
+
+
+def test_stats_leave_unchecked_answers_out_of_accuracy(store):
+    _put(store, "france", 2, T0, at=T0 - timedelta(hours=1), correct=True)
+    store.record(
+        AnswerRecord(
+            at=T0 - timedelta(hours=1),
+            card_id="spain",
+            skill="capital",
+            mode="country",
+            typed="x",
+            correct=False,
+            decided_by="not_checked",
+        ),
+        None,
+    )
+    s = skill_stats(store, CAPITALS, "capital", T0)
+    assert (s.recent_answered, s.recent_right, s.recent_unchecked) == (1, 1, 1)

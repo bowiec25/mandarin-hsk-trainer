@@ -42,6 +42,7 @@ ROOT = Path(__file__).resolve().parents[2]
 CARDS_FILE = ROOT / "data" / "processed" / "cards.jsonl"
 JUDGE_CACHE = ROOT / "data" / "judge_cache.jsonl"  # gitignored: verdicts, not source
 PROGRESS_FILE = ROOT / "data" / "progress.db"  # gitignored: your own progress
+RULE = DEFAULT_RULE  # the Leitner boxes: the quiz moves cards by it, stats shows it
 SETTINGS = GradeSettings()
 # Sentences: no typo forgiveness. A 1-2 letter change can flip the meaning
 # ("I don't like" -> "I do like"); near-misses go to the gist judge instead.
@@ -303,7 +304,9 @@ class _Saving:
         """Save it; a problem comes back as a warning to show (the quiz goes on, and
         the next answer tries again: a busy file may have cleared by then)."""
         try:
-            old, new = save_attempt(self.store, attempt, self.skill, datetime.now(UTC))
+            old, new = save_attempt(
+                self.store, attempt, self.skill, datetime.now(UTC), RULE
+            )
         except ValueError as err:  # ProgressFileError, or a bad saved row
             return f"   ⚠️ Couldn't save this answer: {err}"
         if new is not None:  # None: couldn't check, so the box didn't move
@@ -566,21 +569,22 @@ def _skills() -> dict[str, list[str]]:
     return skills
 
 
-def _stats_lines(s: SkillStats, hanzi: dict[str, str]) -> list[str]:
-    if s.new == s.cards:
+def _stats_lines(s: SkillStats, label: dict[str, str]) -> list[str]:
+    if s.new == s.cards and not (s.recent_answered or s.recent_unchecked):
         return ["    Nothing yet."]
-    last = max([len(DEFAULT_RULE.waits), *s.by_box])  # a box past 5: show it too
+    last = max([len(RULE.waits), *s.by_box])  # a box past the rule's last: show it
     boxes = " · ".join(f"box {b}: {s.by_box.get(b, 0)}" for b in range(1, last + 1))
     lines = [f"    new: {s.new} · {boxes} · due now: {s.due}"]
     if s.recent_answered:
-        pct = round(100 * s.recent_right / s.recent_answered)
-        lines.append(
-            f"    last 7 days: {s.recent_right}/{s.recent_answered} right ({pct}%)"
-        )
+        pct = 100 * s.recent_right // s.recent_answered  # rounded down: 199/200 = 99%
+        week = f"{s.recent_right}/{s.recent_answered} right ({pct}%)"
     else:
-        lines.append("    last 7 days: no answers")
+        week = "no checked answers"
+    if s.recent_unchecked:
+        week += f" (+{s.recent_unchecked} not checked)"
+    lines.append(f"    last 7 days: {week}")
     if s.most_missed:
-        missed = ", ".join(f"{hanzi.get(c, c)} ×{n}" for c, n in s.most_missed)
+        missed = ", ".join(f"{label.get(c, c)} ×{n}" for c, n in s.most_missed)
         lines.append(f"    most missed: {missed}")
     return lines
 
@@ -597,28 +601,39 @@ def stats(
     """How you're doing: words new / in each Leitner box / due now, the last 7 days'
     accuracy and your most-missed words, per band and skill. Changes nothing."""
     progress_file = progress or PROGRESS_FILE
-    if not progress_file.exists():  # never make the file just to look at it
+    # Never make (or set up) the file just to look at it: an empty file is set up by
+    # the first quiz that saves.
+    if not progress_file.exists() or (
+        progress_file.is_file() and progress_file.stat().st_size == 0
+    ):
         print("No progress saved yet: play `hsk quiz` (it saves unless --no-save).")
         return
     cards_file = cards or CARDS_FILE
     try:
         all_cards = load_cards(cards_file)
-        store = ProgressStore(progress_file)
-        now = datetime.now(UTC)
-        bands = [band] if band is not None else sorted({c.level for c in all_cards})
-        out: list[str] = []
-        for b in bands:
-            in_band = [c for c in all_cards if c.level == b]
-            hanzi = {c.id: c.fields.get("hanzi", c.id) for c in in_band}
-            out.append(f"Band {b} · {len(in_band)} words")
-            for skill, modes in _skills().items():
-                out.append(f"  {skill} ({', '.join(modes)})")
-                s = skill_stats(store, hanzi, skill, now)
-                out.extend(_stats_lines(s, hanzi))
-    except ProgressFileError as err:
-        _fail(f"Can't read your progress file {progress_file}:", str(err))
     except (ValidationError, ValueError, OSError) as err:
         _fail(f"Can't read the cards file {cards_file}:", str(err))
+    now = datetime.now(UTC)
+    bands = [band] if band is not None else sorted({c.level for c in all_cards})
+    skills = _skills()
+    out: list[str] = []
+    try:
+        store = ProgressStore(progress_file)
+        for b in bands:
+            in_band = [c for c in all_cards if c.level == b]
+            # hanzi + pinyin: two readings of one character (还 hái / huán) differ
+            label = {
+                c.id: " ".join(
+                    filter(None, [c.fields.get("hanzi", c.id), c.fields.get("pinyin")])
+                )
+                for c in in_band
+            }
+            out.append(f"Band {b} · {len(in_band)} words")
+            for skill, modes in skills.items():
+                out.append(f"  {skill} ({', '.join(modes)})")
+                out.extend(_stats_lines(skill_stats(store, label, skill, now), label))
+    except (ValueError, OSError) as err:  # ProgressFileError is a ValueError
+        _fail(f"Can't read your progress file {progress_file}:", str(err))
     print("\n".join(out))
 
 
