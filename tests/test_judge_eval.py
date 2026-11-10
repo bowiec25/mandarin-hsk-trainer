@@ -6,7 +6,7 @@ The real eval needs `claude` and is run by hand; here a fake judge stands in.
 import json
 from pathlib import Path
 
-from hsk_trainer.cli import JUDGE_SUBJECT
+from hsk_trainer.quiz_setup import JUDGE_SUBJECT
 from quizkit.blocks.grader import grade
 from quizkit.blocks.judge import Verdict
 from quizkit.blocks.judge.eval import EvalCase, load_cases, main, run_eval
@@ -246,6 +246,6 @@ def test_every_sentence_case_fits_the_gist_limit():
 
 def test_sentence_cases_use_the_translate_modes_subject():
     """The eval must measure the judge exactly as translate mode calls it."""
-    from hsk_trainer.cli import TRANSLATE_SUBJECT
+    from hsk_trainer.quiz_setup import TRANSLATE_SUBJECT
 
     assert {c.subject for c in load_cases(SENTENCE_CASES)} == {TRANSLATE_SUBJECT}

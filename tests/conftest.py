@@ -31,8 +31,7 @@ def no_real_progress(tmp_path, monkeypatch):
     (ADR 0013). Each test gets its own empty one; a test can pass --progress too.
     Only once the CLI is imported, so generic quizkit tests don't load it. A subprocess
     test is out of its reach: give it --no-save."""
-    import sys
-
-    for module in ("hsk_trainer.cli", "hsk_trainer.quiz_setup"):  # both front-end paths
-        if module in sys.modules:
-            monkeypatch.setattr(f"{module}.PROGRESS_FILE", tmp_path / "progress.db")
+    # Set in the environment: read whenever a quiz is set up, by any module imported
+    # at any time, and inherited by a test that runs the program in a subprocess.
+    monkeypatch.setenv("HSK_PROGRESS_FILE", str(tmp_path / "progress.db"))
+    monkeypatch.setenv("HSK_JUDGE_CACHE", str(tmp_path / "judge_cache.jsonl"))

@@ -15,7 +15,8 @@ import pytest
 from typer.testing import CliRunner
 
 from hsk_trainer.blocks.answer_writer import load_answers
-from hsk_trainer.cli import ANSWERS_FILE, CARDS_FILE, app
+from hsk_trainer.cli import app
+from hsk_trainer.quiz_setup import ANSWERS_FILE, CARDS_FILE
 from quizkit.blocks.progress_store import (
     AnswerRecord,
     BoxState,
@@ -30,7 +31,7 @@ runner = CliRunner()
 @pytest.fixture(autouse=True)
 def own_judge_cache(tmp_path, monkeypatch):
     """Never read or write the developer's real data/judge_cache.jsonl."""
-    monkeypatch.setattr("hsk_trainer.cli.JUDGE_CACHE", tmp_path / "judge_cache.jsonl")
+    monkeypatch.setenv("HSK_JUDGE_CACHE", str(tmp_path / "judge_cache.jsonl"))
 
 
 _plays = {"dir": None, "count": 0}
@@ -293,9 +294,9 @@ def test_unknown_mode_is_refused():
 
 
 def test_missing_cards_file_says_how_to_fix(tmp_path, monkeypatch):
-    from hsk_trainer import cli
+    from hsk_trainer import quiz_setup
 
-    monkeypatch.setattr(cli, "CARDS_FILE", tmp_path / "cards.jsonl")
+    monkeypatch.setattr(quiz_setup, "CARDS_FILE", tmp_path / "cards.jsonl")
     code, out = play()
     assert code == 1
     assert "normalizer" in out
@@ -331,9 +332,9 @@ def test_no_cards_in_that_band_is_a_friendly_error(tmp_path, real_cards):
 
 
 def test_missing_answers_file_says_how_to_fix(tmp_path, monkeypatch):
-    from hsk_trainer import cli
+    from hsk_trainer import quiz_setup
 
-    monkeypatch.setattr(cli, "ANSWERS_FILE", tmp_path / "answers.jsonl")
+    monkeypatch.setattr(quiz_setup, "ANSWERS_FILE", tmp_path / "answers.jsonl")
     code, out = play()
     assert code == 1
     assert "answers.jsonl" in out
@@ -828,7 +829,7 @@ def fake_gist_judge(monkeypatch, verdict):
 
 
 def test_translate_judge_uses_the_gist_rubric(tmp_path, monkeypatch):
-    from hsk_trainer.cli import TRANSLATE_SUBJECT
+    from hsk_trainer.quiz_setup import TRANSLATE_SUBJECT
     from quizkit.blocks.judge import GIST_MAX_CHARS, GIST_RUBRIC, Verdict
 
     yes = Verdict(correct=True, reason="Same gist.", source="claude")

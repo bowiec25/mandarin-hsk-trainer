@@ -97,12 +97,18 @@ def test_unknown_mode_is_a_setup_error(files):
     assert "is not a mode" in err.value.lines[0]
 
 
-def test_missing_cards_file_is_a_setup_error_with_the_fix(files, tmp_path):
-    missing = QuizFiles(cards=tmp_path / "nope.jsonl", progress=files.progress)
+def test_missing_cards_file_is_a_setup_error_with_the_fix(files, tmp_path, monkeypatch):
+    """The real cards file (the default) gets the normalizer hint; another path not."""
+    from hsk_trainer import quiz_setup
+
+    monkeypatch.setattr(quiz_setup, "CARDS_FILE", tmp_path / "cards.jsonl")
     with pytest.raises(SetupError) as err:
-        build_quiz(QuizOptions(), missing)
+        build_quiz(QuizOptions(), QuizFiles(progress=files.progress))
     assert err.value.lines[0].startswith("No cards file at")
     assert "normalizer" in err.value.lines[1]
+    with pytest.raises(SetupError) as err:
+        build_quiz(QuizOptions(), QuizFiles(cards=tmp_path / "other.jsonl"))
+    assert len(err.value.lines) == 1
     assert not files.progress.exists()
 
 
@@ -130,3 +136,13 @@ def test_readable_keeps_answers_as_written():
 def test_default_progress_file_follows_the_safety_net(tmp_path):
     """conftest points PROGRESS_FILE at a temp file; QuizFiles() must read it then."""
     assert QuizFiles().progress == tmp_path / "progress.db"
+
+
+def test_default_judge_cache_follows_the_safety_net(tmp_path):
+    assert QuizFiles().judge_cache == tmp_path / "judge_cache.jsonl"
+
+
+def test_your_files_follow_the_environment(monkeypatch, tmp_path):
+    """How the safety net works: set once, read by any module and any subprocess."""
+    monkeypatch.setenv("HSK_PROGRESS_FILE", str(tmp_path / "elsewhere.db"))
+    assert QuizFiles().progress == tmp_path / "elsewhere.db"

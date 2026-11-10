@@ -5,6 +5,7 @@ the other. It prints nothing and reads no keys: notes come back as text, and a s
 problem is a `SetupError` with the lines to show. Glue, not a block (like `cli.py`).
 """
 
+import os
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -84,18 +85,34 @@ class QuizOptions:
 
 @dataclass(frozen=True)
 class QuizFiles:
-    """Where everything is. `cards_is_default` / `answers_is_default` pick the hint
-    shown when that file is broken (the real files can be restored with git)."""
+    """Where everything is. Defaults are read when a QuizFiles is made, not at import,
+    so tests can point them elsewhere. Your own files (progress, judge cache) also
+    follow HSK_PROGRESS_FILE / HSK_JUDGE_CACHE if set: the tests set them, so no test,
+    not even one running the program in a separate process, touches the real ones."""
 
-    cards: Path = CARDS_FILE
-    answers: Path = ANSWERS_FILE
-    sentences: Path = SENTENCES_FILE
-    seen: Path = SEEN_FILE
-    # Read when made, not at import, so tests can point them elsewhere.
-    progress: Path = field(default_factory=lambda: PROGRESS_FILE)
-    judge_cache: Path = field(default_factory=lambda: JUDGE_CACHE)
-    cards_is_default: bool = True
-    answers_is_default: bool = True
+    cards: Path = field(default_factory=lambda: CARDS_FILE)
+    answers: Path = field(default_factory=lambda: ANSWERS_FILE)
+    sentences: Path = field(default_factory=lambda: SENTENCES_FILE)
+    seen: Path = field(default_factory=lambda: SEEN_FILE)
+    progress: Path = field(default_factory=lambda: progress_file())
+    judge_cache: Path = field(default_factory=lambda: judge_cache_file())
+
+
+def progress_file() -> Path:
+    """Your progress file: HSK_PROGRESS_FILE if set (tests), else data/progress.db."""
+    return Path(os.environ.get("HSK_PROGRESS_FILE") or PROGRESS_FILE)
+
+
+def judge_cache_file() -> Path:
+    """The judge's cache: HSK_JUDGE_CACHE if set (tests), else data/judge_cache.jsonl."""
+    return Path(os.environ.get("HSK_JUDGE_CACHE") or JUDGE_CACHE)
+
+
+def mode_problem(mode: str) -> str | None:
+    """Why `mode` can't be played, or None if it can (one message for every front end)."""
+    if mode in PLAYABLE_MODES:
+        return None
+    return f"{mode!r} is not a mode. Try: {', '.join(PLAYABLE_MODES)}."
 
 
 def readable(question: Question) -> dict[str, str]:
@@ -128,7 +145,8 @@ class SentencePart:
     """The sentence part of a question: shown under the word, or (translate modes)
     the question itself; its English after the answer (ADR 0011, 0012). New ones from
     Claude or banked ones, via live_sentences. Prints nothing: the last note and the
-    last skipped word are kept for the front end to show."""
+    last skipped word are kept for the front end to show. They (and `revealed`) are
+    about the latest question only, so show a result before asking the next one."""
 
     def __init__(
         self,
@@ -275,14 +293,12 @@ def build_quiz(
     `judge_class` is the judge to build (a fake in tests); `before_asking` /
     `before_writing` are called just before a slow Claude call (e.g. a spinner).
     """
-    if options.mode not in HSK_MODES:
-        raise SetupError(
-            f"{options.mode!r} is not a mode. Try: {', '.join(PLAYABLE_MODES)}."
-        )
+    if problem := mode_problem(options.mode):
+        raise SetupError(problem)
     if not files.cards.exists():
-        hint = (
+        hint = (  # the real file is made by the normalizer
             [f"Make it from {ROOT}: uv run python -m hsk_trainer.blocks.normalizer"]
-            if files.cards_is_default
+            if files.cards == CARDS_FILE
             else []
         )
         raise SetupError(f"No cards file at {files.cards}.", *hint)
@@ -290,6 +306,10 @@ def build_quiz(
     wanted = HSK_MODES[options.mode]
     translating = wanted.answer_from == "sentence"
     from_bank = [f for f in wanted.show if f in SENTENCE_FIELDS]
+    if translating and not from_bank:  # its answer comes from a sentence it must show
+        raise SetupError(
+            f"Mode {wanted.name!r} takes its answer from a sentence but shows none."
+        )
     # The card has no sentence fields: they come from the bank as each word is shown.
     # A translate mode's deck is of word questions, turned into sentences one by one.
     on_card = [f for f in wanted.show if f not in from_bank] or ["hanzi"]
@@ -344,7 +364,7 @@ def build_quiz(
         ) from err
     except (ValidationError, ValueError) as err:  # bad or partial data file
         hint = []
-        if files.answers_is_default and isinstance(err, AnswerFileError):
+        if files.answers == ANSWERS_FILE and isinstance(err, AnswerFileError):
             hint = [  # the real file is committed, so this is a broken checkout
                 "Restore it with git checkout, or fix it with:",
                 "uv run python -m hsk_trainer.blocks.answer_writer",

@@ -17,27 +17,22 @@ from typing import Annotated, NoReturn
 import typer
 from pydantic import ValidationError
 
+from hsk_trainer import quiz_setup
 from hsk_trainer.modes import HSK_MODES
 from hsk_trainer.quiz_setup import (
-    ANSWERS_FILE,
-    CARDS_FILE,
     GOT_THE_GIST,
-    JUDGE_CACHE,
-    JUDGE_SUBJECT,
     MISSED_IT,
     NOT_MARKED,
     PLAYABLE_MODES,
-    PROGRESS_FILE,
     RULE,
-    SEEN_FILE,
-    SENTENCES_FILE,
     SHOW_ANSWERS,
-    TRANSLATE_SUBJECT,
     QuizFiles,
     QuizOptions,
     SentencePart,
     SetupError,
     build_quiz,
+    mode_problem,
+    progress_file,
     readable,
 )
 from quizkit.blocks.engine import Attempt, run_quiz
@@ -46,15 +41,6 @@ from quizkit.blocks.progress_store import ProgressStore
 from quizkit.files import load_cards
 from quizkit.models import Judge, Question, Verdict
 from quizkit.progress import SkillStats, skill_stats
-
-__all__ = [  # also read by tests and the judge eval
-    "ANSWERS_FILE",
-    "CARDS_FILE",
-    "JUDGE_SUBJECT",
-    "TRANSLATE_SUBJECT",
-    "app",
-    "main",
-]
 
 app = typer.Typer(
     help="HSK 3.0 vocab trainer (bands 1-3).",
@@ -70,11 +56,9 @@ def _root() -> None:
 
 
 def _check_mode(mode: str) -> str:
-    if mode in PLAYABLE_MODES:
-        return mode
-    raise typer.BadParameter(
-        f"{mode!r} is not a mode. Try: {', '.join(PLAYABLE_MODES)}."
-    )
+    if problem := mode_problem(mode):
+        raise typer.BadParameter(problem)
+    return mode
 
 
 def _show(question: Question) -> None:
@@ -274,17 +258,9 @@ def quiz(
 ) -> None:
     """Quiz yourself: see a word (or, in the translate modes, a sentence), type its
     English meaning. Ctrl-C stops (score kept)."""
-    # Looked up now, not at import, so tests can point them elsewhere.
-    files = QuizFiles(
-        cards=cards or CARDS_FILE,
-        answers=answers or ANSWERS_FILE,
-        sentences=sentences or SENTENCES_FILE,
-        seen=seen or SEEN_FILE,
-        progress=progress or PROGRESS_FILE,
-        judge_cache=JUDGE_CACHE,
-        cards_is_default=cards is None,
-        answers_is_default=answers is None,
-    )
+    given = {"cards": cards, "answers": answers, "sentences": sentences}
+    given |= {"seen": seen, "progress": progress}
+    files = QuizFiles(**{name: path for name, path in given.items() if path})
     options = QuizOptions(
         band=band, mode=mode, n=n, seed=seed, judge=judge, live=live, save=save
     )
@@ -316,10 +292,10 @@ def quiz(
     judge_fn = hsk.judge
     prepare = None
     screen = _OnScreen(hsk.sentences) if hsk.sentences is not None else None
-    if hsk.translating and screen is not None:  # whole sentences (ADR 0012)
+    if hsk.prepare is not None and screen is not None:  # whole sentences (ADR 0012)
         on = screen
         on.part.start()
-        prepare = on.translate
+        prepare = on.translate  # the shared hsk.prepare, plus its notes on screen
         judge_fn = on.or_self_mark(hsk.judge) if hsk.judge else on.self_mark
 
         def ask(question: Question) -> str | None:
@@ -422,15 +398,15 @@ def stats(
 ) -> None:
     """How you're doing: words new / in each Leitner box / due now, the last 7 days'
     accuracy and your most-missed words, per band and skill. Changes nothing."""
-    progress_file = progress or PROGRESS_FILE
+    progress_path = progress or progress_file()
     # Never make (or set up) the file just to look at it: an empty file is set up by
     # the first quiz that saves.
-    if not progress_file.exists() or (
-        progress_file.is_file() and progress_file.stat().st_size == 0
+    if not progress_path.exists() or (
+        progress_path.is_file() and progress_path.stat().st_size == 0
     ):
         print("No progress saved yet: play `hsk quiz` (it saves unless --no-save).")
         return
-    cards_file = cards or CARDS_FILE
+    cards_file = cards or quiz_setup.CARDS_FILE
     try:
         all_cards = load_cards(cards_file)
     except (ValidationError, ValueError, OSError) as err:
@@ -440,7 +416,7 @@ def stats(
     skills = _skills()
     out: list[str] = []
     try:
-        store = ProgressStore(progress_file)
+        store = ProgressStore(progress_path)
         for b in bands:
             in_band = [c for c in all_cards if c.level == b]
             # hanzi + pinyin: two readings of one character (还 hái / huán) differ
@@ -455,7 +431,7 @@ def stats(
                 out.append(f"  {skill} ({', '.join(modes)})")
                 out.extend(_stats_lines(skill_stats(store, label, skill, now), label))
     except (ValueError, OSError) as err:  # ProgressFileError is a ValueError
-        _fail(f"Can't read your progress file {progress_file}:", str(err))
+        _fail(f"Can't read your progress file {progress_path}:", str(err))
     print("\n".join(out))
 
 
