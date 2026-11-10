@@ -9,6 +9,7 @@ modes ask for a whole sentence's meaning, graded for the gist (ADR 0012).
 """
 
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Annotated, NoReturn
 
@@ -28,15 +29,18 @@ from quizkit.blocks.deck_builder import build_deck
 from quizkit.blocks.engine import Attempt, QuizSession, run_quiz
 from quizkit.blocks.grader import GradeSettings, clean
 from quizkit.blocks.judge import GIST_MAX_CHARS, GIST_RUBRIC, ClaudeJudge
+from quizkit.blocks.progress_store import ProgressFileError, ProgressStore
 from quizkit.files import load_cards
 from quizkit.models import Card, Judge, Question, Verdict
 from quizkit.modes import Mode
+from quizkit.progress import save_attempt
 
 # Found from this file, so `hsk` works from any folder (src/hsk_trainer/cli.py -> root).
 # Assumes it runs from the repo (`uv run hsk`), not from an installed wheel.
 ROOT = Path(__file__).resolve().parents[2]
 CARDS_FILE = ROOT / "data" / "processed" / "cards.jsonl"
 JUDGE_CACHE = ROOT / "data" / "judge_cache.jsonl"  # gitignored: verdicts, not source
+PROGRESS_FILE = ROOT / "data" / "progress.db"  # gitignored: your own progress
 SETTINGS = GradeSettings()
 # Sentences: no typo forgiveness. A 1-2 letter change can flip the meaning
 # ("I don't like" -> "I do like"); near-misses go to the gist judge instead.
@@ -287,6 +291,38 @@ def _or_self_mark(judge: Judge, part: "_Sentences") -> Judge:
     return judged
 
 
+class _Saving:
+    """Saves each marked answer and moves its box (ADR 0013); counts the moves."""
+
+    def __init__(self, store: ProgressStore, skill: str) -> None:
+        self.store, self.skill = store, skill
+        self.up = self.back = self.stayed = 0
+
+    def save(self, attempt: Attempt) -> str | None:
+        """Save it; a problem comes back as a warning to show (the quiz goes on, and
+        the next answer tries again: a busy file may have cleared by then)."""
+        try:
+            old, new = save_attempt(self.store, attempt, self.skill, datetime.now(UTC))
+        except ValueError as err:  # ProgressFileError, or a bad saved row
+            return f"   ⚠️ Couldn't save this answer: {err}"
+        if new is not None:  # None: couldn't check, so the box didn't move
+            before = old.box if old is not None else 1  # a new word starts at box 1
+            if new.box > before:
+                self.up += 1
+            elif new.box < before:
+                self.back += 1
+            else:
+                self.stayed += 1
+        return None
+
+    def summary(self) -> str | None:
+        if not (self.up or self.back or self.stayed):
+            return None
+        word = "word" if self.up == 1 else "words"
+        line = f"Boxes: {self.up} {word} moved up, {self.back} back to box 1"
+        return line + (f", {self.stayed} stayed." if self.stayed else ".")
+
+
 def _asking() -> None:
     print("   asking the judge…", flush=True)
 
@@ -320,6 +356,15 @@ def quiz(
     answers: Annotated[Path | None, typer.Option(hidden=True)] = None,
     sentences: Annotated[Path | None, typer.Option(hidden=True)] = None,
     seen: Annotated[Path | None, typer.Option(hidden=True)] = None,
+    progress: Annotated[Path | None, typer.Option(hidden=True)] = None,
+    save: Annotated[
+        bool,
+        typer.Option(
+            "--save/--no-save",
+            help="Save your answers and Leitner boxes (data/progress.db), and deal "
+            "due words first. --no-save = practise without either.",
+        ),
+    ] = True,
     judge: Annotated[
         bool,
         typer.Option(
@@ -355,14 +400,25 @@ def quiz(
     # The card has no sentence fields: they come from the bank as each word is shown.
     # A translate mode's deck is of word questions, turned into sentences one by one.
     on_card = [f for f in wanted.show if f not in from_bank] or ["hanzi"]
-    shown = Mode(name=wanted.name, show=on_card)
+    shown = Mode(name=wanted.name, show=on_card, skill=wanted.skill)
     sentence_part: _Sentences | None = None
+    saving: _Saving | None = None
     try:
         all_cards = load_cards(cards)
         # Only this band's cards: a bad line in another band doesn't block this quiz.
         in_band = [c for c in all_cards if c.level == band]
         playable = _with_answers(in_band, answers)
-        questions = build_deck(playable, shown, n, levels=[band], seed=seed)
+        progress_file = progress or PROGRESS_FILE
+        store: ProgressStore | None = None
+        schedule = None
+        if save:  # due words first, then new ones (ADR 0013)
+            schedule = {}
+            if progress_file.exists():  # a first quiz makes it once the quiz is ready
+                store = ProgressStore(progress_file)
+                schedule = {cid: b.due for cid, b in store.boxes(wanted.skill).items()}
+        questions = build_deck(
+            playable, shown, n, levels=[band], seed=seed, schedule=schedule
+        )
         # The bank knows every card, so other bands' lines stay as they are.
         if from_bank:
             bank = SentenceBank(
@@ -376,6 +432,14 @@ def quiz(
         # Up-front data check (a card nobody can answer), kept apart from run_quiz so a
         # ValueError mid-quiz is never mislabelled as a bad file.
         QuizSession(questions, settings=SETTINGS)
+        if save:  # only now: a quiz that can't start leaves no new file behind
+            saving = _Saving(store or ProgressStore(progress_file), wanted.skill)
+    except ProgressFileError as err:  # your progress file (a ValueError too)
+        _fail(
+            f"Can't use your progress file {progress or PROGRESS_FILE}:",
+            str(err),
+            "Nothing was changed. To practise anyway: add --no-save.",
+        )
     except SentenceFileError as err:  # the bank (a ValueError: caught first)
         _fail(
             f"Can't read the sentence bank {sentences or SENTENCES_FILE}:",
@@ -458,6 +522,16 @@ def quiz(
             _tell(attempt)
             part.after()
 
+    if saving is not None:  # save each answer as soon as it's marked
+        progress_saver, shown_tell = saving, tell
+
+        def tell(attempt: Attempt) -> None:
+            # Saved first: a Ctrl-C while the result shows can't lose it.
+            problem = progress_saver.save(attempt)
+            shown_tell(attempt)
+            if problem:
+                print(problem)
+
     result = run_quiz(
         questions,
         ask=ask,
@@ -479,6 +553,8 @@ def quiz(
         print(f"Nothing to score: no word had a sentence ({why}).")
     else:
         print(f"Score: {result.correct}/{result.answered}")
+    if saving is not None and (moved := saving.summary()):
+        print(moved)
 
 
 def _utf8_output() -> None:

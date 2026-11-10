@@ -62,17 +62,19 @@ def build_deck(
     # Build every pool card's question first, so a card the mode doesn't fit fails
     # every time, not only when it happens to be drawn.
     questions = [build_question(card, mode) for card in pool.values()]
-    rng = random.Random(seed)
+    # One full shuffle for both paths, so a schedule that knows none of these cards
+    # (a first quiz) gives the same deck for a seed as no schedule.
+    shuffled = random.Random(seed).sample(questions, k=len(questions))
     if schedule is None:
-        return rng.sample(questions, k=min(n, len(questions)))
+        return shuffled[:n]
 
-    # Shuffle once, then stable-sort each group: equal due times stay shuffled.
+    # Stable-sort each group: equal due times stay shuffled.
     # Only the pool's own schedule entries are read (and checked): a bad entry for a
     # card at another level doesn't stop this deck.
     due: list[tuple[datetime, Question]] = []
     new: list[Question] = []
     later: list[tuple[datetime, Question]] = []
-    for q in rng.sample(questions, k=len(questions)):
+    for q in shuffled:
         if q.card_id not in schedule:
             new.append(q)
             continue

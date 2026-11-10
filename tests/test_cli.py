@@ -9,12 +9,19 @@ import os
 import re
 import subprocess
 import sys
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from typer.testing import CliRunner
 
 from hsk_trainer.blocks.answer_writer import load_answers
 from hsk_trainer.cli import ANSWERS_FILE, CARDS_FILE, app
+from quizkit.blocks.progress_store import (
+    AnswerRecord,
+    BoxState,
+    ProgressFileError,
+    ProgressStore,
+)
 from quizkit.files import load_cards
 
 runner = CliRunner()
@@ -26,12 +33,25 @@ def own_judge_cache(tmp_path, monkeypatch):
     monkeypatch.setattr("hsk_trainer.cli.JUDGE_CACHE", tmp_path / "judge_cache.jsonl")
 
 
+_plays = {"dir": None, "count": 0}
+
+
+@pytest.fixture(autouse=True)
+def fresh_progress_per_play(tmp_path):
+    """Each play() starts from an empty progress file, so a seed always deals the same
+    deck (a saved box would change the next deal). Saving still runs every time."""
+    _plays["dir"], _plays["count"] = tmp_path, 0
+
+
 @functools.cache
 def _cards():
     return load_cards(CARDS_FILE)
 
 
 def play(*args: str, typed: str = "") -> tuple[int, str]:
+    if "--progress" not in args and "--no-save" not in args:
+        _plays["count"] += 1
+        args = (*args, "--progress", str(_plays["dir"] / f"p{_plays['count']}.db"))
     result = runner.invoke(app, ["quiz", *args], input=typed)
     return result.exit_code, result.output
 
@@ -469,7 +489,8 @@ def test_hanzi_print_through_a_pipe_on_any_os():
     }
     proc = subprocess.run(
         [sys.executable, "-c", "from hsk_trainer.cli import main; main()", "quiz"]
-        + ["--mode", "char_pinyin", "--n", "2", "--seed", "1", "--no-judge"],
+        + ["--mode", "char_pinyin", "--n", "2", "--seed", "1", "--no-judge"]
+        + ["--no-save"],  # a subprocess: conftest's progress safety net can't reach it
         check=False,  # we check returncode ourselves, to show stderr on failure
         input=b"x\nx\n",
         capture_output=True,
@@ -894,3 +915,156 @@ def test_nothing_to_score_when_stopped_after_skips_too(tmp_path):
     assert code == 0, out
     assert "Score: 0/0" not in out
     assert "try --live" in out
+
+
+# --- saving progress (ADR 0013) ---------------------------------------------------
+
+
+def _note(word: str, due: datetime, box: int = 3) -> BoxState:
+    return BoxState(
+        card_id=word,
+        skill="recognise",
+        box=box,
+        due=due,
+        last_seen=due - timedelta(days=3),
+        right=2,
+        wrong=0,
+    )
+
+
+def _store_with(path, word: str, due: datetime) -> None:
+    ProgressStore(path).record(
+        AnswerRecord(
+            at=due - timedelta(days=3),
+            card_id=word,
+            skill="recognise",
+            mode="char",
+            typed="x",
+            correct=True,
+            decided_by="grader",
+        ),
+        _note(word, due),
+    )
+
+
+def test_right_answer_is_saved_and_moves_the_word_up(tmp_path):
+    db = tmp_path / "mine.db"
+    seed = seed_for("爱")
+    code, out = play("--n", "1", "--seed", seed, "--progress", str(db), typed="love\n")
+    assert code == 0
+    assert "Boxes: 1 word moved up, 0 back to box 1." in out
+    store = ProgressStore(db)
+    assert store.box("爱", "recognise").box == 2  # new + right: box 2 (ADR 0013)
+    [saved] = store.answers()
+    assert (saved.card_id, saved.mode, saved.typed, saved.correct) == (
+        "爱",
+        "char",
+        "love",
+        True,
+    )
+
+
+def test_wrong_answer_goes_back_to_box_1(tmp_path):
+    db = tmp_path / "mine.db"
+    seed = seed_for("爱")
+    args = ("--n", "1", "--seed", seed, "--no-judge", "--progress", str(db))
+    _, out = play(*args, typed="zzz\n")  # a new word missed: starts (stays) in box 1
+    assert "Boxes: 0 words moved up, 0 back to box 1, 1 stayed." in out
+    _store_with(db, "爱", datetime.now(UTC) - timedelta(days=1))  # now in box 3, due
+    _, out = play(*args, typed="zzz\n")
+    assert "\n爱\n" in out
+    assert "Boxes: 0 words moved up, 1 back to box 1." in out
+    assert ProgressStore(db).box("爱", "recognise").box == 1
+
+
+def test_judge_could_not_check_saves_the_answer_but_keeps_the_box(tmp_path):
+    """No `claude` here, so a miss is "couldn't check": saved, box unmoved."""
+    db = tmp_path / "mine.db"
+    _, out = play(
+        "--n", "1", "--seed", seed_for("爱"), "--progress", str(db), typed="zzz\n"
+    )
+    assert "Score: 0/1" in out
+    assert "Boxes:" not in out
+    store = ProgressStore(db)
+    assert store.box("爱", "recognise") is None
+    assert store.answers()[0].decided_by == "not_checked"
+
+
+def test_no_save_writes_nothing_and_shows_no_boxes_line(tmp_path):
+    db = tmp_path / "mine.db"
+    _, out = play(
+        "--n",
+        "1",
+        "--seed",
+        seed_for("爱"),
+        "--no-save",
+        "--progress",
+        str(db),
+        typed="love\n",
+    )
+    assert "Score: 1/1" in out
+    assert "Boxes:" not in out
+    assert not db.exists()
+
+
+def test_due_word_is_dealt_first(tmp_path):
+    db = tmp_path / "mine.db"
+    # Without progress, seed 1 deals `first`; a due word must jump ahead of it.
+    first, due_word = deck_words("--band", "1", "--n", "2", "--seed", "1")[:2]
+    assert play("--n", "1", "--seed", "1")[1].count(f"\n{first}\n") == 1
+    _store_with(db, due_word, datetime.now(UTC) - timedelta(days=2))
+    _, out = play("--n", "1", "--seed", "1", "--progress", str(db))
+    assert f"\n{due_word}\n" in out
+
+
+def test_word_not_due_yet_waits(tmp_path):
+    db = tmp_path / "mine.db"
+    _store_with(db, "爱", datetime.now(UTC) + timedelta(days=5))
+    _, out = play("--n", "1", "--seed", seed_for("爱"), "--progress", str(db))
+    assert "\n爱\n" not in out  # a new word comes before one that isn't due
+
+
+def test_broken_progress_file_is_a_friendly_error_and_left_alone(tmp_path):
+    db = tmp_path / "mine.db"
+    db.write_bytes(b"not a database at all, just text" * 10)
+    before = db.read_bytes()
+    code, out = play("--n", "1", "--progress", str(db))
+    assert code == 1
+    assert "progress file" in out
+    assert "--no-save" in out
+    assert db.read_bytes() == before
+
+
+def test_a_failed_save_warns_once_and_the_quiz_goes_on(monkeypatch):
+    def broken(*args, **kwargs):
+        raise ProgressFileError("the progress file is busy")
+
+    monkeypatch.setattr("hsk_trainer.cli.save_attempt", broken)
+    args = ("--band", "1", "--n", "2", "--seed", "1")
+    typed = "\n".join(right_answers(deck_words(*args))) + "\n"
+    code, out = play(*args, typed=typed)
+    assert code == 0
+    assert out.count("Couldn't save this answer") == 2  # tries again each time
+    assert "Score: 2/2" in out
+    assert "Boxes:" not in out
+
+
+def test_a_quiz_that_cannot_start_leaves_no_new_progress_file(tmp_path):
+    db = tmp_path / "mine.db"
+    code, _ = play(
+        "--n", "1", "--cards", str(tmp_path / "nope.jsonl"), "--progress", str(db)
+    )
+    assert code == 1
+    assert not db.exists()
+
+
+def test_save_happens_before_the_result_is_shown(monkeypatch, tmp_path):
+    """A Ctrl-C while the result shows can't lose an answer that was already scored."""
+    db = tmp_path / "mine.db"
+
+    def interrupted(attempt):
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr("hsk_trainer.cli._tell", interrupted)
+    play("--n", "1", "--seed", seed_for("爱"), "--progress", str(db), typed="love\n")
+    assert ProgressStore(db).box("爱", "recognise").box == 2

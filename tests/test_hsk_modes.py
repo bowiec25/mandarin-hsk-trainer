@@ -45,3 +45,11 @@ def test_translate_modes_take_the_answer_from_the_sentence():
         assert HSK_MODES[name].answer_from == "sentence"
     for name in ("char", "char_pinyin", "char_sentence", "full"):
         assert HSK_MODES[name].answer_from == "card"
+
+
+def test_word_modes_share_one_skill_and_translate_modes_another():
+    """ADR 0013: progress is kept per word and skill, set in config (no if mode ==)."""
+    for name in ("char", "char_pinyin", "char_sentence", "full"):
+        assert HSK_MODES[name].skill == "recognise", name
+    for name in ("translate", "translate_pinyin"):
+        assert HSK_MODES[name].skill == "sentence", name
