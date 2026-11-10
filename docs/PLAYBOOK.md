@@ -86,7 +86,15 @@ The short version: what each stage built, and **what to think about next time**.
 4. **Grading settings depend on the task.** Typo forgiveness is right for one word and wrong for a sentence ("I do like tea" is 2 letters from "I don't like tea"). The code review found it.
 
 ### 🧠 M5: Learning smarts
-*(added when M5 is done)*
+**Built:** progress and spaced repetition (ADR 0013): 2 new generic blocks (`progress_store` = the filing cabinet, `leitner` = the teacher who moves cards), a schedule input for `deck_builder` (the dealer), glue in `quizkit/progress.py`, saving in `hsk quiz`, and `hsk stats`. 6 small PRs (#61–#66) + docs. 1148 tests.
+**Think about next time:**
+1. **Keep the storage dumb and the rule separate.** The cabinet only files notes; the teacher decides the box. So the rule (one pure function) can change after real use without touching saved answers.
+2. **A safety net only covers what it can reach.** The conftest fixture kept tests away from the real progress file, but a test that starts the program in a **separate process** slipped past it and wrote to the real file. Check for subprocess tests whenever you add a "never touch real data" net.
+3. **Save before you show.** Code that runs after a result is shown can be interrupted (Ctrl-C); save first, then print. The code review found it.
+4. **Make "the same seed, the same deck" survive a new feature.** The dealer shuffles once for both paths, so a first quiz on an empty progress file deals exactly what it dealt without one; a test proves it for many seeds.
+5. **A "look only" command must really only look.** `hsk stats` first set up an empty progress file just by opening it. Read-only commands: check they never create or change a file, and test it.
+6. **Count "couldn't check" apart.** An answer nobody could mark shouldn't count as wrong in your accuracy, or move a box; show it separately so nothing is hidden.
+7. **Split a step when it grows.** "Leitner + dealer" and "CLI + stats" were each one PR in the plan; each became two, and each review stayed small.
 
 ### 🌐 M6: Web UI
 *(added when M6 is done)*

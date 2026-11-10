@@ -723,3 +723,32 @@ You now have: decision records, data shapes, hooks and permissions, the `/new-bl
 - **Expect skips with `--no-live`:** the bank has sentences for only 23 words so far. With live on, Claude writes them as you play and the bank grows.
 - **Re-run the sentence eval** after changing `GIST_RUBRIC`: `uv run python -m quizkit.blocks.judge.eval tests/data/judge_eval_sentences.jsonl --model haiku` (twice).
 - 955 tests (was 881).
+
+## M5: learning smarts (2026-11-10)
+
+> **In plain words:** the quiz now remembers you. Every answer is saved; each word sits in one of 5 **boxes** (like flashcards). Right → the next box, which waits longer before the word comes back; wrong → box 1. Each quiz deals the words that are **due** first. `hsk stats` shows how you're doing.
+
+**The structure (one worker per job):**
+```
+hsk quiz ──► dealer (deck_builder): due words first
+   │              ▲ due dates
+   ▼              │
+answer marked ──► teacher (leitner): right = up a box, wrong = box 1
+   │              │
+   ▼              ▼
+filing cabinet (progress_store) = data/progress.db  ◄── hsk stats (looks only)
+```
+The glue that passes each answer along is `quizkit/progress.py`. All of it is generic (`quizkit`): a capitals quiz could use it.
+
+1. **The plan (ADR 0013, PR #61).** You chose **word + skill**: recognising 爱 and translating a sentence with 爱 are tracked apart. Waits: box 1 now, then 1, 3, 7, 21 days.
+2. **The filing cabinet (PR #62).** `progress_store` saves every answer (when, word, skill, mode, what you typed, right or wrong, who decided) and one box note per word and skill. An answer and its note are saved together or not at all. A broken file gives a clear message and is never changed.
+3. **The teacher (PR #63).** `leitner.next_box`: right → up one box, wrong → box 1, "couldn't check" → no move. A **new** word answered right starts in **box 2** (your choice: it comes back tomorrow, not in the same quiz).
+4. **The dealer (PR #64).** `deck_builder` takes each word's due date: due words first (most overdue first), then new words, then words not due yet only if the quiz isn't full.
+5. **Wiring it in (PR #65).** `hsk quiz` saves each answer the moment it's marked, before the result shows (so Ctrl-C can't lose it). The quiz ends with "Boxes: 2 words moved up, 1 back to box 1, 3 stayed." `--no-save` practises without saving.
+6. **Stats (PR #66).** `hsk stats` (or `--band 2`): per band and skill, words new / in each box / due now, the last 7 days' accuracy (answers nobody could check are shown apart), and your 10 most-missed words with pinyin. It only looks: it never makes or changes the file.
+
+**Good to know:**
+- **Your progress file** is `data/progress.db`. It's gitignored: personal, not shared, not backed up by git. Copy it somewhere to keep a backup.
+- **Tests never touch it.** One test that runs the real program in a separate process wrote 6 test answers into it once (the file was new that day, so it was deleted); that test now uses `--no-save`, and every other test gets its own temp file.
+- **`--seed`** now deals different words than before M5 (the dealer shuffles the whole band once). On an empty progress file, `--seed` gives the same words every time.
+- 1148 tests (was 955).
