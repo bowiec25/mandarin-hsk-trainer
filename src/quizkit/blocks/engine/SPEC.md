@@ -56,8 +56,8 @@ Everything is returned in memory as pydantic models (frozen). Nothing is saved t
 | `question` | `Question` | What was asked |
 | `typed` | `str` | Exactly what the learner typed (not cleaned) |
 | `grade` | `Grade` | The grader's verdict (correct, matched, typo, expected) |
-| `verdict` | `Verdict \| None` | The judge's verdict (correct, reason, source); `None` if the judge wasn't asked |
-| `correct` | `bool` (computed) | Right by the grader, **or** the judge said yes |
+| `verdict` | `Verdict \| None` | The judge's verdict, or your own mark (source `self`, via `own_mark`); `None` if neither |
+| `correct` | `bool` (computed) | Right by the grader, **or** the judge (or your own mark) said yes |
 
 **`QuizResult`**: the whole quiz
 | Field | Type | Plain meaning |
@@ -104,6 +104,7 @@ Example: quit after 3 of 10 with 2 right → `correct=2, answered=3, total=10, f
 | `own_mark()` before any answer (also when the questions so far were all skipped) | **Raises `RuntimeError`** (nothing to mark) |
 | `own_mark()` after a blank or spaces-only answer | **Raises `ValueError`** (nothing was typed to mark) |
 | `own_mark()` when the last answer was right by the answer list, or already has a verdict that was checked (Claude, the cache, or your own mark) | **Raises `ValueError`**: only an answer nobody checked (no verdict, or "couldn't check") can take your mark, and only once. `can_own_mark` says so in advance |
+| `own_mark()` with something that isn't a `Verdict` | **Raises `TypeError`** |
 | `own_mark()` with a verdict whose `source` isn't `"self"` | **Raises `ValueError`** (it's for your own mark; a judge's verdict comes through `judge`) |
 | `own_mark()` after the last question | Allowed: the last answer can still take your mark, and `result()` includes it |
 

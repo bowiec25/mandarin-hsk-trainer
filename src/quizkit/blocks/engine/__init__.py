@@ -32,12 +32,14 @@ class Attempt(BaseModel):
     question: Question
     typed: str
     grade: Grade
-    verdict: Verdict | None = None  # the judge's, only asked when the grader said wrong
+    # The judge's (only asked when the grader said wrong), or your own mark (own_mark)
+    verdict: Verdict | None = None
 
     @computed_field
     @property
     def correct(self) -> bool:
-        """Right by the answer list (typos forgiven), or the judge said yes."""
+        """Right by the answer list (typos forgiven), or the judge (or your own
+        mark) said yes."""
         return self.grade.correct or (self.verdict is not None and self.verdict.correct)
 
 
@@ -183,6 +185,8 @@ class QuizSession:
         updated Attempt; the quiz doesn't move on."""
         if not self._attempts:
             raise RuntimeError("there is no answer yet to mark")
+        if not isinstance(verdict, Verdict):
+            raise TypeError(f"own_mark takes a Verdict, not {type(verdict).__name__}")
         if verdict.source != "self":
             raise ValueError(
                 f"own_mark takes your own mark (source 'self'), not {verdict.source!r}"

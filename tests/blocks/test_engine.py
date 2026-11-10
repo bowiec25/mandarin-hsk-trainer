@@ -1006,3 +1006,11 @@ def test_own_mark_when_every_question_so_far_was_skipped_raises_runtime_error():
     assert session.can_own_mark is False
     with pytest.raises(RuntimeError):
         session.own_mark(verdict(True))
+
+
+def test_own_mark_with_something_that_is_not_a_verdict_raises_type_error():
+    session = block.QuizSession([FRANCE])
+    session.answer("Lyon")
+    with pytest.raises(TypeError):
+        session.own_mark({"correct": True, "reason": "yes", "source": "self"})
+    assert session.can_own_mark is True  # nothing changed
