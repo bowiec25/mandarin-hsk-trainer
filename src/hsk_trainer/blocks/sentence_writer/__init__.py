@@ -32,8 +32,25 @@ BLOCK_SPEC = BlockSpec(
     name="sentence_writer",
     kind="agent",
     goal="Ask Claude for 1-2 short example sentences per word, with pinyin and English; keep only the ones the scripts pass (retrying failures with the reasons), and save them to data/generated/sentences.jsonl.",
-    inputs=["cards", "limit", "dry_run", "chunk_size", "retries", "ask"],
-    outputs=["sentences.jsonl", "sentence_writer_log.jsonl", "SentenceRun"],
+    inputs=[
+        "cards",
+        "limit",
+        "dry_run",
+        "chunk_size",
+        "retries",
+        "ask",
+        "removed",
+        "card",
+        "vocab",
+        "timeout",
+    ],
+    outputs=[
+        "sentences.jsonl",
+        "sentence_writer_log.jsonl",
+        "live_sentence_log.jsonl",
+        "SentenceRun",
+        "WrittenSentences",
+    ],
 )
 
 ROOT = Path(__file__).resolve().parents[4]
@@ -41,6 +58,8 @@ SENTENCES_FILE = ROOT / "data" / "generated" / "sentences.jsonl"
 LOG_FILE = ROOT / "data" / "generated" / "sentence_writer_log.jsonl"
 # Calls made during play (write_one): gitignored, so playing never changes the repo.
 LIVE_LOG_FILE = ROOT / "data" / "live_sentence_log.jsonl"
+# Sentences an audit removed (ADR 0015): committed, never saved or shown again.
+REMOVED_FILE = ROOT / "data" / "generated" / "sentences_removed.json"
 _LOG_LOCK = threading.Lock()  # write_one runs on quiz background threads
 MODEL = "sonnet"
 MAX_SENTENCES = 2  # asked for, and kept, per word per call
@@ -160,6 +179,31 @@ class SentenceRun(BaseModel):
 
 class SentenceFileError(ValueError):
     """sentences.jsonl can't be opened, or one of its lines can't be read."""
+
+
+class RemovedListError(SentenceFileError):
+    """The removed list can't be read (a SentenceFileError, so old callers still
+    catch it; new ones can name the right file)."""
+
+
+def read_removed(path: Path) -> dict[str, list[str]]:
+    """The removed list, or {} if it's missing. Committed data, so a broken one is
+    loud (RemovedListError, a SentenceFileError, naming the file), like the
+    sentences file itself."""
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(data, dict):
+            raise TypeError("not an object of word -> list of sentences")
+        for word, sentences in data.items():
+            if not isinstance(sentences, list) or not all(
+                isinstance(s, str) for s in sentences
+            ):
+                raise TypeError(f"{word!r} is not a list of sentences (text)")
+    except (OSError, UnicodeDecodeError, ValueError, TypeError) as err:
+        raise RemovedListError(f"{path.name}: {err}") from err
+    return data
 
 
 class _ReplyCard(BaseModel):
@@ -386,19 +430,26 @@ def build_prompt(
     cards: list[Card],
     band: int,
     rejected: dict[str, list[tuple[str, list[str]]]] | None = None,
+    removed: dict[str, set[str]] | None = None,
 ) -> str:
     """The prompt for one call: one band. With `rejected`, it's a retry and each word
-    carries its rejected sentences and the checker's reasons."""
+    carries its rejected sentences and the checker's reasons. A word with sentences on
+    the removed list carries them as `do_not_write` (ADR 0015), so Claude avoids them."""
     head = INSTRUCTIONS.format(band=band, allowed=_allowed(cards, band))
+    removed = removed or {}
+
+    def avoid(c: Card) -> dict[str, list[str]]:
+        return {"do_not_write": sorted(removed[c.id])} if removed.get(c.id) else {}
+
     if rejected is None:
-        return head + "\n".join(_row(c) for c in chunk) + "\n"
+        return head + "\n".join(_row(c, **avoid(c)) for c in chunk) + "\n"
     rows = []
     for c in chunk:
         tries = rejected.get(c.id) or []
         shown = [{"sentence": h, "reasons": r} for h, r in tries] or [
             {"sentence": None, "reasons": ["no usable sentences came back"]}
         ]
-        rows.append(_row(c, rejected=shown))
+        rows.append(_row(c, rejected=shown, **avoid(c)))
     return RETRY_NOTE + head + "\n".join(rows) + "\n"
 
 
@@ -425,12 +476,16 @@ def read_lines(path: Path) -> list[SentenceLine]:
 
 
 def _load_existing(
-    out: Path, cards: list[Card], vocab: Vocab
+    out: Path,
+    cards: list[Card],
+    vocab: Vocab,
+    removed: dict[str, set[str]],
 ) -> tuple[dict[str, SentenceLine], dict[str, SentenceLine], bool]:
     """(done, saved, changed): current passing lines; every saved line to keep until
     it's replaced; whether the file needs rewriting (a line dropped or listed twice).
 
     A word listed twice keeps its first copy that passes the checks (else the first).
+    Sentences on the removed list are taken out first; a line left empty is dropped.
     """
     if not out.exists():
         return {}, {}, False
@@ -438,12 +493,21 @@ def _load_existing(
     done: dict[str, SentenceLine] = {}
     saved: dict[str, SentenceLine] = {}
     usable: set[str] = set()  # ids whose kept line passes the checker
+    emptied: set[str] = set()  # ids with a line the removed list emptied
     changed = False
     for line in read_lines(out):
         if line.id not in by_id:
             print(f"Warning: dropped {line.id!r} from {out.name} (no longer a card)")
             changed = True
             continue
+        listed = removed.get(line.id, set())
+        kept = [s for s in line.sentences if s.hanzi not in listed]
+        if len(kept) != len(line.sentences):
+            changed = True
+            if not kept:
+                emptied.add(line.id)
+                continue
+            line = line.model_copy(update={"sentences": kept})
         hanzi = by_id[line.id].fields["hanzi"]
         changed |= line.hanzi != hanzi
         line = line.model_copy(update={"hanzi": hanzi})
@@ -463,6 +527,8 @@ def _load_existing(
         else:
             why = "; ".join(problems) or "older prompt version"
             print(f"Will redo {line.id!r}: {why}")
+    for word in sorted(emptied - saved.keys()):
+        print(f"Will redo {word!r}: an audit removed all its sentences")
     return done, saved, changed
 
 
@@ -518,8 +584,15 @@ def _by_id(items: list[object]) -> dict[str, object]:
     return parsed
 
 
+REMOVED_REASON = "an audit removed this sentence; write a different one"
+
+
 def _check_triples(
-    triples: list[tuple[str, str, str]], word: str, vocab: Vocab, cards: list[Card]
+    triples: list[tuple[str, str, str]],
+    word: str,
+    vocab: Vocab,
+    cards: list[Card],
+    removed: set[str] | frozenset[str] = frozenset(),
 ) -> tuple[list[Sentence], list[tuple[str, list[str]]]]:
     """(good, bad): up to MAX_SENTENCES passing sentences, pinyin laid out; and the
     failing ones as "hanzi (pinyin: ...)" with their reasons. Repeats count once."""
@@ -530,6 +603,9 @@ def _check_triples(
             break
         shown = f"{hanzi} (pinyin: {pinyin})"  # what a retry shows Claude
         if any(g.hanzi == hanzi for g in good) or any(b[0] == shown for b in bad):
+            continue
+        if hanzi in removed:  # on the removed list (ADR 0015): never saved
+            bad.append((shown, [REMOVED_REASON]))
             continue
         problems = _sentence_problems(hanzi, pinyin, english, word, vocab, cards)
         if problems:
@@ -595,7 +671,7 @@ def write_one(
 class _Job:
     """Everything one run shares, so the steps below stay small."""
 
-    def __init__(self, cards, vocab, ask, out, log, done, saved, run) -> None:
+    def __init__(self, cards, vocab, ask, out, log, done, saved, run, removed) -> None:
         self.cards = cards
         self.vocab = vocab
         self.ask = ask
@@ -604,6 +680,7 @@ class _Job:
         self.done = done
         self.saved = saved
         self.run = run
+        self.removed: dict[str, set[str]] = removed
 
     def call(
         self,
@@ -614,7 +691,7 @@ class _Job:
     ) -> dict[str, list[tuple[str, list[str]]]]:
         """One Claude call. Saves the words that got a passing sentence; returns the
         others with their rejected sentences and reasons."""
-        prompt = build_prompt(chunk, self.cards, band, rejected)
+        prompt = build_prompt(chunk, self.cards, band, rejected, self.removed)
         reply = self.ask(prompt, model=MODEL, system=SYSTEM, json_schema=REPLY_SCHEMA)
         _log(self.log, reply, len(chunk), retry)
         self.run.input_tokens += reply.input_tokens
@@ -629,7 +706,11 @@ class _Job:
         for card in chunk:
             word = card.fields["hanzi"]
             good, bad = _check_triples(
-                _triples(parsed.get(card.id)), word, self.vocab, self.cards
+                _triples(parsed.get(card.id)),
+                word,
+                self.vocab,
+                self.cards,
+                self.removed.get(card.id, set()),
             )
             if not good:
                 failed[card.id] = bad
@@ -681,6 +762,7 @@ def write_sentences(
     ask: Callable[..., ClaudeReply] = ask_claude,
     out: Path = SENTENCES_FILE,
     log: Path = LOG_FILE,
+    removed: Path = REMOVED_FILE,
 ) -> SentenceRun:
     """Ask Claude for sentences for every word not yet done in `out`; save after each
     call. A ClaudeError stops the run: what's done is already saved, then it goes up.
@@ -693,8 +775,9 @@ def write_sentences(
         raise ValueError("retries can't be negative")
     if not cards:
         raise ValueError("no cards")
+    listed = {word: set(items) for word, items in read_removed(removed).items()}
     vocab = Vocab(cards)
-    done, saved, changed = _load_existing(out, cards, vocab)
+    done, saved, changed = _load_existing(out, cards, vocab, listed)
     if changed and not dry_run:  # dropped / repeated lines are written back at once
         _save(out, cards, done, saved)
     todo = [c for c in cards if c.id not in done]
@@ -716,7 +799,7 @@ def write_sentences(
         )
         return run
 
-    job = _Job(cards, vocab, ask, out, log, done, saved, run)
+    job = _Job(cards, vocab, ask, out, log, done, saved, run, listed)
     try:
         for band in bands:
             job.band(band, [c for c in todo if c.level == band], chunk_size, retries)

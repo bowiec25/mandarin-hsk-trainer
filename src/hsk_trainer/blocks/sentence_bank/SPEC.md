@@ -54,12 +54,12 @@ bank.add(card_id, sentence, model) -> bool  # save a new (already checked) sente
    - **`add` tidies the word's line:** when it rewrites a line, listed sentences still in it are dropped. So `cap` counts only usable sentences, and a line never grows past `cap` (more than `MAX_SAVED` would make `sentence_writer` redo the line and lose banked sentences).
    - **`remove` when the bank file is missing** only writes the list; it doesn't create the bank file.
    - **`remove` merges with the list on disk** before writing (as `mark_seen` does), so a removal made meanwhile by another bank (an audit, another quiz) is kept.
-   - **Known limits:** a quiz already running when an audit removes a sentence keeps its own copy of the bank and list, so it may still show that sentence, or write it back into the file with its next `add`, until it ends; the list stays right, so the next bank skips it. And `sentence_writer` (the batch writer) doesn't read the list yet: it could write a listed sentence back as a word's only one, leaving the word with none usable (`docs/FUTURE.md`).
+   - **Known limits:** a quiz already running when an audit removes a sentence keeps its own copy of the bank and list, so it may still show that sentence, or write it back into the file with its next `add`, until it ends; the list stays right, so the next bank skips it. (`sentence_writer`, the batch writer, reads the list too since #77: it never saves a listed sentence. `REMOVED_FILE`, `RemovedListError` and the reader live there, imported here.)
    - A listed id that is no longer a card is fine (kept as it is).
    - `remove` works on the word's first line only. A second copy of the id (only after a hand edit) is kept as it is, so after `remove` empties the first line, a new bank reads the second copy as the word's line. Listed sentences in it are still skipped.
 
 ## Tools
-- `hsk_trainer.blocks.sentence_writer`: `SENTENCES_FILE`, `Sentence`, `SentenceLine`, `read_lines` (the file reader; raises `SentenceFileError`), `write_lines` (the one file writer), `MAX_SAVED`, `PROMPT_VERSION`.
+- `hsk_trainer.blocks.sentence_writer`: `SENTENCES_FILE`, `Sentence`, `SentenceLine`, `read_lines` (the file reader; raises `SentenceFileError`), `write_lines` (the one file writer), `MAX_SAVED`, `PROMPT_VERSION`, and the removed list's `REMOVED_FILE`, `read_removed` and `RemovedListError` (only `RemovedListError` is re-exported from here, for `quiz_setup`).
 - `quizkit.files.write_atomically`, `random`, `json`, pydantic.
 
 **Known limit:** `sentence_writer` replaces a word's whole line when it redoes it (after a `PROMPT_VERSION` bump, or when any one saved sentence fails its checks), which would drop sentences banked from play. It also drops lines for ids that are no longer cards: "never shrinks" holds within the bank. Today every line is current, so nothing is redone; see `docs/FUTURE.md`.
