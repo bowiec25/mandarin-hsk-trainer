@@ -5,3 +5,6 @@ address = "localhost"  # only this computer can open the page
 
 [browser]
 gatherUsageStats = false  # send no usage data to Streamlit
+
+[client]
+toolbarMode = "minimal"  # no "Deploy" button: this app is never published online

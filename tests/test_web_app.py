@@ -153,6 +153,7 @@ def test_hsk_web_starts_streamlit_on_the_page(monkeypatch):
     assert command[4] == str(cli.WEB_PAGE) and cli.WEB_PAGE.exists()
     assert "--server.address=localhost" in command  # this computer only
     assert "--browser.gatherUsageStats=false" in command
+    assert "--client.toolbarMode=minimal" in command  # no Deploy button
     assert kwargs["cwd"] == ROOT
 
 
@@ -176,3 +177,4 @@ def test_streamlit_config_keeps_it_local():
     config = (ROOT / ".streamlit" / "config.toml").read_text(encoding="utf-8")
     assert 'address = "localhost"' in config
     assert "gatherUsageStats = false" in config
+    assert 'toolbarMode = "minimal"' in config

@@ -406,8 +406,13 @@ def stats(
 
 
 WEB_PAGE = Path(__file__).with_name("web_app.py")
-# Local only, and no usage data to Streamlit; .streamlit/config.toml says the same.
-WEB_FLAGS = ["--server.address=localhost", "--browser.gatherUsageStats=false"]
+# Local only, no usage data to Streamlit, no "Deploy" button; .streamlit/config.toml
+# says the same.
+WEB_FLAGS = [
+    "--server.address=localhost",
+    "--browser.gatherUsageStats=false",
+    "--client.toolbarMode=minimal",
+]
 
 
 @app.command()
