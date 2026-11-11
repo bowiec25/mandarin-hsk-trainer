@@ -23,7 +23,7 @@ from hsk_trainer.blocks.sentence_writer import (
 )
 from hsk_trainer.modes import HSK_MODES
 from quizkit.blocks.deck_builder import build_deck
-from quizkit.blocks.engine import Attempt, QuizSession
+from quizkit.blocks.engine import Attempt, QuizResult, QuizSession
 from quizkit.blocks.grader import GradeSettings, clean
 from quizkit.blocks.judge import GIST_MAX_CHARS, GIST_RUBRIC, ClaudeJudge
 from quizkit.blocks.leitner import DEFAULT_RULE
@@ -62,6 +62,9 @@ SHOW_ANSWERS = 4  # how many accepted answers to show after a wrong one
 GOT_THE_GIST = Verdict(correct=True, reason="you got the gist", source="self")
 MISSED_IT = Verdict(correct=False, reason="you missed it", source="self")
 NOT_MARKED = Verdict(correct=False, reason="not marked", source="not_checked")
+GIST_QUESTION = "Did you get the gist?"
+
+_SAME = object()  # "not given": HskQuiz.session then uses the quiz's own prepare
 
 
 class SetupError(Exception):
@@ -86,16 +89,23 @@ class QuizOptions:
 @dataclass(frozen=True)
 class QuizFiles:
     """Where everything is. Defaults are read when a QuizFiles is made, not at import,
-    so tests can point them elsewhere. Your own files (progress, judge cache) also
-    follow HSK_PROGRESS_FILE / HSK_JUDGE_CACHE if set: the tests set them, so no test,
-    not even one running the program in a separate process, touches the real ones."""
+    so tests can point them elsewhere. Your own files (progress, judge cache, seen
+    sentences) also follow HSK_PROGRESS_FILE / HSK_JUDGE_CACHE / HSK_SEEN_FILE if set:
+    the tests set them, so no test, not even one running the program in a separate
+    process, touches the real ones."""
 
     cards: Path = field(default_factory=lambda: CARDS_FILE)
     answers: Path = field(default_factory=lambda: ANSWERS_FILE)
     sentences: Path = field(default_factory=lambda: SENTENCES_FILE)
-    seen: Path = field(default_factory=lambda: SEEN_FILE)
+    seen: Path = field(default_factory=lambda: seen_file())
     progress: Path = field(default_factory=lambda: progress_file())
     judge_cache: Path = field(default_factory=lambda: judge_cache_file())
+
+
+def seen_file() -> Path:
+    """When each sentence was last shown: HSK_SEEN_FILE if set (tests), else
+    data/sentence_seen.json."""
+    return Path(os.environ.get("HSK_SEEN_FILE") or SEEN_FILE)
 
 
 def progress_file() -> Path:
@@ -139,6 +149,80 @@ def with_answers(cards: list[Card], answers_file: Path) -> list[Card]:
     return [
         Card.model_validate({**c.model_dump(), "answers": answers[c.id]}) for c in cards
     ]
+
+
+def describe(attempt: Attempt, translating: bool) -> tuple[str, list[str]]:
+    """What to say about a marked answer: a headline (✅ or ❌ ...) and detail lines
+    (the judge's reason). The same words in every front end; each adds its own layout.
+    Word modes show the accepted answers after a wrong one; translate modes show the
+    English separately (SentencePart.after_translation)."""
+    g, verdict = attempt.grade, attempt.verdict
+    if translating:
+        if g.correct:
+            return ("✅ close enough (typo)" if g.typo else "✅"), []
+        if verdict is not None and verdict.correct:
+            if verdict.source == "self":
+                return f"✅ {verdict.reason}", []
+            return f"✅ accepted by the Claude judge: {verdict.reason}", []
+        if verdict is not None and verdict.source in ("claude", "cache"):
+            return "❌", [f"judge: {verdict.reason}"]
+        if verdict is not None and verdict.source == "not_checked":
+            return "❌", [f"({verdict.reason})"]
+        return "❌", []
+
+    shown = readable(attempt.question)
+    if g.correct and g.typo:
+        return f"✅ close enough (typo): {shown.get(g.matched, g.matched)}", []
+    if g.correct:
+        return "✅", []
+    if verdict is not None and verdict.correct and verdict.source == "self":
+        return f"✅ {verdict.reason}", []
+    if verdict is not None and verdict.correct:
+        return f"✅ accepted by the Claude judge: {verdict.reason}", []
+    answers = list(shown.values())
+    more = " …" if len(answers) > SHOW_ANSWERS else ""
+    headline = f"❌ {'; '.join(answers[:SHOW_ANSWERS])}{more}"
+    if verdict is not None and verdict.source == "not_checked":
+        return headline, [f"(judge {verdict.reason})"]
+    if verdict is not None:
+        return headline, [f"judge: {verdict.reason}"]
+    return headline, []
+
+
+def unmarked(attempt: Attempt) -> Attempt:
+    """The answer, "not marked": for leaving while it waits for your own mark. Saved
+    like this, its box stays (nobody checked it), as in the terminal (ADR 0014)."""
+    return Attempt(
+        question=attempt.question,
+        typed=attempt.typed,
+        grade=attempt.grade,
+        verdict=NOT_MARKED,
+    )
+
+
+def end_lines(
+    result: QuizResult,
+    live: bool,
+    saver: "Saver | None",
+    live_hint: str = "try --live",
+) -> list[str]:
+    """The end of a quiz: skipped, stopped early, the score, the boxes moved.
+    `live_hint` is how this front end says "turn live sentences on"."""
+    lines = []
+    if result.skipped:
+        lines.append(f"Skipped {result.skipped} with no example sentence.")
+    if not result.finished:
+        lines.append(
+            f"Stopped after {result.answered + result.skipped} of {result.total}."
+        )
+    if result.answered == 0 and result.skipped:
+        why = "Claude couldn't write any just now" if live else live_hint
+        lines.append(f"Nothing to score: no word had a sentence ({why}).")
+    else:
+        lines.append(f"Score: {result.correct}/{result.answered}")
+    if saver is not None and (moved := saver.summary()):
+        lines.append(moved)
+    return lines
 
 
 class SentencePart:
@@ -272,10 +356,16 @@ class HskQuiz:
         """The engine's `prepare` (translate modes: the word becomes its sentence)."""
         return self.sentences.translate if self.translating and self.sentences else None
 
-    def session(self, judge: Judge | None = None) -> QuizSession:
-        """A fresh engine session; `judge` = the front end's (e.g. wrapped) judge."""
+    def session(
+        self,
+        judge: Judge | None = None,
+        prepare: Callable[[Question], Question | None] | None | object = _SAME,
+    ) -> QuizSession:
+        """A fresh engine session; `judge` = the front end's (e.g. wrapped) judge,
+        `prepare` = the front end's (e.g. wrapped to collect notes; default: ours)."""
+        chosen = self.prepare if prepare is _SAME else prepare
         return QuizSession(
-            self.questions, settings=self.settings, judge=judge, prepare=self.prepare
+            self.questions, settings=self.settings, judge=judge, prepare=chosen
         )
 
 

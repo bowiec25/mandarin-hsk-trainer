@@ -20,20 +20,21 @@ from pydantic import ValidationError
 from hsk_trainer import quiz_setup
 from hsk_trainer.modes import HSK_MODES
 from hsk_trainer.quiz_setup import (
+    GIST_QUESTION,
     GOT_THE_GIST,
     MISSED_IT,
     NOT_MARKED,
     PLAYABLE_MODES,
     RULE,
-    SHOW_ANSWERS,
     QuizFiles,
     QuizOptions,
     SentencePart,
     SetupError,
     build_quiz,
+    describe,
+    end_lines,
     mode_problem,
     progress_file,
-    readable,
 )
 from quizkit.blocks.engine import Attempt, run_quiz
 from quizkit.blocks.judge import ClaudeJudge
@@ -83,42 +84,19 @@ def _ask(question: Question) -> str | None:
     return _read()
 
 
+def _print_described(attempt: Attempt, translating: bool) -> None:
+    headline, details = describe(attempt, translating)
+    print(headline)
+    for line in details:
+        print(f"   {line}")
+
+
 def _tell(attempt: Attempt) -> None:
-    g, verdict = attempt.grade, attempt.verdict
-    shown = readable(attempt.question)
-    if g.correct and g.typo:
-        print(f"✅ close enough (typo): {shown.get(g.matched, g.matched)}")
-    elif g.correct:
-        print("✅")
-    elif verdict is not None and verdict.correct and verdict.source == "self":
-        print(f"✅ {verdict.reason}")
-    elif verdict is not None and verdict.correct:
-        print(f"✅ accepted by the Claude judge: {verdict.reason}")
-    else:
-        answers = list(shown.values())
-        more = " …" if len(answers) > SHOW_ANSWERS else ""
-        print(f"❌ {'; '.join(answers[:SHOW_ANSWERS])}{more}")
-        if verdict is not None and verdict.source == "not_checked":
-            print(f"   (judge {verdict.reason})")
-        elif verdict is not None:
-            print(f"   judge: {verdict.reason}")
+    _print_described(attempt, translating=False)
 
 
 def _tell_translation(attempt: Attempt) -> None:
-    g, verdict = attempt.grade, attempt.verdict
-    if g.correct:
-        print("✅ close enough (typo)" if g.typo else "✅")
-    elif verdict is not None and verdict.correct:
-        if verdict.source == "self":
-            print(f"✅ {verdict.reason}")
-        else:
-            print(f"✅ accepted by the Claude judge: {verdict.reason}")
-    else:
-        print("❌")
-        if verdict is not None and verdict.source in ("claude", "cache"):
-            print(f"   judge: {verdict.reason}")
-        elif verdict is not None and verdict.source == "not_checked":
-            print(f"   ({verdict.reason})")
+    _print_described(attempt, translating=True)
 
 
 class _OnScreen:
@@ -158,7 +136,7 @@ class _OnScreen:
         self.part.revealed = True
         while True:
             try:
-                reply = _read("   Did you get the gist? (y/n) ")
+                reply = _read(f"   {GIST_QUESTION} (y/n) ")
             except KeyboardInterrupt:  # keep this answer (unmarked), then stop
                 print()
                 reply, self.stopped = None, True
@@ -346,17 +324,8 @@ def quiz(
         screen.finish()
 
     print()
-    if result.skipped:
-        print(f"Skipped {result.skipped} with no example sentence.")
-    if not result.finished:
-        print(f"Stopped after {result.answered + result.skipped} of {result.total}.")
-    if result.answered == 0 and result.skipped:
-        why = "Claude couldn't write any just now" if live else "try --live"
-        print(f"Nothing to score: no word had a sentence ({why}).")
-    else:
-        print(f"Score: {result.correct}/{result.answered}")
-    if saver is not None and (moved := saver.summary()):
-        print(moved)
+    for line in end_lines(result, live, saver):
+        print(line)
 
 
 def _skills() -> dict[str, list[str]]:

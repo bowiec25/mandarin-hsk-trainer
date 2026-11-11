@@ -17,7 +17,10 @@ from hsk_trainer.quiz_setup import (
     QuizOptions,
     SetupError,
     build_quiz,
+    describe,
+    end_lines,
     readable,
+    unmarked,
 )
 from quizkit.blocks.engine import QuizSession
 from quizkit.blocks.judge import GIST_RUBRIC
@@ -146,3 +149,169 @@ def test_your_files_follow_the_environment(monkeypatch, tmp_path):
     """How the safety net works: set once, read by any module and any subprocess."""
     monkeypatch.setenv("HSK_PROGRESS_FILE", str(tmp_path / "elsewhere.db"))
     assert QuizFiles().progress == tmp_path / "elsewhere.db"
+
+
+def test_default_seen_file_follows_the_safety_net(tmp_path, monkeypatch):
+    """The seen-sentences file is yours too (gitignored): tests never touch it."""
+    assert QuizFiles().seen == tmp_path / "sentence_seen.json"
+    monkeypatch.setenv("HSK_SEEN_FILE", str(tmp_path / "other.json"))
+    assert QuizFiles().seen == tmp_path / "other.json"
+
+
+# --- The shared wording (ADR 0014): what to say about an answer and the end --------
+
+WORD = Question(
+    card_id="ai", mode="char", shown={"hanzi": "爱"}, accepted_answers=["to love"]
+)
+MANY = Question(
+    card_id="x",
+    mode="char",
+    shown={"hanzi": "x"},
+    accepted_answers=["one", "two", "three", "four", "five"],
+)
+SENTENCE = Question(
+    card_id="ai",
+    mode="translate",
+    shown={"sentence": "我爱妈妈。"},
+    accepted_answers=["I love my mum."],
+)
+
+
+def answered(question, typed, judge=None, settings=None):
+    from quizkit.blocks.grader import GradeSettings
+
+    session = QuizSession([question], settings=settings or GradeSettings(), judge=judge)
+    return session.answer(typed)
+
+
+def says(verdict):
+    return lambda question, typed: verdict
+
+
+def test_describe_word_right_typo_and_wrong():
+    assert describe(answered(WORD, "love"), False) == ("✅", [])
+    assert describe(answered(WORD, "lovve"), False) == (
+        "✅ close enough (typo): to love",
+        [],
+    )
+    assert describe(answered(WORD, "hate"), False) == ("❌ to love", [])
+    assert describe(answered(MANY, "six"), False) == ("❌ one; two; three; four …", [])
+
+
+def test_describe_word_with_a_verdict():
+    from quizkit.models import Verdict
+
+    yes = Verdict(correct=True, reason="a synonym", source="claude")
+    no = Verdict(correct=False, reason="the opposite", source="cache")
+    unsure = Verdict(correct=False, reason="is offline", source="not_checked")
+    assert describe(answered(WORD, "adore", says(yes)), False) == (
+        "✅ accepted by the Claude judge: a synonym",
+        [],
+    )
+    assert describe(answered(WORD, "hate", says(no)), False) == (
+        "❌ to love",
+        ["judge: the opposite"],
+    )
+    assert describe(answered(WORD, "hate", says(unsure)), False) == (
+        "❌ to love",
+        ["(judge is offline)"],
+    )
+    assert describe(answered(WORD, "adore", says(GOT_THE_GIST)), False) == (
+        "✅ you got the gist",
+        [],
+    )
+
+
+def test_describe_translation_never_lists_the_answer():
+    """The English is shown by the sentence part, not in the headline."""
+    from quizkit.models import Verdict
+
+    yes = Verdict(correct=True, reason="same idea", source="claude")
+    no = Verdict(correct=False, reason="wrong person", source="claude")
+    s = TRANSLATE_SETTINGS
+    assert describe(answered(SENTENCE, "I love my mum", settings=s), True) == ("✅", [])
+    assert describe(answered(SENTENCE, "I love mum", says(yes), s), True) == (
+        "✅ accepted by the Claude judge: same idea",
+        [],
+    )
+    assert describe(answered(SENTENCE, "You love mum", says(no), s), True) == (
+        "❌",
+        ["judge: wrong person"],
+    )
+    assert describe(answered(SENTENCE, "x", says(NOT_MARKED), s), True) == (
+        "❌",
+        ["(not marked)"],
+    )
+    assert describe(answered(SENTENCE, "x", says(MISSED_IT), s), True) == ("❌", [])
+    assert describe(answered(SENTENCE, "x", settings=s), True) == ("❌", [])
+
+
+def test_unmarked_keeps_the_answer_and_says_not_marked():
+    attempt = answered(SENTENCE, "I like mum", settings=TRANSLATE_SETTINGS)
+    left = unmarked(attempt)
+    assert (left.question, left.typed, left.grade) == (
+        attempt.question,
+        attempt.typed,
+        attempt.grade,
+    )
+    assert left.verdict == NOT_MARKED
+    assert left.correct is False
+
+
+class CountingSaver:
+    def __init__(self, line):
+        self.line = line
+
+    def summary(self):
+        return self.line
+
+
+def test_end_lines_score_and_boxes():
+    from quizkit.blocks.engine import QuizResult
+
+    done = QuizResult(attempts=(answered(WORD, "love"), answered(WORD, "x")), total=2)
+    assert end_lines(done, live=True, saver=None) == ["Score: 1/2"]
+    assert end_lines(done, True, CountingSaver("Boxes: 1 word moved up")) == [
+        "Score: 1/2",
+        "Boxes: 1 word moved up",
+    ]
+    assert end_lines(done, True, CountingSaver(None)) == ["Score: 1/2"]
+
+
+def test_end_lines_stopped_early_and_skipped():
+    from quizkit.blocks.engine import QuizResult
+
+    part = QuizResult(attempts=(answered(WORD, "love"),), total=5, skipped=1)
+    assert end_lines(part, True, None) == [
+        "Skipped 1 with no example sentence.",
+        "Stopped after 2 of 5.",
+        "Score: 1/1",
+    ]
+
+
+def test_end_lines_nothing_to_score_names_the_fix():
+    from quizkit.blocks.engine import QuizResult
+
+    none = QuizResult(attempts=(), total=2, skipped=2)
+    assert end_lines(none, False, None)[-1] == (
+        "Nothing to score: no word had a sentence (try --live)."
+    )
+    assert end_lines(none, False, None, live_hint="turn on Live sentences")[-1] == (
+        "Nothing to score: no word had a sentence (turn on Live sentences)."
+    )
+    assert "Claude couldn't write any" in end_lines(none, True, None)[-1]
+
+
+def test_session_takes_the_front_ends_prepare(files):
+    """A front end can wrap prepare (e.g. to collect every skip note)."""
+    hsk = build(files, mode="translate", n=2, seed=1, live=False, save=False)
+    seen = []
+
+    def wrapped(question):
+        seen.append(question.card_id)
+        return hsk.prepare(question)
+
+    session = hsk.session(prepare=wrapped)
+    _ = session.current  # asks prepare (ours, wrapped)
+    assert seen[0] == hsk.questions[0].card_id  # (a word with no sentence: next)
+    assert hsk.session(prepare=None).current == hsk.questions[0]  # None = no prepare
