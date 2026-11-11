@@ -52,7 +52,17 @@
   - [x] 4b. `hsk stats [--band N]`: new / per box / due, last 7 days, 10 most missed (PR #66)
   - [x] 5. Docs, M5 lessons, build map, milestone audit
   Still-the-right-thing changes: `next_box` returns the whole note, not `(box, wait)`; PR 3 and PR 4 were each split in two. 1148 tests
-- [ ] M6 Web UI
+- [x] **M6 Web UI** (issue #68, done 2026-11-11; ADR 0014, PRs #69–#80 + docs). A local **Streamlit** page (`uv run hsk web`) with the same blocks as the terminal: nothing copied. Small PRs:
+  - [x] 1. ADR 0014 (PR #69)
+  - [x] 2–3. Shared setup out of `cli.py` into `quiz_setup.py` (no behaviour change) + the engine's **own mark** (`QuizSession.own_mark`) for "Did you get the gist?" (PRs #70, #71)
+  - [x] 4a. Shared wording (`describe`, `end_lines`, `unmarked`, `GIST_QUESTION`) + `HSK_SEEN_FILE` safety net (PR #72)
+  - [x] 4b. The web quiz page: `web_quiz.py` (the brain, no Streamlit) + the thin page; planned in **plan mode**, and a planning agent's review caught 3 bugs before any code (PR #73)
+  - [x] 4c. `hsk web` runs Streamlit headless (it crashed on Streamlit's first-run email prompt when you played it) + plain mode names (PR #74)
+  - [x] ➕ Your call while playing: **no human approves sentences** → ADR 0015, audits remove what they flag on their own (PR #75); a **removed-sentences list** so a removed sentence never comes back: the bank and live sentences (PR #76), the batch writer (PR #78, issue #77)
+  - [x] 5a. `gather_stats` shared by `hsk stats` and the web page (PR #79)
+  - [x] 5b. The **Stats page** (tiles, a box chart, most missed) next to the quiz, Streamlit's page menu; quiz settings survive a page switch (PR #80)
+  - [x] 6. Docs, M6 lessons, build map caught up (it had fallen a milestone behind), milestone audit (0 flagged)
+  Still-the-right-thing changes: ADR 0015 and the removed list weren't in the plan (they came from playing); steps 4 and 5 were each split in two. 1320 tests
 
 **Future (not v1):** moved to its own list, **`docs/FUTURE.md`** (smart "what's next" deck, mistake log, sentence translation, bands together, listening). Add new ideas there.
 
