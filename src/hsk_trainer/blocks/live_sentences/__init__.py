@@ -183,11 +183,21 @@ class LiveSentences:
                 self._failed("Claude took too long", notes)
                 return None
         if job.sentences:
-            self._bank(job, notes)
+            self._bank(job, notes)  # the bank refuses removed ones (ADR 0015)
+        # Never show a sentence an audit removed, even a fresh one (ADR 0015).
+        usable = [
+            s for s in job.sentences if not self.bank.is_removed(job.card.id, s.hanzi)
+        ]
+        if usable:
             self.failures = 0
-            return job.sentences[0]
+            return usable[0]
         if self.live:
-            reason = str(job.error) if job.error else "no sentence passed the checks"
+            if job.error:
+                reason = str(job.error)
+            elif job.sentences:
+                reason = "Claude only wrote sentences removed by an audit"
+            else:
+                reason = "no sentence passed the checks"
             self._failed(reason, notes)
         return None
 

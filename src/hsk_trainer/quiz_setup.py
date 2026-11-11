@@ -17,7 +17,12 @@ from pydantic import ValidationError
 
 from hsk_trainer.blocks.answer_writer import ANSWERS_FILE, AnswerFileError, load_answers
 from hsk_trainer.blocks.live_sentences import LiveSentences
-from hsk_trainer.blocks.sentence_bank import SEEN_FILE, SentenceBank
+from hsk_trainer.blocks.sentence_bank import (
+    REMOVED_FILE,
+    SEEN_FILE,
+    RemovedListError,
+    SentenceBank,
+)
 from hsk_trainer.blocks.sentence_writer import (
     SENTENCES_FILE,
     Sentence,
@@ -109,6 +114,7 @@ class QuizFiles:
     cards: Path = field(default_factory=lambda: CARDS_FILE)
     answers: Path = field(default_factory=lambda: ANSWERS_FILE)
     sentences: Path = field(default_factory=lambda: SENTENCES_FILE)
+    removed: Path = field(default_factory=lambda: REMOVED_FILE)  # ADR 0015
     seen: Path = field(default_factory=lambda: seen_file())
     progress: Path = field(default_factory=lambda: progress_file())
     judge_cache: Path = field(default_factory=lambda: judge_cache_file())
@@ -456,7 +462,12 @@ def build_quiz(
         )
         # The bank knows every card, so other bands' lines stay as they are.
         if from_bank:
-            bank = SentenceBank(all_cards, path=files.sentences, seen_path=files.seen)
+            bank = SentenceBank(
+                all_cards,
+                path=files.sentences,
+                seen_path=files.seen,
+                removed_path=files.removed,
+            )
             live = LiveSentences(
                 bank, all_cards, enabled=options.live, before_waiting=before_writing
             )
@@ -472,6 +483,12 @@ def build_quiz(
             f"Can't use your progress file {files.progress}:",
             str(err),
             "Nothing was changed. To practise anyway: add --no-save.",
+        ) from err
+    except RemovedListError as err:  # the removed list (a SentenceFileError)
+        raise SetupError(
+            f"Can't read the removed-sentences list {files.removed}:",
+            str(err),
+            "Restore it with git checkout, or fix it.",
         ) from err
     except SentenceFileError as err:  # the bank (a ValueError: caught first)
         raise SetupError(

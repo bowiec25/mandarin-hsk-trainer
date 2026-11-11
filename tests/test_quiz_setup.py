@@ -328,3 +328,23 @@ def test_describe_word_own_no_does_not_blame_the_judge():
 def test_unmarked_refuses_an_answer_the_list_marked_right():
     with pytest.raises(ValueError):
         unmarked(answered(WORD, "love"))
+
+
+def test_broken_removed_list_is_a_setup_error_naming_it(files, tmp_path):
+    """ADR 0015: the removed list is committed data; a broken one names itself."""
+    from dataclasses import replace
+
+    broken = tmp_path / "sentences_removed.json"
+    broken.write_text("not json", encoding="utf-8")
+    with pytest.raises(SetupError) as err:
+        build(replace(files, removed=broken), mode="char_sentence", n=1, live=False)
+    assert err.value.lines[0] == f"Can't read the removed-sentences list {broken}:"
+
+
+def test_removed_list_reaches_the_bank(files, tmp_path):
+    from dataclasses import replace
+
+    listed = tmp_path / "sentences_removed.json"
+    listed.write_text('{"爱": ["我爱我的妈妈。"]}', encoding="utf-8")
+    hsk = build(replace(files, removed=listed), mode="char_sentence", n=1, live=False)
+    assert hsk.sentences.live.bank.is_removed("爱", "我爱我的妈妈。")
