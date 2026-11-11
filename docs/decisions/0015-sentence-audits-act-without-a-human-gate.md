@@ -11,13 +11,14 @@
 
 ## Decision
 1. **Scripts first.** Anything code can check stays a script check on every sentence before it's shown or saved (ADR 0002). When an audit finds a kind of mistake a script *could* catch (e.g. capitalised pinyin), it goes on the list for the script checker (`docs/FUTURE.md`), not on a person.
-2. **The auditor acts.** Every sentence it flags (natural, english, reading, level, sense) is **removed**, and so is every "unsure". There's no "keep" verdict, and nobody approves removals. Pure formatting notes that aren't errors (e.g. pinyin capitals) are tidied in the same pass.
+2. **The auditor acts.** Every sentence it flags (natural, english, reading, level, sense) is **removed**, and so is every "unsure". There's no "keep" verdict, and nobody approves removals. Pure formatting notes that aren't errors (e.g. pinyin capitals) are tidied in the same pass, and the bank is then loaded once, which re-checks every sentence with the scripts, so a slip while tidying can't get in.
 3. **A record, not a question.** Each run is saved as `docs/audits/<date>-sentences.md` (flags, what was removed, the audited list), and the user gets a one-line summary in chat.
 4. **When it runs:** unchanged. At each milestone end, and whenever the bank has grown by about 50 sentences since the last report ("only new").
 5. **Its planted test stays** (`tests/data/auditor_planted*`): the auditor's instructions changed, so it is re-run, as `CLAUDE.md` says.
 
 ## Why / alternatives considered
 - **Keep the human gate:** doesn't scale with live sentences, and asks a learner to judge Chinese.
+- **Fix a wrong reading instead of removing the sentence:** the auditor often names the right pinyin, but fixing it is a hand edit to Claude's data. Removing is simpler, and a new sentence (checked by the scripts) replaces it.
 - **Only remove "high-confidence" flags, ask about the rest:** still a person in the loop, now for the hardest cases, which are the ones a learner can least judge. Removing is cheap, so removing them all is safer.
 - **No auditor, scripts only:** scripts can't tell natural Chinese from stilted Chinese (这个国很大 passes every script check).
 
@@ -25,4 +26,5 @@
 - ✅ Audits scale with the bank. The user is never asked to judge data.
 - ✅ A wrong sentence leaves the bank as soon as an audit sees it. A record stays for every removal.
 - ⚠️ The auditor may remove a fine sentence (a false flag). Cost: one word briefly has fewer sentences, until live sentences write another.
+- ⚠️ **A removed sentence can come back** (found by `/code-review`): nothing remembers removals yet, so Claude may write the same sentence again, and it passes the scripts again. Until a "removed list" checked by the bank exists (`docs/FUTURE.md`, next in line), the next audit catches it again.
 - ⚠️ Between audits, a live sentence that passes the scripts but reads oddly can still be shown (as before, ADR 0011). Running the auditor automatically as a batch job, so the user doesn't have to start it, is in `docs/FUTURE.md`.

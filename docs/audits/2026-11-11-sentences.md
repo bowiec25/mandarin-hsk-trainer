@@ -15,6 +15,8 @@
   - 有点儿 is written "yǒu diǎn r", matching the word's own pinyin in `cards.jsonl`. No other sentence has 儿 yet, so there's no bank style to match.
   - 他是中国人 writes "zhōng guó" in lowercase, as the bank does elsewhere ("hàn yǔ").
 - **Result:** 国 keeps 1 sentence (你是哪国人？); the other 3 words keep 2 each.
+- **Script re-check:** after the edit, the bank was loaded (`SentenceBank`), which re-checks every sentence with the scripts: all pass.
+- **Planted test** (the auditor's instructions changed for ADR 0015): re-run with an agent that read the new instruction file. All 5 planted problems flagged with the right check (natural, english, reading, level, sense), 0 of the 6 good sentences flagged or unsure, 0 formatting notes. **Pass.**
 
 ## Audited
 国 · 这个国很大。
