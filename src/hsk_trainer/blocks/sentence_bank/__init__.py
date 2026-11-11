@@ -32,13 +32,14 @@ BLOCK_SPEC = BlockSpec(
     name="sentence_bank",
     kind="script",
     goal="Keep the bank of checked example sentences: pick, for a word, a new or a banked sentence by the ADR 0011 rule, remember when each was seen, and add new ones.",
-    inputs=["cards", "path", "seen_path", "settings", "rng", "now"],
+    inputs=["cards", "path", "seen_path", "removed_path", "settings", "rng", "now"],
     outputs=[
         "chance_of_new",
         "wants_new",
         "banked",
         "data/sentence_seen.json",
         "data/generated/sentences.jsonl",
+        "data/generated/sentences_removed.json",
     ],
 )
 

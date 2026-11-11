@@ -36,8 +36,8 @@ live.finish(seconds=5.0) -> list[str]  # end of quiz: bank what's still being wr
 **`Shown`** (pydantic, frozen): `sentence: Sentence | None`, `source: "new" | "banked" | "none"`, `note: str | None` (one line for the screen, e.g. "live sentences switched off for this quiz: …", "couldn't save which sentences you've seen: …").
 
 What `sentence_for` does:
-1. **Background job ready** (or ready within `wait`) with at least one sentence: every sentence is offered to `bank.add` (the bank refuses repeats and a full word), the first one is shown, `source="new"`, and failures go back to 0.
-2. **Job failed, gave no sentence that passed, or isn't ready within `wait`:** counts as one failure. At `max_failures` in a row, live sentences switch off (`note` says why). Then it falls back to the bank.
+1. **Background job ready** (or ready within `wait`) with at least one sentence: every sentence is offered to `bank.add` (the bank refuses repeats, removed sentences and a full word), the first one **not on the bank's removed list** (`bank.is_removed`, ADR 0015) is shown, `source="new"`, and failures go back to 0.
+2. **Job failed, gave no sentence that passed, gave only removed sentences, or isn't ready within `wait`:** counts as one failure. At `max_failures` in a row, live sentences switch off (`note` says why). Then it falls back to the bank.
 3. **Bank fallback / rule said banked / live off:** `bank.banked(card_id)`, giving `source="banked"`, or `None` and `source="none"`.
 4. The shown sentence is passed to `bank.mark_seen`.
 
@@ -47,6 +47,7 @@ What `sentence_for` does:
 - A job that's already finished when its question comes up is used at once: no `before_waiting`, no wait.
 - After live switches off, a job that's already finished is still used; one that isn't is never waited for (it's banked later if it finishes) and doesn't count as a failure.
 - A new sentence that's already in the bank still counts as `source="new"` (Claude wrote it this time); the bank just doesn't store it twice.
+- A new sentence an audit removed earlier (on the bank's removed list) is **never shown**, even though it passed the scripts: Claude may write the same sentence again. If it was the job's only one, that's one failure and the bank is used.
 - Waiting happens in short slices, so Ctrl-C stops the quiz at once.
 - More than one note in one question are joined with "; ".
 
@@ -65,6 +66,7 @@ What `sentence_for` does:
 |---|---|
 | `write` raises (`ClaudeError`: missing, not logged in, timeout, usage limit; or anything else) | One failure; bank fallback |
 | `write` returns no sentences (none passed the checks) | One failure; bank fallback |
+| `write` returns only sentences on the removed list | One failure; bank fallback; none banked or shown |
 | Not ready within `wait` | One failure; bank fallback; its sentences are banked later if it finishes |
 | `max_failures` in a row | Live off for the rest of the quiz, with a `note`; no more jobs started |
 | `bank.mark_seen` raises `OSError` (file locked) | Shown anyway; a `note` the first time only |
@@ -80,6 +82,7 @@ What `sentence_for` does:
   - waiting: `before_waiting` is called once and the job finishes in time;
   - not ready within a short `wait`, so the bank is used, and the late result is banked at the next call;
   - `write` raises or returns nothing, so the bank is used and it counts as a failure;
+  - `write` returns a removed sentence first: the next one is shown instead; only removed ones: the bank is used, one failure, nothing banked;
   - 2 failures in a row switch it off, with a note, and no more jobs start;
   - a success resets the count;
   - `enabled=False`;

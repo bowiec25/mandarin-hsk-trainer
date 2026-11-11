@@ -18,6 +18,7 @@ It exists so the quiz's sentence modes (`char_sentence`, `full`) have a sentence
 | `cards` | `list[Card]` | All the cards: the bank keeps its lines in `cards.jsonl` order and ignores lines for other ids |
 | `path` | `Path` (default `SENTENCES_FILE`) | The bank, `data/generated/sentences.jsonl` (committed). Missing = an empty bank |
 | `seen_path` | `Path` (default `SEEN_FILE`) | When each sentence was last shown, `data/sentence_seen.json` (gitignored, like `progress.db`) |
+| `removed_path` | `Path` (default `REMOVED_FILE`) | Sentences an audit removed, `data/generated/sentences_removed.json` (committed): never banked, shown or added again (ADR 0015). Missing = nothing removed |
 | `settings` | `BankSettings` | `floor: float = 0.2` (0–1), `cap: int = 10` (1 to `sentence_writer.MAX_SAVED` = 10: a longer line would look broken to the writer, which would redo it and lose the banked sentences) |
 | `rng` | `random.Random` | For the new-or-banked draw; tests pass a seeded one |
 | `now` | function | Gives the current time, with a timezone (default `datetime.now(UTC)`); tests pass a fake clock |
@@ -25,8 +26,10 @@ It exists so the quiz's sentence modes (`char_sentence`, `full`) have a sentence
 **How it's called** (importable from `hsk_trainer.blocks.sentence_bank`):
 ```python
 bank = SentenceBank(cards, path=SENTENCES_FILE, seen_path=SEEN_FILE,
-                    settings=BankSettings(), rng=None, now=None)
-bank.count(card_id) -> int              # banked sentences for the word
+                    removed_path=REMOVED_FILE, settings=BankSettings(), rng=None, now=None)
+bank.count(card_id) -> int              # banked sentences for the word (removed ones don't count)
+bank.is_removed(card_id, hanzi) -> bool # on the removed list?
+bank.remove(card_id, hanzi) -> bool     # an audit's removal: off the bank, onto the list
 bank.chance_of_new(card_id) -> float    # max(floor, 1 / (1 + count))
 bank.wants_new(card_id) -> bool         # one draw: rng.random() < chance_of_new
 bank.banked(card_id) -> Sentence | None # the least recently seen (never seen first)
@@ -38,7 +41,13 @@ bank.add(card_id, sentence, model) -> bool  # save a new (already checked) sente
 1. **`chance_of_new` / `wants_new`** (ADR 0011): 0 banked → 1.0 (always new), 1 → 0.5, 3 → 0.25, 4 or more → `floor` (0.2).
 2. **`banked`**: a `Sentence` (`hanzi`, `pinyin`, `english`, from `sentence_writer`) or `None` if the word has none. The pick is the sentence whose last-seen time is oldest; never-seen sentences come first, in file order.
 3. **`data/sentence_seen.json`** (written by `mark_seen`, atomically, after merging with what's in the file, so two quizzes at once keep both histories; the later time wins): `{"<card id>": {"<sentence hanzi>": "<ISO time>"}}`.
-4. **`data/generated/sentences.jsonl`** (written by `add`, atomically): the sentence joins the word's line (a new line is made if the word has none, with `sentence_writer.PROMPT_VERSION`; the line's `model` becomes the newest sentence's model). Returns `True` if added; `False` if that hanzi is already banked for the word, or the word already has `cap` sentences. Lines stay in `cards.jsonl` order; then every other line (other ids, a second copy of an id) as it was, in file order: the file never shrinks.
+4. **`data/generated/sentences.jsonl`** (written by `add`, atomically): the sentence joins the word's line (a new line is made if the word has none, with `sentence_writer.PROMPT_VERSION`; the line's `model` becomes the newest sentence's model). Returns `True` if added; `False` if that hanzi is already banked for the word, is on the removed list, or the word already has `cap` sentences. Lines stay in `cards.jsonl` order; then every other line (other ids, a second copy of an id) as it was, in file order: the file never shrinks, except through `remove`.
+5. **The removed list** (ADR 0015). An audit removes a sentence with `remove(card_id, hanzi)`, not by editing the file by hand:
+   - the hanzi goes onto the list `data/generated/sentences_removed.json`, `{"<card id>": ["<sentence hanzi>", …]}` (written atomically, first, so a crash in between leaves it listed: still never shown);
+   - it's taken out of the word's line in the bank (written atomically); a line left with no sentences is dropped, so the word counts as having none (`sentence_writer` sees it as not done yet);
+   - returns `True` if it was in the bank, `False` if it wasn't (it's still listed). Listing it twice does nothing.
+
+   Matching is by the sentence's hanzi, exactly, for that word (as for repeats). A listed sentence still in the file (e.g. written back by `sentence_writer`) is skipped: `count`, `chance_of_new` and `banked` act as if it weren't there, and the file isn't changed just for that.
 
 ## Tools
 - `hsk_trainer.blocks.sentence_writer`: `SENTENCES_FILE`, `Sentence`, `SentenceLine`, `read_lines` (the file reader; raises `SentenceFileError`), `write_lines` (the one file writer), `MAX_SAVED`, `PROMPT_VERSION`.
@@ -60,10 +69,16 @@ bank.add(card_id, sentence, model) -> bool  # save a new (already checked) sente
 | The bank file can't be read (CLI) | `Can't read the sentence bank …`, naming the line; exits 1 |
 | `floor` outside 0–1, `cap` < 1 or > `MAX_SAVED` (10) | `BankSettings` rejects it (`ValidationError`) |
 | `add` when the word has `cap` sentences | Returns `False`; nothing written |
+| `add` of a sentence on the removed list | Returns `False`; nothing written |
+| Removed list missing | Nothing removed |
+| Removed list unreadable (bad JSON, not an object of lists of strings) | `SentenceFileError` naming the file, when the bank is made (it's committed data, like the bank: loud, not ignored) |
+| `remove` of a sentence not in the bank | Listed anyway; returns `False` |
+| `remove` / `is_removed` with an unknown `card_id` | `ValueError`, as for every method |
+| The removed list or the bank can't be saved during `remove` | The `OSError` goes up (an audit is a batch job: it should stop) |
 
 **Not re-checked here:** the bank trusts its file. Every sentence is checked before it's saved (by `sentence_writer`, or by the live PR before `add`), and the real-file test checks the committed file.
 
 ## How to test
-- `tests/blocks/test_sentence_bank.py`, with `tmp_path` files, a toy deck, a seeded `rng` and a fake clock: the chance for 0 / 1 / 3 / 4+ sentences and a custom floor; `wants_new` follows `rng` (e.g. always new at 0); `banked` picks never-seen first, then the oldest seen; `mark_seen` is saved and read back by a new bank; `add` appends, makes a new line, refuses a duplicate and a full word, keeps cards order and other ids, writes atomically; every failure mode.
+- `tests/blocks/test_sentence_bank.py`, with `tmp_path` files, a toy deck, a seeded `rng` and a fake clock: the chance for 0 / 1 / 3 / 4+ sentences and a custom floor; `wants_new` follows `rng` (e.g. always new at 0); `banked` picks never-seen first, then the oldest seen; `mark_seen` is saved and read back by a new bank; `add` appends, makes a new line, refuses a duplicate and a full word, keeps cards order and other ids, writes atomically; the removed list (`remove` takes a sentence off the bank and lists it, drops an emptied line, keeps other words and lines; `add`, `banked` and `count` skip listed sentences, also ones still in the file; a new bank reads the list back; a missing list; a broken list raises); every failure mode.
 - `sentence_writer` with more than 2 banked sentences on a line: still "done" (up to `cap`), never replaced.
 - **CLI** (`tests/test_cli.py`): `char_sentence` and `full` now play. The sentence is shown under the word (with its pinyin in `full`), its English after the answer, "no example sentence yet" for a word without one, and the seen file is updated.
