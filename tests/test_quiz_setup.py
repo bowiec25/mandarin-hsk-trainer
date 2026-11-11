@@ -436,3 +436,22 @@ def test_gather_stats_broken_cards_file_names_it(files, tmp_path):
     with pytest.raises(SetupError) as err:
         gather_stats(replace(files, cards=bad))
     assert str(bad) in err.value.lines[0]
+
+
+def test_gather_stats_needs_a_timezone_and_blames_no_file(files):
+    from datetime import datetime
+
+    from hsk_trainer.quiz_setup import gather_stats
+
+    _answer(files)
+    with pytest.raises(ValueError, match="timezone"):
+        gather_stats(files, now=datetime(2026, 1, 1))  # no timezone
+
+
+def test_gather_stats_unknown_band_is_a_setup_error(files):
+    from hsk_trainer.quiz_setup import gather_stats
+
+    _answer(files)
+    with pytest.raises(SetupError) as err:
+        gather_stats(files, band=4)
+    assert "No band 4" in err.value.lines[0]

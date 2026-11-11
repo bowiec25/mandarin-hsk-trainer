@@ -27,7 +27,6 @@ from hsk_trainer.quiz_setup import (
     NO_SENTENCE,
     NOT_MARKED,
     PLAYABLE_MODES,
-    RULE,
     QuizFiles,
     QuizOptions,
     SentencePart,
@@ -328,19 +327,11 @@ def quiz(
 
 
 def _stats_lines(s: SkillStats, label: dict[str, str]) -> list[str]:
-    if s.new == s.cards and not (s.recent_answered or s.recent_unchecked):
+    if quiz_setup.nothing_yet(s):
         return ["    Nothing yet."]
-    last = max([len(RULE.waits), *s.by_box])  # a box past the rule's last: show it
-    boxes = " · ".join(f"box {b}: {s.by_box.get(b, 0)}" for b in range(1, last + 1))
+    boxes = " · ".join(f"box {b}: {n}" for b, n in quiz_setup.box_counts(s))
     lines = [f"    new: {s.new} · {boxes} · due now: {s.due}"]
-    if s.recent_answered:
-        pct = 100 * s.recent_right // s.recent_answered  # rounded down: 199/200 = 99%
-        week = f"{s.recent_right}/{s.recent_answered} right ({pct}%)"
-    else:
-        week = "no checked answers"
-    if s.recent_unchecked:
-        week += f" (+{s.recent_unchecked} not checked)"
-    lines.append(f"    last 7 days: {week}")
+    lines.append(f"    last 7 days: {quiz_setup.week_line(s)}")
     if s.most_missed:
         missed = ", ".join(f"{label.get(c, c)} ×{n}" for c, n in s.most_missed)
         lines.append(f"    most missed: {missed}")
@@ -358,10 +349,8 @@ def stats(
 ) -> None:
     """How you're doing: words new / in each Leitner box / due now, the last 7 days'
     accuracy and your most-missed words, per band and skill. Changes nothing."""
-    files = quiz_setup.QuizFiles(
-        cards=cards or quiz_setup.CARDS_FILE,
-        progress=progress or quiz_setup.progress_file(),
-    )
+    given = {"cards": cards, "progress": progress}  # as `quiz` does
+    files = QuizFiles(**{name: path for name, path in given.items() if path})
     try:
         report = quiz_setup.gather_stats(files, band)
     except SetupError as err:

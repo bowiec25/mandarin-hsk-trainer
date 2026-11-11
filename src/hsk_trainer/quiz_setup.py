@@ -546,7 +546,7 @@ def skills() -> dict[str, list[str]]:
     return found
 
 
-@dataclass(frozen=True)
+@dataclass
 class SkillReport:
     """One skill's numbers in one band."""
 
@@ -555,7 +555,7 @@ class SkillReport:
     stats: SkillStats
 
 
-@dataclass(frozen=True)
+@dataclass
 class BandStats:
     """One band: its size, a label per word (hanzi + pinyin), and each skill."""
 
@@ -563,6 +563,29 @@ class BandStats:
     words: int
     label: dict[str, str]
     skills: list[SkillReport]
+
+
+def nothing_yet(s: SkillStats) -> bool:
+    """No answer saved for this skill yet (every word new, nothing in the last week)."""
+    return s.new == s.cards and not (s.recent_answered or s.recent_unchecked)
+
+
+def box_counts(s: SkillStats) -> list[tuple[int, int]]:
+    """(box, words in it) for every box of the rule, and any box past its last."""
+    last = max([len(RULE.waits), *s.by_box])
+    return [(b, s.by_box.get(b, 0)) for b in range(1, last + 1)]
+
+
+def week_line(s: SkillStats) -> str:
+    """The last 7 days: "41/50 right (82%)", plus answers nobody could check."""
+    if s.recent_answered:
+        pct = 100 * s.recent_right // s.recent_answered  # rounded down: 199/200 = 99%
+        week = f"{s.recent_right}/{s.recent_answered} right ({pct}%)"
+    else:
+        week = "no checked answers"
+    if s.recent_unchecked:
+        week += f" (+{s.recent_unchecked} not checked)"
+    return week
 
 
 def has_progress(path: Path) -> bool:
@@ -584,7 +607,15 @@ def gather_stats(
     except (ValidationError, ValueError, OSError) as err:
         raise SetupError(f"Can't read the cards file {files.cards}:", str(err)) from err
     now = now or datetime.now(UTC)
-    bands = [band] if band is not None else sorted({c.level for c in all_cards})
+    if now.utcoffset() is None:  # before the try: not the progress file's fault
+        raise ValueError("now needs a timezone (e.g. datetime.now(UTC))")
+    levels = sorted({c.level for c in all_cards})
+    if band is not None and band not in levels:
+        raise SetupError(
+            f"No band {band} in the cards file {files.cards}.",
+            f"Bands there: {', '.join(map(str, levels))}.",
+        )
+    bands = [band] if band is not None else levels
     found = skills()
     out: list[BandStats] = []
     try:
@@ -603,7 +634,7 @@ def gather_stats(
                 for skill, modes in found.items()
             ]
             out.append(BandStats(b, len(in_band), label, reports))
-    except (ValueError, OSError) as err:  # ProgressFileError is a ValueError
+    except (ProgressFileError, OSError) as err:  # only the file's problems
         raise SetupError(
             f"Can't read your progress file {files.progress}:", str(err)
         ) from err
