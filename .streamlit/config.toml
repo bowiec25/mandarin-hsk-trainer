@@ -1,0 +1,10 @@
+# Streamlit settings for `uv run hsk web` (ADR 0014). `hsk web` also passes these
+# as flags (cli.WEB_FLAGS), so they hold from any folder.
+[server]
+address = "localhost"  # only this computer can open the page
+
+[browser]
+gatherUsageStats = false  # send no usage data to Streamlit
+
+[client]
+toolbarMode = "minimal"  # no "Deploy" button: this app is never published online

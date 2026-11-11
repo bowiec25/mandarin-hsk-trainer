@@ -65,6 +65,12 @@ GOT_THE_GIST = Verdict(correct=True, reason="you got the gist", source="self")
 MISSED_IT = Verdict(correct=False, reason="you missed it", source="self")
 NOT_MARKED = Verdict(correct=False, reason="not marked", source="not_checked")
 GIST_QUESTION = "Did you get the gist?"
+NO_SENTENCE = "no example sentence yet for this word"
+
+
+def skip_note(word: str) -> str:
+    """The note for a word a translate mode skipped (no usable sentence)."""
+    return f"skipped {word}: no example sentence yet"
 
 
 class _Default(Enum):
@@ -252,6 +258,13 @@ class SentencePart:
         if self.at < len(self.questions):
             self.live.prepare(self.questions[self.at].card_id)
         return self.current
+
+    def lines(self, sentence: Sentence) -> list[str]:
+        """A sentence as shown under its word: the hanzi, and the pinyin if the mode
+        shows it."""
+        if "sentence_pinyin" in self.fields:
+            return [sentence.hanzi, sentence.pinyin]
+        return [sentence.hanzi]
 
     def translate(self, question: Question) -> Question | None:
         """The engine's `prepare` for the translate modes: the word's question becomes
