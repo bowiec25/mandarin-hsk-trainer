@@ -20,6 +20,7 @@ It exists to unlock the quiz modes `char_sentence` and `full` (ADR 0008, ADR 001
 | `dry_run` | `bool` | Show the first prompt; never call Claude, never write a file |
 | `chunk_size` | `int` (default 20) | Words per Claude call (one band per call) |
 | `retries` | `int` (default 2) | Extra tries for a word whose sentences all failed the checker |
+| `removed` | `Path` (default `REMOVED_FILE`, `data/generated/sentences_removed.json`) | The removed-sentences list (ADR 0015): word → sentences an audit removed. Never saved again. Missing = empty |
 | `ask` | function | Calls Claude. Default `quizkit.claude.ask_claude` (`claude -p`, no tools). Tests pass a fake |
 | `card` | `Card` | `write_one` only: the one word to write for |
 | `vocab` | `Vocab \| None` | `write_one` only: the checker's word list, built once by the caller (else built from `cards`) |
@@ -28,21 +29,25 @@ It exists to unlock the quiz modes `char_sentence` and `full` (ADR 0008, ADR 001
 **How it's called** (importable from `hsk_trainer.blocks.sentence_writer`):
 ```python
 write_sentences(cards, limit=None, dry_run=False, chunk_size=20, retries=2,
-                ask=ask_claude, out=SENTENCES_FILE, log=LOG_FILE) -> SentenceRun
+                ask=ask_claude, out=SENTENCES_FILE, log=LOG_FILE,
+                removed=REMOVED_FILE) -> SentenceRun
 pinyin_problems(sentence, pinyin, words, cards) -> list[str]  # the pinyin check
+read_removed(path) -> dict[str, list[str]]  # the removed list ({} if missing)
 layout_pinyin(sentence, pinyin) -> str   # the saved pinyin line
 ```
 **One word, during the quiz** (ADR 0011, used by `live_sentences`):
 ```python
 write_one(card, cards, vocab=None, ask=ask_claude, timeout=30, log=LIVE_LOG_FILE) -> WrittenSentences
 ```
-One Claude call for one word (the same prompt, its band's allowed words), no retries. It returns `WrittenSentences(sentences, model)`: the sentences that pass all three checks, laid out (at most 2, repeats dropped), or `[]` if none pass or the reply isn't the JSON asked for. A `ClaudeError` goes up. One log line (`cards` 1, `retry` 0). It writes nothing to `sentences.jsonl`: banking is `sentence_bank`'s job.
+One Claude call for one word (the same prompt, its band's allowed words), no retries. It returns `WrittenSentences(sentences, model)`: the sentences that pass all three checks, laid out (at most 2, repeats dropped), or `[]` if none pass or the reply isn't the JSON asked for. A `ClaudeError` goes up. One log line (`cards` 1, `retry` 0). It writes nothing to `sentences.jsonl`: banking is `sentence_bank`'s job. It doesn't read the removed list: `live_sentences` asks the bank (`is_removed`) before showing or banking.
 
 Command line: `uv run python -m hsk_trainer.blocks.sentence_writer --limit 20 [--dry-run] [--chunk-size N] [--retries N]`. On an error it prints `Stopped: …` and exits 1.
 
 **The prompt** (`PROMPT_VERSION = "2"`, model `sonnet`): one band per call. It gives the band's **allowed word list** (every HSK word at or below that band), then each word (hanzi, pinyin, meanings), and asks for **2** short, natural sentences per word: the word as written, only allowed words, Chinese characters and Chinese punctuation only, no names or digits, 3–20 characters, each with its **pinyin** (tone marks, one syllable per Chinese character, 儿 as `r`, the dictionary tone with no tone changes for 一 / 不, the mark left off only where the dictionary writes a neutral tone) and an English translation. Reply as JSON only: `{"cards": [{"id": "...", "sentences": [{"hanzi": "...", "pinyin": "...", "english": "..."}]}]}` (a ```` ```json ```` fence is fine). The shape is also forced with a JSON schema (`claude -p --json-schema`) and still checked afterwards.
 
 **Order:** one band at a time, lowest first; within a band, words go in `cards.jsonl` order, `chunk_size` per call.
+
+**The removed list** (ADR 0015): read once, before any call (also in a dry run). A sentence on it for that word is treated as failing, with the reason "an audit removed this sentence; write a different one", so it's never saved and a word left with none is retried with that reason. `sentence_bank` imports `REMOVED_FILE`, `RemovedListError` and `read_removed` from here (this block already holds the shared file helpers; `sentence_bank` imports `sentence_writer`, so the other way round would be a loop).
 
 **Retries:** a word with no passing sentence is asked again, with its failed sentences (and their pinyin) and the reasons from the checks ("uses 一起 (band 2) …", or a pinyin reason), up to `retries` rounds (one follow-up call per band per round, split by `chunk_size` if more words fail). Words missing from the reply, or from a reply that isn't the JSON asked for, are retried the same way ("no usable sentences came back").
 
@@ -64,7 +69,7 @@ Command line: `uv run python -m hsk_trainer.blocks.sentence_writer --limit 20 [-
 
    `layout_pinyin` makes the saved line from Claude's syllables: one per Chinese character, spaces between syllables, the sentence's own punctuation with no space around it (`wǒ chī fàn，bà ba chī fàn！`). Claude's letters are kept as written (case too), except `v` becomes `ü`. ⚠️ The check can't tell which of two real readings fits (`cháng` / `zhǎng` for 长): that's Claude's call, spot-checked by the user and the `data-auditor` (Step 6).
 
-**Picks up where it left off, never shrinks:** a word with a line whose `prompt_version` is current and whose sentences all still pass the checks (sentence, pinyin, English) is skipped. Any other saved line stays until a new passing line replaces it. A line for a word no longer in `cards.jsonl` is dropped with a warning.
+**Picks up where it left off, never shrinks:** first, sentences on the removed list are taken out of every saved line (the file is rewritten, except in a dry run); a line left with none is dropped, so its word needs sentences again. This is the one way a run shrinks the file, as `sentence_bank.remove` would have. Then a word with a line whose `prompt_version` is current and whose sentences all still pass the checks (sentence, pinyin, English) is skipped. Any other saved line stays until a new passing line replaces it. A line for a word no longer in `cards.jsonl` is dropped with a warning.
 
 ## Tools
 - `quizkit.claude.ask_claude` (no tools for Claude, empty folder, subscription).
@@ -83,6 +88,9 @@ Command line: `uv run python -m hsk_trainer.blocks.sentence_writer --limit 20 [-
 | Still no passing sentence after `retries` | The word is listed in `failed`; no line written (an old line stays) |
 | A saved line can't be read | `SentenceFileError` (a `ValueError`) naming the line, before any call; nothing changed |
 | `--dry-run` | Never calls Claude, never writes |
+| The removed list can't be read (broken JSON, wrong shape) | `RemovedListError` (a `SentenceFileError`) naming the file, before any call; nothing changed. The command line prints `Stopped: …` |
+| Claude writes a sentence on the removed list | Treated as failing ("an audit removed this sentence…"); retried like any failing sentence |
+| A saved line holds removed sentences | They're taken out (file rewritten); a line left empty is dropped and its word redone |
 | `limit` < 0, `chunk_size` < 1, `retries` < 0, or no cards | `ValueError` |
 | A word is listed twice in the saved file | The first copy that passes the checker is kept (else the first); warning |
 | Claude sends the same sentence twice for a word | Kept once (a second copy with different pinyin is still tried) |
@@ -92,7 +100,7 @@ Command line: `uv run python -m hsk_trainer.blocks.sentence_writer --limit 20 [-
 | `write_one`: the log can't be written | Skipped; the sentences are still returned |
 
 ## How to test
-- `tests/blocks/test_sentence_writer.py`, all with a **fake Claude** (never the real one) and `tmp_path` files, on a small toy deck: good reply → line written with Claude's pinyin laid out; a failing sentence is retried with its reasons in the prompt; still failing after `retries` → `failed`, no line; partly good (1 of 2 passes) → 1 kept; bad JSON; missing / extra words; English check; resume (skip current passing lines, redo old `prompt_version`, keep old line until replaced); never shrinks; dropped word warning; `--limit`, `--dry-run`; `ClaudeError` keeps work; log lines; the prompt holds the band's allowed words and one band per call.
+- `tests/blocks/test_sentence_writer.py`, all with a **fake Claude** (never the real one) and `tmp_path` files, on a small toy deck: good reply → line written with Claude's pinyin laid out; a failing sentence is retried with its reasons in the prompt; still failing after `retries` → `failed`, no line; partly good (1 of 2 passes) → 1 kept; bad JSON; missing / extra words; English check; resume (skip current passing lines, redo old `prompt_version`, keep old line until replaced); never shrinks; dropped word warning; `--limit`, `--dry-run`; `ClaudeError` keeps work; log lines; the prompt holds the band's allowed words and one band per call. The removed list: a removed sentence in a reply isn't saved and its word is retried with the reason; a saved line with a removed sentence loses it (the rest kept, still skipped); a line of only removed sentences is dropped and redone; a dry run reads the list but writes nothing; a missing list = empty; a broken list raises `RemovedListError` before any call.
 - `pinyin_problems`: right count; an HSK word's dictionary reading passes, either reading of a several-reading word passes (便宜), a made-up syllable fails with its reason; the neutral tone only where the reading is neutral (老师 `lǎo shi` fails), a full tone for a neutral dictionary syllable, tone numbers refused, 儿 as `r`, `v` for `ü` and capitals; a non-HSK character checked against pypinyin. `layout_pinyin`: spaces and punctuation. A bad-pinyin sentence is retried with the reason.
 - `write_one`: one call, no retry; failing sentences dropped; at most 2; repeats; broken replies and a missing word give `[]`; `ClaudeError` goes up; one log line; `sentences.jsonl` untouched; `timeout` passed on; a ready `vocab` used; a log that can't be written is skipped.
 - **Manual:** the trial run (PR 4): 20 band-1 words, the user reviews them.
