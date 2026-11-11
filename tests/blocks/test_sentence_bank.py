@@ -121,11 +121,13 @@ def write_bank(path, *rows):
 
 
 def make(files, cards=DECK, settings=None, rng=None, now=None):
+    """A bank on tmp_path files (its removed list too, never the committed one)."""
     path, seen = files
     return block.SentenceBank(
         cards,
         path=path,
         seen_path=seen,
+        removed_path=path.parent / "sentences_removed.json",
         settings=settings or block.BankSettings(),
         rng=rng or random.Random(0),
         now=now or Clock(),
@@ -171,7 +173,9 @@ def test_bank_settings_defaults():
 def test_bank_works_with_default_rng_and_clock(files):
     path, seen = files
     write_bank(path, line("吃", A))
-    bank = block.SentenceBank(DECK, path=path, seen_path=seen)
+    bank = block.SentenceBank(
+        DECK, path=path, seen_path=seen, removed_path=path.parent / "removed.json"
+    )
     assert isinstance(bank.wants_new("吃"), bool)
     bank.mark_seen("吃", sentence(A))
     assert "吃" in json.loads(seen.read_text(encoding="utf-8"))
@@ -885,3 +889,70 @@ def test_unknown_card_id_is_a_value_error_for_the_removed_list(
         call(bank, word)
     assert path.read_bytes() == before
     assert not removed.exists()
+
+
+# -- Removed list: the SPEC's "Small rules" (Output 5) ---------------------------------
+
+
+def test_add_drops_listed_sentences_still_in_the_line(files, removed):
+    path, _ = files
+    write_bank(path, line("吃", A, B))
+    write_removed(removed, {"吃": [A[0]]})
+    assert make_r(files, removed).add("吃", sentence(C), MODEL) is True
+    assert hanzi_of(path, "吃") == [B[0], C[0]]
+    assert listed(removed) == {"吃": [A[0]]}
+
+
+def test_cap_counts_only_usable_sentences(files, removed):
+    path, _ = files
+    write_bank(path, line("吃", A, B))
+    write_removed(removed, {"吃": [A[0]]})
+    bank = make_r(files, removed, settings=block.BankSettings(cap=2))
+    assert bank.add("吃", sentence(C), MODEL) is True
+    assert hanzi_of(path, "吃") == [B[0], C[0]]
+    assert bank.add("吃", sentence(D), MODEL) is False  # now really full
+
+
+def test_add_never_grows_a_line_past_the_cap(files, removed):
+    path, _ = files
+    ten = [(f"吃{i}。", f"chī {i}。", f"Eat {i}.") for i in range(10)]
+    write_bank(path, line("吃", *ten))
+    write_removed(removed, {"吃": [ten[3][0]]})
+    assert make_r(files, removed).add("吃", sentence(E), MODEL) is True
+    saved = hanzi_of(path, "吃")
+    assert len(saved) == 10 == sentence_writer.MAX_SAVED
+    assert ten[3][0] not in saved and saved[-1] == E[0]
+
+
+def test_remove_of_a_listed_sentence_still_in_the_file_takes_it_out(files, removed):
+    """It was already out of use, so not "in the bank": returns False."""
+    path, _ = files
+    write_bank(path, line("吃", A, B))
+    write_removed(removed, {"吃": [A[0]]})
+    assert make_r(files, removed).remove("吃", A[0]) is False
+    assert hanzi_of(path, "吃") == [B[0]]
+    assert listed(removed) == {"吃": [A[0]]}
+
+
+def test_remove_of_the_last_listed_sentence_in_the_file_drops_the_line(files, removed):
+    path, _ = files
+    write_bank(path, line("吃", A), line("饭", C))
+    write_removed(removed, {"吃": [A[0]]})
+    assert make_r(files, removed).remove("吃", A[0]) is False
+    assert "吃" not in by_id(path)
+    assert hanzi_of(path, "饭") == [C[0]]
+
+
+def test_remove_with_no_bank_file_only_writes_the_list(files, removed):
+    path, _ = files
+    assert make_r(files, removed).remove("吃", A[0]) is False
+    assert listed(removed) == {"吃": [A[0]]}
+    assert not path.exists()
+
+
+def test_remove_keeps_listed_ids_that_are_not_cards(files, removed):
+    path, _ = files
+    write_bank(path, line("吃", A, B))
+    write_removed(removed, {"gone": [D[0]]})
+    make_r(files, removed).remove("吃", A[0])
+    assert listed(removed) == {"gone": [D[0]], "吃": [A[0]]}

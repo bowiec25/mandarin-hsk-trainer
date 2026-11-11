@@ -144,8 +144,12 @@ def write_bank(path, word: str, *triples) -> None:
 
 
 def make_bank(paths, rng=NEW) -> SentenceBank:
+    """A bank on tmp_path files (its removed list too, never the committed one)."""
     path, seen = paths
-    return SentenceBank(DECK, path=path, seen_path=seen, rng=rng)
+    removed_path = path.parent / "sentences_removed.json"
+    return SentenceBank(
+        DECK, path=path, seen_path=seen, removed_path=removed_path, rng=rng
+    )
 
 
 def make(bank, write, **kwargs):
