@@ -1,8 +1,7 @@
 # Streamlit settings for `uv run hsk web` (ADR 0014). `hsk web` also passes these
 # as flags (cli.WEB_FLAGS), so they hold from any folder.
 [server]
-address = "localhost"  # only this computer can open the page
-port = 8501
+address = "127.0.0.1"  # only this computer can open the page (port: cli.WEB_PORT)
 headless = true  # no first-run email question; `hsk web` opens the browser itself
 
 [browser]

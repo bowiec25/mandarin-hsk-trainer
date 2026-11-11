@@ -410,7 +410,9 @@ def stats(
 
 
 WEB_PAGE = Path(__file__).with_name("web_app.py")
-WEB_HOST, WEB_PORT = "localhost", 8501
+# 127.0.0.1, not "localhost": on Windows a check of "localhost" tries ::1 first and
+# waits ~2 s per refused address. Still this computer only.
+WEB_HOST, WEB_PORT = "127.0.0.1", 8501
 WEB_URL = f"http://{WEB_HOST}:{WEB_PORT}"
 # Local only, no usage data to Streamlit, no "Deploy" button; .streamlit/config.toml
 # says the same. Headless: Streamlit doesn't open the browser (we do, once the page is
@@ -446,6 +448,16 @@ def _wait_for_web(process: subprocess.Popen) -> bool:
     return False
 
 
+def _stop(process: subprocess.Popen) -> None:
+    """After Ctrl-C: give Streamlit 10 s to finish, then stop it (also on a second
+    Ctrl-C), so no copy is left holding the address."""
+    try:
+        process.wait(timeout=10)
+    except (subprocess.TimeoutExpired, KeyboardInterrupt):
+        process.kill()
+        process.wait()
+
+
 @app.command()
 def web() -> None:
     """Open the quiz as a web page in your browser (on this computer only, ADR 0014).
@@ -462,12 +474,11 @@ def web() -> None:
         if _wait_for_web(process):
             print(f"The quiz is open at {WEB_URL} (Ctrl-C here stops it).")
             webbrowser.open(WEB_URL)
+        elif process.poll() is None:  # still starting after WEB_WAIT: say where
+            print(f"Streamlit is slow to start: open {WEB_URL} once it's ready.")
         code = process.wait()
     except KeyboardInterrupt:  # Streamlit gets the Ctrl-C too: let it finish
-        try:
-            process.wait(timeout=10)
-        except subprocess.TimeoutExpired:
-            process.kill()
+        _stop(process)
         return
     if code:
         raise typer.Exit(code)

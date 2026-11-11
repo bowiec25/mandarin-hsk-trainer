@@ -6,6 +6,7 @@ screen shows what it says. One-word cards files keep the deck predictable.
 
 import json
 import re
+import subprocess
 import sys
 from typing import ClassVar
 
@@ -153,22 +154,27 @@ class FakeStreamlit:
 
     started: ClassVar[list] = []
 
-    def __init__(self, command, code=0, stops_early=False, interrupted=False, **kw):
+    def __init__(
+        self, command, code=0, stops_early=False, interrupted=0, hangs=False, **kw
+    ):
         self.command, self.kwargs, self.code = command, kw, code
-        self.stops_early, self.interrupted = stops_early, interrupted
+        self.stops_early, self.interrupted, self.hangs = stops_early, interrupted, hangs
+        self.killed = False
         FakeStreamlit.started.append(self)
 
     def poll(self):
         return self.code if self.stops_early else None
 
     def wait(self, timeout=None):
-        if self.interrupted:
-            self.interrupted = False  # Ctrl-C once, then Streamlit finishes
+        if self.interrupted:  # Ctrl-C (this many times), then Streamlit finishes
+            self.interrupted -= 1
             raise KeyboardInterrupt
+        if self.hangs and not self.killed:
+            raise subprocess.TimeoutExpired(self.command, timeout)
         return self.code
 
-    def kill(self):  # pragma: no cover - only if Streamlit hangs after Ctrl-C
-        pass
+    def kill(self):
+        self.killed = True
 
 
 @pytest.fixture
@@ -201,14 +207,14 @@ def test_hsk_web_starts_streamlit_headless_and_opens_the_page(streamlit):
     command = process.command
     assert command[:4] == [sys.executable, "-m", "streamlit", "run"]
     assert command[4] == str(cli.WEB_PAGE) and cli.WEB_PAGE.exists()
-    assert "--server.address=localhost" in command  # this computer only
+    assert "--server.address=127.0.0.1" in command  # this computer only
     assert "--browser.gatherUsageStats=false" in command
     assert "--client.toolbarMode=minimal" in command  # no Deploy button
     # Headless: no first-run email question (it crashed `hsk web` without a keyboard).
     assert "--server.headless=true" in command
     assert f"--server.port={cli.WEB_PORT}" in command
     assert process.kwargs["cwd"] == ROOT
-    assert opened == [cli.WEB_URL] == ["http://localhost:8501"]
+    assert opened == [cli.WEB_URL] == ["http://127.0.0.1:8501"]
     assert cli.WEB_URL in result.output
 
 
@@ -216,7 +222,7 @@ def test_hsk_web_when_something_already_runs_there(streamlit):
     result, opened = streamlit(True)
     assert result.exit_code == 1
     assert FakeStreamlit.started == [] and opened == []
-    assert "already running at http://localhost:8501" in result.output
+    assert "already running at http://127.0.0.1:8501" in result.output
 
 
 def test_hsk_web_streamlit_failing_to_start_opens_nothing(streamlit):
@@ -226,17 +232,39 @@ def test_hsk_web_streamlit_failing_to_start_opens_nothing(streamlit):
 
 
 def test_hsk_web_ctrl_c_is_a_clean_stop(streamlit):
-    result, _ = streamlit(False, True, interrupted=True)
+    result, _ = streamlit(False, True, interrupted=1)
     assert result.exit_code == 0
+    assert not FakeStreamlit.started[0].killed  # it finished by itself
+
+
+def test_hsk_web_second_ctrl_c_stops_streamlit_cleanly(streamlit):
+    """Code review: no traceback, and no copy left holding the address."""
+    result, _ = streamlit(False, True, interrupted=2)
+    assert result.exit_code == 0
+    assert FakeStreamlit.started[0].killed
+
+
+def test_hsk_web_streamlit_hanging_after_ctrl_c_is_stopped(streamlit):
+    result, _ = streamlit(False, True, interrupted=1, hangs=True)
+    assert result.exit_code == 0
+    assert FakeStreamlit.started[0].killed
+
+
+def test_hsk_web_slow_start_still_says_where(streamlit, monkeypatch):
+    """Code review: past the wait, still tell the address (no browser)."""
+    monkeypatch.setattr(cli, "WEB_WAIT", 0)
+    result, opened = streamlit(False)
+    assert result.exit_code == 0
+    assert opened == []
+    assert "slow to start: open http://127.0.0.1:8501" in result.output
 
 
 def test_streamlit_config_keeps_it_local():
     config = (ROOT / ".streamlit" / "config.toml").read_text(encoding="utf-8")
-    assert 'address = "localhost"' in config
+    assert 'address = "127.0.0.1"' in config
     assert "gatherUsageStats = false" in config
     assert 'toolbarMode = "minimal"' in config
     assert "headless = true" in config
-    assert "port = 8501" in config
 
 
 def test_every_mode_has_a_plain_label_and_hint():
