@@ -170,7 +170,9 @@ class FakeClaude:
 
 def run(tmp_path, cards, ask, **kwargs):
     """SPEC: `cards` is the whole deck (it's also the checker's word list); a trial
-    uses `limit`, not a smaller deck."""
+    uses `limit`, not a smaller deck. The removed list defaults to a missing tmp
+    file, so no test reads the committed one (block-reviewer)."""
+    kwargs.setdefault("removed", tmp_path / "removed.json")
     return block.write_sentences(
         cards,
         ask=ask,

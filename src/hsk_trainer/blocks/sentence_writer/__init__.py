@@ -32,8 +32,25 @@ BLOCK_SPEC = BlockSpec(
     name="sentence_writer",
     kind="agent",
     goal="Ask Claude for 1-2 short example sentences per word, with pinyin and English; keep only the ones the scripts pass (retrying failures with the reasons), and save them to data/generated/sentences.jsonl.",
-    inputs=["cards", "limit", "dry_run", "chunk_size", "retries", "ask", "removed"],
-    outputs=["sentences.jsonl", "sentence_writer_log.jsonl", "SentenceRun"],
+    inputs=[
+        "cards",
+        "limit",
+        "dry_run",
+        "chunk_size",
+        "retries",
+        "ask",
+        "removed",
+        "card",
+        "vocab",
+        "timeout",
+    ],
+    outputs=[
+        "sentences.jsonl",
+        "sentence_writer_log.jsonl",
+        "live_sentence_log.jsonl",
+        "SentenceRun",
+        "WrittenSentences",
+    ],
 )
 
 ROOT = Path(__file__).resolve().parents[4]
