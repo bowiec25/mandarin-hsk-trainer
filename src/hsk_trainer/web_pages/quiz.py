@@ -111,7 +111,7 @@ elif quiz.view is not None and quiz.phase in ("asking", "own_mark", "result"):
         st.text(f"You wrote: {mark.typed}")
         st.info(_safe(f"= {mark.english}"))
         if mark.why:
-            st.caption(f"({mark.why})")
+            st.caption(_safe(f"({mark.why})"))
         st.write(f"**{mark.question}** Mark it yourself (Y / N):")
         yes, no = st.columns(2)
         if yes.button("Yes", key=f"yes-{view.number}", width="stretch", shortcut="Y"):

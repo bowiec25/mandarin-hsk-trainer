@@ -115,3 +115,17 @@ def test_the_app_has_a_stats_page_in_its_menu(tmp_path):
     at.switch_page("web_pages/stats.py").run()
     assert not at.exception
     assert "No progress saved yet" in at.info[0].value
+
+
+def test_quiz_settings_survive_a_visit_to_stats(tmp_path):
+    """Code review: Streamlit forgets an undrawn widget's value; the entry keeps it."""
+    at = AppTest.from_file(str(cli.WEB_PAGE), default_timeout=30)
+    at.session_state["stats_files"] = files_in(tmp_path)
+    at.run()
+    at.selectbox(key="band").select(3).run()
+    at.number_input(key="n").set_value(25).run()
+    at.switch_page("web_pages/stats.py").run()
+    at.switch_page("web_pages/quiz.py").run()
+    assert not at.exception
+    assert at.selectbox(key="band").value == 3
+    assert at.number_input(key="n").value == 25

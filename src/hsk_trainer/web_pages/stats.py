@@ -14,6 +14,7 @@ from hsk_trainer.quiz_setup import (
     gather_stats,
     nothing_yet,
     week_line,
+    week_pct,
 )
 from hsk_trainer.web_pages import safe
 
@@ -25,7 +26,12 @@ NO_PROGRESS = (
 
 st.title("📊 Stats")
 choice = st.selectbox("Band", ["All", 1, 2, 3], key="stats_band")
-files = st.session_state.get("stats_files") or QuizFiles()  # tests put their own
+# The quiz's own files if a quiz was set up (one source of truth); tests may put
+# their own; else the defaults (your progress file).
+quiz = st.session_state.get("quiz")
+files = (
+    st.session_state.get("stats_files") or getattr(quiz, "files", None) or QuizFiles()
+)
 try:
     report = gather_stats(files, None if choice == "All" else choice)
 except SetupError as err:
@@ -46,18 +52,14 @@ for band in report:
         new, due, week = st.columns(3)
         new.metric("New", s.new, help="Words never answered for this skill")
         due.metric("Due now", s.due, help="Words whose wait is over: asked first")
-        pct = (
-            f"{100 * s.recent_right // s.recent_answered}%"
-            if s.recent_answered
-            else "–"
-        )
-        week.metric("Last 7 days", pct, help=safe(week_line(s)))
+        pct = week_pct(s)
+        week.metric("Last 7 days", "–" if pct is None else f"{pct}%")
         st.caption(safe(f"Last 7 days: {week_line(s)}"))
         boxes = box_counts(s)
         st.caption("Words per box (box 1 = asked most often)")
         st.bar_chart(
             pd.DataFrame(
-                {"Box": [f"box {b}" for b, _ in boxes], "Words": [n for _, n in boxes]}
+                {"Box": [b for b, _ in boxes], "Words": [n for _, n in boxes]}
             ),
             x="Box",
             y="Words",

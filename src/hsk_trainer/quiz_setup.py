@@ -576,11 +576,18 @@ def box_counts(s: SkillStats) -> list[tuple[int, int]]:
     return [(b, s.by_box.get(b, 0)) for b in range(1, last + 1)]
 
 
+def week_pct(s: SkillStats) -> int | None:
+    """The last 7 days' accuracy in %, rounded down (199/200 = 99%); None = no
+    checked answers."""
+    if not s.recent_answered:
+        return None
+    return 100 * s.recent_right // s.recent_answered
+
+
 def week_line(s: SkillStats) -> str:
     """The last 7 days: "41/50 right (82%)", plus answers nobody could check."""
     if s.recent_answered:
-        pct = 100 * s.recent_right // s.recent_answered  # rounded down: 199/200 = 99%
-        week = f"{s.recent_right}/{s.recent_answered} right ({pct}%)"
+        week = f"{s.recent_right}/{s.recent_answered} right ({week_pct(s)}%)"
     else:
         week = "no checked answers"
     if s.recent_unchecked:
