@@ -21,6 +21,7 @@
 | [0012](0012-sentence-translation-mode.md) | Sentence translation modes (`translate`, `translate_pinyin`), graded for the gist by the Claude judge; self-marking without Claude | Accepted |
 | [0013](0013-progress-and-leitner-boxes.md) | Progress saved per word and skill (SQLite); Leitner boxes (5, waits 0/1/3/7/21 days) decide which words come next; `hsk stats` | Accepted |
 | [0014](0014-web-ui-streamlit-shared-setup.md) | A Streamlit web quiz (quiz + stats), on one shared HSK setup used by the terminal and the web; the engine takes your own mark after an answer | Accepted |
+| [0015](0015-sentence-audits-act-without-a-human-gate.md) | Sentence audits act on their own: whatever the `data-auditor` flags (or is unsure about) is removed, with a dated report; nobody approves sentences | Accepted |
 
 ## Template
 ```markdown
