@@ -38,7 +38,7 @@ from quizkit.blocks.progress_store import ProgressFileError, ProgressStore
 from quizkit.files import load_cards
 from quizkit.models import Card, Judge, Question, Verdict
 from quizkit.modes import Mode
-from quizkit.progress import save_attempt
+from quizkit.progress import SkillStats, save_attempt, skill_stats
 
 # Found from this file, so `hsk` works from any folder (src/hsk_trainer/ -> root).
 # Assumes it runs from the repo (`uv run hsk`), not from an installed wheel.
@@ -533,3 +533,109 @@ def build_quiz(
         sentences=sentences,
         saver=saver,
     )
+
+
+# -- stats: the numbers `hsk stats` prints and the web Stats page shows ---------------
+
+
+def skills() -> dict[str, list[str]]:
+    """Each skill and the modes that practise it, in mode order (from config)."""
+    found: dict[str, list[str]] = {}
+    for m in HSK_MODES.values():
+        found.setdefault(m.skill, []).append(m.name)
+    return found
+
+
+@dataclass
+class SkillReport:
+    """One skill's numbers in one band."""
+
+    skill: str
+    modes: list[str]
+    stats: SkillStats
+
+
+@dataclass
+class BandStats:
+    """One band: its size, a label per word (hanzi + pinyin), and each skill."""
+
+    band: int
+    words: int
+    label: dict[str, str]
+    skills: list[SkillReport]
+
+
+def nothing_yet(s: SkillStats) -> bool:
+    """No answer saved for this skill yet (every word new, nothing in the last week)."""
+    return s.new == s.cards and not (s.recent_answered or s.recent_unchecked)
+
+
+def box_counts(s: SkillStats) -> list[tuple[int, int]]:
+    """(box, words in it) for every box of the rule, and any box past its last."""
+    last = max([len(RULE.waits), *s.by_box])
+    return [(b, s.by_box.get(b, 0)) for b in range(1, last + 1)]
+
+
+def week_line(s: SkillStats) -> str:
+    """The last 7 days: "41/50 right (82%)", plus answers nobody could check."""
+    if s.recent_answered:
+        pct = 100 * s.recent_right // s.recent_answered  # rounded down: 199/200 = 99%
+        week = f"{s.recent_right}/{s.recent_answered} right ({pct}%)"
+    else:
+        week = "no checked answers"
+    if s.recent_unchecked:
+        week += f" (+{s.recent_unchecked} not checked)"
+    return week
+
+
+def has_progress(path: Path) -> bool:
+    """Is there saved progress to show? A missing or empty file means no: the stats
+    never make (or set up) the file just to look at it; the first quiz that saves does."""
+    return path.exists() and not (path.is_file() and path.stat().st_size == 0)
+
+
+def gather_stats(
+    files: QuizFiles, band: int | None = None, now: datetime | None = None
+) -> list[BandStats] | None:
+    """Per band (one, or all in the cards file) and skill: the progress numbers from
+    `skill_stats`. None if no progress is saved yet. Changes nothing. Raises SetupError
+    (ready-to-show lines) if the cards or progress file can't be read."""
+    if not has_progress(files.progress):
+        return None
+    try:
+        all_cards = load_cards(files.cards)
+    except (ValidationError, ValueError, OSError) as err:
+        raise SetupError(f"Can't read the cards file {files.cards}:", str(err)) from err
+    now = now or datetime.now(UTC)
+    if now.utcoffset() is None:  # before the try: not the progress file's fault
+        raise ValueError("now needs a timezone (e.g. datetime.now(UTC))")
+    levels = sorted({c.level for c in all_cards})
+    if band is not None and band not in levels:
+        raise SetupError(
+            f"No band {band} in the cards file {files.cards}.",
+            f"Bands there: {', '.join(map(str, levels))}.",
+        )
+    bands = [band] if band is not None else levels
+    found = skills()
+    out: list[BandStats] = []
+    try:
+        store = ProgressStore(files.progress)
+        for b in bands:
+            in_band = [c for c in all_cards if c.level == b]
+            # hanzi + pinyin: two readings of one character (还 hái / huán) differ
+            label = {
+                c.id: " ".join(
+                    filter(None, [c.fields.get("hanzi", c.id), c.fields.get("pinyin")])
+                )
+                for c in in_band
+            }
+            reports = [
+                SkillReport(skill, modes, skill_stats(store, label, skill, now))
+                for skill, modes in found.items()
+            ]
+            out.append(BandStats(b, len(in_band), label, reports))
+    except (ProgressFileError, OSError) as err:  # only the file's problems
+        raise SetupError(
+            f"Can't read your progress file {files.progress}:", str(err)
+        ) from err
+    return out
