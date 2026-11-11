@@ -717,11 +717,12 @@ def test_removed_sentence_is_not_banked_by_a_late_job(paths, gate):
 def test_late_job_with_only_removed_sentences_banks_nothing(paths, gate):
     bank = make_bank_with_removed(paths, {"吃": [B[0]]})
     write = FakeWrite({"吃": [B], "饭": [C]}, gate=gate)
-    live = make(bank, write, wait=SHORT, max_failures=3)
-    live.sentence_for("吃")
+    live = make(bank, write, wait=SHORT, max_failures=2)
+    live.sentence_for("吃")  # timed out: failure 1
     gate.set()
     write.join()
-    shown = live.sentence_for("饭")
+    shown = live.sentence_for("饭")  # the late only-removed job is not failure 2
+    assert not says_off(shown)
     assert (shown.source, shown.sentence) == ("new", sentence(C))
     assert banked_hanzi(paths, "吃") == []
 
@@ -739,3 +740,28 @@ def test_removed_mid_quiz_is_not_banked_by_a_late_job(paths, gate):
     write.join()
     live.sentence_for("饭")
     assert banked_hanzi(paths, "吃") == [A[0]]
+
+
+def test_a_later_sentence_shown_after_a_removed_one_resets_failures(paths):
+    """A job whose first sentence is removed but whose second is shown is a success."""
+    boom = RuntimeError("boom")
+    bank = make_bank_with_removed(paths, {"饭": [B[0]]})
+    write = FakeWrite({"吃": boom, "饭": [B, A], "我": boom})
+    live = make(bank, write, max_failures=2)
+    live.sentence_for("吃")  # failure 1
+    second = live.sentence_for("饭")  # success: count back to 0
+    third = live.sentence_for("我")  # failure 1 again, not 2
+    assert second.sentence == sentence(A)
+    assert not says_off(third)
+
+
+def test_sentence_removed_mid_quiz_is_not_shown(paths):
+    """The job is ready but not asked for yet when an audit removes its first one."""
+    bank = make_bank_with_removed(paths, {})
+    write = FakeWrite({"吃": [B, A]})
+    live = make(bank, write)
+    live.prepare("吃")
+    write.join()
+    bank.remove("吃", B[0])
+    shown = live.sentence_for("吃")
+    assert (shown.source, shown.sentence) == ("new", sentence(A))
