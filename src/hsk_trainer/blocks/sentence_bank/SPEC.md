@@ -49,6 +49,12 @@ bank.add(card_id, sentence, model) -> bool  # save a new (already checked) sente
 
    Matching is by the sentence's hanzi, exactly, for that word (as for repeats). A listed sentence still in the file (e.g. written back by `sentence_writer`) is skipped: `count`, `chance_of_new` and `banked` act as if it weren't there, and the file isn't changed just for that.
 
+   Small rules:
+   - **"In the bank"** means a sentence the bank would use: in the word's line and not listed. So `remove` of a sentence that's listed but still in the file takes it out of the file and returns `False` (it was already out of use).
+   - **`add` tidies the word's line:** when it rewrites a line, listed sentences still in it are dropped. So `cap` counts only usable sentences, and a line never grows past `cap` (more than `MAX_SAVED` would make `sentence_writer` redo the line and lose banked sentences).
+   - **`remove` when the bank file is missing** only writes the list; it doesn't create the bank file.
+   - A listed id that is no longer a card is fine (kept as it is).
+
 ## Tools
 - `hsk_trainer.blocks.sentence_writer`: `SENTENCES_FILE`, `Sentence`, `SentenceLine`, `read_lines` (the file reader; raises `SentenceFileError`), `write_lines` (the one file writer), `MAX_SAVED`, `PROMPT_VERSION`.
 - `quizkit.files.write_atomically`, `random`, `json`, pydantic.

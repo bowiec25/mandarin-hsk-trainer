@@ -20,6 +20,7 @@ from hsk_trainer.blocks.sentence_writer import (
     ROOT,
     SENTENCES_FILE,
     Sentence,
+    SentenceFileError,
     SentenceLine,
     read_lines,
     write_lines,
@@ -44,6 +45,8 @@ BLOCK_SPEC = BlockSpec(
 )
 
 SEEN_FILE = ROOT / "data" / "sentence_seen.json"  # gitignored: your history, not source
+# Sentences an audit removed (ADR 0015): committed, never banked or shown again.
+REMOVED_FILE = ROOT / "data" / "generated" / "sentences_removed.json"
 
 
 class BankSettings(BaseModel):
@@ -85,6 +88,25 @@ def _read_seen(path: Path, quiet: bool = False) -> dict[str, dict[str, str]]:
     return data
 
 
+def _read_removed(path: Path) -> dict[str, list[str]]:
+    """The removed list, or {} if it's missing. Committed data, so a broken one is
+    loud (SentenceFileError naming the file), like the bank itself."""
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(data, dict):
+            raise TypeError("not an object of word -> list of sentences")
+        for word, sentences in data.items():
+            if not isinstance(sentences, list) or not all(
+                isinstance(s, str) for s in sentences
+            ):
+                raise TypeError(f"{word!r} is not a list of sentences (text)")
+    except (OSError, UnicodeDecodeError, ValueError, TypeError) as err:
+        raise SentenceFileError(f"{path.name}: {err}") from err
+    return data
+
+
 class SentenceBank:
     """The bank for one quiz: read once, saved after every change."""
 
@@ -93,6 +115,7 @@ class SentenceBank:
         cards: list[Card],
         path: Path = SENTENCES_FILE,
         seen_path: Path = SEEN_FILE,
+        removed_path: Path = REMOVED_FILE,
         settings: BankSettings | None = None,
         rng: random.Random | None = None,
         now: Callable[[], datetime] | None = None,
@@ -113,15 +136,45 @@ class SentenceBank:
             else:
                 self.others.append(line)
         self.seen = _read_seen(seen_path)
+        self.removed_path = removed_path
+        self.removed = _read_removed(removed_path)
 
     def _check(self, card_id: str) -> None:
         if card_id not in self.known:
             raise ValueError(f"{card_id!r} is not one of the cards")
 
     def _sentences(self, card_id: str) -> list[Sentence]:
+        """The word's usable sentences: in its line, and not on the removed list."""
         self._check(card_id)
         line = self.lines.get(card_id)
-        return list(line.sentences) if line else []
+        listed = set(self.removed.get(card_id, []))
+        return [s for s in line.sentences if s.hanzi not in listed] if line else []
+
+    def is_removed(self, card_id: str, hanzi: str) -> bool:
+        """Is this sentence on the removed list (ADR 0015)?"""
+        self._check(card_id)
+        return hanzi in self.removed.get(card_id, [])
+
+    def remove(self, card_id: str, hanzi: str) -> bool:
+        """An audit's removal (ADR 0015): list it (saved first), then take it out of
+        the word's line (a line left empty is dropped). True if the bank was using it."""
+        self._check(card_id)
+        was_used = any(s.hanzi == hanzi for s in self._sentences(card_id))
+        if not self.is_removed(card_id, hanzi):
+            listed = {**self.removed, card_id: [*self.removed.get(card_id, []), hanzi]}
+            self.removed_path.parent.mkdir(parents=True, exist_ok=True)
+            data = json.dumps(listed, ensure_ascii=False, indent=1) + "\n"
+            write_atomically(self.removed_path, data.encode("utf-8"))
+            self.removed = listed
+        line = self.lines.get(card_id)
+        if line is not None and any(s.hanzi == hanzi for s in line.sentences):
+            kept = [s for s in line.sentences if s.hanzi != hanzi]
+            if kept:
+                self.lines[card_id] = line.model_copy(update={"sentences": kept})
+            else:
+                del self.lines[card_id]
+            self._save()
+        return was_used
 
     def count(self, card_id: str) -> int:
         """How many sentences the word has in the bank."""
@@ -161,11 +214,14 @@ class SentenceBank:
         write_atomically(self.seen_path, data.encode("utf-8"))
 
     def add(self, card_id: str, sentence: Sentence, model: str) -> bool:
-        """Save a new, already checked sentence. False if it's banked already or the
-        word is full (`cap`)."""
-        sentences = self._sentences(card_id)
-        if len(sentences) >= self.settings.cap or any(
-            s.hanzi == sentence.hanzi for s in sentences
+        """Save a new, already checked sentence. False if it's banked already, on the
+        removed list, or the word is full (`cap`). Listed sentences still in the line
+        are dropped as it's rewritten, so a line never grows past `cap`."""
+        sentences = self._sentences(card_id)  # usable only: listed ones are left out
+        if (
+            len(sentences) >= self.settings.cap
+            or any(s.hanzi == sentence.hanzi for s in sentences)
+            or self.is_removed(card_id, sentence.hanzi)
         ):
             return False
         word = next(c for c in self.cards if c.id == card_id)
@@ -181,6 +237,7 @@ class SentenceBank:
         return True
 
     def _save(self) -> None:
-        """Cards order first, then every other line as it was: the file never shrinks."""
+        """Cards order first, then every other line as it was: the file never
+        shrinks, except through `remove`."""
         rows = [self.lines[c.id] for c in self.cards if c.id in self.lines]
         write_lines(self.path, rows + self.others)
