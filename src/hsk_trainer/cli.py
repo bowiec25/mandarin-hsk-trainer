@@ -9,8 +9,11 @@ Claude judge (ADR 0007), unless --no-judge. The sentence modes show an example s
 (ADR 0012). Answers are saved in Leitner boxes (ADR 0013), unless --no-save.
 """
 
+import socket
 import subprocess
 import sys
+import time
+import webbrowser
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Annotated, NoReturn
@@ -407,26 +410,81 @@ def stats(
 
 
 WEB_PAGE = Path(__file__).with_name("web_app.py")
+# 127.0.0.1, not "localhost": on Windows a check of "localhost" tries ::1 first and
+# waits ~2 s per refused address. Still this computer only.
+WEB_HOST, WEB_PORT = "127.0.0.1", 8501
+WEB_URL = f"http://{WEB_HOST}:{WEB_PORT}"
 # Local only, no usage data to Streamlit, no "Deploy" button; .streamlit/config.toml
-# says the same.
+# says the same. Headless: Streamlit doesn't open the browser (we do, once the page is
+# up) and doesn't ask for an email on its first run (that crashed without a keyboard).
 WEB_FLAGS = [
-    "--server.address=localhost",
+    f"--server.address={WEB_HOST}",
+    f"--server.port={WEB_PORT}",
+    "--server.headless=true",
     "--browser.gatherUsageStats=false",
     "--client.toolbarMode=minimal",
 ]
+WEB_WAIT = 30.0  # seconds to wait for the page to come up before giving up on it
+
+
+def _web_is_up() -> bool:
+    """Is something answering on the page's address?"""
+    try:
+        with socket.create_connection((WEB_HOST, WEB_PORT), timeout=0.5):
+            return True
+    except OSError:
+        return False
+
+
+def _wait_for_web(process: subprocess.Popen) -> bool:
+    """Wait until the page is up (True), or Streamlit stopped / took too long."""
+    deadline = time.monotonic() + WEB_WAIT
+    while time.monotonic() < deadline:
+        if process.poll() is not None:
+            return False
+        if _web_is_up():
+            return True
+        time.sleep(0.2)
+    return False
+
+
+def _stop(process: subprocess.Popen) -> None:
+    """After Ctrl-C: give Streamlit 10 s to finish, then stop it (also on a second
+    Ctrl-C), so no copy is left holding the address."""
+    try:
+        process.wait(timeout=10)
+    except (subprocess.TimeoutExpired, KeyboardInterrupt):
+        process.kill()
+        process.wait()
 
 
 @app.command()
 def web() -> None:
     """Open the quiz as a web page in your browser (on this computer only, ADR 0014).
     Same quiz and saved progress as `hsk quiz`. Ctrl-C here stops it."""
+    if _web_is_up():  # e.g. an `hsk web` left running in another window
+        _fail(
+            f"Something is already running at {WEB_URL}.",
+            "If it's the quiz, just open that page; otherwise stop it first.",
+        )
     command = [sys.executable, "-m", "streamlit", "run", str(WEB_PAGE), *WEB_FLAGS]
-    try:  # from the repo root, so Streamlit finds .streamlit/config.toml
-        done = subprocess.run(command, cwd=quiz_setup.ROOT, check=False)
-    except KeyboardInterrupt:
+    # From the repo root, so Streamlit finds .streamlit/config.toml.
+    process = subprocess.Popen(command, cwd=quiz_setup.ROOT)
+    try:
+        if _wait_for_web(process):
+            print(f"The quiz is open at {WEB_URL} (Ctrl-C here stops it).", flush=True)
+            webbrowser.open(WEB_URL)
+        elif process.poll() is None:  # still starting after WEB_WAIT: say where
+            print(
+                f"Streamlit is slow to start: open {WEB_URL} once it's ready.",
+                flush=True,
+            )
+        code = process.wait()
+    except KeyboardInterrupt:  # Streamlit gets the Ctrl-C too: let it finish
+        _stop(process)
         return
-    if done.returncode:
-        raise typer.Exit(done.returncode)
+    if code:
+        raise typer.Exit(code)
 
 
 def _utf8_output() -> None:

@@ -8,6 +8,7 @@ import json
 import re
 import subprocess
 import sys
+from typing import ClassVar
 
 import pytest
 from streamlit.testing.v1 import AppTest
@@ -74,7 +75,7 @@ def test_page_opens_on_the_settings(tmp_path):
     assert not at.exception
     assert at.title[0].value == "HSK Trainer"
     assert at.button(key="start").label == "Start quiz"
-    assert at.selectbox(key="mode").options[0] == "char"
+    assert at.selectbox(key="mode").value == "char"
 
 
 def test_a_word_quiz_from_start_to_new_quiz(tmp_path):
@@ -148,43 +149,138 @@ def test_a_setup_problem_is_shown_on_the_page(tmp_path):
 # --- hsk web ------------------------------------------------------------------------
 
 
-def test_hsk_web_starts_streamlit_on_the_page(monkeypatch):
-    calls = []
+class FakeStreamlit:
+    """Stands in for the Streamlit process: `hsk web` must not start the real one."""
 
-    def fake_run(command, **kwargs):
-        calls.append((command, kwargs))
-        return subprocess.CompletedProcess(command, 0)
+    started: ClassVar[list] = []
 
-    monkeypatch.setattr(cli.subprocess, "run", fake_run)
-    result = CliRunner().invoke(cli.app, ["web"])
+    def __init__(
+        self, command, code=0, stops_early=False, interrupted=0, hangs=False, **kw
+    ):
+        self.command, self.kwargs, self.code = command, kw, code
+        self.stops_early, self.interrupted, self.hangs = stops_early, interrupted, hangs
+        self.killed = False
+        FakeStreamlit.started.append(self)
+
+    def poll(self):
+        return self.code if self.stops_early else None
+
+    def wait(self, timeout=None):
+        if self.interrupted:  # Ctrl-C (this many times), then Streamlit finishes
+            self.interrupted -= 1
+            raise KeyboardInterrupt
+        if self.hangs and not self.killed:
+            raise subprocess.TimeoutExpired(self.command, timeout)
+        return self.code
+
+    def kill(self):
+        self.killed = True
+
+
+@pytest.fixture
+def streamlit(monkeypatch):
+    """`hsk web` with Streamlit, the browser and the address check all faked."""
+    FakeStreamlit.started = []
+    opened, answers = [], []
+    monkeypatch.setattr(cli, "webbrowser", type("W", (), {"open": opened.append}))
+    monkeypatch.setattr(cli.time, "sleep", lambda s: None)
+
+    def web_is_up():
+        return answers.pop(0) if answers else True
+
+    monkeypatch.setattr(cli, "_web_is_up", web_is_up)
+
+    def run(*up, **process):
+        answers.extend(up)
+        monkeypatch.setattr(
+            cli.subprocess, "Popen", lambda c, **k: FakeStreamlit(c, **process, **k)
+        )
+        return CliRunner().invoke(cli.app, ["web"]), opened
+
+    return run
+
+
+def test_hsk_web_starts_streamlit_headless_and_opens_the_page(streamlit):
+    result, opened = streamlit(False, True)  # not running yet, then up
     assert result.exit_code == 0
-    [(command, kwargs)] = calls
+    [process] = FakeStreamlit.started
+    command = process.command
     assert command[:4] == [sys.executable, "-m", "streamlit", "run"]
     assert command[4] == str(cli.WEB_PAGE) and cli.WEB_PAGE.exists()
-    assert "--server.address=localhost" in command  # this computer only
+    assert "--server.address=127.0.0.1" in command  # this computer only
     assert "--browser.gatherUsageStats=false" in command
     assert "--client.toolbarMode=minimal" in command  # no Deploy button
-    assert kwargs["cwd"] == ROOT
+    # Headless: no first-run email question (it crashed `hsk web` without a keyboard).
+    assert "--server.headless=true" in command
+    assert f"--server.port={cli.WEB_PORT}" in command
+    assert process.kwargs["cwd"] == ROOT
+    assert opened == [cli.WEB_URL] == ["http://127.0.0.1:8501"]
+    assert cli.WEB_URL in result.output
 
 
-@pytest.mark.parametrize(("code", "exit_code"), [(1, 1), (0, 0)])
-def test_hsk_web_passes_on_a_failure(monkeypatch, code, exit_code):
-    monkeypatch.setattr(
-        cli.subprocess, "run", lambda c, **k: subprocess.CompletedProcess(c, code)
-    )
-    assert CliRunner().invoke(cli.app, ["web"]).exit_code == exit_code
+def test_hsk_web_when_something_already_runs_there(streamlit):
+    result, opened = streamlit(True)
+    assert result.exit_code == 1
+    assert FakeStreamlit.started == [] and opened == []
+    assert "already running at http://127.0.0.1:8501" in result.output
 
 
-def test_hsk_web_ctrl_c_is_a_clean_stop(monkeypatch):
-    def interrupted(command, **kwargs):
-        raise KeyboardInterrupt
+def test_hsk_web_streamlit_failing_to_start_opens_nothing(streamlit):
+    result, opened = streamlit(False, False, code=1, stops_early=True)
+    assert result.exit_code == 1
+    assert opened == []
 
-    monkeypatch.setattr(cli.subprocess, "run", interrupted)
-    assert CliRunner().invoke(cli.app, ["web"]).exit_code == 0
+
+def test_hsk_web_ctrl_c_is_a_clean_stop(streamlit):
+    result, _ = streamlit(False, True, interrupted=1)
+    assert result.exit_code == 0
+    assert not FakeStreamlit.started[0].killed  # it finished by itself
+
+
+def test_hsk_web_second_ctrl_c_stops_streamlit_cleanly(streamlit):
+    """Code review: no traceback, and no copy left holding the address."""
+    result, _ = streamlit(False, True, interrupted=2)
+    assert result.exit_code == 0
+    assert FakeStreamlit.started[0].killed
+
+
+def test_hsk_web_streamlit_hanging_after_ctrl_c_is_stopped(streamlit):
+    result, _ = streamlit(False, True, interrupted=1, hangs=True)
+    assert result.exit_code == 0
+    assert FakeStreamlit.started[0].killed
+
+
+def test_hsk_web_slow_start_still_says_where(streamlit, monkeypatch):
+    """Code review: past the wait, still tell the address (no browser)."""
+    monkeypatch.setattr(cli, "WEB_WAIT", 0)
+    result, opened = streamlit(False)
+    assert result.exit_code == 0
+    assert opened == []
+    assert "slow to start: open http://127.0.0.1:8501" in result.output
 
 
 def test_streamlit_config_keeps_it_local():
     config = (ROOT / ".streamlit" / "config.toml").read_text(encoding="utf-8")
-    assert 'address = "localhost"' in config
+    assert 'address = "127.0.0.1"' in config
     assert "gatherUsageStats = false" in config
     assert 'toolbarMode = "minimal"' in config
+    assert "headless = true" in config
+
+
+def test_every_mode_has_a_plain_label_and_hint():
+    """The menu says what you see and what you type, not the code's name."""
+    from hsk_trainer.modes import MODE_LABELS, mode_hint
+    from hsk_trainer.quiz_setup import PLAYABLE_MODES
+
+    assert set(MODE_LABELS) == set(PLAYABLE_MODES)
+    assert all(MODE_LABELS[m].startswith("Words:") for m in PLAYABLE_MODES[:4])
+    assert MODE_LABELS["translate"].startswith("Sentences:")
+    assert "whole sentence" in mode_hint("translate")
+    assert "word's meaning" in mode_hint("char_sentence")
+
+
+def test_mode_menu_shows_the_labels(tmp_path):
+    at = page(tmp_path)
+    assert at.selectbox(key="mode").options[:1] == ["Words: the character"]
+    at.selectbox(key="mode").set_value("translate").run()
+    assert "whole sentence" in texts(at)

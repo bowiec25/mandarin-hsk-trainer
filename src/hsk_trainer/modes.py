@@ -28,3 +28,21 @@ HSK_MODES: dict[str, Mode] = {
         ),
     ]
 }
+
+# How each mode is named on the web page: what you see, and what you type. The terminal
+# keeps the short names (`--mode translate`).
+MODE_LABELS: dict[str, str] = {
+    "char": "Words: the character",
+    "char_pinyin": "Words: character + pinyin",
+    "char_sentence": "Words: character + example sentence",
+    "full": "Words: character, pinyin + example sentence",
+    "translate": "Sentences: translate",
+    "translate_pinyin": "Sentences: translate, with pinyin",
+}
+
+
+def mode_hint(name: str) -> str:
+    """What you'll type in this mode, in one line."""
+    if HSK_MODES[name].answer_from == "sentence":
+        return "You'll type what the whole sentence means in English."
+    return "You'll type the word's meaning in English (any sentence is a hint)."
