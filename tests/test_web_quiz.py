@@ -182,7 +182,43 @@ def test_fewer_words_than_asked_says_so(tmp_path):
     files = files_with(tmp_path, ["爱"])
     quiz = WebQuiz(files=files)
     quiz.start(QuizOptions(n=5, judge=False, live=False))
-    assert quiz.intro == ["Only 1 band-1 words, so the quiz has 1."]
+    assert quiz.view.intro == ["Only 1 band-1 words, so the quiz has 1."]
+    quiz.submit("x", "爱")
+    quiz.next("爱")
+    assert quiz.summary[0] == "Score: 0/1"  # said once, with the first question
+
+
+def test_intro_still_shown_when_the_first_word_is_skipped(tmp_path):
+    """Code review: the first question reached may be number 2."""
+    files = files_with(tmp_path, ["边", "爱"])
+    opts = options(files, ["边", "爱"], mode="translate")
+    quiz = WebQuiz(files=files)
+    quiz.start(QuizOptions(**{**opts.__dict__, "n": 5}))
+    assert quiz.view.number == 2
+    assert quiz.view.intro == ["Only 2 band-1 words, so the quiz has 2."]
+
+
+def test_intro_goes_in_the_summary_when_every_word_is_skipped(tmp_path):
+    files = files_with(tmp_path, ["边", "车"])
+    quiz = WebQuiz(files=files)
+    quiz.start(QuizOptions(mode="translate", n=5, judge=False, live=False))
+    assert quiz.phase == "ended"
+    assert quiz.summary[0] == "Only 2 band-1 words, so the quiz has 2."
+
+
+def test_a_broken_sentence_file_mid_quiz_ends_it_with_a_warning(tmp_path, monkeypatch):
+    """Code review: an error while moving on must not leave a stuck page."""
+    quiz = started(tmp_path, ["爱", "八"], mode="char_sentence")
+    quiz.submit(right_answer(quiz), "爱")
+
+    def broken(question):
+        raise OSError("disk unplugged")
+
+    monkeypatch.setattr(quiz._hsk.sentences, "fetch", broken)
+    quiz.next("爱")
+    assert quiz.phase == "ended"
+    assert "⚠️ The quiz had to stop: disk unplugged" in quiz.summary
+    assert "Score: 1/1" in quiz.summary
 
 
 def test_a_save_problem_is_a_warning_and_the_quiz_goes_on(tmp_path, monkeypatch):
@@ -215,7 +251,8 @@ def test_sentence_mode_shows_the_sentence_and_its_english_after(tmp_path):
     quiz.submit(right_answer(quiz), "爱")
     assert quiz.result.after[0].startswith("= ")
     quiz.next("爱")
-    assert quiz.view.sentence == ["(no example sentence yet for this word)"]
+    assert quiz.view.sentence == []
+    assert quiz.view.notes == ["no example sentence yet for this word"]
 
 
 # --- translate modes ------------------------------------------------------------------

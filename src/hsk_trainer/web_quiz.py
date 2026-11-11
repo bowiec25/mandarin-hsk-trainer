@@ -17,6 +17,7 @@ from hsk_trainer.quiz_setup import (
     GIST_QUESTION,
     GOT_THE_GIST,
     MISSED_IT,
+    NO_SENTENCE,
     HskQuiz,
     QuizFiles,
     QuizOptions,
@@ -24,6 +25,7 @@ from hsk_trainer.quiz_setup import (
     build_quiz,
     describe,
     end_lines,
+    skip_note,
     unmarked,
 )
 from quizkit.blocks.engine import Attempt, QuizSession
@@ -45,6 +47,7 @@ class QuestionView:
     shown: list[str]  # the word (and pinyin), or the sentence in translate modes
     sentence: list[str]  # sentence modes: the example under the word (hanzi, pinyin)
     notes: list[str]  # e.g. "skipped 杯子: no example sentence yet"
+    intro: list[str] = field(default_factory=list)  # the first question only
 
 
 @dataclass(frozen=True)
@@ -90,6 +93,7 @@ class WebQuiz:
     _session: QuizSession | None = None
     _waiting: Attempt | None = None  # the answer waiting for your own mark
     _notes: list[str] = field(default_factory=list)  # gathered for the next question
+    _intro_shown: bool = False  # the intro goes with the first question reached
 
     # --- clicks -------------------------------------------------------------------
 
@@ -184,6 +188,7 @@ class WebQuiz:
 
     def _reset(self) -> None:
         self.problems, self.intro, self.summary, self._notes = [], [], [], []
+        self._intro_shown = False
         self.view = self.marking = self.result = None
         self.options = self._hsk = self._session = self._waiting = None
 
@@ -196,7 +201,7 @@ class WebQuiz:
         if part.note:
             self._notes.append(part.note)
         if ready is None:
-            self._notes.append(f"skipped {part.skipped}: no example sentence yet")
+            self._notes.append(skip_note(part.skipped))
         return ready
 
     def _advance(self) -> None:
@@ -205,22 +210,24 @@ class WebQuiz:
         hsk, session = self._hsk_now, self._quiz
         self.marking = self.result = None
         self._waiting = None
-        question = session.current  # translate modes: prepare runs here, once
+        sentence: list[str] = []
+        try:
+            question = session.current  # translate modes: prepare runs here, once
+            if question is not None and hsk.sentences and not hsk.translating:
+                part = hsk.sentences
+                found = part.fetch(question)
+                if part.note:
+                    self._notes.append(part.note)
+                if found is None:
+                    self._notes.append(NO_SENTENCE)
+                else:
+                    sentence = part.lines(found)
+        except (ValueError, OSError) as err:  # a broken file or sentence: stop, kept
+            self._finish(f"⚠️ The quiz had to stop: {err}")
+            return
         if question is None:
             self._finish()
             return
-        sentence: list[str] = []
-        if hsk.sentences is not None and not hsk.translating:
-            part = hsk.sentences
-            found = part.fetch(question)
-            if part.note:
-                self._notes.append(part.note)
-            if found is None:
-                sentence = ["(no example sentence yet for this word)"]
-            else:
-                sentence = [found.hanzi]
-                if "sentence_pinyin" in part.fields:
-                    sentence.append(found.pinyin)
         done = session.result()
         self.view = QuestionView(
             card_id=question.card_id,
@@ -230,8 +237,9 @@ class WebQuiz:
             shown=list(question.shown.values()),
             sentence=sentence,
             notes=self._notes,
+            intro=self.intro if not self._intro_shown else [],
         )
-        self._notes = []
+        self._notes, self._intro_shown = [], True
         self.phase = "asking"
 
     def _save(self, attempt: Attempt) -> str | None:
@@ -267,8 +275,10 @@ class WebQuiz:
         if hsk.sentences is not None:
             notes += hsk.sentences.finish()
         assert self.options is not None
-        # Notes first (the last skips, late sentences), as the terminal shows them.
-        self.summary = [f"({note})" for note in notes]
+        # The intro if no question showed it (all skipped), then the notes (the last
+        # skips, late sentences), as the terminal shows them.
+        self.summary = [] if self._intro_shown else list(self.intro)
+        self.summary += [f"({note})" for note in notes]
         self.summary += end_lines(
             session.result(), self.options.live, hsk.saver, live_hint=LIVE_HINT
         )

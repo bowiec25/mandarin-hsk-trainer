@@ -6,6 +6,8 @@ Thin on purpose: Streamlit reruns this whole script on every click, so it only
 It runs on your computer only (localhost); nothing is sent to Streamlit.
 """
 
+import re
+
 import streamlit as st
 
 from hsk_trainer.quiz_setup import PLAYABLE_MODES, QuizOptions
@@ -19,9 +21,18 @@ quiz: WebQuiz = st.session_state["quiz"]
 running = quiz.phase in ("asking", "own_mark", "result")
 
 
+_MARKDOWN = re.compile(r"([\\`*_{}\[\]()#+\-.!|~$<>])")  # each gets a backslash
+
+
+def _safe(text: str) -> str:
+    """Data (sentences, answers, reasons, paths) shown as written: Streamlit reads
+    text as Markdown and maths, so "$5" or a Windows path would be mangled."""
+    return _MARKDOWN.sub(r"\\\1", text)
+
+
 def _lines(lines: list[str]) -> None:
     for line in lines:
-        st.caption(line)
+        st.caption(_safe(line))
 
 
 # --- Settings (locked while a quiz runs) -------------------------------------------
@@ -61,7 +72,8 @@ with st.sidebar:
             quiz.start(options)
         st.rerun()
     if running and st.button("Stop quiz", key="stop"):
-        quiz.stop()
+        with st.spinner("Stopping (saving any sentence still being written)…"):
+            quiz.stop()
         st.rerun()
 
 # --- The quiz ----------------------------------------------------------------------
@@ -70,19 +82,19 @@ st.title("HSK Trainer")
 if quiz.phase == "setup":
     st.write("Choose a band and a mode on the left, then **Start quiz**.")
     for line in quiz.problems:
-        st.error(line)
+        st.error(_safe(line))
 
 elif quiz.view is not None and quiz.phase in ("asking", "own_mark", "result"):
     view = quiz.view
     kind = "Sentence" if view.translating else "Word"
     st.subheader(f"{kind} {view.number} of {view.total}")
-    _lines(quiz.intro if view.number == 1 else [])
+    _lines(view.intro)
     _lines([f"({note})" for note in view.notes])
-    st.markdown(f"## {view.shown[0]}")
+    st.markdown(f"## {_safe(view.shown[0])}")
     for extra in view.shown[1:]:  # pinyin, when the mode shows it
-        st.markdown(extra)
+        st.markdown(_safe(extra))
     if view.sentence:  # sentence modes: the example under the word
-        st.markdown(f"### {view.sentence[0]}")
+        st.markdown(f"### {_safe(view.sentence[0])}")
         _lines(view.sentence[1:])
 
     if quiz.phase == "asking":
@@ -101,7 +113,7 @@ elif quiz.view is not None and quiz.phase in ("asking", "own_mark", "result"):
     elif quiz.phase == "own_mark" and quiz.marking is not None:
         mark = quiz.marking
         st.text(f"You wrote: {mark.typed}")
-        st.info(f"= {mark.english}")
+        st.info(_safe(f"= {mark.english}"))
         if mark.why:
             st.caption(f"({mark.why})")
         st.write(f"**{mark.question}** Mark it yourself (Y / N):")
@@ -119,12 +131,12 @@ elif quiz.view is not None and quiz.phase in ("asking", "own_mark", "result"):
         # The ✅ / ❌ becomes the box's icon (Streamlit would take it anyway).
         mark, _, rest = res.headline.partition(" ")
         box = st.success if res.right else st.error
-        box(rest or ("Right" if res.right else "Wrong"), icon=mark)
+        box(_safe(rest) or ("Right" if res.right else "Wrong"), icon=mark)
         _lines(res.details)
         for line in res.after:
-            st.write(line)
+            st.markdown(_safe(line))
         if res.warning:
-            st.warning(res.warning)
+            st.warning(_safe(res.warning))
         if st.button(  # Enter: no typing box on this screen, so it's free
             "Next →", type="primary", key=f"next-{view.number}", shortcut="Enter"
         ):
@@ -135,7 +147,7 @@ elif quiz.view is not None and quiz.phase in ("asking", "own_mark", "result"):
 elif quiz.phase == "ended":
     st.subheader("Done")
     for line in quiz.summary:
-        st.write(line)
+        st.markdown(_safe(line))
     if st.button("New quiz", type="primary", key="new"):
         quiz.new_quiz()
         st.rerun()

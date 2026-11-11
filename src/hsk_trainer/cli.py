@@ -24,6 +24,7 @@ from hsk_trainer.quiz_setup import (
     GIST_QUESTION,
     GOT_THE_GIST,
     MISSED_IT,
+    NO_SENTENCE,
     NOT_MARKED,
     PLAYABLE_MODES,
     RULE,
@@ -36,6 +37,7 @@ from hsk_trainer.quiz_setup import (
     end_lines,
     mode_problem,
     progress_file,
+    skip_note,
 )
 from quizkit.blocks.engine import Attempt, run_quiz
 from quizkit.blocks.judge import ClaudeJudge
@@ -118,18 +120,17 @@ class _OnScreen:
         ready = self.part.translate(question)
         self._note()
         if ready is None:
-            print(f"\n   (skipped {self.part.skipped}: no example sentence yet)")
+            print(f"\n   ({skip_note(self.part.skipped)})")
         return ready
 
     def show(self, question: Question) -> None:
         sentence = self.part.fetch(question)
         self._note()
         if sentence is None:
-            print("   (no example sentence yet for this word)")
+            print(f"   ({NO_SENTENCE})")
             return
-        print(f"   {sentence.hanzi}")
-        if "sentence_pinyin" in self.part.fields:
-            print(f"   {sentence.pinyin}")
+        for line in self.part.lines(sentence):
+            print(f"   {line}")
 
     def self_mark(self, question: Question, typed: str) -> Verdict:
         """A Judge without Claude: show the English, the learner says if they got it."""
@@ -424,7 +425,7 @@ def web() -> None:
         done = subprocess.run(command, cwd=quiz_setup.ROOT, check=False)
     except KeyboardInterrupt:
         return
-    if done.returncode not in (0, None):
+    if done.returncode:
         raise typer.Exit(done.returncode)
 
 

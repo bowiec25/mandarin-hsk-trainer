@@ -5,6 +5,7 @@ screen shows what it says. One-word cards files keep the deck predictable.
 """
 
 import json
+import re
 import subprocess
 import sys
 
@@ -50,14 +51,21 @@ def button(at, label):
     return next(b for b in at.button if b.label == label)
 
 
+def shown(text):
+    """As the browser shows it: the page escapes Markdown with backslashes."""
+    return re.sub(r"\\(.)", r"\1", text)
+
+
 def texts(at):
-    return " | ".join(
-        [e.value for e in at.markdown]
-        + [e.value for e in at.caption]
-        + [e.value for e in at.text]
-        + [e.value for e in at.success]
-        + [e.value for e in at.error]
-        + [e.value for e in at.info]
+    return shown(
+        " | ".join(
+            [e.value for e in at.markdown]
+            + [e.value for e in at.caption]
+            + [e.value for e in at.text]
+            + [e.value for e in at.success]
+            + [e.value for e in at.error]
+            + [e.value for e in at.info]
+        )
     )
 
 
@@ -132,7 +140,9 @@ def test_a_setup_problem_is_shown_on_the_page(tmp_path):
     at.session_state["quiz"] = WebQuiz(files=QuizFiles(cards=tmp_path / "none.jsonl"))
     at.run()
     at.button(key="start").click().run()
-    assert at.error[0].value.startswith("No cards file at")
+    assert shown(at.error[0].value).startswith("No cards file at")
+    # A Windows path keeps its backslashes once drawn (Markdown would eat them).
+    assert str(tmp_path / "none.jsonl") in shown(at.error[0].value)
 
 
 # --- hsk web ------------------------------------------------------------------------
