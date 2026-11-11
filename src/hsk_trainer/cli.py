@@ -14,15 +14,12 @@ import subprocess
 import sys
 import time
 import webbrowser
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Annotated, NoReturn
 
 import typer
-from pydantic import ValidationError
 
 from hsk_trainer import quiz_setup
-from hsk_trainer.modes import HSK_MODES
 from hsk_trainer.quiz_setup import (
     GIST_QUESTION,
     GOT_THE_GIST,
@@ -39,15 +36,12 @@ from hsk_trainer.quiz_setup import (
     describe,
     end_lines,
     mode_problem,
-    progress_file,
     skip_note,
 )
 from quizkit.blocks.engine import Attempt, run_quiz
 from quizkit.blocks.judge import ClaudeJudge
-from quizkit.blocks.progress_store import ProgressStore
-from quizkit.files import load_cards
 from quizkit.models import Judge, Question, Verdict
-from quizkit.progress import SkillStats, skill_stats
+from quizkit.progress import SkillStats
 
 app = typer.Typer(
     help="HSK 3.0 vocab trainer (bands 1-3).",
@@ -333,14 +327,6 @@ def quiz(
         print(line)
 
 
-def _skills() -> dict[str, list[str]]:
-    """Each skill and the modes that practise it, in mode order (from config)."""
-    skills: dict[str, list[str]] = {}
-    for m in HSK_MODES.values():
-        skills.setdefault(m.skill, []).append(m.name)
-    return skills
-
-
 def _stats_lines(s: SkillStats, label: dict[str, str]) -> list[str]:
     if s.new == s.cards and not (s.recent_answered or s.recent_unchecked):
         return ["    Nothing yet."]
@@ -372,40 +358,23 @@ def stats(
 ) -> None:
     """How you're doing: words new / in each Leitner box / due now, the last 7 days'
     accuracy and your most-missed words, per band and skill. Changes nothing."""
-    progress_path = progress or progress_file()
-    # Never make (or set up) the file just to look at it: an empty file is set up by
-    # the first quiz that saves.
-    if not progress_path.exists() or (
-        progress_path.is_file() and progress_path.stat().st_size == 0
-    ):
+    files = quiz_setup.QuizFiles(
+        cards=cards or quiz_setup.CARDS_FILE,
+        progress=progress or quiz_setup.progress_file(),
+    )
+    try:
+        report = quiz_setup.gather_stats(files, band)
+    except SetupError as err:
+        _fail(*err.lines)
+    if report is None:
         print("No progress saved yet: play `hsk quiz` (it saves unless --no-save).")
         return
-    cards_file = cards or quiz_setup.CARDS_FILE
-    try:
-        all_cards = load_cards(cards_file)
-    except (ValidationError, ValueError, OSError) as err:
-        _fail(f"Can't read the cards file {cards_file}:", str(err))
-    now = datetime.now(UTC)
-    bands = [band] if band is not None else sorted({c.level for c in all_cards})
-    skills = _skills()
     out: list[str] = []
-    try:
-        store = ProgressStore(progress_path)
-        for b in bands:
-            in_band = [c for c in all_cards if c.level == b]
-            # hanzi + pinyin: two readings of one character (还 hái / huán) differ
-            label = {
-                c.id: " ".join(
-                    filter(None, [c.fields.get("hanzi", c.id), c.fields.get("pinyin")])
-                )
-                for c in in_band
-            }
-            out.append(f"Band {b} · {len(in_band)} words")
-            for skill, modes in skills.items():
-                out.append(f"  {skill} ({', '.join(modes)})")
-                out.extend(_stats_lines(skill_stats(store, label, skill, now), label))
-    except (ValueError, OSError) as err:  # ProgressFileError is a ValueError
-        _fail(f"Can't read your progress file {progress_path}:", str(err))
+    for b in report:
+        out.append(f"Band {b.band} · {b.words} words")
+        for s in b.skills:
+            out.append(f"  {s.skill} ({', '.join(s.modes)})")
+            out.extend(_stats_lines(s.stats, b.label))
     print("\n".join(out))
 
 

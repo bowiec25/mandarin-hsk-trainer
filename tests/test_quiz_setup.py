@@ -348,3 +348,91 @@ def test_removed_list_reaches_the_bank(files, tmp_path):
     listed.write_text('{"爱": ["我爱我的妈妈。"]}', encoding="utf-8")
     hsk = build(replace(files, removed=listed), mode="char_sentence", n=1, live=False)
     assert hsk.sentences.live.bank.is_removed("爱", "我爱我的妈妈。")
+
+
+# -- gather_stats: the numbers `hsk stats` prints and the web Stats page shows ---------
+
+
+def _answer(files, word="爱", correct=True, box=2):
+    """One saved answer for `word` (recognise), its box set to `box`."""
+    from datetime import UTC, datetime, timedelta
+
+    from quizkit.blocks.progress_store import AnswerRecord, BoxState, ProgressStore
+
+    now = datetime.now(UTC)
+    ProgressStore(files.progress).record(
+        AnswerRecord(
+            at=now,
+            card_id=word,
+            skill="recognise",
+            mode="char",
+            typed="x",
+            correct=correct,
+            decided_by="grader",
+        ),
+        BoxState(
+            card_id=word,
+            skill="recognise",
+            box=box,
+            due=now + timedelta(days=1),
+            last_seen=now,
+            right=int(correct),
+            wrong=int(not correct),
+        ),
+    )
+
+
+def test_gather_stats_no_file_or_empty_file_is_none_and_makes_nothing(files):
+    from hsk_trainer.quiz_setup import gather_stats
+
+    assert gather_stats(files) is None
+    assert not files.progress.exists()
+    files.progress.write_bytes(b"")
+    assert gather_stats(files) is None
+    assert files.progress.read_bytes() == b""
+
+
+def test_gather_stats_one_band_per_skill_with_labels(files):
+    from hsk_trainer.quiz_setup import gather_stats, skills
+
+    _answer(files, "爱", correct=False, box=1)
+    report = gather_stats(files, band=1)
+    assert [b.band for b in report] == [1]
+    band = report[0]
+    assert band.words == len(band.label) > 0
+    assert band.label["爱"] == "爱 ài"
+    assert [s.skill for s in band.skills] == list(skills())
+    recognise = band.skills[0]
+    assert recognise.modes == skills()["recognise"]
+    assert recognise.stats.by_box == {1: 1}
+    assert recognise.stats.most_missed == [("爱", 1)]
+    assert recognise.stats.recent_answered == 1
+
+
+def test_gather_stats_without_band_gives_every_band(files):
+    from hsk_trainer.quiz_setup import gather_stats
+
+    _answer(files)
+    assert [b.band for b in gather_stats(files)] == [1, 2, 3]
+
+
+def test_gather_stats_broken_progress_is_a_setup_error(files):
+    from hsk_trainer.quiz_setup import gather_stats
+
+    files.progress.write_bytes(b"not a database at all, just text" * 10)
+    with pytest.raises(SetupError) as err:
+        gather_stats(files)
+    assert "progress file" in err.value.lines[0]
+
+
+def test_gather_stats_broken_cards_file_names_it(files, tmp_path):
+    from dataclasses import replace
+
+    from hsk_trainer.quiz_setup import gather_stats
+
+    _answer(files)
+    bad = tmp_path / "cards.jsonl"
+    bad.write_text("not json\n", encoding="utf-8")
+    with pytest.raises(SetupError) as err:
+        gather_stats(replace(files, cards=bad))
+    assert str(bad) in err.value.lines[0]
