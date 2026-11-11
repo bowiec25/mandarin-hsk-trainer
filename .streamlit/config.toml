@@ -1,0 +1,7 @@
+# Streamlit settings for `uv run hsk web` (ADR 0014). `hsk web` passes the same two
+# as flags, so they hold from any folder.
+[server]
+address = "localhost"  # only this computer can open the page
+
+[browser]
+gatherUsageStats = false  # send no usage data to Streamlit

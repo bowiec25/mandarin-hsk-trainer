@@ -9,6 +9,7 @@ Claude judge (ADR 0007), unless --no-judge. The sentence modes show an example s
 (ADR 0012). Answers are saved in Leitner boxes (ADR 0013), unless --no-save.
 """
 
+import subprocess
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
@@ -402,6 +403,24 @@ def stats(
     except (ValueError, OSError) as err:  # ProgressFileError is a ValueError
         _fail(f"Can't read your progress file {progress_path}:", str(err))
     print("\n".join(out))
+
+
+WEB_PAGE = Path(__file__).with_name("web_app.py")
+# Local only, and no usage data to Streamlit; .streamlit/config.toml says the same.
+WEB_FLAGS = ["--server.address=localhost", "--browser.gatherUsageStats=false"]
+
+
+@app.command()
+def web() -> None:
+    """Open the quiz as a web page in your browser (on this computer only, ADR 0014).
+    Same quiz and saved progress as `hsk quiz`. Ctrl-C here stops it."""
+    command = [sys.executable, "-m", "streamlit", "run", str(WEB_PAGE), *WEB_FLAGS]
+    try:  # from the repo root, so Streamlit finds .streamlit/config.toml
+        done = subprocess.run(command, cwd=quiz_setup.ROOT, check=False)
+    except KeyboardInterrupt:
+        return
+    if done.returncode not in (0, None):
+        raise typer.Exit(done.returncode)
 
 
 def _utf8_output() -> None:
