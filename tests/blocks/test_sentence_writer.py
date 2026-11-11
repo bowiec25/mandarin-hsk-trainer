@@ -1611,3 +1611,27 @@ def test_command_line_prints_stopped_on_a_broken_removed_list(monkeypatch, capsy
     assert cli.main(["--limit", "1"]) == 1
     out = capsys.readouterr().out
     assert "Stopped:" in out and "sentences_removed.json" in out
+
+
+def test_first_prompt_names_a_words_removed_sentences(tmp_path):
+    """Code review: Claude hears about removed sentences before it can waste a try."""
+    removed = removed_at(tmp_path, {"吃": ["我吃饭。"]})
+    fake = FakeClaude(BAND1)
+    run(tmp_path, BAND1, fake, removed=removed)
+    rows = [json.loads(r) for r in fake.prompts[0].splitlines() if r.startswith("{")]
+    by_id = {r["id"]: r for r in rows if "id" in r}
+    assert by_id["吃"]["do_not_write"] == ["我吃饭。"]
+    assert all("do_not_write" not in r for i, r in by_id.items() if i != "吃")
+
+
+def test_emptied_copy_of_a_word_listed_twice_does_not_say_redo(tmp_path, capsys):
+    """Code review: a later good copy is kept, so no "Will redo" for that word."""
+    removed = removed_at(tmp_path, {"吃": ["爸爸吃饭。"]})
+    write_saved(
+        tmp_path,
+        saved_line("吃", [s("爸爸吃饭。", "Dad eats.")]),
+        saved_line("吃", [s("我吃饭。", "I eat.")]),
+    )
+    run(tmp_path, BAND1, FakeClaude(BAND1), removed=removed)
+    assert "Will redo '吃'" not in capsys.readouterr().out
+    assert kept(tmp_path, "吃") == ["我吃饭。"]

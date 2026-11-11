@@ -59,7 +59,7 @@ bank.add(card_id, sentence, model) -> bool  # save a new (already checked) sente
    - `remove` works on the word's first line only. A second copy of the id (only after a hand edit) is kept as it is, so after `remove` empties the first line, a new bank reads the second copy as the word's line. Listed sentences in it are still skipped.
 
 ## Tools
-- `hsk_trainer.blocks.sentence_writer`: `SENTENCES_FILE`, `Sentence`, `SentenceLine`, `read_lines` (the file reader; raises `SentenceFileError`), `write_lines` (the one file writer), `MAX_SAVED`, `PROMPT_VERSION`, and the removed list's `REMOVED_FILE`, `read_removed` and `RemovedListError` (re-exported from here).
+- `hsk_trainer.blocks.sentence_writer`: `SENTENCES_FILE`, `Sentence`, `SentenceLine`, `read_lines` (the file reader; raises `SentenceFileError`), `write_lines` (the one file writer), `MAX_SAVED`, `PROMPT_VERSION`, and the removed list's `REMOVED_FILE`, `read_removed` and `RemovedListError` (only `RemovedListError` is re-exported from here, for `quiz_setup`).
 - `quizkit.files.write_atomically`, `random`, `json`, pydantic.
 
 **Known limit:** `sentence_writer` replaces a word's whole line when it redoes it (after a `PROMPT_VERSION` bump, or when any one saved sentence fails its checks), which would drop sentences banked from play. It also drops lines for ids that are no longer cards: "never shrinks" holds within the bank. Today every line is current, so nothing is redone; see `docs/FUTURE.md`.

@@ -47,7 +47,7 @@ Command line: `uv run python -m hsk_trainer.blocks.sentence_writer --limit 20 [-
 
 **Order:** one band at a time, lowest first; within a band, words go in `cards.jsonl` order, `chunk_size` per call.
 
-**The removed list** (ADR 0015): read once, before any call (also in a dry run). A sentence on it for that word is treated as failing, with the reason "an audit removed this sentence; write a different one", so it's never saved and a word left with none is retried with that reason. `sentence_bank` imports `REMOVED_FILE`, `RemovedListError` and `read_removed` from here (this block already holds the shared file helpers; `sentence_bank` imports `sentence_writer`, so the other way round would be a loop).
+**The removed list** (ADR 0015): read once, before any call (also in a dry run). A sentence on it for that word is treated as failing, with the reason "an audit removed this sentence; write a different one", so it's never saved and a word left with none is retried with that reason. To save that wasted try, every prompt (first call and retries) gives a word that has removed sentences a `do_not_write` list of them. `sentence_bank` imports `REMOVED_FILE`, `RemovedListError` and `read_removed` from here (this block already holds the shared file helpers; `sentence_bank` imports `sentence_writer`, so the other way round would be a loop).
 
 **Retries:** a word with no passing sentence is asked again, with its failed sentences (and their pinyin) and the reasons from the checks ("uses 一起 (band 2) …", or a pinyin reason), up to `retries` rounds (one follow-up call per band per round, split by `chunk_size` if more words fail). Words missing from the reply, or from a reply that isn't the JSON asked for, are retried the same way ("no usable sentences came back").
 

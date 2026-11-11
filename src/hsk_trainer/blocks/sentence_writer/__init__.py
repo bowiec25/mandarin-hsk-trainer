@@ -188,7 +188,8 @@ class RemovedListError(SentenceFileError):
 
 def read_removed(path: Path) -> dict[str, list[str]]:
     """The removed list, or {} if it's missing. Committed data, so a broken one is
-    loud (SentenceFileError naming the file), like the bank itself."""
+    loud (RemovedListError, a SentenceFileError, naming the file), like the
+    sentences file itself."""
     if not path.exists():
         return {}
     try:
@@ -429,19 +430,26 @@ def build_prompt(
     cards: list[Card],
     band: int,
     rejected: dict[str, list[tuple[str, list[str]]]] | None = None,
+    removed: dict[str, set[str]] | None = None,
 ) -> str:
     """The prompt for one call: one band. With `rejected`, it's a retry and each word
-    carries its rejected sentences and the checker's reasons."""
+    carries its rejected sentences and the checker's reasons. A word with sentences on
+    the removed list carries them as `do_not_write` (ADR 0015), so Claude avoids them."""
     head = INSTRUCTIONS.format(band=band, allowed=_allowed(cards, band))
+    removed = removed or {}
+
+    def avoid(c: Card) -> dict[str, list[str]]:
+        return {"do_not_write": sorted(removed[c.id])} if removed.get(c.id) else {}
+
     if rejected is None:
-        return head + "\n".join(_row(c) for c in chunk) + "\n"
+        return head + "\n".join(_row(c, **avoid(c)) for c in chunk) + "\n"
     rows = []
     for c in chunk:
         tries = rejected.get(c.id) or []
         shown = [{"sentence": h, "reasons": r} for h, r in tries] or [
             {"sentence": None, "reasons": ["no usable sentences came back"]}
         ]
-        rows.append(_row(c, rejected=shown))
+        rows.append(_row(c, rejected=shown, **avoid(c)))
     return RETRY_NOTE + head + "\n".join(rows) + "\n"
 
 
@@ -471,7 +479,7 @@ def _load_existing(
     out: Path,
     cards: list[Card],
     vocab: Vocab,
-    removed: dict[str, set[str]] | None = None,
+    removed: dict[str, set[str]],
 ) -> tuple[dict[str, SentenceLine], dict[str, SentenceLine], bool]:
     """(done, saved, changed): current passing lines; every saved line to keep until
     it's replaced; whether the file needs rewriting (a line dropped or listed twice).
@@ -479,13 +487,13 @@ def _load_existing(
     A word listed twice keeps its first copy that passes the checks (else the first).
     Sentences on the removed list are taken out first; a line left empty is dropped.
     """
-    removed = removed or {}
     if not out.exists():
         return {}, {}, False
     by_id = {c.id: c for c in cards}
     done: dict[str, SentenceLine] = {}
     saved: dict[str, SentenceLine] = {}
     usable: set[str] = set()  # ids whose kept line passes the checker
+    emptied: set[str] = set()  # ids with a line the removed list emptied
     changed = False
     for line in read_lines(out):
         if line.id not in by_id:
@@ -497,7 +505,7 @@ def _load_existing(
         if len(kept) != len(line.sentences):
             changed = True
             if not kept:
-                print(f"Will redo {line.id!r}: an audit removed all its sentences")
+                emptied.add(line.id)
                 continue
             line = line.model_copy(update={"sentences": kept})
         hanzi = by_id[line.id].fields["hanzi"]
@@ -519,6 +527,8 @@ def _load_existing(
         else:
             why = "; ".join(problems) or "older prompt version"
             print(f"Will redo {line.id!r}: {why}")
+    for word in sorted(emptied - saved.keys()):
+        print(f"Will redo {word!r}: an audit removed all its sentences")
     return done, saved, changed
 
 
@@ -681,7 +691,7 @@ class _Job:
     ) -> dict[str, list[tuple[str, list[str]]]]:
         """One Claude call. Saves the words that got a passing sentence; returns the
         others with their rejected sentences and reasons."""
-        prompt = build_prompt(chunk, self.cards, band, rejected)
+        prompt = build_prompt(chunk, self.cards, band, rejected, self.removed)
         reply = self.ask(prompt, model=MODEL, system=SYSTEM, json_schema=REPLY_SCHEMA)
         _log(self.log, reply, len(chunk), retry)
         self.run.input_tokens += reply.input_tokens
