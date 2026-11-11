@@ -88,6 +88,11 @@ def _read_seen(path: Path, quiet: bool = False) -> dict[str, dict[str, str]]:
     return data
 
 
+class RemovedListError(SentenceFileError):
+    """The removed list can't be read (a SentenceFileError, so old callers still
+    catch it; new ones can name the right file)."""
+
+
 def _read_removed(path: Path) -> dict[str, list[str]]:
     """The removed list, or {} if it's missing. Committed data, so a broken one is
     loud (SentenceFileError naming the file), like the bank itself."""
@@ -103,7 +108,7 @@ def _read_removed(path: Path) -> dict[str, list[str]]:
             ):
                 raise TypeError(f"{word!r} is not a list of sentences (text)")
     except (OSError, UnicodeDecodeError, ValueError, TypeError) as err:
-        raise SentenceFileError(f"{path.name}: {err}") from err
+        raise RemovedListError(f"{path.name}: {err}") from err
     return data
 
 

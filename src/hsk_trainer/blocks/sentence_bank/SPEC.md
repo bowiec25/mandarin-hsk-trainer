@@ -54,6 +54,7 @@ bank.add(card_id, sentence, model) -> bool  # save a new (already checked) sente
    - **`add` tidies the word's line:** when it rewrites a line, listed sentences still in it are dropped. So `cap` counts only usable sentences, and a line never grows past `cap` (more than `MAX_SAVED` would make `sentence_writer` redo the line and lose banked sentences).
    - **`remove` when the bank file is missing** only writes the list; it doesn't create the bank file.
    - A listed id that is no longer a card is fine (kept as it is).
+   - `remove` works on the word's first line only. A second copy of the id (only after a hand edit) is kept as it is, so after `remove` empties the first line, a new bank reads the second copy as the word's line. Listed sentences in it are still skipped.
 
 ## Tools
 - `hsk_trainer.blocks.sentence_writer`: `SENTENCES_FILE`, `Sentence`, `SentenceLine`, `read_lines` (the file reader; raises `SentenceFileError`), `write_lines` (the one file writer), `MAX_SAVED`, `PROMPT_VERSION`.
@@ -77,7 +78,7 @@ bank.add(card_id, sentence, model) -> bool  # save a new (already checked) sente
 | `add` when the word has `cap` sentences | Returns `False`; nothing written |
 | `add` of a sentence on the removed list | Returns `False`; nothing written |
 | Removed list missing | Nothing removed |
-| Removed list unreadable (bad JSON, not an object of lists of strings) | `SentenceFileError` naming the file, when the bank is made (it's committed data, like the bank: loud, not ignored) |
+| Removed list unreadable (bad JSON, not an object of lists of strings) | `RemovedListError` (a `SentenceFileError`) naming the file, when the bank is made (it's committed data, like the bank: loud, not ignored). The quiz says `Can't read the removed-sentences list …` |
 | `remove` of a sentence not in the bank | Listed anyway; returns `False` |
 | `remove` / `is_removed` with an unknown `card_id` | `ValueError`, as for every method |
 | The removed list or the bank can't be saved during `remove` | The `OSError` goes up (an audit is a batch job: it should stop) |

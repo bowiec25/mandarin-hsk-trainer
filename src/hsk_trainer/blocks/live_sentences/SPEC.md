@@ -15,7 +15,7 @@ It exists for ADR 0011: new sentences while you play, a bank that grows by itsel
 ## Inputs
 | Input | Type | Plain meaning |
 |---|---|---|
-| `bank` | `SentenceBank` | The bank: its rule (`wants_new`), its sentences (`banked`), `add`, `mark_seen` |
+| `bank` | `SentenceBank` | The bank: its rule (`wants_new`), its sentences (`banked`), `add`, `mark_seen`, and its removed list (`is_removed`, ADR 0015) |
 | `cards` | `list[Card]` | All the cards (to find the card for an id) |
 | `write` | function `Card -> WrittenSentences` | Writes and checks new sentences for one word. Default: `sentence_writer.write_one` with these cards. Tests pass a fake |
 | `wait` | `float` (default 15) | Seconds to wait for a sentence that's still being written, once its question is up |
