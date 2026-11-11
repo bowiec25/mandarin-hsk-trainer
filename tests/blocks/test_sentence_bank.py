@@ -574,3 +574,314 @@ def test_two_quizzes_at_once_keep_both_histories(files):
     second.mark_seen("饭", sentence(C))
     saved = json.loads(seen.read_text(encoding="utf-8"))
     assert A[0] in saved["吃"] and C[0] in saved["饭"]
+
+
+# -- The removed list (ADR 0015) -------------------------------------------------------
+# SPEC Inputs `removed_path`, Output 5, and the removed-list failure modes. These tests
+# pass their own `removed_path` (a tmp file), so they never read the committed list.
+
+
+@pytest.fixture
+def removed(tmp_path):
+    return tmp_path / "sentences_removed.json"
+
+
+def make_r(files, removed, cards=DECK, settings=None, rng=None, now=None):
+    """Like `make`, with a removed list in tmp_path."""
+    path, seen = files
+    return block.SentenceBank(
+        cards,
+        path=path,
+        seen_path=seen,
+        removed_path=removed,
+        settings=settings or block.BankSettings(),
+        rng=rng or random.Random(0),
+        now=now or Clock(),
+    )
+
+
+def write_removed(removed, data: dict) -> None:
+    removed.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+
+
+def listed(removed) -> dict[str, list[str]]:
+    return json.loads(removed.read_text(encoding="utf-8"))
+
+
+def fail_replace_to(target: Path):
+    """An os.replace that fails only when swapping into `target`."""
+    real_replace = os.replace
+
+    def replace(src, dst):
+        if Path(dst) == target:
+            raise OSError("disk full")
+        return real_replace(src, dst)
+
+    return replace
+
+
+def test_default_removed_file_matches_spec():
+    params = inspect.signature(block.SentenceBank).parameters
+    assert params["removed_path"].default == block.REMOVED_FILE
+    assert block.REMOVED_FILE.name == "sentences_removed.json"
+    assert block.REMOVED_FILE.parent == sentence_writer.SENTENCES_FILE.parent
+    assert block.REMOVED_FILE.parent.name == "generated"
+
+
+def test_remove_lists_it_and_takes_it_out_of_the_bank(files, removed):
+    path, _ = files
+    write_bank(path, line("吃", A, B))
+    bank = make_r(files, removed)
+    assert bank.remove("吃", A[0]) is True
+    assert listed(removed) == {"吃": [A[0]]}
+    assert hanzi_of(path, "吃") == [B[0]]
+    assert bank.is_removed("吃", A[0]) is True
+    assert bank.count("吃") == 1  # this bank knows at once
+    assert bank.banked("吃") == sentence(B)
+
+
+def test_remove_drops_a_line_left_with_no_sentences(files, removed):
+    path, _ = files
+    write_bank(path, line("吃", A), line("饭", C))
+    bank = make_r(files, removed)
+    assert bank.remove("吃", A[0]) is True
+    assert "吃" not in by_id(path)
+    assert bank.count("吃") == 0
+    assert bank.banked("吃") is None
+    assert bank.chance_of_new("吃") == 1.0
+
+
+def test_remove_keeps_other_words_and_other_lines(files, removed):
+    """Matching is per word: the same hanzi under another word stays."""
+    path, _ = files
+    others = [line("爸爸", B), line("饭", A), line("gone", A, D)]
+    write_bank(path, others[0], line("吃", A, C), others[1], others[2])
+    bank = make_r(files, removed)
+    bank.remove("吃", A[0])
+    after = rows(path)
+    for row in others:
+        assert json.loads(row) in after
+    assert len(after) == 4
+    assert hanzi_of(path, "吃") == [C[0]]
+    assert [r["id"] for r in after][:3] == ["爸爸", "吃", "饭"]  # cards order kept
+    assert bank.is_removed("饭", A[0]) is False
+    assert bank.count("饭") == 1
+
+
+def test_remove_keeps_a_second_copy_of_an_id_as_it_is(files, removed):
+    path, _ = files
+    second = line("吃", A, C)
+    write_bank(path, line("吃", A, B), second)
+    make_r(files, removed).remove("吃", A[0])
+    assert second in path.read_text(encoding="utf-8").splitlines()
+
+
+def test_remove_of_a_sentence_not_in_the_bank_lists_it_and_returns_false(
+    files, removed
+):
+    path, _ = files
+    write_bank(path, line("吃", A))
+    before = path.read_bytes()
+    bank = make_r(files, removed)
+    assert bank.remove("吃", E[0]) is False
+    assert listed(removed) == {"吃": [E[0]]}
+    assert bank.is_removed("吃", E[0]) is True
+    assert path.read_bytes() == before
+
+
+def test_removing_twice_does_nothing(files, removed):
+    path, _ = files
+    write_bank(path, line("吃", A, B))
+    bank = make_r(files, removed)
+    assert bank.remove("吃", A[0]) is True
+    bank_before = path.read_bytes()
+    assert bank.remove("吃", A[0]) is False
+    assert listed(removed) == {"吃": [A[0]]}
+    assert path.read_bytes() == bank_before
+    assert make_r(files, removed).remove("吃", A[0]) is False  # a new bank too
+    assert listed(removed) == {"吃": [A[0]]}
+
+
+def test_remove_adds_to_an_existing_list(files, removed):
+    path, _ = files
+    write_bank(path, line("吃", A, B), line("饭", C))
+    write_removed(removed, {"吃": [E[0]]})
+    bank = make_r(files, removed)
+    bank.remove("吃", A[0])
+    bank.remove("饭", C[0])
+    saved = listed(removed)
+    assert sorted(saved["吃"]) == sorted([E[0], A[0]])
+    assert saved["饭"] == [C[0]]
+
+
+def test_remove_writes_the_list_before_the_bank(files, removed, monkeypatch):
+    """If saving the bank fails, the sentence is already listed (so never shown)."""
+    path, _ = files
+    write_bank(path, line("吃", A, B))
+    before = path.read_bytes()
+    bank = make_r(files, removed)
+    monkeypatch.setattr(os, "replace", fail_replace_to(path))
+    with pytest.raises(OSError):
+        bank.remove("吃", A[0])
+    monkeypatch.undo()
+    assert path.read_bytes() == before  # the bank is whole (atomic)
+    assert listed(removed) == {"吃": [A[0]]}
+    fresh = make_r(files, removed)
+    assert fresh.count("吃") == 1  # still in the file, but skipped
+    assert fresh.banked("吃") == sentence(B)
+
+
+def test_remove_raises_when_the_list_cant_be_saved(files, removed, monkeypatch):
+    path, _ = files
+    write_bank(path, line("吃", A, B))
+    before = path.read_bytes()
+    bank = make_r(files, removed)
+    monkeypatch.setattr(os, "replace", fail_replace_to(removed))
+    with pytest.raises(OSError):
+        bank.remove("吃", A[0])
+    assert path.read_bytes() == before  # list first: the bank wasn't touched
+    assert not removed.exists()
+
+
+def test_add_refuses_a_listed_sentence_and_writes_nothing(files, removed):
+    path, _ = files
+    write_bank(path, line("吃", A))
+    write_removed(removed, {"吃": [B[0]]})
+    before = path.read_bytes()
+    bank = make_r(files, removed)
+    assert bank.add("吃", sentence(B), MODEL) is False
+    assert path.read_bytes() == before
+    assert bank.count("吃") == 1
+
+
+def test_add_refuses_a_sentence_just_removed(files, removed):
+    path, _ = files
+    write_bank(path, line("吃", A, B))
+    bank = make_r(files, removed)
+    bank.remove("吃", A[0])
+    before = path.read_bytes()
+    assert bank.add("吃", sentence(A), MODEL) is False
+    assert path.read_bytes() == before
+
+
+def test_add_of_a_hanzi_listed_for_another_word_is_allowed(files, removed):
+    path, _ = files
+    write_removed(removed, {"饭": [A[0]]})
+    assert make_r(files, removed).add("吃", sentence(A), MODEL) is True
+    assert hanzi_of(path, "吃") == [A[0]]
+
+
+def test_listed_sentences_still_in_the_file_are_skipped(files, removed):
+    """E.g. written back by sentence_writer: count, chance and banked ignore them."""
+    path, _ = files
+    write_bank(path, line("吃", A, B, C))
+    write_removed(removed, {"吃": [A[0]]})
+    before = path.read_bytes()
+    bank = make_r(files, removed)
+    assert bank.count("吃") == 2
+    assert bank.chance_of_new("吃") == pytest.approx(1 / 3)
+    assert bank.banked("吃") == sentence(B)
+    assert path.read_bytes() == before  # the file isn't changed just for that
+
+
+def test_listed_sentence_is_never_banked_even_when_never_seen(files, removed):
+    path, _ = files
+    write_bank(path, line("吃", A, B))
+    write_removed(removed, {"吃": [A[0]]})
+    bank = make_r(files, removed)
+    bank.mark_seen("吃", sentence(B))  # A is "never seen", B seen: B still wins
+    assert bank.banked("吃") == sentence(B)
+
+
+def test_a_word_whose_sentences_are_all_listed_has_none(files, removed):
+    path, _ = files
+    write_bank(path, line("吃", A, B))
+    write_removed(removed, {"吃": [A[0], B[0]]})
+    bank = make_r(files, removed)
+    assert bank.count("吃") == 0
+    assert bank.banked("吃") is None
+    assert bank.chance_of_new("吃") == 1.0
+    assert bank.wants_new("吃") is True
+
+
+def test_a_new_bank_reads_the_list_back(files, removed):
+    path, _ = files
+    write_bank(path, line("吃", A, B), line("饭", C))
+    make_r(files, removed).remove("吃", A[0])
+    write_bank(path, line("吃", A, B), line("饭", C))  # e.g. written back
+    bank = make_r(files, removed)
+    assert bank.is_removed("吃", A[0]) is True
+    assert bank.is_removed("吃", B[0]) is False
+    assert bank.is_removed("饭", A[0]) is False
+    assert bank.count("吃") == 1
+
+
+def test_is_removed_reads_a_list_on_disk(files, removed):
+    write_removed(removed, {"吃": [A[0], B[0]], "饭": [C[0]]})
+    bank = make_r(files, removed)
+    assert bank.is_removed("吃", B[0]) is True
+    assert bank.is_removed("饭", C[0]) is True
+    assert bank.is_removed("饭", A[0]) is False
+    assert bank.is_removed("我", A[0]) is False
+
+
+def test_missing_removed_list_means_nothing_removed(files, removed):
+    path, _ = files
+    write_bank(path, line("吃", A, B))
+    bank = make_r(files, removed)
+    assert bank.is_removed("吃", A[0]) is False
+    assert bank.count("吃") == 2
+    assert bank.banked("吃") == sentence(A)
+    assert not removed.exists()  # making a bank doesn't create the list
+
+
+def test_listed_ids_that_are_not_cards_are_allowed(files, removed):
+    """The list may name ids that are no longer cards: not a broken list."""
+    write_removed(removed, {"gone": [A[0]]})
+    assert make_r(files, removed).count("吃") == 0
+
+
+@pytest.mark.parametrize(
+    "bad",
+    [
+        "{not json",
+        "[1, 2]",
+        '"我吃饭。"',
+        '{"吃": "我吃饭。"}',
+        '{"吃": [1]}',
+        '{"吃": {"我吃饭。": true}}',
+    ],
+)
+def test_broken_removed_list_raises_naming_the_file(files, removed, bad):
+    removed.write_text(bad, encoding="utf-8")
+    with pytest.raises(sentence_writer.SentenceFileError, match=removed.name):
+        make_r(files, removed)
+
+
+def test_broken_removed_list_is_a_value_error(files, removed):
+    removed.write_text("{not json", encoding="utf-8")
+    with pytest.raises(ValueError):
+        make_r(files, removed)
+
+
+@pytest.mark.parametrize(
+    "call",
+    [
+        lambda b, w: b.is_removed(w, A[0]),
+        lambda b, w: b.remove(w, A[0]),
+    ],
+    ids=["is_removed", "remove"],
+)
+@pytest.mark.parametrize("word", ["nope", "gone"])
+def test_unknown_card_id_is_a_value_error_for_the_removed_list(
+    files, removed, call, word
+):
+    """ "gone" is in the bank file but not one of the cards; nothing is written."""
+    path, _ = files
+    write_bank(path, line("gone", A))
+    before = path.read_bytes()
+    bank = make_r(files, removed)
+    with pytest.raises(ValueError):
+        call(bank, word)
+    assert path.read_bytes() == before
+    assert not removed.exists()

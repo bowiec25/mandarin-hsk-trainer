@@ -47,7 +47,7 @@ What `sentence_for` does:
 - A job that's already finished when its question comes up is used at once: no `before_waiting`, no wait.
 - After live switches off, a job that's already finished is still used; one that isn't is never waited for (it's banked later if it finishes) and doesn't count as a failure.
 - A new sentence that's already in the bank still counts as `source="new"` (Claude wrote it this time); the bank just doesn't store it twice.
-- A new sentence an audit removed earlier (on the bank's removed list) is **never shown**, even though it passed the scripts: Claude may write the same sentence again. If it was the job's only one, that's one failure and the bank is used.
+- A new sentence an audit removed earlier (on the bank's removed list) is **never shown**, even though it passed the scripts: Claude may write the same sentence again. If it was the job's only one, that's one failure and the bank is used. If a later sentence of the job is shown instead, that's a success (failures go back to 0). The list is asked at the moment (each `is_removed` / `add` call), so a sentence removed mid-quiz isn't shown or banked afterwards. A late job that gave only removed sentences is dropped, like any late job that gave nothing: not a failure.
 - Waiting happens in short slices, so Ctrl-C stops the quiz at once.
 - More than one note in one question are joined with "; ".
 

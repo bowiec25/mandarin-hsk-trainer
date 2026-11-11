@@ -629,3 +629,109 @@ def test_save_note_names_the_word(paths):
     bank.add = locked
     shown = make(bank, FakeWrite([[A]])).sentence_for("吃")
     assert "吃" in shown.note
+
+
+# -- removed sentences (ADR 0015) ------------------------------------------------------
+# An audit's removed list lives in a tmp_path file in the bank's format,
+# {"<card id>": ["<sentence hanzi>", ...]}; the bank reads it via `removed_path`.
+
+
+def make_bank_with_removed(paths, removed: dict[str, list[str]], rng=NEW):
+    path, seen = paths
+    removed_path = path.parent / "sentences_removed.json"
+    removed_path.write_text(json.dumps(removed, ensure_ascii=False), encoding="utf-8")
+    return SentenceBank(
+        DECK, path=path, seen_path=seen, removed_path=removed_path, rng=rng
+    )
+
+
+def test_removed_first_sentence_shows_the_next_one(paths):
+    bank = make_bank_with_removed(paths, {"吃": [B[0]]})
+    shown = make(bank, FakeWrite([[B, A]])).sentence_for("吃")
+    assert (shown.source, shown.sentence) == ("new", sentence(A))
+    assert banked_hanzi(paths, "吃") == [A[0]]
+    assert seen_hanzi(paths, "吃") == {A[0]}
+
+
+def test_live_asks_the_bank_whether_a_sentence_is_removed(paths):
+    """The live side uses `bank.is_removed`, not its own copy of the list."""
+    bank = make_bank_with_removed(paths, {})
+    asked = []
+
+    def is_removed(card_id, hanzi):
+        asked.append((card_id, hanzi))
+        return hanzi == B[0]
+
+    bank.is_removed = is_removed
+    shown = make(bank, FakeWrite([[B, A]])).sentence_for("吃")
+    assert shown.sentence == sentence(A)
+    assert ("吃", B[0]) in asked
+
+
+def test_only_removed_sentences_fall_back_to_the_bank(paths):
+    path, _ = paths
+    write_bank(path, "吃", C)
+    bank = make_bank_with_removed(paths, {"吃": [B[0], A[0]]})
+    shown = make(bank, FakeWrite([[B, A]])).sentence_for("吃")
+    assert (shown.source, shown.sentence) == ("banked", sentence(C))
+    assert banked_hanzi(paths, "吃") == [C[0]]  # none of them banked
+    assert seen_hanzi(paths, "吃") == {C[0]}  # none of them shown
+
+
+def test_only_removed_sentences_with_an_empty_bank_shows_none(paths):
+    bank = make_bank_with_removed(paths, {"吃": [B[0]]})
+    shown = make(bank, FakeWrite([[B]])).sentence_for("吃")
+    assert (shown.source, shown.sentence) == ("none", None)
+    assert banked_hanzi(paths, "吃") == []
+
+
+def test_only_removed_sentences_count_as_a_failure(paths):
+    """Two such jobs in a row switch live off, like any other failure."""
+    bank = make_bank_with_removed(paths, {"吃": [B[0]], "饭": [C[0]]})
+    write = FakeWrite({"吃": [B], "饭": [C], "我": [A]})
+    live = make(bank, write)
+    first = live.sentence_for("吃")
+    second = live.sentence_for("饭")
+    assert not says_off(first)
+    assert says_off(second)
+    third = live.sentence_for("我")
+    assert write.calls == ["吃", "饭"]  # no more jobs
+    assert third.source == "none"
+
+
+def test_removed_sentence_is_not_banked_by_a_late_job(paths, gate):
+    bank = make_bank_with_removed(paths, {"吃": [B[0]]})
+    write = FakeWrite({"吃": [B, A], "饭": [C]}, gate=gate)
+    live = make(bank, write, wait=SHORT)
+    live.sentence_for("吃")  # too slow: the bank is used
+    gate.set()
+    write.join()
+    live.sentence_for("饭")  # the late job is banked now
+    assert banked_hanzi(paths, "吃") == [A[0]]
+
+
+def test_late_job_with_only_removed_sentences_banks_nothing(paths, gate):
+    bank = make_bank_with_removed(paths, {"吃": [B[0]]})
+    write = FakeWrite({"吃": [B], "饭": [C]}, gate=gate)
+    live = make(bank, write, wait=SHORT, max_failures=3)
+    live.sentence_for("吃")
+    gate.set()
+    write.join()
+    shown = live.sentence_for("饭")
+    assert (shown.source, shown.sentence) == ("new", sentence(C))
+    assert banked_hanzi(paths, "吃") == []
+
+
+def test_removed_mid_quiz_is_not_banked_by_a_late_job(paths, gate):
+    """An audit's `bank.remove` while a job is still writing: the late result skips it."""
+    path, _ = paths
+    write_bank(path, "吃", B)
+    bank = make_bank_with_removed(paths, {})
+    write = FakeWrite({"吃": [B, A], "饭": [C]}, gate=gate)
+    live = make(bank, write, wait=SHORT)
+    live.sentence_for("吃")  # too slow
+    bank.remove("吃", B[0])
+    gate.set()
+    write.join()
+    live.sentence_for("饭")
+    assert banked_hanzi(paths, "吃") == [A[0]]
