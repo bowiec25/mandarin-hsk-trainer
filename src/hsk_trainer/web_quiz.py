@@ -1,6 +1,6 @@
 """The web quiz's brain: which screen to show, and what each click does (ADR 0014).
 
-No Streamlit in here, so it can be tested like any Python. The page (`web_app.py`)
+No Streamlit in here, so it can be tested like any Python. The page (`web_pages/quiz.py`)
 reruns its whole script on every click; this object survives between runs (kept in
 the page's session state) and is the only thing that moves the quiz on.
 
