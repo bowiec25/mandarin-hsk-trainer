@@ -72,6 +72,9 @@ figure { margin: 0; }
 .diagram svg { display: block; width: 100%; height: auto; color: var(--ink); }
 @media (max-width: 900px) { .diagram svg { min-width: 760px; } }
 figcaption { color: var(--muted); font-size: 13px; margin-top: 8px; max-width: 80ch; }
+.walk { margin: 6px 0 10px; font-size: 13.5px; max-width: 90ch; }
+.walk summary { cursor: pointer; color: var(--muted); }
+.walk ol, .walk ul { margin: 6px 0 0; padding-left: 22px; line-height: 1.5; }
 
 /* Change gates */
 .gates { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; counter-reset: gate; }
@@ -279,6 +282,7 @@ M6 Web UI       a front door in the browser: Quiz page + Stats page,
     <span class="swatch"><svg viewBox="0 0 30 18"><rect class="box you" x="1" y="2" width="28" height="14" rx="3"/></svg>you</span>
     <span class="swatch"><svg viewBox="0 0 30 18"><rect class="box check" x="1" y="2" width="28" height="14" rx="3"/></svg>check / inspector</span>
   </div>
+  <details class="walk"><summary>Words on the map</summary><ul><li><b>block</b>: one worker with one job, in its own folder.</li><li><b>script</b>: plain code that follows rules. <b>agent</b>: code that asks Claude.</li><li><b>.jsonl</b>: a text file, one record per line.</li><li><b>data/raw</b>: downloaded, untouched. <b>data/processed</b>: our cleaned version. <b>data/generated</b>: made by Claude, checked by scripts.</li><li><b>SHA-256</b>: a file's fingerprint.</li><li><b>claude -p</b>: Claude Code run by a script, with no chat.</li><li><b>hook</b>: a small script Claude Code runs by itself before or after a tool.</li><li><b>subagent</b>: a helper Claude for building (test-writer, block-reviewer, data-auditor).</li><li><b>CI</b>: GitHub running the checks on every PR.</li></ul></details>
 </section>
 
 <section>
@@ -362,6 +366,7 @@ M6 Web UI       a front door in the browser: Quiz page + Stats page,
     </svg>
     <figcaption>How to say it in one breath: <b>a pinned word list becomes 978 cards; Claude wrote the accepted answers once; each quiz joins the two, deals questions, asks you, marks you against the list, and asks the Claude judge only when the list says wrong. In the sentence modes, Claude writes the next word's sentence while you answer, scripts check it, and every good one is banked.</b> Simplified: the shared setup (<code>quiz_setup.py</code>) calls <code>build_deck</code> and gets the questions back; the terminal hands them to <code>run_quiz</code> (the engine) with its own <code>ask</code>/<code>tell</code>, and the web page drives the engine's <code>QuizSession</code> one click at a time. Since M6 a <b>removed list</b> (<code>sentences_removed.json</code>) keeps audited-out sentences away from the bank, live sentences and the batch writer.</figcaption>
   </figure>
+  <details class="walk"><summary>Walk me through it</summary><ol><li><b>Pinned source</b>: the HSK word list on GitHub, fixed to one version.</li><li><b>fetcher</b>: downloads it and checks nothing changed.</li><li><b>data/raw</b>: those downloaded files, untouched.</li><li><b>normalizer</b>: turns them into our own simple format.</li><li><b>cards.jsonl</b>: one line per word (978): Chinese, pinyin, band, meanings.</li><li><b>answer_writer</b>: Claude wrote the accepted English answers once, into <b>answers.jsonl</b>.</li><li><b>hsk quiz / hsk web</b>: you start a quiz; cards and answers are joined.</li><li><b>deck_builder</b>: picks the words to ask (due ones first).</li><li><b>engine</b>: asks you one question at a time.</li><li><b>grader</b>: checks your answer against the list (small typos are fine).</li><li><b>judge</b>: only if the list says wrong, Claude decides; the verdict is kept in <b>judge_cache.jsonl</b>.</li><li>Sentence modes: <b>live_sentences</b> asks Claude for a sentence while you answer the word before; scripts check it; <b>sentence_bank</b> keeps good ones in <b>sentences.jsonl</b> and uses them when Claude is slow.</li></ol></details>
   <figure class="card diagram">
     <h3>Two front doors, one kitchen (M6)</h3>
     <pre style="margin:0;font-size:13px;line-height:1.45">quiz_setup.py   the kitchen: builds the quiz (cards, answers, deck, judge, sentences, saver),
@@ -373,6 +378,7 @@ M6 Web UI       a front door in the browser: Quiz page + Stats page,
                  └── web_pages/stats.py   📊 Stats: New · Due now · Last 7 days, boxes chart, most missed</pre>
     <figcaption>The web page runs on your computer only (127.0.0.1, no usage data to Streamlit, no Deploy button). It saves to the same <code>data/progress.db</code> as the terminal. In a translate mode, if no one could check your answer, it asks "Did you get the gist?" (Yes / No) through the engine's <code>own_mark</code> (ADR 0014). Shortcuts: Enter, Y, N.</figcaption>
   </figure>
+  <details class="walk"><summary>Walk me through it</summary><ol><li><b>quiz_setup.py</b>: the kitchen: builds every quiz, for both doors.</li><li><b>cli.py</b>: the terminal door (<code>hsk quiz</code>, <code>hsk stats</code>, <code>hsk web</code>).</li><li><b>web_app.py</b>: the web door; its menu has two pages.</li><li><b>web_pages/quiz.py</b>: draws the quiz; <b>web_quiz.py</b> is its brain (the rules, no screen code).</li><li><b>web_pages/stats.py</b>: shows your progress numbers.</li></ol></details>
 </section>
 
 <section>
@@ -408,6 +414,7 @@ M6 Web UI       a front door in the browser: Quiz page + Stats page,
 </svg>
     <figcaption>The source is pinned to one commit and every file is checked by fingerprint, so every run starts from the same trusted files. Dashed blue = the inspectors.</figcaption>
   </figure>
+  <details class="walk"><summary>Walk me through it</summary><ol><li><b>Pinned source</b> → <b>fetcher</b> downloads it.</li><li><b>size + SHA-256</b>: a fingerprint check that each file is exactly the expected one.</li><li><b>data/raw</b>: the untouched copies.</li><li><b>normalizer</b> → <b>cards.jsonl</b> (<code>.jsonl</code> = a text file, one record per line).</li><li><b>contract tests</b>: every block matches its SPEC. <b>word-count test</b>: 978 words, right per band.</li></ol></details>
     <table class="kv">
       <tr><th>What it does</th><td>Downloads the 2026 HSK word list, pinned to one commit, checks every file's size and SHA-256 fingerprint, and turns it into one flat file of cards, one per word.</td></tr>
       <tr><th>Parts</th><td><code>fetcher</code> (script, hsk_trainer) · <code>normalizer</code> (script, hsk_trainer) · <code>quizkit/download.py</code> (verified download) · <code>quizkit/files.py</code> (<code>write_atomically</code>: write a temp file, then swap it in; <code>load_cards</code>) · <code>quizkit/models.py</code> (the <code>Card</code> shape)</td></tr>
@@ -446,6 +453,7 @@ M6 Web UI       a front door in the browser: Quiz page + Stats page,
 </svg>
     <figcaption>The CLI is the glue, not a block (since M6 it shares its setup with the web page through <code>quiz_setup.py</code>). In the sentence modes it also wraps the engine's ask/tell with a sentence (workstream D). Ctrl-C stops and keeps the score.</figcaption>
   </figure>
+  <details class="walk"><summary>Walk me through it</summary><ol><li><b>CLI</b> (<code>hsk quiz</code>): loads cards.jsonl and answers.jsonl and joins them.</li><li><b>deck_builder</b>: deals the questions for your band, mode and number (a seed gives the same deck again).</li><li><b>engine</b>: shows a question and takes your answer.</li><li><b>grader</b>: marks it; the score adds up; next word.</li></ol></details>
     <table class="kv">
       <tr><th>What it does</th><td>You run <code>uv run hsk quiz --band 1 --mode char --n 10</code>: it deals the band's words (<b>due words first</b>, M5), shows each one, reads your answer, marks it, <b>saves it and moves the word's Leitner box</b>, and keeps score. Ctrl-C stops and keeps the score. <code>--seed</code> replays the same words; <code>--no-save</code> practises without saving. <code>uv run hsk stats</code> shows your boxes, what's due, the last 7 days and your most-missed words. <b>Or in the browser (M6):</b> <code>uv run hsk web</code> opens the same quiz as a page (settings in the sidebar, one question at a time, Next), plus a <b>Stats</b> page with the same numbers.</td></tr>
       <tr><th>Progress (M5)</th><td><pre style="margin:0;font-size:12px;line-height:1.35">hsk quiz ──► dealer (deck_builder): due words first
@@ -492,6 +500,7 @@ filing cabinet (progress_store) = data/progress.db  ◄── hsk stats (looks o
 </svg>
     <figcaption>Claude wrote the list once and a script checked it; the quiz only asks Claude again for answers the list misses. The eval sets (31 word cases, 33 sentence cases, all hand-labelled) are how we trust the judge.</figcaption>
   </figure>
+  <details class="walk"><summary>Walk me through it</summary><ol><li><b>answer_writer</b>: once, offline, asked Claude for accepted answers for all 978 words (<code>claude -p</code> = Claude Code run by a script).</li><li><b>script checker</b>: rejects bad answers; those words are asked again.</li><li><b>answers.jsonl</b>: the final list, saved in git.</li><li>While you play, the <b>grader</b> checks your answer against it.</li><li>If it says wrong, the <b>judge</b> (Claude Haiku) decides; <b>judge_cache.jsonl</b> remembers, so the same answer is never asked twice. <code>--no-judge</code> turns it off.</li><li><b>eval set</b>: test cases you labelled, used to check the judge.</li></ol></details>
     <table class="kv">
       <tr><th>What it does</th><td>Two layers (ADR 0005–0007). <b>1.</b> One answer list Claude wrote once, offline, checked by a script and committed. <b>2.</b> Only when the list says wrong, a Claude judge is asked "is this right after all?", and its verdict is saved.</td></tr>
       <tr><th>Parts</th><td><code>answer_writer</code> (agent, hsk_trainer: batch, chunks of 40, Sonnet, <code>--limit</code> / <code>--dry-run</code>; <code>load_answers</code> reads the file back through the same checker) → <code>grader</code> (script, quizkit: forgives case, punctuation, "to", small typos) → <code>judge</code> (agent, <b>quizkit</b>: generic, any quiz passes one subject sentence; Haiku by default; an optional <code>rubric</code>: the word rubric, or <code>GIST_RUBRIC</code> for the translate modes, ADR 0012) · <code>quizkit/claude.py</code> (the shared <code>claude -p</code> helper) · <code>quizkit/blocks/judge/eval.py</code> (the eval script)</td></tr>
@@ -537,6 +546,7 @@ filing cabinet (progress_store) = data/progress.db  ◄── hsk stats (looks o
 </svg>
     <figcaption>The fewer sentences a word has banked (n), the likelier a new one: 0 banked → always new, 1 → 50%, 4 or more → 20%. The scripts check the word stands on its own, the band, the pinyin and the English; the data-auditor covers what they can't judge (naturalness, meaning). Since M6 (ADR 0015) whatever it flags, or is unsure about, is removed without asking you, through <code>SentenceBank.remove</code>: it goes on <code>sentences_removed.json</code>, so the bank, live sentences and the batch writer never show or save it again. You get a one-line summary.</figcaption>
   </figure>
+  <details class="walk"><summary>Walk me through it</summary><ol><li><b>sentence_bank rule</b>: the fewer saved sentences a word has, the likelier a new one.</li><li><b>live_sentences</b> asks Claude (<b>write_one</b>) for one while you answer the word before.</li><li><b>script checks</b>: the word on its own, only words up to your band, right pinyin, sensible English.</li><li>Pass: shown and saved in <b>sentences.jsonl</b>. Fail or slow: a saved one is shown instead.</li><li><b>data-auditor</b>: a helper that reads the bank for unnatural Chinese and similar problems.</li><li>What it flags goes through <b>bank.remove</b> onto <b>sentences_removed.json</b>, so it never comes back; a report goes in <b>docs/audits</b>.</li></ol></details>
     <table class="kv">
       <tr><th>What it does</th><td>In <code>char_sentence</code> and <code>full</code>, each word comes with an example sentence. While you answer one word, Claude writes the next word's sentence; scripts check it; if it passes it is shown and saved to a bank that grows as you play (ADR 0008–0011).</td></tr>
       <tr><th>Parts</th><td><code>sentence_validator</code> (script: the word stands on its own, every other word at or below the band, 3–20 characters; reads with our own word list, not jieba, ADR 0009) + the <b>pinyin check</b> (every syllable is a real reading, ADR 0010) + the <b>English check</b>, both inside sentence_writer · <code>sentence_writer</code> (agent: batch top-up per band, chunks of 20, up to 2 retries with the reasons; and <code>write_one</code>: one word, one call, no retry, used live) · <code>sentence_bank</code> (script: new or banked by max(0.2, 1/(1+n)), least recently seen first, up to 10 a word) · <code>live_sentences</code> (script: background threads ask ahead, wait at most 15 s, switch off after 2 failures in a row, fall back to the bank) · <code>data-auditor</code> subagent (reads the bank for what scripts can't judge; what it flags is removed, ADR 0015) · the <b>removed list</b> (M6): <code>sentence_bank.remove</code> / <code>is_removed</code>; <code>live_sentences</code> never shows a removed one; <code>sentence_writer</code> drops them and tells Claude <code>do_not_write</code></td></tr>
@@ -614,6 +624,7 @@ filing cabinet (progress_store) = data/progress.db  ◄── hsk stats (looks o
     </svg>
     <figcaption>Read left to right. Each lane is one "who". The two red loops are where problems get caught early: failing checks, and the reviewer's issues. Both send the work back to 6. Not every step uses every box: a docs-only step skips 3–5 and 8. In this one picture the box colours mean strictness (red hard, orange automatic, blue guidance, green you), as in section 3.</figcaption>
   </figure>
+  <details class="walk"><summary>Walk me through it</summary><ol><li>You say go; Claude plans.</li><li><b>/new-block</b> makes the block's folder; you and Claude write its <b>SPEC</b> (its job description).</li><li><b>test-writer</b> writes tests from the SPEC; Claude writes the code.</li><li><b>Hooks</b> run on every edit: block <code>.env</code>, tidy the code.</li><li><b>ruff + pytest</b> run; failures go back to the code.</li><li><b>block-reviewer</b> checks it (issues go back); then <b>/code-review</b>.</li><li>Docs and build map updated; commit, push, PR.</li><li>GitHub runs <b>CI</b> and the Claude review; <b>main</b> takes only green PRs; you merge.</li></ol></details>
 </section>
 
 <section>
@@ -693,6 +704,7 @@ filing cabinet (progress_store) = data/progress.db  ◄── hsk stats (looks o
 </svg>
     <figcaption>Find any check here, then look it up in the table below. Badge colours = strictness: red hard stop, orange automatic, blue guidance, grey habit.</figcaption>
   </figure>
+  <details class="walk"><summary>Walk me through it</summary><ol><li><b>Your computer</b>: before Claude's tool runs, the hook and permission rules check it (<code>.env</code> is blocked); after edits, format and tests.</li><li><b>The app</b>: Claude's replies have a fixed shape and are checked by scripts before saving; if Claude is slow, it falls back.</li><li><b>GitHub</b>: CI runs the checks; protected <b>main</b> needs green CI; you merge.</li></ol></details>
   <div class="card table-wrap">
     <table>
       <thead><tr><th>Thing</th><th>What it stops</th><th>Strictness</th><th>When it runs</th><th>Where it lives</th><th>How it's tested</th></tr></thead>
@@ -781,6 +793,7 @@ filing cabinet (progress_store) = data/progress.db  ◄── hsk stats (looks o
     </svg>
     <figcaption>Two guards stand before a tool runs: the <code>block_env.py</code> hook and the permission rules in <code>.claude/settings.json</code>. One tidy-up runs after. Layers beat one lock: for secrets we have <code>.gitignore</code> 🟠 + deny 🔴 + hook 🔴 + push protection 🔴.</figcaption>
   </figure>
+  <details class="walk"><summary>Walk me through it</summary><ol><li>Claude picks a tool (e.g. Bash, Edit).</li><li><b>block_env hook</b>: stops anything touching <code>.env</code>.</li><li><b>Permission rules</b>: allowed, denied, or ask you.</li><li>The tool runs; after a <code>.py</code> edit, <b>ruff format</b> tidies it.</li><li>The result goes back to Claude.</li></ol></details>
 </section>
 
 <section>
@@ -1033,6 +1046,7 @@ filing cabinet (progress_store) = data/progress.db  ◄── hsk stats (looks o
     <p class="lede">One line per step, newest first. Click <b>snapshot</b> to see the whole map exactly as it was after that step.</p>
   </div>
   <ol class="timeline card" reversed>
+    <li><span class="when">2026-11-12</span><span class="what">Map: walk me through it</span><span>Your ask: the flow diagrams name parts (fetcher, data/raw…) without saying what they are. Each diagram now has a closed <b>Walk me through it</b> list (one plain line per box), and the legend a closed <b>Words on the map</b> list. Closed by default, so nothing is cluttered. <a href="snapshots/map-walkthroughs.html">snapshot</a></span></li>
     <li><span class="when">2026-11-11</span><span class="what">M6 done: the web UI (#68: PRs #69–#80 + docs)</span><span>All milestones done. <code>uv run hsk web</code> opens the quiz in your browser, with a <b>Stats</b> page; the terminal and the page share one setup (<b>ADR 0014</b>). Sentence audits now act without a human gate (<b>ADR 0015</b>), and removed sentences stay removed everywhere. M6 lessons in the playbook; milestone audit. 1320 tests. <a href="snapshots/m6-done.html">snapshot</a></span></li>
     <li><span class="when">2026-11-11</span><span class="what">M6 Step 5: Stats page (#79, #80)</span><span><code>hsk stats</code>'s numbers move into <code>quiz_setup.gather_stats</code>; the web app gets a page menu (📝 Quiz, 📊 Stats) with New / Due now / Last 7 days tiles, a boxes chart and the most-missed table. The code review caught that switching page reset the quiz settings: fixed, with a test.</span></li>
     <li><span class="when">2026-11-11</span><span class="what">M6: audits act + the removed list (#75, #76, #78)</span><span>Your call: "we don't want a human approving sentences" → <b>ADR 0015</b>: whatever the data-auditor flags, or is unsure about, is removed, with a dated report and a one-line summary. A committed <code>sentences_removed.json</code> keeps them out of the bank, live sentences and the batch writer (which also tells Claude <code>do_not_write</code>).</span></li>
