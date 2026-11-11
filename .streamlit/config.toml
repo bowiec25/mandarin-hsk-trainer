@@ -2,6 +2,8 @@
 # as flags (cli.WEB_FLAGS), so they hold from any folder.
 [server]
 address = "localhost"  # only this computer can open the page
+port = 8501
+headless = true  # no first-run email question; `hsk web` opens the browser itself
 
 [browser]
 gatherUsageStats = false  # send no usage data to Streamlit

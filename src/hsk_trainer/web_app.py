@@ -10,6 +10,7 @@ import re
 
 import streamlit as st
 
+from hsk_trainer.modes import MODE_LABELS, mode_hint
 from hsk_trainer.quiz_setup import PLAYABLE_MODES, QuizOptions
 from hsk_trainer.web_quiz import WebQuiz
 
@@ -39,7 +40,14 @@ def _lines(lines: list[str]) -> None:
 with st.sidebar:
     st.header("Quiz")
     band = st.selectbox("Band", [1, 2, 3], key="band", disabled=running)
-    mode = st.selectbox("Mode", PLAYABLE_MODES, key="mode", disabled=running)
+    mode = st.selectbox(
+        "Mode",
+        PLAYABLE_MODES,
+        key="mode",
+        disabled=running,
+        format_func=lambda name: MODE_LABELS[name],
+    )
+    st.caption(mode_hint(mode))
     n = st.number_input(
         "How many", min_value=1, max_value=500, value=10, key="n", disabled=running
     )
