@@ -29,8 +29,9 @@ def real_cards() -> list[Card]:
 def no_real_progress(tmp_path, monkeypatch):
     """Safety net: no test reads or writes the learner's own files: progress
     (data/progress.db, ADR 0013), the judge cache, or when each sentence was last shown
-    (data/sentence_seen.json). Each test gets its own empty ones; a test can still
-    pass its own paths (--progress, --seen)."""
+    (data/sentence_seen.json). Each test gets its own empty ones (a test can still
+    give its own paths). Inherited by a subprocess test, unless it clears the
+    environment: then give it --no-save and its own files."""
     # Set in the environment: read whenever a quiz is set up, by any module imported
     # at any time, and inherited by a test that runs the program in a subprocess.
     monkeypatch.setenv("HSK_PROGRESS_FILE", str(tmp_path / "progress.db"))

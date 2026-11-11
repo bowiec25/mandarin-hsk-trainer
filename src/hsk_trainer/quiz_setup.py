@@ -9,7 +9,9 @@ import os
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from enum import Enum, auto
 from pathlib import Path
+from typing import Literal
 
 from pydantic import ValidationError
 
@@ -64,7 +66,11 @@ MISSED_IT = Verdict(correct=False, reason="you missed it", source="self")
 NOT_MARKED = Verdict(correct=False, reason="not marked", source="not_checked")
 GIST_QUESTION = "Did you get the gist?"
 
-_SAME = object()  # "not given": HskQuiz.session then uses the quiz's own prepare
+
+class _Default(Enum):
+    """ "Not given": HskQuiz.session then uses the quiz's own prepare."""
+
+    PREPARE = auto()
 
 
 class SetupError(Exception):
@@ -151,78 +157,59 @@ def with_answers(cards: list[Card], answers_file: Path) -> list[Card]:
     ]
 
 
+def _accepted(verdict: Verdict) -> str:
+    """The headline when a verdict said yes: your own mark, or the judge's."""
+    if verdict.source == "self":
+        return f"✅ {verdict.reason}"
+    return f"✅ accepted by the Claude judge: {verdict.reason}"
+
+
+def _why_not(verdict: Verdict | None, word: bool) -> list[str]:
+    """The detail under a wrong answer: the judge's reason, or why nobody checked.
+    Nothing for your own "no" (no judge was asked, so don't say "judge")."""
+    if verdict is None or verdict.source == "self":
+        return []
+    if verdict.source == "not_checked":
+        return [f"(judge {verdict.reason})" if word else f"({verdict.reason})"]
+    return [f"judge: {verdict.reason}"]
+
+
 def describe(attempt: Attempt, translating: bool) -> tuple[str, list[str]]:
     """What to say about a marked answer: a headline (✅ or ❌ ...) and detail lines
     (the judge's reason). The same words in every front end; each adds its own layout.
     Word modes show the accepted answers after a wrong one; translate modes show the
     English separately (SentencePart.after_translation)."""
     g, verdict = attempt.grade, attempt.verdict
-    if translating:
-        if g.correct:
-            return ("✅ close enough (typo)" if g.typo else "✅"), []
-        if verdict is not None and verdict.correct:
-            if verdict.source == "self":
-                return f"✅ {verdict.reason}", []
-            return f"✅ accepted by the Claude judge: {verdict.reason}", []
-        if verdict is not None and verdict.source in ("claude", "cache"):
-            return "❌", [f"judge: {verdict.reason}"]
-        if verdict is not None and verdict.source == "not_checked":
-            return "❌", [f"({verdict.reason})"]
-        return "❌", []
-
     shown = readable(attempt.question)
     if g.correct and g.typo:
-        return f"✅ close enough (typo): {shown.get(g.matched, g.matched)}", []
+        typo = "✅ close enough (typo)"
+        return (
+            typo if translating else f"{typo}: {shown.get(g.matched, g.matched)}"
+        ), []
     if g.correct:
         return "✅", []
-    if verdict is not None and verdict.correct and verdict.source == "self":
-        return f"✅ {verdict.reason}", []
     if verdict is not None and verdict.correct:
-        return f"✅ accepted by the Claude judge: {verdict.reason}", []
+        return _accepted(verdict), []
+    if translating:
+        return "❌", _why_not(verdict, word=False)
     answers = list(shown.values())
     more = " …" if len(answers) > SHOW_ANSWERS else ""
-    headline = f"❌ {'; '.join(answers[:SHOW_ANSWERS])}{more}"
-    if verdict is not None and verdict.source == "not_checked":
-        return headline, [f"(judge {verdict.reason})"]
-    if verdict is not None:
-        return headline, [f"judge: {verdict.reason}"]
-    return headline, []
+    return f"❌ {'; '.join(answers[:SHOW_ANSWERS])}{more}", _why_not(verdict, word=True)
 
 
 def unmarked(attempt: Attempt) -> Attempt:
     """The answer, "not marked": for leaving while it waits for your own mark. Saved
-    like this, its box stays (nobody checked it), as in the terminal (ADR 0014)."""
+    like this, its box stays (nobody checked it), as in the terminal (ADR 0014).
+    Only for an answer the list marked wrong: a right one stays right (ValueError).
+    A new validated Attempt, as the engine's own_mark makes."""
+    if attempt.grade.correct:
+        raise ValueError("the answer list already marked this right: nothing to mark")
     return Attempt(
         question=attempt.question,
         typed=attempt.typed,
         grade=attempt.grade,
         verdict=NOT_MARKED,
     )
-
-
-def end_lines(
-    result: QuizResult,
-    live: bool,
-    saver: "Saver | None",
-    live_hint: str = "try --live",
-) -> list[str]:
-    """The end of a quiz: skipped, stopped early, the score, the boxes moved.
-    `live_hint` is how this front end says "turn live sentences on"."""
-    lines = []
-    if result.skipped:
-        lines.append(f"Skipped {result.skipped} with no example sentence.")
-    if not result.finished:
-        lines.append(
-            f"Stopped after {result.answered + result.skipped} of {result.total}."
-        )
-    if result.answered == 0 and result.skipped:
-        why = "Claude couldn't write any just now" if live else live_hint
-        lines.append(f"Nothing to score: no word had a sentence ({why}).")
-    else:
-        lines.append(f"Score: {result.correct}/{result.answered}")
-    if saver is not None and (moved := saver.summary()):
-        lines.append(moved)
-    return lines
 
 
 class SentencePart:
@@ -339,6 +326,31 @@ class Saver:
         return line + (f", {self.stayed} stayed." if self.stayed else ".")
 
 
+def end_lines(
+    result: QuizResult,
+    live: bool,
+    saver: Saver | None,
+    live_hint: str = "try --live",
+) -> list[str]:
+    """The end of a quiz: skipped, stopped early, the score, the boxes moved.
+    `live_hint` is how this front end says "turn live sentences on"."""
+    lines = []
+    if result.skipped:
+        lines.append(f"Skipped {result.skipped} with no example sentence.")
+    if not result.finished:
+        lines.append(
+            f"Stopped after {result.answered + result.skipped} of {result.total}."
+        )
+    if result.answered == 0 and result.skipped:
+        why = "Claude couldn't write any just now" if live else live_hint
+        lines.append(f"Nothing to score: no word had a sentence ({why}).")
+    else:
+        lines.append(f"Score: {result.correct}/{result.answered}")
+    if saver is not None and (moved := saver.summary()):
+        lines.append(moved)
+    return lines
+
+
 @dataclass
 class HskQuiz:
     """Everything one quiz needs, ready to play in any front end."""
@@ -359,11 +371,13 @@ class HskQuiz:
     def session(
         self,
         judge: Judge | None = None,
-        prepare: Callable[[Question], Question | None] | None | object = _SAME,
+        prepare: Callable[[Question], Question | None]
+        | None
+        | Literal[_Default.PREPARE] = _Default.PREPARE,
     ) -> QuizSession:
         """A fresh engine session; `judge` = the front end's (e.g. wrapped) judge,
         `prepare` = the front end's (e.g. wrapped to collect notes; default: ours)."""
-        chosen = self.prepare if prepare is _SAME else prepare
+        chosen = self.prepare if prepare is _Default.PREPARE else prepare
         return QuizSession(
             self.questions, settings=self.settings, judge=judge, prepare=chosen
         )

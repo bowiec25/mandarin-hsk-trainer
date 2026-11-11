@@ -315,3 +315,16 @@ def test_session_takes_the_front_ends_prepare(files):
     _ = session.current  # asks prepare (ours, wrapped)
     assert seen[0] == hsk.questions[0].card_id  # (a word with no sentence: next)
     assert hsk.session(prepare=None).current == hsk.questions[0]  # None = no prepare
+
+
+def test_describe_word_own_no_does_not_blame_the_judge():
+    """A word answer you marked wrong yourself: no judge was asked (code review)."""
+    assert describe(answered(WORD, "hate", says(MISSED_IT)), False) == (
+        "❌ to love",
+        [],
+    )
+
+
+def test_unmarked_refuses_an_answer_the_list_marked_right():
+    with pytest.raises(ValueError):
+        unmarked(answered(WORD, "love"))
