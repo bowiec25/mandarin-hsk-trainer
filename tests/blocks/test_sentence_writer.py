@@ -1451,3 +1451,161 @@ def test_write_one_skips_a_log_it_cannot_write(tmp_path):
     folder.mkdir()
     result = block.write_one(target, DECK, ask=FakeClaude(), log=folder)
     assert hanzi_list(result) == ["我爸爸是医生。", "爸爸吃饭。"]
+
+
+# ---- The removed list (ADR 0015): audited-out sentences never come back ------------
+# SPEC: `removed` input, read_removed, "The removed list", "Picks up where it left
+# off", and the three removed-list Failure-mode rows. Every run passes a tmp_path list.
+
+AUDIT_REASON = "an audit removed this sentence"
+
+
+def removed_at(tmp_path, data=None) -> Path:
+    """A removed list in tmp_path (word -> removed sentences); None = no file."""
+    path = tmp_path / "removed.json"
+    if data is not None:
+        path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+    return path
+
+
+def test_removed_list_names_match_spec():
+    assert block.REMOVED_FILE.name == "sentences_removed.json"
+    assert block.REMOVED_FILE.parent.name == "generated"
+    assert issubclass(block.RemovedListError, block.SentenceFileError)
+    default = inspect.signature(block.write_sentences).parameters["removed"].default
+    assert default == block.REMOVED_FILE
+
+
+def test_sentence_bank_shares_the_writers_removed_list_names():
+    """SPEC: sentence_bank imports REMOVED_FILE and RemovedListError from here."""
+    import hsk_trainer.blocks.sentence_bank as bank
+
+    assert bank.REMOVED_FILE is block.REMOVED_FILE
+    assert bank.RemovedListError is block.RemovedListError
+
+
+def test_read_removed_missing_file_is_empty(tmp_path):
+    assert block.read_removed(tmp_path / "nope.json") == {}
+
+
+def test_read_removed_reads_word_to_sentences(tmp_path):
+    data = {"吃": ["我吃饭。"], "爸爸": ["爸爸吃饭。", "我爸爸是医生。"]}
+    assert block.read_removed(removed_at(tmp_path, data)) == data
+
+
+@pytest.mark.parametrize(
+    "text",
+    ["{not json", '["我吃饭。"]', '{"吃": "我吃饭。"}', '{"吃": [1]}'],
+    ids=["broken-json", "not-an-object", "not-a-list", "not-text"],
+)
+def test_read_removed_bad_list_raises_naming_the_file(tmp_path, text):
+    path = tmp_path / "removed.json"
+    path.write_text(text, encoding="utf-8")
+    with pytest.raises(block.RemovedListError, match="removed.json"):
+        block.read_removed(path)
+
+
+def test_missing_removed_list_changes_nothing(tmp_path):
+    result = run(tmp_path, BAND1, FakeClaude(BAND1), removed=removed_at(tmp_path))
+    assert result.written == 7
+    assert kept(tmp_path, "吃") == ["我吃饭。", "爸爸吃饭。"]
+
+
+def test_removed_sentence_in_a_reply_is_not_saved_for_that_word(tmp_path):
+    """Removed for 吃 only: 饭 may still use the same sentence."""
+    removed = removed_at(tmp_path, {"吃": ["我吃饭。"]})
+    fake = FakeClaude(BAND1)
+    run(tmp_path, BAND1, fake, removed=removed)
+    assert len(fake.prompts) == 1  # 吃 still has 爸爸吃饭。, so no retry
+    assert kept(tmp_path, "吃") == ["爸爸吃饭。"]
+    assert "我吃饭。" in kept(tmp_path, "饭")
+
+
+def test_word_with_only_removed_sentences_is_retried_with_the_audit_reason(tmp_path):
+    removed = removed_at(tmp_path, {"吃": ["我吃饭。", "爸爸吃饭。"]})
+    new = [s("我们吃饭。", "We eat.")]
+    fake = FakeClaude(BAND1, script={1: {"吃": new}})
+    result = run(tmp_path, BAND1, fake, removed=removed)
+    assert len(fake.prompts) == 2
+    assert AUDIT_REASON in fake.prompts[1]
+    assert list(result.failed) == []
+    assert kept(tmp_path, "吃") == ["我们吃饭。"]
+
+
+def test_removed_sentence_still_sent_after_retries_leaves_the_word_failed(tmp_path):
+    removed = removed_at(tmp_path, {"吃": ["我吃饭。", "爸爸吃饭。"]})
+    result = run(tmp_path, BAND1, FakeClaude(BAND1), removed=removed)
+    assert list(result.failed) == ["吃"]
+    assert "吃" not in saved_ids(tmp_path)
+
+
+def test_saved_line_loses_its_removed_sentence_and_is_still_skipped(tmp_path):
+    write_saved(tmp_path, *[saved_line(w, GOOD[w]) for w in BAND1_IDS])
+    removed = removed_at(tmp_path, {"爸爸": ["爸爸吃饭。"]})
+    fake = FakeClaude(BAND1)
+    result = run(tmp_path, BAND1, fake, removed=removed)
+    assert fake.prompts == []
+    assert result.skipped == 7
+    assert kept(tmp_path, "爸爸") == ["我爸爸是医生。"]  # file rewritten
+    assert kept(tmp_path, "吃") == ["我吃饭。", "爸爸吃饭。"]  # other words untouched
+    assert saved_ids(tmp_path) == BAND1_IDS
+
+
+def test_saved_line_of_only_removed_sentences_is_dropped_and_redone(tmp_path):
+    write_saved(tmp_path, *[saved_line(w, GOOD[w]) for w in BAND1_IDS])
+    removed = removed_at(tmp_path, {"吃": ["我吃饭。", "爸爸吃饭。"]})
+    fake = FakeClaude(BAND1, sentences={"吃": [s("我们吃饭。", "We eat.")]})
+    result = run(tmp_path, BAND1, fake, removed=removed)
+    assert [e["cards"] for e in log_entries(tmp_path)] == [1]  # only 吃 is asked
+    assert result.skipped == 6
+    assert result.written == 1
+    assert kept(tmp_path, "吃") == ["我们吃饭。"]
+
+
+def test_saved_line_of_only_removed_sentences_is_gone_even_if_not_redone(tmp_path):
+    """The line is dropped (the file shrinks) even when the redo fails."""
+    write_saved(tmp_path, *[saved_line(w, GOOD[w]) for w in BAND1_IDS])
+    removed = removed_at(tmp_path, {"吃": ["我吃饭。", "爸爸吃饭。"]})
+    result = run(tmp_path, BAND1, FakeClaude(BAND1), removed=removed, retries=0)
+    assert list(result.failed) == ["吃"]
+    assert saved_ids(tmp_path) == [w for w in BAND1_IDS if w != "吃"]
+
+
+def test_dry_run_reads_the_removed_list_but_writes_nothing(tmp_path):
+    write_saved(tmp_path, *[saved_line(w, GOOD[w]) for w in BAND1_IDS])
+    before = (tmp_path / "sentences.jsonl").read_bytes()
+    removed = removed_at(tmp_path, {"吃": ["我吃饭。", "爸爸吃饭。"]})
+    fake = FakeClaude(BAND1)
+    run(tmp_path, BAND1, fake, removed=removed, dry_run=True)
+    assert fake.prompts == []
+    assert (tmp_path / "sentences.jsonl").read_bytes() == before
+    assert not (tmp_path / "log.jsonl").exists()
+    (removed).write_text("{not json", encoding="utf-8")  # proof it's read in a dry run
+    with pytest.raises(block.RemovedListError):
+        run(tmp_path, BAND1, fake, removed=removed, dry_run=True)
+
+
+def test_broken_removed_list_stops_before_any_call_and_changes_nothing(tmp_path):
+    write_saved(tmp_path, saved_line("gone", GOOD["吃"]), saved_line("吃", [BAD]))
+    before = (tmp_path / "sentences.jsonl").read_bytes()
+    removed = tmp_path / "removed.json"
+    removed.write_text('{"吃": "我吃饭。"}', encoding="utf-8")
+    fake = FakeClaude(BAND1)
+    with pytest.raises(block.RemovedListError, match="removed.json"):
+        run(tmp_path, BAND1, fake, removed=removed)
+    assert fake.prompts == []
+    assert (tmp_path / "sentences.jsonl").read_bytes() == before
+    assert not (tmp_path / "log.jsonl").exists()
+
+
+def test_command_line_prints_stopped_on_a_broken_removed_list(monkeypatch, capsys):
+    from hsk_trainer.blocks.sentence_writer import __main__ as cli
+
+    def boom(*args, **kwargs):
+        raise block.RemovedListError("sentences_removed.json: broken")
+
+    monkeypatch.setattr(cli, "write_sentences", boom)
+    monkeypatch.setattr(cli, "load_cards", lambda path: DECK)
+    assert cli.main(["--limit", "1"]) == 1
+    out = capsys.readouterr().out
+    assert "Stopped:" in out and "sentences_removed.json" in out
