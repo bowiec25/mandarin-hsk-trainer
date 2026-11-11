@@ -32,12 +32,14 @@ class Attempt(BaseModel):
     question: Question
     typed: str
     grade: Grade
-    verdict: Verdict | None = None  # the judge's, only asked when the grader said wrong
+    # The judge's (only asked when the grader said wrong), or your own mark (own_mark)
+    verdict: Verdict | None = None
 
     @computed_field
     @property
     def correct(self) -> bool:
-        """Right by the answer list (typos forgiven), or the judge said yes."""
+        """Right by the answer list (typos forgiven), or the judge (or your own
+        mark) said yes."""
         return self.grade.correct or (self.verdict is not None and self.verdict.correct)
 
 
@@ -156,12 +158,50 @@ class QuizSession:
             raise RuntimeError("the quiz is finished: there is no question to answer")
         marked = grade(typed, question.accepted_answers, settings=self._settings)
         verdict = None
-        if not marked.correct and typed.strip() and self._judge is not None:
+        if _checkable(marked, typed) and self._judge is not None:
             verdict = self._judge(question, typed)  # only when the list says wrong
         attempt = Attempt(question=question, typed=typed, grade=marked, verdict=verdict)
         self._attempts.append(attempt)
         self._ready = None
         return attempt
+
+    @property
+    def can_own_mark(self) -> bool:
+        """True if the last answer is waiting for your own mark (ADR 0014): typed,
+        wrong by the answer list, and nobody checked it (no verdict, or "couldn't
+        check")."""
+        return bool(self._attempts) and _markable(self._attempts[-1])
+
+    def own_mark(self, verdict: Verdict, card_id: str | None = None) -> Attempt:
+        """Your own mark on the last answer (e.g. "Did you get the gist?"), given
+        after `answer()` because a web page can't pause inside it. Returns the
+        updated Attempt; the quiz doesn't move on. Pass the `card_id` the mark is
+        for, so a late or repeated click can't land on a later answer."""
+        if not self._attempts:
+            raise RuntimeError("there is no answer yet to mark")
+        if not isinstance(verdict, Verdict):
+            raise TypeError(f"own_mark takes a Verdict, not {type(verdict).__name__}")
+        if verdict.source != "self":
+            raise ValueError(
+                f"own_mark takes your own mark (source 'self'), not {verdict.source!r}"
+            )
+        last = self._attempts[-1]
+        if card_id is not None and card_id != last.question.card_id:
+            raise ValueError(
+                f"the mark is for {card_id!r}, but the last answer was for "
+                f"{last.question.card_id!r}"
+            )
+        if not _markable(last):
+            raise ValueError(
+                "the last answer can't take your mark: it was blank, right by the "
+                "answer list, or already checked"
+            )
+        # A new Attempt (validated), not model_copy: the record stays trustworthy.
+        marked = Attempt(
+            question=last.question, typed=last.typed, grade=last.grade, verdict=verdict
+        )
+        self._attempts[-1] = marked
+        return marked
 
     def result(self) -> QuizResult:
         return QuizResult(
@@ -169,6 +209,19 @@ class QuizSession:
             total=len(self._questions),
             skipped=self._skipped,
         )
+
+
+def _checkable(marked: Grade, typed: str) -> bool:
+    """Worth a second look (the judge's, or your own mark): wrong by the answer list,
+    and something was typed. One rule for both, so they never disagree."""
+    return not marked.correct and bool(typed.strip())
+
+
+def _markable(attempt: Attempt) -> bool:
+    """Can take your own mark: checkable, and nobody checked it yet."""
+    return _checkable(attempt.grade, attempt.typed) and (
+        attempt.verdict is None or attempt.verdict.source == "not_checked"
+    )
 
 
 def run_quiz(

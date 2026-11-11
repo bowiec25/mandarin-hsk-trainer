@@ -828,3 +828,203 @@ def test_unusable_prepare_result_is_not_asked_for_again():
         with pytest.raises(ValueError):
             session.current  # noqa: B018
     assert calls == [FRANCE]
+
+
+# -- Your own mark after the answer (ADR 0014) -------------------------------------
+
+
+def verdict(correct: bool, source: str = "self", reason: str = "My own mark."):
+    from quizkit.models import Verdict
+
+    return Verdict(correct=correct, reason=reason, source=source)
+
+
+def judge_returning(source: str, correct: bool = False):
+    """A judge that always returns a verdict from `source` (e.g. "not_checked")."""
+
+    def judge(question: Question, typed: str):
+        return verdict(correct, source=source, reason=f"From {source}.")
+
+    return judge
+
+
+def test_wrong_answer_without_judge_can_take_own_mark():
+    session = block.QuizSession([FRANCE, ITALY])
+    session.answer("Lutetia")
+    assert session.can_own_mark is True
+
+
+def test_own_mark_yes_makes_the_answer_count():
+    session = block.QuizSession([FRANCE, ITALY])
+    session.answer("Lutetia")
+    mine = verdict(True)
+    attempt = session.own_mark(mine)
+    assert isinstance(attempt, block.Attempt)
+    assert attempt.verdict == mine
+    assert attempt.correct is True
+    assert attempt.grade.correct is False  # the grader's verdict is unchanged
+    assert attempt.typed == "Lutetia" and attempt.question == FRANCE
+    result = session.result()
+    assert result.attempts[-1] == attempt
+    assert result.correct == 1
+
+
+def test_own_mark_no_stays_wrong_but_is_marked():
+    session = block.QuizSession([FRANCE, ITALY])
+    session.answer("Lyon")
+    mine = verdict(False)
+    attempt = session.own_mark(mine)
+    assert attempt.verdict == mine
+    assert attempt.correct is False
+    assert session.result().correct == 0
+    assert session.result().attempts[0].verdict == mine
+
+
+def test_own_mark_works_after_a_couldnt_check_verdict():
+    session = block.QuizSession([FRANCE, ITALY], judge=judge_returning("not_checked"))
+    first = session.answer("Lutetia")
+    assert first.verdict.source == "not_checked"
+    assert session.can_own_mark is True
+    attempt = session.own_mark(verdict(True))
+    assert attempt.verdict.source == "self"
+    assert session.result().correct == 1
+
+
+def test_own_mark_works_on_the_last_question():
+    session = block.QuizSession([FRANCE])
+    session.answer("Lutetia")
+    assert session.done is True
+    assert session.can_own_mark is True
+    session.own_mark(verdict(True))
+    result = session.result()
+    assert result.finished is True
+    assert result.correct == 1
+
+
+def test_own_mark_before_any_answer_raises_runtime_error():
+    session = block.QuizSession(CAPITALS)
+    assert session.can_own_mark is False
+    with pytest.raises(RuntimeError):
+        session.own_mark(verdict(True))
+
+
+@pytest.mark.parametrize("typed", ["Paris", "Pariss"])
+def test_own_mark_after_a_right_answer_raises_value_error(typed):
+    """Right by the answer list (exact or typo-forgiven): nothing to mark."""
+    session = block.QuizSession([FRANCE, ITALY])
+    session.answer(typed)
+    assert session.can_own_mark is False
+    with pytest.raises(ValueError):
+        session.own_mark(verdict(True))
+
+
+@pytest.mark.parametrize("source", ["claude", "cache"])
+@pytest.mark.parametrize("judged_correct", [True, False])
+def test_own_mark_after_a_checked_verdict_raises_value_error(source, judged_correct):
+    session = block.QuizSession(
+        [FRANCE, ITALY], judge=judge_returning(source, correct=judged_correct)
+    )
+    session.answer("Lutetia")
+    assert session.can_own_mark is False
+    with pytest.raises(ValueError):
+        session.own_mark(verdict(True))
+    assert session.result().attempts[0].verdict.source == source  # unchanged
+
+
+def test_own_mark_only_once():
+    session = block.QuizSession([FRANCE, ITALY])
+    session.answer("Lutetia")
+    session.own_mark(verdict(False))
+    assert session.can_own_mark is False
+    with pytest.raises(ValueError):
+        session.own_mark(verdict(True))
+    assert session.result().correct == 0  # the first own mark stands
+
+
+def test_own_mark_after_a_self_verdict_from_the_judge_raises_value_error():
+    """The terminal's prompt inside the judge already gave a self mark: that's checked."""
+    session = block.QuizSession([FRANCE, ITALY], judge=judge_returning("self"))
+    session.answer("Lutetia")
+    assert session.can_own_mark is False
+    with pytest.raises(ValueError):
+        session.own_mark(verdict(True))
+
+
+@pytest.mark.parametrize("source", ["claude", "cache", "not_checked"])
+def test_own_mark_with_a_non_self_verdict_raises_value_error(source):
+    session = block.QuizSession([FRANCE, ITALY])
+    session.answer("Lutetia")
+    with pytest.raises(ValueError):
+        session.own_mark(verdict(False, source=source))
+    assert session.result().attempts[0].verdict is None  # nothing changed
+    assert session.can_own_mark is True  # still waiting for a real own mark
+
+
+def test_own_mark_changes_only_the_last_answer():
+    session = block.QuizSession(CAPITALS)
+    session.answer("Lyon")
+    session.answer("Milan")
+    session.own_mark(verdict(True))
+    first, second = session.result().attempts
+    assert first.verdict is None and first.correct is False
+    assert second.verdict.source == "self" and second.correct is True
+    assert session.result().correct == 1
+
+
+def test_earlier_wrong_answer_cannot_be_marked_after_the_next_answer():
+    """Only the last answer: a right answer 2 closes the chance to mark answer 1."""
+    session = block.QuizSession(CAPITALS)
+    session.answer("Lyon")
+    session.answer("Rome")
+    assert session.can_own_mark is False
+    with pytest.raises(ValueError):
+        session.own_mark(verdict(True))
+    assert session.result().attempts[0].verdict is None
+
+
+def test_own_mark_does_not_move_the_quiz_on():
+    session = block.QuizSession(CAPITALS)
+    session.answer("Lyon")
+    session.own_mark(verdict(True))
+    assert session.current == ITALY
+    assert session.result().answered == 1
+
+
+@pytest.mark.parametrize("typed", ["", "   "])
+def test_blank_answer_cannot_take_own_mark(typed):
+    session = block.QuizSession([FRANCE, ITALY])
+    session.answer(typed)
+    assert session.can_own_mark is False
+    with pytest.raises(ValueError):
+        session.own_mark(verdict(True))
+
+
+def test_own_mark_when_every_question_so_far_was_skipped_raises_runtime_error():
+    prepare, _ = fake_prepare({"france": None})
+    session = block.QuizSession(CAPITALS, prepare=prepare)
+    assert session.current == ITALY  # France skipped, nothing answered yet
+    assert session.can_own_mark is False
+    with pytest.raises(RuntimeError):
+        session.own_mark(verdict(True))
+
+
+def test_own_mark_with_something_that_is_not_a_verdict_raises_type_error():
+    session = block.QuizSession([FRANCE])
+    session.answer("Lyon")
+    with pytest.raises(TypeError):
+        session.own_mark({"correct": True, "reason": "yes", "source": "self"})
+    assert session.can_own_mark is True  # nothing changed
+
+
+def test_own_mark_for_another_card_raises_and_changes_nothing():
+    """A late click meant for France must not land on Italy (code review)."""
+    from quizkit.models import Verdict
+
+    session = block.QuizSession([FRANCE, ITALY])
+    session.answer("Lyon")
+    session.answer("Milan")
+    yes = Verdict(correct=True, reason="yes", source="self")
+    with pytest.raises(ValueError):
+        session.own_mark(yes, card_id=FRANCE.card_id)
+    assert session.result().correct == 0
+    assert session.own_mark(yes, card_id=ITALY.card_id).correct is True
