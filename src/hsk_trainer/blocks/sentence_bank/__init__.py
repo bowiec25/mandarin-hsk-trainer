@@ -17,13 +17,17 @@ from pydantic import BaseModel, ConfigDict, Field
 from hsk_trainer.blocks.sentence_writer import (
     MAX_SAVED,
     PROMPT_VERSION,
+    REMOVED_FILE,
     ROOT,
     SENTENCES_FILE,
     Sentence,
-    SentenceFileError,
     SentenceLine,
     read_lines,
+    read_removed,
     write_lines,
+)
+from hsk_trainer.blocks.sentence_writer import (
+    RemovedListError as RemovedListError,  # re-exported: quiz_setup imports it here
 )
 from quizkit.blocks.base import BlockSpec
 from quizkit.files import write_atomically
@@ -45,8 +49,6 @@ BLOCK_SPEC = BlockSpec(
 )
 
 SEEN_FILE = ROOT / "data" / "sentence_seen.json"  # gitignored: your history, not source
-# Sentences an audit removed (ADR 0015): committed, never banked or shown again.
-REMOVED_FILE = ROOT / "data" / "generated" / "sentences_removed.json"
 
 
 class BankSettings(BaseModel):
@@ -88,30 +90,6 @@ def _read_seen(path: Path, quiet: bool = False) -> dict[str, dict[str, str]]:
     return data
 
 
-class RemovedListError(SentenceFileError):
-    """The removed list can't be read (a SentenceFileError, so old callers still
-    catch it; new ones can name the right file)."""
-
-
-def _read_removed(path: Path) -> dict[str, list[str]]:
-    """The removed list, or {} if it's missing. Committed data, so a broken one is
-    loud (SentenceFileError naming the file), like the bank itself."""
-    if not path.exists():
-        return {}
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-        if not isinstance(data, dict):
-            raise TypeError("not an object of word -> list of sentences")
-        for word, sentences in data.items():
-            if not isinstance(sentences, list) or not all(
-                isinstance(s, str) for s in sentences
-            ):
-                raise TypeError(f"{word!r} is not a list of sentences (text)")
-    except (OSError, UnicodeDecodeError, ValueError, TypeError) as err:
-        raise RemovedListError(f"{path.name}: {err}") from err
-    return data
-
-
 class SentenceBank:
     """The bank for one quiz: read once, saved after every change."""
 
@@ -142,7 +120,7 @@ class SentenceBank:
                 self.others.append(line)
         self.seen = _read_seen(seen_path)
         self.removed_path = removed_path
-        self._set_removed(_read_removed(removed_path))
+        self._set_removed(read_removed(removed_path))
 
     def _check(self, card_id: str) -> None:
         if card_id not in self.known:
@@ -172,7 +150,7 @@ class SentenceBank:
         was_used = any(s.hanzi == hanzi for s in self._sentences(card_id))
         # Merge with the list on disk first: another bank (an audit, a quiz) may have
         # listed more since this one was made, and must not be overwritten.
-        on_disk = _read_removed(self.removed_path)
+        on_disk = read_removed(self.removed_path)
         merged = {
             word: list(dict.fromkeys([*on_disk.get(word, []), *items]))
             for word, items in {**self.removed, **on_disk}.items()

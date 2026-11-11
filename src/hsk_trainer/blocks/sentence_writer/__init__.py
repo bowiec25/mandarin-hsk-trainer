@@ -41,6 +41,8 @@ SENTENCES_FILE = ROOT / "data" / "generated" / "sentences.jsonl"
 LOG_FILE = ROOT / "data" / "generated" / "sentence_writer_log.jsonl"
 # Calls made during play (write_one): gitignored, so playing never changes the repo.
 LIVE_LOG_FILE = ROOT / "data" / "live_sentence_log.jsonl"
+# Sentences an audit removed (ADR 0015): committed, never saved or shown again.
+REMOVED_FILE = ROOT / "data" / "generated" / "sentences_removed.json"
 _LOG_LOCK = threading.Lock()  # write_one runs on quiz background threads
 MODEL = "sonnet"
 MAX_SENTENCES = 2  # asked for, and kept, per word per call
@@ -160,6 +162,30 @@ class SentenceRun(BaseModel):
 
 class SentenceFileError(ValueError):
     """sentences.jsonl can't be opened, or one of its lines can't be read."""
+
+
+class RemovedListError(SentenceFileError):
+    """The removed list can't be read (a SentenceFileError, so old callers still
+    catch it; new ones can name the right file)."""
+
+
+def read_removed(path: Path) -> dict[str, list[str]]:
+    """The removed list, or {} if it's missing. Committed data, so a broken one is
+    loud (SentenceFileError naming the file), like the bank itself."""
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(data, dict):
+            raise TypeError("not an object of word -> list of sentences")
+        for word, sentences in data.items():
+            if not isinstance(sentences, list) or not all(
+                isinstance(s, str) for s in sentences
+            ):
+                raise TypeError(f"{word!r} is not a list of sentences (text)")
+    except (OSError, UnicodeDecodeError, ValueError, TypeError) as err:
+        raise RemovedListError(f"{path.name}: {err}") from err
+    return data
 
 
 class _ReplyCard(BaseModel):
@@ -425,13 +451,18 @@ def read_lines(path: Path) -> list[SentenceLine]:
 
 
 def _load_existing(
-    out: Path, cards: list[Card], vocab: Vocab
+    out: Path,
+    cards: list[Card],
+    vocab: Vocab,
+    removed: dict[str, set[str]] | None = None,
 ) -> tuple[dict[str, SentenceLine], dict[str, SentenceLine], bool]:
     """(done, saved, changed): current passing lines; every saved line to keep until
     it's replaced; whether the file needs rewriting (a line dropped or listed twice).
 
     A word listed twice keeps its first copy that passes the checks (else the first).
+    Sentences on the removed list are taken out first; a line left empty is dropped.
     """
+    removed = removed or {}
     if not out.exists():
         return {}, {}, False
     by_id = {c.id: c for c in cards}
@@ -444,6 +475,14 @@ def _load_existing(
             print(f"Warning: dropped {line.id!r} from {out.name} (no longer a card)")
             changed = True
             continue
+        listed = removed.get(line.id, set())
+        kept = [s for s in line.sentences if s.hanzi not in listed]
+        if len(kept) != len(line.sentences):
+            changed = True
+            if not kept:
+                print(f"Will redo {line.id!r}: an audit removed all its sentences")
+                continue
+            line = line.model_copy(update={"sentences": kept})
         hanzi = by_id[line.id].fields["hanzi"]
         changed |= line.hanzi != hanzi
         line = line.model_copy(update={"hanzi": hanzi})
@@ -518,8 +557,15 @@ def _by_id(items: list[object]) -> dict[str, object]:
     return parsed
 
 
+REMOVED_REASON = "an audit removed this sentence; write a different one"
+
+
 def _check_triples(
-    triples: list[tuple[str, str, str]], word: str, vocab: Vocab, cards: list[Card]
+    triples: list[tuple[str, str, str]],
+    word: str,
+    vocab: Vocab,
+    cards: list[Card],
+    removed: set[str] | frozenset[str] = frozenset(),
 ) -> tuple[list[Sentence], list[tuple[str, list[str]]]]:
     """(good, bad): up to MAX_SENTENCES passing sentences, pinyin laid out; and the
     failing ones as "hanzi (pinyin: ...)" with their reasons. Repeats count once."""
@@ -530,6 +576,9 @@ def _check_triples(
             break
         shown = f"{hanzi} (pinyin: {pinyin})"  # what a retry shows Claude
         if any(g.hanzi == hanzi for g in good) or any(b[0] == shown for b in bad):
+            continue
+        if hanzi in removed:  # on the removed list (ADR 0015): never saved
+            bad.append((shown, [REMOVED_REASON]))
             continue
         problems = _sentence_problems(hanzi, pinyin, english, word, vocab, cards)
         if problems:
@@ -595,7 +644,7 @@ def write_one(
 class _Job:
     """Everything one run shares, so the steps below stay small."""
 
-    def __init__(self, cards, vocab, ask, out, log, done, saved, run) -> None:
+    def __init__(self, cards, vocab, ask, out, log, done, saved, run, removed) -> None:
         self.cards = cards
         self.vocab = vocab
         self.ask = ask
@@ -604,6 +653,7 @@ class _Job:
         self.done = done
         self.saved = saved
         self.run = run
+        self.removed: dict[str, set[str]] = removed
 
     def call(
         self,
@@ -629,7 +679,11 @@ class _Job:
         for card in chunk:
             word = card.fields["hanzi"]
             good, bad = _check_triples(
-                _triples(parsed.get(card.id)), word, self.vocab, self.cards
+                _triples(parsed.get(card.id)),
+                word,
+                self.vocab,
+                self.cards,
+                self.removed.get(card.id, set()),
             )
             if not good:
                 failed[card.id] = bad
@@ -681,6 +735,7 @@ def write_sentences(
     ask: Callable[..., ClaudeReply] = ask_claude,
     out: Path = SENTENCES_FILE,
     log: Path = LOG_FILE,
+    removed: Path = REMOVED_FILE,
 ) -> SentenceRun:
     """Ask Claude for sentences for every word not yet done in `out`; save after each
     call. A ClaudeError stops the run: what's done is already saved, then it goes up.
@@ -693,8 +748,9 @@ def write_sentences(
         raise ValueError("retries can't be negative")
     if not cards:
         raise ValueError("no cards")
+    listed = {word: set(items) for word, items in read_removed(removed).items()}
     vocab = Vocab(cards)
-    done, saved, changed = _load_existing(out, cards, vocab)
+    done, saved, changed = _load_existing(out, cards, vocab, listed)
     if changed and not dry_run:  # dropped / repeated lines are written back at once
         _save(out, cards, done, saved)
     todo = [c for c in cards if c.id not in done]
@@ -716,7 +772,7 @@ def write_sentences(
         )
         return run
 
-    job = _Job(cards, vocab, ask, out, log, done, saved, run)
+    job = _Job(cards, vocab, ask, out, log, done, saved, run, listed)
     try:
         for band in bands:
             job.band(band, [c for c in todo if c.level == band], chunk_size, retries)
