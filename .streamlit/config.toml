@@ -1,5 +1,5 @@
-# Streamlit settings for `uv run hsk web` (ADR 0014). `hsk web` passes the same two
-# as flags, so they hold from any folder.
+# Streamlit settings for `uv run hsk web` (ADR 0014). `hsk web` also passes these
+# as flags (cli.WEB_FLAGS), so they hold from any folder.
 [server]
 address = "localhost"  # only this computer can open the page
 
