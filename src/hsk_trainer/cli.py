@@ -472,10 +472,13 @@ def web() -> None:
     process = subprocess.Popen(command, cwd=quiz_setup.ROOT)
     try:
         if _wait_for_web(process):
-            print(f"The quiz is open at {WEB_URL} (Ctrl-C here stops it).")
+            print(f"The quiz is open at {WEB_URL} (Ctrl-C here stops it).", flush=True)
             webbrowser.open(WEB_URL)
         elif process.poll() is None:  # still starting after WEB_WAIT: say where
-            print(f"Streamlit is slow to start: open {WEB_URL} once it's ready.")
+            print(
+                f"Streamlit is slow to start: open {WEB_URL} once it's ready.",
+                flush=True,
+            )
         code = process.wait()
     except KeyboardInterrupt:  # Streamlit gets the Ctrl-C too: let it finish
         _stop(process)
