@@ -2,7 +2,7 @@
 
 How to run it (by hand, it needs Claude): ask Claude Code to *"run the data-auditor on tests/data/auditor_planted.jsonl"*, then compare its report with this key. Re-run it after any change to `.claude/agents/data-auditor.md`.
 
-**Pass bar:** all 5 planted problems flagged, each with the right check (another check as well is fine), and none of the 6 good sentences marked **remove**. Marking a good one as **unsure** is noted, not a fail.
+**Pass bar:** all 5 planted problems flagged, each with the right check (another check as well is fine), and none of the 6 good sentences flagged or **unsure**. Since ADR 0015, every flagged or unsure sentence is removed without asking, so a good one marked unsure would be lost: that's a fail now.
 
 ## Must be flagged (one per check)
 | Word | Sentence | Check | Why it's wrong |
@@ -13,5 +13,5 @@ How to run it (by hand, it needs Claude): ask Claude Code to *"run the data-audi
 | 人 | 那个男人是老师。 | level | 男人 is a band-3 word in a band-1 word's sentence (the script reads it as 男 + 人) |
 | 走 | 他爷爷去年走了。 | sense | 走 = "passed away" here; the quiz teaches walk / go / leave |
 
-## Must not be marked remove (good)
+## Must not be flagged or unsure (good)
 爱 我爱我的妈妈。 · 八 我有八个朋友。 · 吧 我们去吧。 · 坐 你坐吧。 · 爸爸 爸爸喜欢喝茶。 · 长 这条路很长。 (cháng, correct)

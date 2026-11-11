@@ -165,7 +165,7 @@ Some of these **physically stop** a mistake. Others are just **instructions or h
 | Small steps | ⚪ | You + Claude | Each plan | Everyone | A habit. Agent work: plan the 4-PR split before building (M4 Step 4b lesson) |
 | No real Claude in tests | 🟠 | pytest (`tests/conftest.py` autouse fixture) | Every test | Everyone running tests | Only covers `quizkit.claude`; a test can still start another program on purpose |
 | Judge eval bar (≥ 90%, no wrong "yes") | ⚪ | You + Claude, by hand | Prompt or model change | The judge | Not in CI (needs Claude); a small set catches big problems, not rare ones |
-| Sentence bank audit (`data-auditor` + you) | 🔵 | CLAUDE.md rule; dated report in `docs/audits/` | Each milestone end, every ~50 new sentences | The sentence bank | Advice: it flags, you decide. Live sentences are shown before any audit |
+| Sentence bank audit (`data-auditor`, acts on its own, ADR 0015) | 🔵 | CLAUDE.md rule; dated report in `docs/audits/` | Each milestone end, every ~50 new sentences | The sentence bank | Whatever it flags (or is unsure about) is removed, no human approval; you get a one-line summary. Live sentences are shown before any audit |
 | Live sentence checks (script checks every sentence Claude writes during play) | 🔴 | Our code (`sentence_validator` + pinyin + English checks inside `write_one`) | Every live sentence, before it's shown or saved | The quiz | Only as good as the rules: they catch wrong words and pinyin, not an unnatural sentence (that's the `data-auditor`, Step 6) |
 
 ### The big lesson
@@ -445,7 +445,7 @@ issue → plan mode → branch → small commits → PR → CI ✅ → squash-me
 |---|---|---|
 | 🔍 `block-reviewer` | Checks a block against its job description + ADRs → ✅ / ⚠️ verdict | Read, Grep, Glob only, so it **can't change anything** 🔴 |
 | 🧪 `test-writer` | Writes tests from the job description (not from the code) | Read, Write, Edit, Bash (told: only in `tests/` 🔵) |
-| 🔎 `data-auditor` | Checks the **data**, not code: flags sentences the scripts can't judge (natural? English right? right reading? too hard? taught meaning?), each with a reason; you decide | Read, Grep, Glob only 🔴 |
+| 🔎 `data-auditor` | Checks the **data**, not code: flags sentences the scripts can't judge (natural? English right? right reading? too hard? taught meaning?), each with a reason; flagged sentences are removed without asking (ADR 0015) | Read, Grep, Glob only 🔴 |
 
 **How they get triggered** (none of these are 🔴, but together they make it reliable):
 | Trigger | Strictness | Where |
@@ -467,7 +467,8 @@ issue → plan mode → branch → small commits → PR → CI ✅ → squash-me
 - **Limit the tools.** A reviewer with no Write/Edit tools *can't* make changes (🔴). An instruction like "only write in tests/" is only 🔵.
 - **Plan the triggers, not just the helper.** A helper nobody calls is useless.
 - **Test it on a planted mistake** before trusting it. For a judgment helper, keep the planted file + an answer key in the repo (`tests/data/auditor_planted*`) and re-run it after every change to its instructions
-- **AI-made data gets an AI reviewer + you.** Scripts check the rules; a read-only auditor checks meaning; you make the call; a dated report keeps it traceable (M4 Step 6: 4 of 44 sentences removed, and it found a gap in the script checker)
+- **AI-made data gets an AI reviewer, not a human gate.** Scripts check the rules; a read-only auditor checks meaning; what it flags is removed automatically; a dated report keeps it traceable (M4 Step 6: 4 of 44 sentences removed, and it found a gap in the script checker). A person approving each item doesn't scale, and a learner can't judge the language anyway (ADR 0015, 2026-11-11). A mistake a script could catch goes to the script, not to a person
+- **After editing a subagent's instructions, test the new text, not the loaded one.** A running session may keep the version it loaded at start, so re-run its planted test in a fresh session, or have an agent read the file and follow it (2026-11-11)
 - A read-only reviewer can't run tests, so it reviews by reading. Claude still runs pytest.
 - **Fresh reviewer each round.** Round 2 found a gap round 1 missed. A new subagent has no memory of "what I already approved".
 - **A subagent flags, reality decides.** The test-writer only sees the SPEC, so it can ask "may `pos` be empty?" but not answer it. Check questions like that against the real data (here: 11 words had no `pos`, which would have crashed the real run).
