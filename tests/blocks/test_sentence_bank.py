@@ -956,3 +956,19 @@ def test_remove_keeps_listed_ids_that_are_not_cards(files, removed):
     write_removed(removed, {"gone": [D[0]]})
     make_r(files, removed).remove("吃", A[0])
     assert listed(removed) == {"gone": [D[0]], "吃": [A[0]]}
+
+
+def test_remove_keeps_a_removal_made_meanwhile_by_another_bank(files, removed):
+    """Code review: `remove` merges with the list on disk, so two banks (an audit
+    and a quiz, or two audits) don't lose each other's removals."""
+    path, _ = files
+    write_bank(path, line("吃", A, B), line("饭", C))
+    first = make_r(files, removed)
+    second = make_r(files, removed)
+    second.remove("饭", C[0])
+    first.remove("吃", A[0])
+    assert json.loads(removed.read_text(encoding="utf-8")) == {
+        "饭": [C[0]],
+        "吃": [A[0]],
+    }
+    assert first.is_removed("饭", C[0])  # it read the other's removal back

@@ -53,6 +53,8 @@ bank.add(card_id, sentence, model) -> bool  # save a new (already checked) sente
    - **"In the bank"** means a sentence the bank would use: in the word's line and not listed. So `remove` of a sentence that's listed but still in the file takes it out of the file and returns `False` (it was already out of use).
    - **`add` tidies the word's line:** when it rewrites a line, listed sentences still in it are dropped. So `cap` counts only usable sentences, and a line never grows past `cap` (more than `MAX_SAVED` would make `sentence_writer` redo the line and lose banked sentences).
    - **`remove` when the bank file is missing** only writes the list; it doesn't create the bank file.
+   - **`remove` merges with the list on disk** before writing (as `mark_seen` does), so a removal made meanwhile by another bank (an audit, another quiz) is kept.
+   - **Known limits:** a quiz already running when an audit removes a sentence keeps its own copy of the bank and list, so it may still show that sentence, or write it back into the file with its next `add`, until it ends; the list stays right, so the next bank skips it. And `sentence_writer` (the batch writer) doesn't read the list yet: it could write a listed sentence back as a word's only one, leaving the word with none usable (`docs/FUTURE.md`).
    - A listed id that is no longer a card is fine (kept as it is).
    - `remove` works on the word's first line only. A second copy of the id (only after a hand edit) is kept as it is, so after `remove` empties the first line, a new bank reads the second copy as the word's line. Listed sentences in it are still skipped.
 

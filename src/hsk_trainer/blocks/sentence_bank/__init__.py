@@ -142,38 +142,53 @@ class SentenceBank:
                 self.others.append(line)
         self.seen = _read_seen(seen_path)
         self.removed_path = removed_path
-        self.removed = _read_removed(removed_path)
+        self._set_removed(_read_removed(removed_path))
 
     def _check(self, card_id: str) -> None:
         if card_id not in self.known:
             raise ValueError(f"{card_id!r} is not one of the cards")
 
+    def _set_removed(self, removed: dict[str, list[str]]) -> None:
+        """Keep the list (for writing, in order) and a set per word (for lookups)."""
+        self.removed = removed
+        self._listed = {word: set(items) for word, items in removed.items()}
+
     def _sentences(self, card_id: str) -> list[Sentence]:
         """The word's usable sentences: in its line, and not on the removed list."""
         self._check(card_id)
         line = self.lines.get(card_id)
-        listed = set(self.removed.get(card_id, []))
+        listed = self._listed.get(card_id, set())
         return [s for s in line.sentences if s.hanzi not in listed] if line else []
 
     def is_removed(self, card_id: str, hanzi: str) -> bool:
         """Is this sentence on the removed list (ADR 0015)?"""
         self._check(card_id)
-        return hanzi in self.removed.get(card_id, [])
+        return hanzi in self._listed.get(card_id, set())
 
     def remove(self, card_id: str, hanzi: str) -> bool:
         """An audit's removal (ADR 0015): list it (saved first), then take it out of
         the word's line (a line left empty is dropped). True if the bank was using it."""
         self._check(card_id)
         was_used = any(s.hanzi == hanzi for s in self._sentences(card_id))
-        if not self.is_removed(card_id, hanzi):
-            listed = {**self.removed, card_id: [*self.removed.get(card_id, []), hanzi]}
+        # Merge with the list on disk first: another bank (an audit, a quiz) may have
+        # listed more since this one was made, and must not be overwritten.
+        on_disk = _read_removed(self.removed_path)
+        merged = {
+            word: list(dict.fromkeys([*on_disk.get(word, []), *items]))
+            for word, items in {**self.removed, **on_disk}.items()
+        }
+        for word, items in self.removed.items():  # words only this bank listed
+            merged[word] = list(dict.fromkeys([*merged.get(word, []), *items]))
+        if hanzi not in merged.get(card_id, []):
+            merged[card_id] = [*merged.get(card_id, []), hanzi]
+        if merged != on_disk:
             self.removed_path.parent.mkdir(parents=True, exist_ok=True)
-            data = json.dumps(listed, ensure_ascii=False, indent=1) + "\n"
+            data = json.dumps(merged, ensure_ascii=False, indent=1) + "\n"
             write_atomically(self.removed_path, data.encode("utf-8"))
-            self.removed = listed
+        self._set_removed(merged)
         line = self.lines.get(card_id)
-        if line is not None and any(s.hanzi == hanzi for s in line.sentences):
-            kept = [s for s in line.sentences if s.hanzi != hanzi]
+        kept = [s for s in line.sentences if s.hanzi != hanzi] if line else []
+        if line is not None and len(kept) != len(line.sentences):
             if kept:
                 self.lines[card_id] = line.model_copy(update={"sentences": kept})
             else:
