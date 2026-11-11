@@ -97,7 +97,15 @@ The short version: what each stage built, and **what to think about next time**.
 7. **Split a step when it grows.** "Leitner + dealer" and "CLI + stats" were each one PR in the plan; each became two, and each review stayed small.
 
 ### 🌐 M6: Web UI
-*(added when M6 is done)*
+**Built:** a local Streamlit web app (ADR 0014): a shared setup (`quiz_setup.py`) used by the terminal and the page, the engine's own mark, the quiz page (`web_quiz.py` brain + thin page), `hsk web`, the Stats page; plus audits that act on their own (ADR 0015) and a removed-sentences list checked by every writer. 12 small PRs (#69–#80) + docs. 1320 tests.
+**Think about next time:**
+1. **Share first, then add the second front end.** Moving the setup out of the terminal program as its own PR, with the terminal's tests unchanged, proved nothing broke; the web page then had nothing to copy.
+2. **Keep the brain free of the UI framework.** `web_quiz.py` has no Streamlit in it, so its rules are plain tests; the page is thin and tested with the framework's own tool (`AppTest`).
+3. **Learn the framework's quirks with tests.** Streamlit reruns the whole page on every click and forgets a widget's value on a page that isn't shown. A planning review caught the first, `/code-review` the second; each got a test that fails without the fix.
+4. **Play it yourself, early.** Real play found what tests didn't: a crash on Streamlit's first-run question, and an unnatural sentence. It also showed the need for no human gate (ADR 0015).
+5. **A removal needs memory, on every path.** Deleting a bad sentence isn't enough: something must remember it, and **every** writer must check (the bank, live sentences, the batch writer). The first PR missed the batch writer; the code review found it.
+6. **Stage files by name after hand-testing.** Playing writes data into committed files; `git add -A` once swept 4 live sentences into a code fix.
+7. **Keep the map current every step.** Leaving the build map for the milestone's last PR let it fall a milestone behind, and the person it's for got lost.
 
 ---
 
@@ -166,6 +174,8 @@ Some of these **physically stop** a mistake. Others are just **instructions or h
 | No real Claude in tests | 🟠 | pytest (`tests/conftest.py` autouse fixture) | Every test | Everyone running tests | Only covers `quizkit.claude`; a test can still start another program on purpose |
 | Judge eval bar (≥ 90%, no wrong "yes") | ⚪ | You + Claude, by hand | Prompt or model change | The judge | Not in CI (needs Claude); a small set catches big problems, not rare ones |
 | Sentence bank audit (`data-auditor`, acts on its own, ADR 0015) | 🔵 | CLAUDE.md rule; dated report in `docs/audits/` | Each milestone end, every ~50 new sentences | The sentence bank | Whatever it flags (or is unsure about) is removed, no human approval; you get a one-line summary. Live sentences are shown before any audit |
+| Your files follow env vars in tests (`HSK_PROGRESS_FILE`, `HSK_JUDGE_CACHE`, `HSK_SEEN_FILE`, set in `tests/conftest.py`) | 🟠 | pytest (`tests/conftest.py`) + `quiz_setup` reading them | Every test, even one that starts the program in a separate process | Everyone running tests | Only the files that read an env var; add one for each new personal file (M6 added the seen file) |
+| Removed-sentences list (`data/generated/sentences_removed.json`, ADR 0015) | 🔴 | Our code (`sentence_bank`, `live_sentences`, `sentence_writer`) | Every time a sentence is shown or saved | The sentence bank | Exact text only: "我吃饭！" still passes if "我吃饭。" was removed (`docs/FUTURE.md`) |
 | Live sentence checks (script checks every sentence Claude writes during play) | 🔴 | Our code (`sentence_validator` + pinyin + English checks inside `write_one`) | Every live sentence, before it's shown or saved | The quiz | Only as good as the rules: they catch wrong words and pinyin, not an unnatural sentence (that's the `data-auditor`, Step 6) |
 
 ### The big lesson
@@ -419,6 +429,8 @@ issue → plan mode → branch → small commits → PR → CI ✅ → squash-me
 | Auto-memory | Claude remembers how you like to work, across sessions | Automatic |
 | Artifacts: a build map | A visual page of the project (every kind of part and where it lives, the journey of a change, tests, a "How it grew" timeline), updated after every step, with a frozen snapshot per step in `docs/build-map/snapshots/` | Ask: *"Make a build map artifact of this project, keep its source in `docs/build-map/index.html`, and add 'update the build map' to CLAUDE.md's after-each-step list."* ⚠️ Keep the source in git, or it's lost with the session |
 | **Headless Claude (`claude -p`) as an agent** | A script calls Claude Code without a chat, so a batch job runs under your subscription (no API key) | `claude -p --output-format json --model sonnet --tools "" --strict-mcp-config --no-session-persistence`, prompt on stdin, from an **empty temp folder** (no project files or CLAUDE.md). The JSON has the reply text and token usage. Copy `src/quizkit/claude.py` + its tests. Always pair it with a **script checker** and `--limit` / `--dry-run` |
+| **Claude in Chrome** (browser MCP) | Claude opens your local web page in Chrome, clicks and takes screenshots, to hand-test a UI | Install the extension, log in with the same account; Claude creates its own tab. Point the app at **scratch files** first (env vars) so a test click never touches your real data |
+| **Fork** (a copy of the session) | A background helper that starts with **all** of the session's context, for a side job (M6: catching the build map up while the main session wrote the docs) | `Agent` with type `fork`; tell it exactly which files are its own, so the two don't edit the same file |
 | **Git worktrees: two Claude sessions at once** | A second folder of the same repo, on its own branch ("two desks, one notebook"), so two sessions build two features without touching each other's files | `git worktree add -b <branch> ../<repo>-<feature> main`, then `uv sync` there, open a new terminal, `cd` there, run `claude` with a starter prompt. Remove after merge: `git worktree remove ../<repo>-<feature>` |
 
 **Worktree tips:**

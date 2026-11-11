@@ -752,3 +752,33 @@ The glue that passes each answer along is `quizkit/progress.py`. All of it is ge
 - **Tests never touch it.** One test that runs the real program in a separate process wrote 6 test answers into it once (the file was new that day, so it was deleted); that test now uses `--no-save`, and every other test gets its own temp file.
 - **`--seed`** now deals different words than before M5 (the dealer shuffles the whole band once). On an empty progress file, `--seed` gives the same words every time.
 - 1148 tests (was 955).
+
+## M6: web UI (2026-11-11)
+
+> **In plain words:** the quiz now also runs as a **web page** on your computer: `uv run hsk web` opens it in your browser. It has two pages: **Quiz** (all 6 modes, saving, due words first) and **Stats** (the same numbers as `hsk stats`). The terminal and the page use the same blocks: nothing was copied.
+
+**The structure:**
+```
+quiz_setup.py   shared: build a quiz, what to say about an answer, the stats numbers
+   ├── cli.py                 the terminal (hsk quiz, hsk stats, hsk web)
+   └── web_app.py             the web app's entry: page menu
+          ├── web_pages/quiz.py   the quiz page ── web_quiz.py (its brain, no Streamlit)
+          └── web_pages/stats.py  the stats page
+```
+
+1. **The plan (ADR 0014, PR #69).** Streamlit (plain Python, quickest to a usable page). First move the HSK setup out of the terminal program into one shared file, so both front ends drive the same blocks.
+2. **Shared setup + your own mark (PRs #70–#72).** `quiz_setup.py` builds the quiz for both. The engine got `own_mark`: when nobody could check a translation, you say whether you got the gist. The wording of results and the end summary is shared too. Your "seen sentences" file now follows `HSK_SEEN_FILE` in tests, like progress and the judge cache.
+3. **The web quiz page (PR #73).** Planned in plan mode; a planning agent's review found 3 bugs in the draft (Streamlit reruns the page on every click, so moving on must happen once; several "skipped" notes must all show; leaving at the gist question must save "not marked"). The brain (`web_quiz.py`) has no Streamlit in it, so it's tested like any Python; the page itself is tested with Streamlit's `AppTest`.
+4. **`hsk web` fixed (PR #74).** When you played it, Streamlit's first-run email question crashed it (no keyboard to answer). Now it starts headless and we open the browser ourselves. Plain names for the modes in the menu.
+5. **No human approval (ADR 0015, PR #75).** Your call: "we don't want a human approving sentences". The `data-auditor` now removes whatever it flags, or is unsure about, and you get a one-line summary.
+6. **Removed stays removed (PRs #76, #78).** `data/generated/sentences_removed.json` lists sentences an audit removed. `SentenceBank.remove` adds to it; the bank, live sentences and the batch writer all skip what's on it (the writer even tells Claude "do not write" these).
+7. **Stats page (PRs #79, #80).** `gather_stats` gives both `hsk stats` and the page the same numbers. The page: per band and skill, **New / Due now / Last 7 days** tiles, a bar chart of words per box, and your most-missed words. Your quiz settings stay put when you switch pages.
+8. **Milestone audit:** 47 sentences, 0 flagged (`docs/audits/2026-11-11-m6-sentences.md`).
+
+**Good to know:**
+- **One browser tab at a time,** and refreshing the page starts the quiz over (Streamlit keeps the quiz per tab). Progress already saved is kept.
+- **Ctrl-C** in the terminal stops `hsk web`.
+- **Click the answer box once per question:** Streamlit can't put the cursor there for you.
+- **After hand-testing, commit files by name** (never `git add -A`): playing writes live sentences into the committed bank.
+- 1320 tests (was 1148).
+
